@@ -1,0 +1,25 @@
+name: Publish Helm Charts
+on:
+  push:
+    branches:
+      - main
+jobs:
+  publish:
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Configure Helm
+      uses: helm/kind-action@v1.0.0
+    - name: Build Helm Chart
+      run: helm package charts/*/ --destination .deploy
+    - name: Login to Private Helm Repository
+      uses: helm/chart-releaser-action@v2.0.0
+      env:
+        CR_INDEX_URL: ${{ secrets.HELM_URL }}
+        CR_USERNAME: ${{ secrets.HELM_USERNAME }}
+        CR_PASSWORD: ${{ secrets.HELM_PASSWORD }}
+      with:
+        chart: .deploy/*.tgz
+        version: ${{ github.sha }}
