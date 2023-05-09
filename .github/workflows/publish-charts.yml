@@ -8,18 +8,20 @@ jobs:
     name: Publish Helm Chart
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2
-    - name: Configure Helm
-      uses: helm/kind-action@v1.0.0
-    - name: Build Helm Chart
-      run: helm package charts/*/ --destination .deploy
-    - name: Login to Private Helm Repository
-      uses: helm/chart-releaser-action@v2.0.0
-      env:
-        CR_INDEX_URL: ${{ secrets.HELM_URL }}
-        CR_USERNAME: ${{ secrets.HELM_USERNAME }}
-        CR_PASSWORD: ${{ secrets.HELM_PASSWORD }}
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
-        chart: .deploy/*.tgz
-        version: ${{ github.sha }}
+        fetch-depth: 0
+        
+    - name: Configure Git
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      
+    - name: Run chart-releaser
+      uses: helm/chart-releaser-action@v1.5.0
+      with:
+        charts_repo_url: ${{ secrets.HELM_URL }}
