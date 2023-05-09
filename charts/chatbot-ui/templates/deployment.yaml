@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: OPENAI_API_KEY
+            value: "{{ .Values.openai.apiKey }}"
+          - name: OPENAI_API_HOST
+            value: "{{ .Values.openai.host }}"
+          - name: OPENAI_API_TYPE
+            value: "{{ .Values.openai.type }}"
+          - name: OPENAI_API_VERSION
+            value: "{{ .Values.openai.version }}"
+          - name: OPENAI_ORGANIZATION
+            value: "{{ .Values.openai.organization }}"
+          - name: AZURE_DEPLOYMENT_ID
+            value: "{{ .Values.openai.azureDeploymentId }}"
+          - name: DEFAULT_MODEL
+            value: "{{ .Values.chatbotui.defaultModel }}"
+          - name: NEXT_PUBLIC_DEFAULT_SYSTEM_PROMPT
+            value: "{{ .Values.chatbotui.defaultSystemPrompt }}"
+          - name: NEXT_PUBLIC_DEFAULT_TEMPERATURE
+            value: "{{ .Values.chatbotui.defaultTemperature }}"
+          - name: GOOGLE_API_KEY
+            value: "{{ .Values.google.apiKey }}"
+          - name: GOOGLE_CSE_ID
+            value: "{{ .Values.google.cseId }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
