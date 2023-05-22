@@ -3,6 +3,16 @@ entries:
   chatbotui:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2023-05-22T12:11:44.648198868Z"
+    description: A Helm chart for Kubernetes
+    digest: 9b231e72ab9b89f7c9be66912a9cfa468c42d1121ed9092d85fedc0867a8c377
+    name: chatbotui
+    type: application
+    urls:
+    - https://github.com/monostream/charts/releases/download/chatbotui-0.1.1/chatbotui-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2023-05-22T11:54:10.541645912Z"
     description: A Helm chart for Kubernetes
     digest: 7313158373d4e96c6df566e02747a93191aeff3de2460aeae8908aa7d50af30d
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/monostream/charts/releases/download/chatbotui-0.1.0/chatbotui-0.1.0.tgz
     version: 0.1.0
-generated: "2023-05-22T11:54:10.541653112Z"
+generated: "2023-05-22T12:11:44.648207269Z"
