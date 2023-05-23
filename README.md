@@ -1,4 +1,4 @@
-# Helm Charts packaged by monostream
+# Helm Charts packaged for App-Store by monostream
 
 ## Usage
 
