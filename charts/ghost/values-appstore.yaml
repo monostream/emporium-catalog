@@ -1,14 +1,18 @@
 ghostUsername: {{ .AppStore.UserSupplied.Username }}
+# At least 10 characters
 ghostPassword: {{ .AppStore.UserSupplied.Password }}
 ghostEmail: {{ .AppStore.UserSupplied.UserEmail }}
 ghostBlogTitle: {{ .AppStore.UserSupplied.BlogTitle }}
 
-ghostEnableHttps: true
-
 ghostHost: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+
+service:
+  type: ClusterIP
 
 ingress:
   enabled: true
+
+  pathType: prefix
 
   annotations:
     monostream.com/glass: "true"

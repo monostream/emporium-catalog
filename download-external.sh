@@ -11,7 +11,6 @@ charts=("ghost^19.3.6")
 
 for chart in "${charts[@]}"
 do
-  # parts=$(echo "$chart" | tr '^' '\n')
   IFS="^" read -ra parts <<< "$chart"
   name="${parts[0]}"
   version="${parts[1]}"
