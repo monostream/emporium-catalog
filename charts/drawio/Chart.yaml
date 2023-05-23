@@ -1,0 +1,25 @@
+apiVersion: v2
+
+name: drawio
+description: draw.io, this project, is a configurable diagramming/whiteboarding visualization application. draw.io is jointly owned and developed by JGraph Ltd and draw.io AG.
+
+type: application
+version: 0.1.0
+appVersion: "21.3.3"
+
+home: "https://www.drawio.com/"
+icon: ""
+sources:
+  - https://github.com/jgraph/drawio
+  - https://github.com/jgraph/docker-drawio
+maintainers:
+  - name: JGraph Ltd and draw.io AG
+    url: https://github.com/jgraph/drawio
+keywords:
+  - ChatGPT
+  - AI
+  - UI
+
+annotations:
+  category: utilities
+  licenses: Apache-2.0 license

@@ -1,0 +1,25 @@
+
+drawio:
+  publicDns: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+  organisationUnit: unit
+  organisation: org
+  city: city
+  state: state
+  countryCode: country
+
+ingress:
+  enabled: true
+
+  annotations:
+    monostream.com/glass: "true"
+    kubernetes.io/tls-acme: "true"
+
+  hosts:
+    - host: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .AppStore.Name }}-tls
+      hosts:
+        - {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
