@@ -55,6 +55,33 @@ entries:
     urls:
     - https://github.com/monostream/charts/releases/download/chatbotui-0.1.0/chatbotui-0.1.0.tgz
     version: 0.1.0
+  drawio:
+  - annotations:
+      category: utilities
+      licenses: Apache-2.0 license
+    apiVersion: v2
+    appVersion: 21.3.3
+    created: "2023-05-23T20:53:47.044234875Z"
+    description: draw.io, this project, is a configurable diagramming/whiteboarding
+      visualization application. draw.io is jointly owned and developed by JGraph
+      Ltd and draw.io AG.
+    digest: d007aaf4ab7b09c90617fcea4dabcd31e8825dc2a5746e56c84a80ab6f3bb5d8
+    home: https://www.drawio.com/
+    keywords:
+    - ChatGPT
+    - AI
+    - UI
+    maintainers:
+    - name: JGraph Ltd and draw.io AG
+      url: https://github.com/jgraph/drawio
+    name: drawio
+    sources:
+    - https://github.com/jgraph/drawio
+    - https://github.com/jgraph/docker-drawio
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/drawio-0.1.0/drawio-0.1.0.tgz
+    version: 0.1.0
   ghost:
   - annotations:
       category: CMS
@@ -138,4 +165,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/ghost-19.3.6/ghost-19.3.6.tgz
     version: 19.3.6
-generated: "2023-05-23T15:50:30.307336521Z"
+generated: "2023-05-23T20:53:47.044273075Z"
