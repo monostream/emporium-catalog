@@ -23,4 +23,6 @@ do
   echo "extracting $name to charts/$name"
 
   find charts/$name -name "$name*" -type f -print0 | xargs -0 -I {} tar -xzf {} -C charts
+
+  find charts/$name -name "$name*" -type f -print0 | xargs -0 -I {} rm {}
 done
