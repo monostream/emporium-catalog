@@ -1,6 +1,6 @@
 TODO:
 - write readme
-
+- livenessProbe & readinessProbes
 - add more env vars and plantuml server
 
 https://github.com/jgraph/docker-drawio/blob/dev/self-contained/docker-compose.yml
