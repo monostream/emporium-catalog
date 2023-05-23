@@ -3,6 +3,7 @@ ghostUsername: {{ .AppStore.UserSupplied.Username }}
 ghostPassword: {{ .AppStore.UserSupplied.Password }}
 ghostEmail: {{ .AppStore.UserSupplied.UserEmail }}
 ghostBlogTitle: {{ .AppStore.UserSupplied.BlogTitle }}
+ghostEnableHttps: true
 
 ghostHost: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
 
