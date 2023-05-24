@@ -4,7 +4,7 @@ name: drawio
 description: draw.io, this project, is a configurable diagramming/whiteboarding visualization application. draw.io is jointly owned and developed by JGraph Ltd and draw.io AG.
 
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "21.3.3"
 
 home: "https://www.drawio.com/"
