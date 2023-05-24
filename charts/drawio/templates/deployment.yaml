@@ -46,6 +46,104 @@ spec:
               value: "{{ .Values.drawio.state }}"
             - name: COUNTRY_CODE
               value: "{{ .Values.drawio.countryCode }}"
+            - name: DRAWIO_SELF_CONTAINED
+              value: "1"
+            - name: PLANTUML_URL
+              value: "http://plantuml-server:8080/"
+            - name: EXPORT_URL
+              value: "http://image-export:8000/"
+            - name: DRAWIO_BASE_URL
+              value: "{{ .Values.drawio.baseUrl }}"
+            - name: DRAWIO_CSP_HEADER
+              value: "{{ .Values.drawio.cspHeader }}"
+            - name: DRAWIO_VIEWER_URL
+              value: "{{ .Values.drawio.viewerUrl }}"
+            - name: DRAWIO_LIGHTBOX_URL
+              value: "{{ .Values.drawio.lightboxUrl }}"
+            - name: DRAWIO_CONFIG
+              value: "{{ .Values.drawio.config }}"
+            - name: DRAWIO_GOOGLE_CLIENT_ID
+              value: "{{ .Values.drawio.googleClientId }}"
+            - name: DRAWIO_GOOGLE_APP_ID
+              value: "{{ .Values.drawio.googleAppId }}"
+            {{- if .Values.drawio.googleClientSecret }}
+            - name: DRAWIO_GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.googleClientSecret }}
+                  key: key
+            {{- end }}
+            - name: DRAWIO_GOOGLE_VIEWER_CLIENT_ID
+              value: "{{ .Values.drawio.googleViewerClientId }}"
+            - name: DRAWIO_GOOGLE_VIEWER_APP_ID
+              value: "{{ .Values.drawio.googleViewerAppId }}"
+            {{- if .Values.drawio.googleViewerClientSecret }}
+            - name: DRAWIO_GOOGLE_VIEWER_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.googleViewerClientSecret }}
+                  key: key
+            {{- end }}
+            - name: DRAWIO_MSGRAPH_CLIENT_ID
+              value: "{{ .Values.drawio.msGraphClientId }}"
+            {{- if .Values.drawio.msGraphClientSecret }}
+            - name: DRAWIO_MSGRAPH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.msGraphClientSecret }}
+                  key: key
+            {{- end }}
+            - name: DRAWIO_MSGRAPH_TENANT_ID
+              value: "{{ .Values.drawio.msGraphTenantId }}"
+            - name: DRAWIO_GITLAB_ID
+              value: "{{ .Values.drawio.gitlabId }}"
+            {{- if .Values.drawio.gitlabSecret }}
+            - name: DRAWIO_GITLAB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.gitlabSecret }}
+                  key: key
+            {{- end }}
+            - name: DRAWIO_GITLAB_URL
+              value: "{{ .Values.drawio.gitlabUrl }}"
+            {{- if .Values.drawio.cloudConvertApiKey }}
+            - name: DRAWIO_CLOUD_CONVERT_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.cloudConvertApiKey }}
+                  key: key
+            {{- end }}
+            - name: DRAWIO_CACHE_DOMAIN
+              value: "{{ .Values.drawio.cacheDomain }}"
+            - name: DRAWIO_MEMCACHED_ENDPOINT
+              value: "{{ .Values.drawio.memcachedEndpoint }}"
+            - name: DRAWIO_PUSHER_MODE
+              value: "2"
+            - name: DRAWIO_IOT_ENDPOINT
+              value: "{{ .Values.drawio.iotEndpoint }}"
+            {{- if .Values.drawio.iotCertPem }}
+            - name: DRAWIO_IOT_CERT_PEM
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.iotCertPem }}
+                  key: key
+            {{- end }}
+            {{- if .Values.drawio.iotPrivateKey }}
+            - name: DRAWIO_IOT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.iotPrivateKey }}
+                  key: key
+            {{- end }}
+            {{- if .Values.drawio.iotRootCa }}
+            - name: DRAWIO_IOT_ROOT_CA
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.drawio.iotRootCa }}
+                  key: key
+            {{- end }}
+            - name: DRAWIO_MXPUSHER_ENDPOINT
+              value: "{{ .Values.drawio.mxPusherEndpoint }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

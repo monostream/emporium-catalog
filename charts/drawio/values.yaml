@@ -16,12 +16,36 @@ fullnameOverride: ""
 
 drawio:
   publicDns: domain.com
-  organisationUnit: unit
-  organisation: org
-  city: city
-  state: state
-  countryCode: country
-
+  organisationUnit: 
+  organisation: 
+  city: 
+  state: 
+  countryCode: 
+  baseUrl: 
+  cspHeader: 
+  viewerUrl: 
+  lightboxUrl: 
+  config: 
+  googleClientId: 
+  googleAppId: 
+  googleClientSecret: 
+  googleViewerClientId: 
+  googleViewerAppId: 
+  googleViewerClientSecret: 
+  msGraphClientId: 
+  msGraphClientSecret: 
+  msGraphTenantId: 
+  gitlabId: 
+  gitlabSecret: 
+  gitlabUrl: 
+  cloudConvertApiKey: 
+  cacheDomain: 
+  memcachedEndpoint: 
+  iotEndpoint: 
+  iotCertPem: 
+  iotPrivateKey: 
+  iotRootCa: 
+  mxPusherEndpoint: 
 
 serviceAccount:
   # Specifies whether a service account should be created
