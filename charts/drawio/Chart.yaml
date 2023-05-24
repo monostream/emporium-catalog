@@ -8,7 +8,7 @@ version: 0.1.0
 appVersion: "21.3.3"
 
 home: "https://www.drawio.com/"
-icon: ""
+icon: "https://www.drawio.com/favicon.ico"
 sources:
   - https://github.com/jgraph/drawio
   - https://github.com/jgraph/docker-drawio
