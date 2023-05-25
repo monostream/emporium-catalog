@@ -485,5 +485,5 @@ redis:
     enabled: false
 
 smtp:
-  username:
-  password:
+  username: ""
+  password: ""
