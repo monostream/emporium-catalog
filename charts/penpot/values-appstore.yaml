@@ -1,0 +1,79 @@
+global:
+  postgresqlEnabled: true
+  redisEnabled: true
+
+frontend:
+  ingress:
+    enabled: true
+
+    annotations:
+      monostream.com/glass: "true"
+      kubernetes.io/tls-acme: "true"
+
+    hosts:
+      - host: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+
+    tls:
+      - secretName: {{ .AppStore.Name }}-tls
+        hosts:
+          - {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+
+persistence:
+  enabled: true
+  size: 50Gi
+
+config:
+  publicURI: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+  flags: "enable-registration enable-login disable-demo-users disable-demo-warning"
+  apiSecretKey: {{ .AppStore.UserSupplied.APISecretKey }}
+
+  postgresql:
+    host: {{ .AppStore.Name }}-postgresql
+    port: 5432
+    database: penpot
+    existingSecret: "penpot-secret"
+    secretKeys:
+      usernameKey: "postgresql-username"
+      passwordKey: "postgresql-password"
+
+  redis:
+    host: {{ .AppStore.Name }}-redis-headless
+    port: 6379
+    database: "0"
+
+  smtp:
+    enabled: true
+    defaultFrom: {{ .AppStore.UserSupplied.SMTPDefaultFrom }}
+    defaultReplyTo: {{ .AppStore.UserSupplied.SMTPDefaultReplyTo }}
+    host: {{ .AppStore.UserSupplied.SMTPHost }}
+    port: {{ .AppStore.UserSupplied.SMTPPort }}
+    tls: true
+    existingSecret: "penpot-secret"
+    secretKeys:
+      usernameKey: "smtp-username"
+      passwordKey: "smtp-password"
+
+smtp:
+  username: {{ .AppStore.UserSupplied.SMTPUsername }}
+  password: {{ .AppStore.UserSupplied.SMTPPassword }}
+
+postgresql:
+  auth:
+    username: admin
+    password: {{ .AppStore.UserSupplied.PostgresPassword }}
+    database: penpot
+
+  # providers:
+    # oidc:
+    #   enabled: false
+    #   baseURI: ""
+    #   clientID: ""
+    #   clientSecret: ""
+    #   authURI: ""
+    #   tokenURI: ""
+    #   userURI: ""
+    #   roles: "role1 role2"
+    #   rolesAttribute: ""
+    #   scopes: "scope1 scope2"
+    #   nameAttribute: ""
+    #   emailAttribute: ""
