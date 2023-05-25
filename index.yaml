@@ -61,6 +61,33 @@ entries:
       licenses: Apache-2.0 license
     apiVersion: v2
     appVersion: 21.3.3
+    created: "2023-05-25T08:17:19.169645749Z"
+    description: draw.io, this project, is a configurable diagramming/whiteboarding
+      visualization application. draw.io is jointly owned and developed by JGraph
+      Ltd and draw.io AG.
+    digest: fd2d14df53411fc9dc7f69666f0eb6fdd034de6997d0dc55ff4bed44dff923f7
+    home: https://www.drawio.com/
+    icon: https://www.drawio.com/favicon.ico
+    keywords:
+    - ChatGPT
+    - AI
+    - UI
+    maintainers:
+    - name: JGraph Ltd and draw.io AG
+      url: https://github.com/jgraph/drawio
+    name: drawio
+    sources:
+    - https://github.com/jgraph/drawio
+    - https://github.com/jgraph/docker-drawio
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/drawio-0.1.2/drawio-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      category: utilities
+      licenses: Apache-2.0 license
+    apiVersion: v2
+    appVersion: 21.3.3
     created: "2023-05-24T11:57:48.375726724Z"
     description: draw.io, this project, is a configurable diagramming/whiteboarding
       visualization application. draw.io is jointly owned and developed by JGraph
@@ -192,4 +219,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/ghost-19.3.6/ghost-19.3.6.tgz
     version: 19.3.6
-generated: "2023-05-24T11:57:48.375749533Z"
+generated: "2023-05-25T08:17:19.169665349Z"
