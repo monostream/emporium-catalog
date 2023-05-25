@@ -225,6 +225,38 @@ entries:
       licenses: MPL-2.0 license
     apiVersion: v2
     appVersion: 1.16.0-beta
+    created: "2023-05-25T15:07:04.022250227Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design & prototyping platform
+    digest: 7469f8290ef69c0653fb617b3a8a936565fadd94728b202d406464d30e51ae3c
+    home: https://github.com/codechem/helm/tree/main/charts/penpot
+    icon: https://avatars.githubusercontent.com/u/30179644?s=200&v=4
+    keywords:
+    - design
+    - UI
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.12/penpot-1.0.12.tgz
+    version: 1.0.12
+  - annotations:
+      category: design
+      licenses: MPL-2.0 license
+    apiVersion: v2
+    appVersion: 1.16.0-beta
     created: "2023-05-25T14:48:41.370253884Z"
     dependencies:
     - condition: global.postgresqlEnabled
@@ -282,4 +314,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/penpot-1.0.10/penpot-1.0.10.tgz
     version: 1.0.10
-generated: "2023-05-25T14:48:41.370275584Z"
+generated: "2023-05-25T15:07:04.022274628Z"
