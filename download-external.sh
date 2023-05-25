@@ -6,18 +6,28 @@ set -o pipefail
 set -o noclobber
 set -o noglob
 
+# add repos
+helm repo add codechem https://charts.codechem.com
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+helm repo update
+
 # external charts to be downloaded
-charts=("ghost^19.3.6")
+charts=(
+  "bitnami/ghost@19.3.6"
+  "codechem/penpot@1.0.10")
 
 for chart in "${charts[@]}"
 do
-  IFS="^" read -ra parts <<< "$chart"
-  name="${parts[0]}"
-  version="${parts[1]}"
+  IFS="@" read -ra nameAndVersion <<< "$chart"
+  IFS="/" read -ra repoAndName <<< "${nameAndVersion[0]}"
+  repo="${repoAndName[0]}"
+  name="${repoAndName[1]}"
+  version="${nameAndVersion[1]}"
 
   echo "downloading $name in version ^$version"
 
-  helm pull bitnami/$name --destination charts/$name --version ^$version
+  helm pull $repo/$name --destination charts/$name --version $version
 
   echo "extracting $name to charts/$name"
 
