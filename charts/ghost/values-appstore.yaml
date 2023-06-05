@@ -1,23 +1,42 @@
-ghostUsername: {{ .AppStore.UserSupplied.Username }}
-# At least 10 characters
-ghostPassword: {{ .AppStore.UserSupplied.Password }}
-ghostEmail: {{ .AppStore.UserSupplied.UserEmail }}
-ghostBlogTitle: {{ .AppStore.UserSupplied.BlogTitle }}
-ghostEnableHttps: true
+## @userSupplied ghost.ghostUsername
+## @label Admin Username
+## @type string
+## @description Username of the admin user
 
-ghostHost: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+## @userSupplied ghost.ghostPassword
+## @label Admin Password
+## @type string
+## @description Must be at least 10 characters long
 
-service:
-  type: ClusterIP
+## @userSupplied ghost.ghostEmail
+## @label Admin Email
+## @type string
+## @description Email of the admin user, this is used to sign in.
 
-ingress:
-  enabled: true
+## @userSupplied ghost.ghostBlogTitle
+## @label Blog Title
+## @type string
+## @description The title of your Blog. (You can change this later)
+ghost:
+  ghostUsername: {{ .AppStore.UserSupplied.Username }}
+  ghostPassword: {{ .AppStore.UserSupplied.Password }}
+  ghostEmail: {{ .AppStore.UserSupplied.UserEmail }}
+  ghostBlogTitle: {{ .AppStore.UserSupplied.BlogTitle }}
+  ghostEnableHttps: true
 
-  pathType: prefix
+  ghostHost: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
 
-  annotations:
-    monostream.com/glass: "true"
-    kubernetes.io/tls-acme: "true"
+  service:
+    type: ClusterIP
 
-  hostname: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
-  tls: true
+  ingress:
+    enabled: true
+
+    pathType: prefix
+
+    annotations:
+      monostream.com/glass: "true"
+      kubernetes.io/tls-acme: "true"
+
+    hostname: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+    tls: true
