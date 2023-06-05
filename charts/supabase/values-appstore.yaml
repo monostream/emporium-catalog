@@ -1,0 +1,13 @@
+supabase:
+  studio:
+    ingress:
+      enabled: true
+
+      pathType: Prefix
+
+      annotations:
+        monostream.com/glass: "true"
+        kubernetes.io/tls-acme: "true"
+
+      hostname: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+      tls: true
