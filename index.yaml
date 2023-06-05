@@ -292,4 +292,35 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/penpot-1.0.10/penpot-1.0.10.tgz
     version: 1.0.10
-generated: "2023-06-05T09:48:22.78394373Z"
+  supabase:
+  - annotations:
+      category: Backend-as-Service (BaaS)
+      licenses: Apache-2.0 license
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-05T13:55:26.605661737Z"
+    dependencies:
+    - name: supabase
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~0.3.6
+    description: An open source Firebase alternative for building secure and performant
+      Postgres backends with minimal configuration.
+    digest: f9a948dfc1febc8c33a1fbc9112d8136790167b0f611333de5c91f3b10432894
+    home: https://supabase.com/
+    icon: https://avatars.githubusercontent.com/u/54469796?s=96
+    keywords:
+    - UI
+    - BaaS
+    - DB
+    - Auth
+    maintainers:
+    - name: Supabase
+      url: https://github.com/supabase
+    name: supabase
+    sources:
+    - https://github.com/supabase/supabase
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-06-05T13:55:26.607399125Z"
