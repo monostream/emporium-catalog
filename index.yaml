@@ -219,6 +219,36 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/ghost-19.3.6/ghost-19.3.6.tgz
     version: 19.3.6
+  - annotations:
+      category: CMS
+      licenses: Apache-2.0 license
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-05T09:10:44.023276308Z"
+    dependencies:
+    - name: ghost
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~19.3.9
+    description: Ghost is an open source publishing platform designed to create blogs,
+      magazines, and news sites. It includes a simple markdown editor with preview,
+      theming, and SEO built-in to simplify editing.
+    digest: 24a4d6471e9eca9019c8912a146d1a4a97c796d6ce9d6be854f324ef9574e898
+    home: https://bitnami.com
+    icon: https://bitnami.com/assets/stacks/ghost/img/ghost-stack-220x234.png
+    keywords:
+    - ghost
+    - blog
+    - web
+    - cms
+    maintainers:
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: ghost
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/ghost
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/ghost-1.0.0/ghost-1.0.0.tgz
+    version: 1.0.0
   penpot:
   - annotations:
       category: design
@@ -314,4 +344,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/penpot-1.0.10/penpot-1.0.10.tgz
     version: 1.0.10
-generated: "2023-05-25T15:07:04.022274628Z"
+generated: "2023-06-05T09:10:44.02333021Z"
