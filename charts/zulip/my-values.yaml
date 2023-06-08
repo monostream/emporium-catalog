@@ -2,8 +2,17 @@
 ingress:
   enabled: true
   annotations:
-    monostream.com/glass: "true"
+#    monostream.com/glass: "true"
     kubernetes.io/tls-acme: "true"
+    nginx.org/proxy-connect-timeout: 3600s
+    nginx.org/proxy-read-timeout: 3600s
+    nginx.org/proxy-send-timeout: 3600s
+    nginx.ingress.kubernetes.io/proxy-body-size: "8g"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Host              $http_host";
+      more_set_headers "X-Real-IP         $remote_addr";
+      more_set_headers "X-Forwarded-Proto $scheme";
+      more_set_headers "X-Forwarded-For   $proxy_add_x_forwarded_for";
   hosts:
     - host: zulip.bubu.hair
       paths:
@@ -12,17 +21,27 @@ ingress:
    - secretName: zulip-tls
      hosts:
        - zulip.bubu.hair
-rabbitmq:
-  fullname: rabbitmq
+
+## TODO: REMOVE
+livenessProbe:
+  enabled: false
+
+## TODO: REMOVE
+startupProbe:
+  enabled: false
 
 zulip:
+  password: "verysecret"
   environment:
-    DISABLE_HTTPS: true
+    # DISABLE_HTTPS: "TRUE"
     SSL_CERTIFICATE_GENERATION: self-signed
     SETTING_EXTERNAL_HOST: zulip.bubu.hair
     SECRETS_email_password: "123456789"
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
-    ZULIP_AUTH_BACKENDS: "zproject.backends.GenericOpenIdConnectBackend"
+    DEBUG: "FALSE"
+    SETTING_CSRF_TRUSTED_ORIGINS: "['https://zulip.bubu.hair']"
+  
+    # ZULIP_AUTH_BACKENDS: "zproject.backends.GenericOpenIdConnectBackend"
     # SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
     # SETTING_EMAIL_HOST_USER: "noreply@example.com"
     # SETTING_EMAIL_PORT: "587"
@@ -34,3 +53,22 @@ zulip:
     accessMode: ReadWriteOnce
     size: 10Gi
     # existingClaim: "" # Use an already existing PVC
+
+memcached:
+  memcachedPassword: set-secure-password
+
+rabbitmq:
+  auth:
+    password: set-secure-password
+    erlangCookie: set-secure-password
+
+redis:
+  auth:
+    password: set-secure-password
+
+postgresql:
+  auth:
+    # postgres admin user password
+    postgresqlPassword: set-secure-password
+    # postgres zulip user password
+    password: set-secure-password
