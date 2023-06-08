@@ -1,0 +1,34 @@
+
+ingress:
+  enabled: true
+  annotations:
+    monostream.com/glass: "true"
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: zulip.bubu.hair
+      paths:
+        - path: /
+  tls:
+   - secretName: zulip-tls
+     hosts:
+       - zulip.bubu.hair
+
+zulip:
+  environment:
+    DISABLE_HTTPS: true
+    SSL_CERTIFICATE_GENERATION: self-signed
+    SETTING_EXTERNAL_HOST: zulip.bubu.hair
+    SECRETS_email_password: "123456789"
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    ZULIP_AUTH_BACKENDS: "zproject.backends.GenericOpenIdConnectBackend"
+    # SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
+    # SETTING_EMAIL_HOST_USER: "noreply@example.com"
+    # SETTING_EMAIL_PORT: "587"
+    # SETTING_EMAIL_USE_SSL: "False"
+    # SETTING_EMAIL_USE_TLS: "True"
+    
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    # existingClaim: "" # Use an already existing PVC
