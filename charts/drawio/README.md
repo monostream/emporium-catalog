@@ -1,36 +1,7 @@
-TODO:
-- write readme
-- livenessProbe & readinessProbes
-- add more env vars and plantuml server
+Presenting Draw.io - your open-source solution for complex diagramming. This tool breathes life into your ideas with its intuitive interface, robust features, and diverse template library.
 
-https://github.com/jgraph/docker-drawio/blob/dev/self-contained/docker-compose.yml
+With Draw.io, you'll swiftly create flowcharts, network diagrams, org charts, and more. Unaffiliated with any corporation, Draw.io stands as a versatile option for open-source diagramming.
 
-      - DRAWIO_SELF_CONTAINED=1
-      - PLANTUML_URL=http://plantuml-server:8080/
-      - EXPORT_URL=http://image-export:8000/
-      - DRAWIO_BASE_URL=${DRAWIO_BASE_URL}
-      - DRAWIO_CSP_HEADER=${DRAWIO_CSP_HEADER}
-      - DRAWIO_VIEWER_URL=${DRAWIO_VIEWER_URL}
-      - DRAWIO_LIGHTBOX_URL=${DRAWIO_LIGHTBOX_URL}
-      - DRAWIO_CONFIG=${DRAWIO_CONFIG}
-      - DRAWIO_GOOGLE_CLIENT_ID=${DRAWIO_GOOGLE_CLIENT_ID}
-      - DRAWIO_GOOGLE_APP_ID=${DRAWIO_GOOGLE_APP_ID}
-      - DRAWIO_GOOGLE_CLIENT_SECRET=${DRAWIO_GOOGLE_CLIENT_SECRET}
-      - DRAWIO_GOOGLE_VIEWER_CLIENT_ID=${DRAWIO_GOOGLE_VIEWER_CLIENT_ID}
-      - DRAWIO_GOOGLE_VIEWER_APP_ID=${DRAWIO_GOOGLE_VIEWER_APP_ID}
-      - DRAWIO_GOOGLE_VIEWER_CLIENT_SECRET=${DRAWIO_GOOGLE_VIEWER_CLIENT_SECRET}
-      - DRAWIO_MSGRAPH_CLIENT_ID=${DRAWIO_MSGRAPH_CLIENT_ID}
-      - DRAWIO_MSGRAPH_CLIENT_SECRET=${DRAWIO_MSGRAPH_CLIENT_SECRET}
-      - DRAWIO_MSGRAPH_TENANT_ID=${DRAWIO_MSGRAPH_TENANT_ID}
-      - DRAWIO_GITLAB_ID=${DRAWIO_GITLAB_ID}
-      - DRAWIO_GITLAB_SECRET=${DRAWIO_GITLAB_SECRET}
-      - DRAWIO_GITLAB_URL=${DRAWIO_GITLAB_URL}
-      - DRAWIO_CLOUD_CONVERT_APIKEY=${DRAWIO_CLOUD_CONVERT_APIKEY}
-      - DRAWIO_CACHE_DOMAIN=${DRAWIO_CACHE_DOMAIN}
-      - DRAWIO_MEMCACHED_ENDPOINT=${DRAWIO_MEMCACHED_ENDPOINT}
-      - DRAWIO_PUSHER_MODE=2
-      - DRAWIO_IOT_ENDPOINT=${DRAWIO_IOT_ENDPOINT}
-      - DRAWIO_IOT_CERT_PEM=${DRAWIO_IOT_CERT_PEM}
-      - DRAWIO_IOT_PRIVATE_KEY=${DRAWIO_IOT_PRIVATE_KEY}
-      - DRAWIO_IOT_ROOT_CA=${DRAWIO_IOT_ROOT_CA}
-      - DRAWIO_MXPUSHER_ENDPOINT=${DRAWIO_MXPUSHER_ENDPOINT}
+No installation required, your creations are just a browser-click away. Save and access your work from various cloud services or your local storage for added convenience.
+
+Experience Draw.io - the embodiment of open-source diagramming made simple and effective.

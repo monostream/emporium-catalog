@@ -1,10 +1,10 @@
 apiVersion: v2
 
 name: supabase
-description: An open source Firebase alternative for building secure and performant Postgres backends with minimal configuration.
+description: Firebase alternative for building secure and performant Postgres backends with minimal configuration.
 
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: 1.0.0
 
 dependencies:
@@ -12,12 +12,12 @@ dependencies:
   version: ~0.3.6
   repository: oci://registry-1.docker.io/bitnamicharts
 
-home: "https://supabase.com/"
-icon: "https://avatars.githubusercontent.com/u/54469796?s=96"
+home: https://supabase.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
 sources:
   - https://github.com/supabase/supabase
 keywords:
-  - UI
+  - Postgres
   - BaaS
   - DB
   - Auth
@@ -27,5 +27,5 @@ maintainers:
 
 annotations:
   category: Backend-as-Service (BaaS)
-  licenses: Apache-2.0 license
+  licenses: Apache-2.0
 

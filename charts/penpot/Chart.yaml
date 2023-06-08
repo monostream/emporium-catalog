@@ -1,22 +1,22 @@
 apiVersion: v2
 
 name: penpot
-description: The Open-Source design & prototyping platform
+description: The Open-Source design and prototyping platform
 
 type: application
-version: 1.0.12
+version: 1.0.13
 appVersion: 1.16.0-beta
 
 home: https://github.com/codechem/helm/tree/main/charts/penpot
-icon: https://avatars.githubusercontent.com/u/30179644?s=200&v=4
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
 sources:
 - https://github.com/penpot/penpot
 maintainers:
 - name: codechem
   url: https://codechem.com
 keywords:
-- design
-- UI
+- Design
+- Prototype
 
 dependencies:
 - condition: global.postgresqlEnabled
@@ -29,6 +29,6 @@ dependencies:
   version: 17.x.x
 
 annotations:
-  category: design
-  licenses: MPL-2.0 license
+  category: Design
+  licenses: MPL-2.0
 
