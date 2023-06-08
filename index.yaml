@@ -3,6 +3,29 @@ entries:
   chatbotui:
   - annotations:
       category: AI
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-08T14:03:23.582773405Z"
+    description: An open source alternative ChatGPT UI.
+    digest: 98ae5c1fa17f418ba5e9de53791a2c5919312488905e0f69324b4361d6e251f6
+    home: https://www.chatbotui.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_icon_2.png
+    keywords:
+    - ChatGPT
+    - AI
+    maintainers:
+    - name: Mckay Wrigley
+      url: https://github.com/mckaywrigley
+    name: chatbotui
+    sources:
+    - https://github.com/mckaywrigley/chatbot-ui
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/chatbotui-0.1.4/chatbotui-0.1.4.tgz
+    version: 0.1.4
+  - annotations:
+      category: AI
       licenses: MIT License
     apiVersion: v2
     appVersion: 0.1.0
@@ -56,6 +79,30 @@ entries:
     - https://github.com/monostream/charts/releases/download/chatbotui-0.1.0/chatbotui-0.1.0.tgz
     version: 0.1.0
   drawio:
+  - annotations:
+      category: Utilities
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 21.3.3
+    created: "2023-06-08T14:03:23.769264584Z"
+    description: Online diagram software for making flowcharts, process diagrams,
+      org charts, UML, ER and network diagrams.
+    digest: 1f3a54493eb8b4c6538fc6f76d87718437bdc42f44c86bd584d48bbdc8b9ce71
+    home: https://www.drawio.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_icon_2.png
+    keywords:
+    - Diagrams
+    maintainers:
+    - name: JGraph Ltd and draw.io AG
+      url: https://github.com/jgraph/drawio
+    name: drawio
+    sources:
+    - https://github.com/jgraph/drawio
+    - https://github.com/jgraph/docker-drawio
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/drawio-0.1.3/drawio-0.1.3.tgz
+    version: 0.1.3
   - annotations:
       category: utilities
       licenses: Apache-2.0 license
@@ -139,6 +186,38 @@ entries:
   ghost:
   - annotations:
       category: CMS
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-08T14:03:24.004544472Z"
+    dependencies:
+    - name: ghost
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~19.3.9
+    description: Publishing platform designed to create SEO-optimized blogs, magazines,
+      websites and news sites.
+    digest: b6fb0fa5ae435070c8dad0e2d19f6b2a3b482b93d5373ea6567cf79b0817f23c
+    home: https://ghost.org/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.png
+    keywords:
+    - Blog
+    - Magazine
+    - Websites
+    - CMS
+    maintainers:
+    - name: Ghost Foundation © 2023
+      url: https://ghost.org/
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: ghost
+    sources:
+    - https://github.com/TryGhost/Ghost
+    - https://github.com/bitnami/charts/tree/main/bitnami/ghost
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/ghost-1.0.2/ghost-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      category: CMS
       licenses: Apache-2.0 license
     apiVersion: v2
     appVersion: 1.0.0
@@ -198,6 +277,38 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/ghost-1.0.0/ghost-1.0.0.tgz
     version: 1.0.0
   penpot:
+  - annotations:
+      category: Design
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
+    created: "2023-06-08T14:03:24.23342552Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: 63503e3e6b14e9f10893a89fe397d4bd654edb071e73d1e51a55d682cf6e6128
+    home: https://github.com/codechem/helm/tree/main/charts/penpot
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.13/penpot-1.0.13.tgz
+    version: 1.0.13
   - annotations:
       category: design
       licenses: MPL-2.0 license
@@ -295,6 +406,36 @@ entries:
   supabase:
   - annotations:
       category: Backend-as-Service (BaaS)
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-08T14:03:24.460026353Z"
+    dependencies:
+    - name: supabase
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~0.3.6
+    description: Firebase alternative for building secure and performant Postgres
+      backends with minimal configuration.
+    digest: 4644bd754c96974c61bce8fb2606fa58ce689edaff17466a98a05a3e327791a9
+    home: https://supabase.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
+    keywords:
+    - Postgres
+    - BaaS
+    - DB
+    - Auth
+    maintainers:
+    - name: Supabase
+      url: https://github.com/supabase
+    name: supabase
+    sources:
+    - https://github.com/supabase/supabase
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/supabase-1.0.1/supabase-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      category: Backend-as-Service (BaaS)
       licenses: Apache-2.0 license
     apiVersion: v2
     appVersion: 1.0.0
@@ -323,4 +464,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-05T13:55:26.607399125Z"
+generated: "2023-06-08T14:03:24.460085253Z"
