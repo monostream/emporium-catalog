@@ -12,6 +12,8 @@ ingress:
    - secretName: zulip-tls
      hosts:
        - zulip.bubu.hair
+rabbitmq:
+  fullname: rabbitmq
 
 zulip:
   environment:
