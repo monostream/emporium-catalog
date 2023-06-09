@@ -406,6 +406,40 @@ entries:
   supabase:
   - annotations:
       category: Backend-as-Service (BaaS)
+      gallery: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp,
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp,
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp,
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-09T11:05:32.204333708Z"
+    dependencies:
+    - name: supabase
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~0.3.6
+    description: Firebase alternative for building secure and performant Postgres
+      backends with minimal configuration.
+    digest: 67460e69c4a8892257bbb1a0e1ea1da08295c8d70513ff0306d44f04f9691f5c
+    home: https://supabase.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
+    keywords:
+    - Postgres
+    - BaaS
+    - DB
+    - Auth
+    maintainers:
+    - name: Supabase
+      url: https://github.com/supabase
+    name: supabase
+    sources:
+    - https://github.com/supabase/supabase
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/supabase-1.0.4/supabase-1.0.4.tgz
+    version: 1.0.4
+  - annotations:
+      category: Backend-as-Service (BaaS)
       gallery1: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
       gallery2: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
       gallery3: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp
@@ -529,4 +563,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-09T08:27:14.021681615Z"
+generated: "2023-06-09T11:05:32.20439121Z"
