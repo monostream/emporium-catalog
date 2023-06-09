@@ -406,6 +406,40 @@ entries:
   supabase:
   - annotations:
       category: Backend-as-Service (BaaS)
+      gallery1: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
+      gallery2: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
+      gallery3: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp
+      gallery4: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-09T08:27:14.021635314Z"
+    dependencies:
+    - name: supabase
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~0.3.6
+    description: Firebase alternative for building secure and performant Postgres
+      backends with minimal configuration.
+    digest: 47937c3eb4c589f5b71b06c048cb1603930b74e37861b8c9fe9226f7a0b0af6c
+    home: https://supabase.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
+    keywords:
+    - Postgres
+    - BaaS
+    - DB
+    - Auth
+    maintainers:
+    - name: Supabase
+      url: https://github.com/supabase
+    name: supabase
+    sources:
+    - https://github.com/supabase/supabase
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/supabase-1.0.3/supabase-1.0.3.tgz
+    version: 1.0.3
+  - annotations:
+      category: Backend-as-Service (BaaS)
       gallery: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webphttps://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webphttps://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webphttps://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
       licenses: Apache-2.0
     apiVersion: v2
@@ -495,4 +529,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-09T08:25:00.94514913Z"
+generated: "2023-06-09T08:27:14.021681615Z"
