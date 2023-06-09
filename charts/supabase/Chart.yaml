@@ -28,8 +28,4 @@ maintainers:
 annotations:
   category: Backend-as-Service (BaaS)
   licenses: Apache-2.0
-  gallery:
-    - https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
-    - https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
-    - https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp
-    - https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
+  gallery: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webphttps://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webphttps://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webphttps://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
