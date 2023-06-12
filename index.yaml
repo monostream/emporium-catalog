@@ -81,6 +81,33 @@ entries:
   drawio:
   - annotations:
       category: Utilities
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_2.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 21.3.3
+    created: "2023-06-12T08:35:30.278441255Z"
+    description: Online diagram software for making flowcharts, process diagrams,
+      org charts, UML, ER and network diagrams.
+    digest: ebcc3e716035f818811b12fcfd6ad10706b67664fd8582d393e0f9dc2c680f76
+    home: https://www.drawio.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_icon_2.png
+    keywords:
+    - Diagrams
+    maintainers:
+    - name: JGraph Ltd and draw.io AG
+      url: https://github.com/jgraph/drawio
+    name: drawio
+    sources:
+    - https://github.com/jgraph/drawio
+    - https://github.com/jgraph/docker-drawio
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/drawio-0.1.4/drawio-0.1.4.tgz
+    version: 0.1.4
+  - annotations:
+      category: Utilities
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 21.3.3
@@ -309,6 +336,42 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/ghost-1.0.0/ghost-1.0.0.tgz
     version: 1.0.0
   penpot:
+  - annotations:
+      category: Design
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
+    created: "2023-06-12T08:35:30.477977354Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: 12e14e7e131d8d325f042a42c6e6021c85d6696824c1bafa64d776a640119465
+    home: https://github.com/codechem/helm/tree/main/charts/penpot
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.14/penpot-1.0.14.tgz
+    version: 1.0.14
   - annotations:
       category: Design
       licenses: MPL-2.0
@@ -630,4 +693,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-12T07:42:08.452554203Z"
+generated: "2023-06-12T08:35:30.478043058Z"
