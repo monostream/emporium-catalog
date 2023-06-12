@@ -4,7 +4,7 @@ name: drawio
 description: Online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams.
 
 type: application
-version: 0.1.3
+version: 0.1.4
 appVersion: "21.3.3"
 
 home: https://www.drawio.com/
@@ -21,3 +21,6 @@ keywords:
 annotations:
   category: Utilities
   licenses: Apache-2.0
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_1.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_2.webp

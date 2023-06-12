@@ -4,31 +4,34 @@ name: penpot
 description: The Open-Source design and prototyping platform
 
 type: application
-version: 1.0.13
+version: 1.0.14
 appVersion: 1.16.0-beta
 
 home: https://github.com/codechem/helm/tree/main/charts/penpot
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
 sources:
-- https://github.com/penpot/penpot
+  - https://github.com/penpot/penpot
 maintainers:
-- name: codechem
-  url: https://codechem.com
+  - name: codechem
+    url: https://codechem.com
 keywords:
-- Design
-- Prototype
+  - Design
+  - Prototype
 
 dependencies:
-- condition: global.postgresqlEnabled
-  name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 12.x.x
-- condition: global.redisEnabled
-  name: redis
-  repository: https://charts.bitnami.com/bitnami
-  version: 17.x.x
+  - condition: global.postgresqlEnabled
+    name: postgresql
+    repository: https://charts.bitnami.com/bitnami
+    version: 12.x.x
+  - condition: global.redisEnabled
+    name: redis
+    repository: https://charts.bitnami.com/bitnami
+    version: 17.x.x
 
 annotations:
   category: Design
   licenses: MPL-2.0
-
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
