@@ -3,6 +3,31 @@ entries:
   chatbotui:
   - annotations:
       category: AI
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_gallery_1.jpg
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-12T08:57:15.47963253Z"
+    description: An open source alternative ChatGPT UI.
+    digest: fc5661367ff467a0868597ef4410121c7299ab89489c78e1101c588d2f651360
+    home: https://www.chatbotui.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_icon_2.png
+    keywords:
+    - ChatGPT
+    - AI
+    maintainers:
+    - name: Mckay Wrigley
+      url: https://github.com/mckaywrigley
+    name: chatbotui
+    sources:
+    - https://github.com/mckaywrigley/chatbot-ui
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/chatbotui-0.1.5/chatbotui-0.1.5.tgz
+    version: 0.1.5
+  - annotations:
+      category: AI
       licenses: MIT
     apiVersion: v2
     appVersion: 0.1.0
@@ -211,6 +236,41 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/drawio-0.1.0/drawio-0.1.0.tgz
     version: 0.1.0
   ghost:
+  - annotations:
+      category: CMS
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-12T08:57:15.761012603Z"
+    dependencies:
+    - name: ghost
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~19.3.9
+    description: Publishing platform designed to create SEO-optimized blogs, magazines,
+      websites and news sites.
+    digest: 31925b28c92720d5883eb53ce5dc90280f6f58cff2fcc14933ac8c2ea40cac25
+    home: https://ghost.org/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.png
+    keywords:
+    - Blog
+    - Magazine
+    - Websites
+    - CMS
+    maintainers:
+    - name: Ghost Foundation © 2023
+      url: https://ghost.org/
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: ghost
+    sources:
+    - https://github.com/TryGhost/Ghost
+    - https://github.com/bitnami/charts/tree/main/bitnami/ghost
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/ghost-1.0.4/ghost-1.0.4.tgz
+    version: 1.0.4
   - annotations:
       category: CMS
       licenses: Apache-2.0
@@ -693,4 +753,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-12T08:35:30.478043058Z"
+generated: "2023-06-12T08:57:15.761258721Z"
