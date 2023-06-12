@@ -112,6 +112,33 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 21.3.3
+    created: "2023-06-12T14:58:07.783905919Z"
+    description: Online diagram software for making flowcharts, process diagrams,
+      org charts, UML, ER and network diagrams.
+    digest: de54b261ad1f1462f5f0d95d4fcf65c1dc66d9918aab749c82d1035e34470ce5
+    home: https://www.drawio.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_icon_2.png
+    keywords:
+    - Diagrams
+    maintainers:
+    - name: JGraph Ltd and draw.io AG
+      url: https://github.com/jgraph/drawio
+    name: drawio
+    sources:
+    - https://github.com/jgraph/drawio
+    - https://github.com/jgraph/docker-drawio
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/drawio-0.1.5/drawio-0.1.5.tgz
+    version: 0.1.5
+  - annotations:
+      category: Utilities
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_2.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 21.3.3
     created: "2023-06-12T08:35:30.278441255Z"
     description: Online diagram software for making flowcharts, process diagrams,
       org charts, UML, ER and network diagrams.
@@ -753,4 +780,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-12T08:57:15.761258721Z"
+generated: "2023-06-12T14:58:07.784012491Z"
