@@ -37,8 +37,8 @@ zulip:
     SSL_CERTIFICATE_GENERATION: self-signed
     SETTING_EXTERNAL_HOST: zulip.bubu.hair
     SECRETS_email_password: "123456789"
-    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
-    DEBUG: "FALSE"
+    SETTING_ZULIP_ADMINISTRATOR: "admin@zulip.bubu.hair"
+    DEBUG: "TRUE"
     SETTING_CSRF_TRUSTED_ORIGINS: "['https://zulip.bubu.hair']"
   
     # ZULIP_AUTH_BACKENDS: "zproject.backends.GenericOpenIdConnectBackend"
