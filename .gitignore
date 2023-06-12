@@ -1,1 +1,4 @@
+go.work
+.vscode
 .DS_Store
+**/my-values.yaml
