@@ -3,29 +3,29 @@ apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
 
+version: 1.0.3
 appVersion: 1.0.0
-version: 1.0.2
 
 dependencies:
-- name: ghost
-  version: ~19.3.9
-  repository: oci://registry-1.docker.io/bitnamicharts
+  - name: ghost
+    version: ~19.3.9
+    repository: oci://registry-1.docker.io/bitnamicharts
 
 home: https://ghost.org/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.png
 sources:
-- https://github.com/TryGhost/Ghost
-- https://github.com/bitnami/charts/tree/main/bitnami/ghost
+  - https://github.com/TryGhost/Ghost
+  - https://github.com/bitnami/charts/tree/main/bitnami/ghost
 maintainers:
-- name: Ghost Foundation © 2023
-  url: https://ghost.org/
-- name: VMware, Inc.
-  url: https://github.com/bitnami/charts
+  - name: Ghost Foundation © 2023
+    url: https://ghost.org/
+  - name: VMware, Inc.
+    url: https://github.com/bitnami/charts
 keywords:
-- Blog
-- Magazine
-- Websites
-- CMS
+  - Blog
+  - Magazine
+  - Websites
+  - CMS
 
 annotations:
   category: CMS
