@@ -32,7 +32,7 @@ ghost:
   ingress:
     enabled: true
 
-    pathType: prefix
+    pathType: Prefix
 
     annotations:
       monostream.com/glass: "true"
