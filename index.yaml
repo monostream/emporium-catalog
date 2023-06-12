@@ -189,6 +189,38 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 1.0.0
+    created: "2023-06-12T07:42:08.230130531Z"
+    dependencies:
+    - name: ghost
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~19.3.9
+    description: Publishing platform designed to create SEO-optimized blogs, magazines,
+      websites and news sites.
+    digest: 75748548e4979a7a25abb9ab1404b916ae61b4ffbe4d8a62264c8c68c7a94339
+    home: https://ghost.org/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.png
+    keywords:
+    - Blog
+    - Magazine
+    - Websites
+    - CMS
+    maintainers:
+    - name: Ghost Foundation © 2023
+      url: https://ghost.org/
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: ghost
+    sources:
+    - https://github.com/TryGhost/Ghost
+    - https://github.com/bitnami/charts/tree/main/bitnami/ghost
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/ghost-1.0.3/ghost-1.0.3.tgz
+    version: 1.0.3
+  - annotations:
+      category: CMS
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
     created: "2023-06-08T14:03:24.004544472Z"
     dependencies:
     - name: ghost
@@ -406,6 +438,41 @@ entries:
   supabase:
   - annotations:
       category: Backend-as-Service (BaaS)
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-12T07:42:08.452508103Z"
+    dependencies:
+    - name: supabase
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~0.3.6
+    description: Firebase alternative for building secure and performant Postgres
+      backends with minimal configuration.
+    digest: 162c27c58d98f5b26871b44f31816276247fe26e9197fcfb76cda2bb81bb8ed2
+    home: https://supabase.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
+    keywords:
+    - Postgres
+    - BaaS
+    - DB
+    - Auth
+    maintainers:
+    - name: Supabase
+      url: https://github.com/supabase
+    name: supabase
+    sources:
+    - https://github.com/supabase/supabase
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/supabase-1.0.5/supabase-1.0.5.tgz
+    version: 1.0.5
+  - annotations:
+      category: Backend-as-Service (BaaS)
       gallery: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp,
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp,
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp,
@@ -563,4 +630,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/supabase-1.0.0/supabase-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-09T11:05:32.20439121Z"
+generated: "2023-06-12T07:42:08.452554203Z"
