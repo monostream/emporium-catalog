@@ -812,6 +812,26 @@ entries:
       licenses: MIT
     apiVersion: v2
     appVersion: 1.21.3
+    created: "2023-06-13T08:35:47.218232944Z"
+    description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
+    digest: 6750dd602a3679229eba486bd00f281b629b370458683c84b780dcca14a4b766
+    home: https://github.com/louislam/uptime-kuma
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptime-kuma/uptime-kuma_icon_2.png
+    keywords:
+    - Monitoring
+    - Performance
+    - DevOps
+    name: uptime-kuma
+    sources:
+    - https://github.com/louislam/uptime-kuma
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.3/uptime-kuma-0.0.3.tgz
+    version: 0.0.3
+  - annotations:
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 1.21.3
     created: "2023-06-13T08:20:27.85999781Z"
     description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
     digest: 5a12073c6f88d0dde286aaea4c19a5d6737ed3cd70c451802a0f8f4176d93943
@@ -828,4 +848,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.2/uptime-kuma-0.0.2.tgz
     version: 0.0.2
-generated: "2023-06-13T08:20:27.860056711Z"
+generated: "2023-06-13T08:35:47.218440646Z"
