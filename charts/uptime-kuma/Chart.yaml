@@ -4,8 +4,8 @@ name: uptime-kuma
 description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
 
 type: application
-version: 1.21.3
-appVersion: "0.0.1"
+version: "0.0.2"
+appVersion: "1.21.3"
 
 home: https://github.com/louislam/uptime-kuma
 icon: https://github.com/louislam/uptime-kuma/blob/master/public/icon.svg
