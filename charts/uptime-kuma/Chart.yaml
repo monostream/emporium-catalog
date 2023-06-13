@@ -8,7 +8,7 @@ version: "0.0.2"
 appVersion: "1.21.3"
 
 home: https://github.com/louislam/uptime-kuma
-icon: https://github.com/louislam/uptime-kuma/blob/master/public/icon.svg
+icon: https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.svg
 sources:
   - https://github.com/louislam/uptime-kuma
 keywords:
