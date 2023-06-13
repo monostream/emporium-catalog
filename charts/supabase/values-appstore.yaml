@@ -1,4 +1,11 @@
 supabase:
+  publicUrl: api.{{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+
+  auth:
+    image:
+      repository: supabase/gotrue
+      tag: v2.70.0
+
   studio:
     ingress:
       enabled: true
@@ -11,3 +18,13 @@ supabase:
 
       hostname: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
       tls: true
+
+  kong:
+    ingress:
+      enabled: true
+      hostname: api.{{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+      tls: true
+
+      annotations:
+        monostream.com/glass: "true"
+        kubernetes.io/tls-acme: "true"
