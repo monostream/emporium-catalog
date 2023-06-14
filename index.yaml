@@ -449,6 +449,32 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/ghost-1.0.0/ghost-1.0.0.tgz
     version: 1.0.0
+  gitea:
+  - annotations:
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-06-14T19:01:01.980151647Z"
+    dependencies:
+    - name: gitea
+      repository: https://dl.gitea.io/charts/
+      version: 8.3.0
+    description: Gitea is a community managed lightweight code hosting solution written
+      in Go. It is published under the MIT license.
+    digest: 067c3729e7991df565ec4da2a86c6269da1bd3e19dbef5a3a078173dbcf1287a
+    home: https://gitea.com/
+    icon: https://gitea.com/assets/img/logo.svg
+    keywords:
+    - Code Hosting
+    - Git
+    - DevOps
+    name: gitea
+    sources:
+    - https://gitea.com/gitea/helm-chart
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/gitea-0.0.1/gitea-0.0.1.tgz
+    version: 0.0.1
   penpot:
   - annotations:
       category: Design
@@ -883,4 +909,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.2/uptime-kuma-0.0.2.tgz
     version: 0.0.2
-generated: "2023-06-13T08:37:54.827824894Z"
+generated: "2023-06-14T19:01:01.980227548Z"
