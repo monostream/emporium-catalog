@@ -1,0 +1,38 @@
+gitea:
+  admin:
+    existingSecret:
+    username: admin
+    password: "dsH638dpp)28k"
+    email: "admin@localhost"
+
+  config:
+    actions:
+      ENABELD: 'true'
+    api:
+      ENABLE_SWAGGER: 'false'
+    service:
+      DISABLE_REGISTRATION: 'false'
+      SHOW_REGISTRATION_BUTTON: 'false'
+    # openid:
+    #   ENABLE_OPENID_SIGNIN: 'false'
+    #   ENABLE_OPENID_SIGNUP: 'false'
+    #   ENABLE_AUTO_REGISTRATION: 'true'
+
+  ingress:
+    enabled: true
+    annotations:
+      monostream.com/glass: "true"
+      kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: {{ .AppStore.Name }}-tls
+        hosts:
+          - {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+
+  persistence:
+    enabled: true
+    size: 30Gi

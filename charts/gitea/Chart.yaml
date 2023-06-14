@@ -1,0 +1,25 @@
+apiVersion: v2
+
+name: gitea
+description: Gitea is a community managed lightweight code hosting solution written in Go. It is published under the MIT license.
+
+type: application
+version: 0.0.1
+appVersion: "1.16.0"
+
+dependencies:
+  - name: gitea
+    version: 8.3.0
+    repository: https://dl.gitea.io/charts/
+
+home: https://gitea.com/
+icon: https://gitea.com/assets/img/logo.svg
+sources:
+  - https://gitea.com/gitea/helm-chart
+keywords:
+  - Code Hosting
+  - Git
+  - DevOps
+
+annotations:
+  licenses: MIT
