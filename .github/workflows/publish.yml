@@ -29,6 +29,7 @@ jobs:
       - name: Add helm repos
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add gitea-charts https://dl.gitea.io/charts
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
