@@ -35,7 +35,7 @@ ghost:
     pathType: Prefix
 
     annotations:
-      monostream.com/glass: "true"
+      glass.monostream.com/enabled: "true"
       kubernetes.io/tls-acme: "true"
 
     hostname: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
