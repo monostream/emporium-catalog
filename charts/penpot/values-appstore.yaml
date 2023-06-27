@@ -1,3 +1,42 @@
+## @userSupplied APISecretKey
+## @label API Secret Key
+## @type string
+## @description API Secret Key
+
+## @userSupplied SMTPDefaultFrom
+## @label SMTP Default From
+## @type string
+## @description SMTP Default From
+
+## @userSupplied SMTPDefaultReplyTo
+## @label SMTP Default Reply To
+## @type string
+## @description SMTP Default Reply To
+
+## @userSupplied SMTPHost
+## @label SMTP Host
+## @type string
+## @description SMTP Host
+
+## @userSupplied SMTPPort
+## @label SMTP Port
+## @type string
+## @description SMTP Port
+
+## @userSupplied SMTPUsername
+## @label SMTP Username
+## @type string
+## @description SMTP Username
+
+## @userSupplied SMTPPassword
+## @label SMTP Password
+## @type string
+## @description SMTP Password
+
+## @userSupplied PostgresPassword
+## @label Postgres Password
+## @type string
+## @description Postgres Password
 global:
   postgresqlEnabled: true
   redisEnabled: true
