@@ -1,42 +1,42 @@
 ## @userSupplied APISecretKey
 ## @label API Secret Key
 ## @type string
-## @description API Secret Key
+## @description Generate with `openssl rand -hex 16` for example
 
 ## @userSupplied SMTPDefaultFrom
 ## @label SMTP Default From
 ## @type string
-## @description SMTP Default From
+## @description The SMTP default email to send from
 
 ## @userSupplied SMTPDefaultReplyTo
 ## @label SMTP Default Reply To
 ## @type string
-## @description SMTP Default Reply To
+## @description The SMTP default email to reply to
 
 ## @userSupplied SMTPHost
 ## @label SMTP Host
 ## @type string
-## @description SMTP Host
+## @description The SMTP host to use
 
 ## @userSupplied SMTPPort
 ## @label SMTP Port
 ## @type string
-## @description SMTP Port
+## @description The SMTP host port to use
 
 ## @userSupplied SMTPUsername
 ## @label SMTP Username
 ## @type string
-## @description SMTP Username
+## @description The SMTP username to use
 
 ## @userSupplied SMTPPassword
 ## @label SMTP Password
 ## @type string
-## @description SMTP Password
+## @description The SMTP password to use
 
 ## @userSupplied PostgresPassword
 ## @label Postgres Password
 ## @type string
-## @description Postgres Password
+## @description The database password to use
 global:
   postgresqlEnabled: true
   redisEnabled: true
