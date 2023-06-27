@@ -4,7 +4,7 @@ name: penpot
 description: The Open-Source design and prototyping platform
 
 type: application
-version: 1.0.17
+version: 1.0.18
 appVersion: 1.16.0-beta
 
 home: https://github.com/codechem/helm/tree/main/charts/penpot
