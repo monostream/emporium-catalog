@@ -767,6 +767,42 @@ entries:
       licenses: MPL-2.0
     apiVersion: v2
     appVersion: 1.16.0-beta
+    created: "2023-06-27T15:29:45.963989383Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: 64795cdb53ae7592f8890d2c168a8ff1bd382a91cb61999874ede6b379e283a4
+    home: https://github.com/codechem/helm/tree/main/charts/penpot
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.21/penpot-1.0.21.tgz
+    version: 1.0.21
+  - annotations:
+      category: Design
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
     created: "2023-06-27T15:22:34.232646236Z"
     dependencies:
     - condition: global.postgresqlEnabled
@@ -1517,4 +1553,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.2/uptime-kuma-0.0.2.tgz
     version: 0.0.2
-generated: "2023-06-27T15:22:34.232765838Z"
+generated: "2023-06-27T15:29:45.964082985Z"
