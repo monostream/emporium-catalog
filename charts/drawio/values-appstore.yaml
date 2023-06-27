@@ -1,6 +1,6 @@
 
 drawio:
-  publicDns: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+  publicDns: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
   organisationUnit: unit
   organisation: org
   city: city
@@ -16,11 +16,11 @@ ingress:
     kubernetes.io/tls-acme: "true"
 
   hosts:
-    - host: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+    - host: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: {{ .AppStore.Name }}-tls
       hosts:
-        - {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+        - {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}

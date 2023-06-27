@@ -1,5 +1,5 @@
 supabase:
-  publicUrl: api.{{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+  publicUrl: api.{{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
 
   auth:
     image:
@@ -16,13 +16,13 @@ supabase:
         glass.monostream.com/enabled: "true"
         kubernetes.io/tls-acme: "true"
 
-      hostname: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+      hostname: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
       tls: true
 
   kong:
     ingress:
       enabled: true
-      hostname: api.{{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+      hostname: api.{{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
       tls: true
 
       annotations:

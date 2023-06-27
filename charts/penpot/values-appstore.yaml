@@ -11,19 +11,19 @@ frontend:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - host: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+      - host: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
 
     tls:
       - secretName: {{ .AppStore.Name }}-tls
         hosts:
-          - {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+          - {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
 
 persistence:
   enabled: true
   size: 50Gi
 
 config:
-  publicURI: {{ .AppStore.Name }}.{{ .AppStore.DNSZone }}
+  publicURI: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
   flags: "enable-registration enable-login disable-demo-users disable-demo-warning"
   apiSecretKey: {{ .AppStore.UserSupplied.APISecretKey | quote }}
 
