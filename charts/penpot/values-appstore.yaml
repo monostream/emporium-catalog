@@ -25,7 +25,7 @@ persistence:
 config:
   publicURI: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
   flags: "enable-registration enable-login disable-demo-users disable-demo-warning"
-  apiSecretKey: {{ .AppStore.UserSupplied.APISecretKey | quote }}
+  apiSecretKey: {{ quote .AppStore.UserSupplied.APISecretKey }}
 
   postgresql:
     host: {{ .AppStore.Name }}-postgresql
@@ -43,8 +43,8 @@ config:
 
   smtp:
     enabled: true
-    defaultFrom: {{ .AppStore.UserSupplied.SMTPDefaultFrom | quote }}
-    defaultReplyTo: {{ .AppStore.UserSupplied.SMTPDefaultReplyTo | quote }}
+    defaultFrom: {{ quote .AppStore.UserSupplied.SMTPDefaultFrom }}
+    defaultReplyTo: {{ quote .AppStore.UserSupplied.SMTPDefaultReplyTo }}
     host: {{ .AppStore.UserSupplied.SMTPHost }}
     port: {{ .AppStore.UserSupplied.SMTPPort }}
     tls: true
@@ -54,13 +54,13 @@ config:
       passwordKey: "smtp-password"
 
 smtp:
-  username: {{ .AppStore.UserSupplied.SMTPUsername | quote }}
-  password: {{ .AppStore.UserSupplied.SMTPPassword | quote }}
+  username: {{ quote .AppStore.UserSupplied.SMTPUsername }}
+  password: {{ quote .AppStore.UserSupplied.SMTPPassword }}
 
 postgresql:
   auth:
     username: admin
-    password: {{ .AppStore.UserSupplied.PostgresPassword | quote }}
+    password: {{ quote .AppStore.UserSupplied.PostgresPassword }}
     database: penpot
 
   # providers:
