@@ -3,7 +3,7 @@
 ## @type string
 ## @description OpenAI API Key
 openai:
-  apiKey: {{ .AppStore.UserSupplied.OpenAIAPIKey }}
+  apiKey: "{{ .AppStore.UserSupplied.OpenAIAPIKey }}"
 
 image:
   tag: latest

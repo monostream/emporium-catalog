@@ -18,10 +18,10 @@
 ## @type string
 ## @description The title of your Blog. (You can change this later)
 ghost:
-  ghostUsername: {{ .AppStore.UserSupplied.Username }}
-  ghostPassword: {{ .AppStore.UserSupplied.Password }}
-  ghostEmail: {{ .AppStore.UserSupplied.Email }}
-  ghostBlogTitle: {{ .AppStore.UserSupplied.Title }}
+  ghostUsername: "{{ .AppStore.UserSupplied.Username }}"
+  ghostPassword: "{{ .AppStore.UserSupplied.Password }}"
+  ghostEmail: "{{ .AppStore.UserSupplied.Email }}"
+  ghostBlogTitle: "{{ .AppStore.UserSupplied.Title }}"
   ghostEnableHttps: true
 
   ghostHost: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
