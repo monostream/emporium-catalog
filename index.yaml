@@ -8,6 +8,31 @@ entries:
       licenses: MIT
     apiVersion: v2
     appVersion: 0.1.0
+    created: "2023-06-28T07:30:35.415107551Z"
+    description: An open source alternative ChatGPT UI.
+    digest: 01838a3ac4cb5038b9eaedf6dd56fd2ccdce832fcb9b7b841e08deafa101b87d
+    home: https://www.chatbotui.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_icon_2.png
+    keywords:
+    - ChatGPT
+    - AI
+    maintainers:
+    - name: Mckay Wrigley
+      url: https://github.com/mckaywrigley
+    name: chatbotui
+    sources:
+    - https://github.com/mckaywrigley/chatbot-ui
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/chatbotui-0.1.8/chatbotui-0.1.8.tgz
+    version: 0.1.8
+  - annotations:
+      category: AI
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_gallery_1.jpg
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.1.0
     created: "2023-06-27T12:18:38.65877017Z"
     description: An open source alternative ChatGPT UI.
     digest: 41e8e1605d5450b59b2768b11b16db3da15097b3e3e0adf9013f518c25343bc6
@@ -758,6 +783,42 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/gitea-0.0.1/gitea-0.0.1.tgz
     version: 0.0.1
   penpot:
+  - annotations:
+      category: Design
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
+    created: "2023-06-28T07:30:35.71008974Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: c074ac1960645c9062d5bd1ddcd740c0d71d22595bf155cfc9d168cba0305964
+    home: https://github.com/codechem/helm/tree/main/charts/penpot
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.22/penpot-1.0.22.tgz
+    version: 1.0.22
   - annotations:
       category: Design
       gallery: |
@@ -1553,4 +1614,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.2/uptime-kuma-0.0.2.tgz
     version: 0.0.2
-generated: "2023-06-27T15:29:45.964082985Z"
+generated: "2023-06-28T07:30:35.71025954Z"
