@@ -20,7 +20,7 @@
 
 ## @userSupplied SMTPPort
 ## @label SMTP Port
-## @type string
+## @type integer
 ## @description The SMTP host port to use
 
 ## @userSupplied SMTPUsername
