@@ -1,3 +1,7 @@
+## @userSupplied OpenAIAPIKey
+## @label OpenAI API Key
+## @type string
+## @description OpenAI API Key
 openai:
   apiKey: {{ .AppStore.UserSupplied.OpenAIAPIKey }}
 

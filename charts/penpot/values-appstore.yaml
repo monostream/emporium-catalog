@@ -63,7 +63,7 @@ persistence:
 
 config:
   publicURI: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
-  flags: "enable-registration enable-login disable-demo-users disable-demo-warning"
+  flags: "enable-registration enable-login enable-smtp disable-demo-users disable-demo-warning"
   apiSecretKey: {{ .AppStore.UserSupplied.APISecretKey }} #quote
 
   postgresql:
