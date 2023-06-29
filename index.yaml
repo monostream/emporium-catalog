@@ -1746,4 +1746,44 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.2/uptime-kuma-0.0.2.tgz
     version: 0.0.2
-generated: "2023-06-28T14:02:51.847018199Z"
+  wiki:
+  - annotations:
+      category: Developer Tools
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_gallery_1.jpg
+      licenses: AGPL-3.0
+    apiVersion: v2
+    appVersion: 2.5.299
+    created: "2023-06-29T10:02:05.745533339Z"
+    dependencies:
+    - name: wiki
+      repository: https://charts.js.wiki
+      version: 2.2.20
+    description: Make documentation a joy to write using Wiki.js's beautiful and intuitive
+      interface
+    digest: 8440a5b7b477e524abdf0210d6d2a62c21c0c74f6c45678043ee4c1d921740e5
+    home: https://js.wiki/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_icon_2.png
+    keywords:
+    - Wiki
+    - Documentation
+    - Knowledgebase"
+    - Docs
+    - Reference
+    - Editor
+    maintainers:
+    - name: Requarks.io
+      url: https://www.requarks.io/
+    - email: github@ngpixel.com
+      name: Nicolas Giard
+      url: https://github.com/NGPixel
+    - email: james@fuziontech.net
+      name: James Greenhill
+      url: https://github.com/fuziontech
+    name: wiki
+    sources:
+    - https://github.com/Requarks/wiki
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
+    version: 0.0.1
+generated: "2023-06-29T10:02:05.745725749Z"
