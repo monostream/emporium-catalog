@@ -2,11 +2,17 @@ excalidraw:
   ingress:
     enabled: true
 
-    pathType: Prefix
-
     annotations:
       glass.monostream.com/enabled: "true"
       kubernetes.io/tls-acme: "true"
 
-    hostname: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
-    tls: true
+    hosts:
+      - host: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+        paths:
+        - path: /
+          pathType: Prefix
+
+    tls:
+      - secretName: {{ .AppStore.Name }}-tls
+        hosts:
+          - {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
