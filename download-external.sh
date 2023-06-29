@@ -9,13 +9,16 @@ set -o noglob
 # add repos
 helm repo add codechem https://charts.codechem.com
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add requarks https://charts.js.wiki
 
 helm repo update
 
 # external charts to be downloaded
 charts=(
   "bitnami/ghost@19.3.6"
-  "codechem/penpot@1.0.10")
+  "codechem/penpot@1.0.10"
+  "requarks/wiki@2.2.20"
+)
 
 for chart in "${charts[@]}"
 do
