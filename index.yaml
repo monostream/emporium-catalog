@@ -504,6 +504,27 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 0.1.0
+    created: "2023-06-29T13:48:45.873914245Z"
+    description: An open source virtual hand-drawn style whiteboard. Collaborative
+      and end-to-end encrypted.
+    digest: c8111a07e9c9233bbe90dcac61c7e196be51c9eb7592896cc26ddcf66eab5dd7
+    home: https://github.com/excalidraw/excalidraw
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.png
+    keywords:
+    - Diagrams
+    - Collaboration
+    name: excalidraw
+    sources:
+    - https://github.com/excalidraw/excalidraw
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/excalidraw-0.1.2/excalidraw-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      category: Utilities
+      displayName: Excalidraw
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 0.1.0
     created: "2023-06-29T12:31:35.600340564Z"
     dependencies:
     - name: excalidraw
@@ -2127,4 +2148,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-06-29T12:31:36.656615995Z"
+generated: "2023-06-29T13:48:45.874134048Z"
