@@ -443,6 +443,31 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/drawio-0.1.0/drawio-0.1.0.tgz
     version: 0.1.0
+  excalidraw:
+  - annotations:
+      category: Utilities
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-29T12:14:00.385408166Z"
+    dependencies:
+    - name: excalidraw
+      repository: file://./charts/excalidraw
+      version: 0.1.0
+    description: An open source virtual hand-drawn style whiteboard. Collaborative
+      and end-to-end encrypted.
+    digest: f503e25186bf9fc4a9dcce854dd840f62c4bf44c1e90c2443e57060673e89c92
+    home: https://github.com/excalidraw/excalidraw
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.png
+    keywords:
+    - Diagrams
+    - Collaboration
+    name: excalidraw
+    sources:
+    - https://github.com/excalidraw/excalidraw
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/excalidraw-0.1.0/excalidraw-0.1.0.tgz
+    version: 0.1.0
   ghost:
   - annotations:
       category: CMS
@@ -1825,4 +1850,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-06-29T10:09:50.617906482Z"
+generated: "2023-06-29T12:14:00.385587666Z"
