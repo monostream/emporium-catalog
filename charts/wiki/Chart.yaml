@@ -9,7 +9,7 @@ appVersion: 2.5.299
 dependencies:
   - name: wiki
     version: 2.2.20
-    repository: https://charts.js.wiki
+    repository: https://charts.js.wiki/charts
 
 home: https://js.wiki/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_icon_2.png
