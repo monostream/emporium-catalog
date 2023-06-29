@@ -3,6 +3,32 @@ entries:
   chatbotui:
   - annotations:
       category: AI
+      displayName: Chatbot UI
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_gallery_1.jpg
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-29T12:31:35.302395411Z"
+    description: An open source alternative ChatGPT UI.
+    digest: ce31f054932c32c57a2d7884de26d3890ea7ea5b42f69f9208ddbeebfdd48329
+    home: https://www.chatbotui.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_icon_2.png
+    keywords:
+    - ChatGPT
+    - AI
+    maintainers:
+    - name: Mckay Wrigley
+      url: https://github.com/mckaywrigley
+    name: chatbotui
+    sources:
+    - https://github.com/mckaywrigley/chatbot-ui
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/chatbotui-0.1.10/chatbotui-0.1.10.tgz
+    version: 0.1.10
+  - annotations:
+      category: AI
       gallery: |
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_gallery_1.jpg
       licenses: MIT
@@ -204,6 +230,34 @@ entries:
     - https://github.com/monostream/charts/releases/download/chatbotui-0.1.0/chatbotui-0.1.0.tgz
     version: 0.1.0
   drawio:
+  - annotations:
+      category: Utilities
+      displayName: draw.io
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_2.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 21.3.3
+    created: "2023-06-29T12:31:35.450368673Z"
+    description: Online diagram software for making flowcharts, process diagrams,
+      org charts, UML, ER and network diagrams.
+    digest: b81b2f2e928c21b66c0682bf18a3fdc61f8100701afdbb138fc35c998007f5ed
+    home: https://www.drawio.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_icon_2.png
+    keywords:
+    - Diagrams
+    maintainers:
+    - name: JGraph Ltd and draw.io AG
+      url: https://github.com/jgraph/drawio
+    name: drawio
+    sources:
+    - https://github.com/jgraph/drawio
+    - https://github.com/jgraph/docker-drawio
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/drawio-0.1.9/drawio-0.1.9.tgz
+    version: 0.1.9
   - annotations:
       category: Utilities
       gallery: |
@@ -446,6 +500,31 @@ entries:
   excalidraw:
   - annotations:
       category: Utilities
+      displayName: Excalidraw
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-29T12:31:35.600340564Z"
+    dependencies:
+    - name: excalidraw
+      repository: file://./charts/excalidraw
+      version: 0.1.0
+    description: An open source virtual hand-drawn style whiteboard. Collaborative
+      and end-to-end encrypted.
+    digest: beca6096568262786a069626562d0694e64f35885c1b991d9877869920505a1e
+    home: https://github.com/excalidraw/excalidraw
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.png
+    keywords:
+    - Diagrams
+    - Collaboration
+    name: excalidraw
+    sources:
+    - https://github.com/excalidraw/excalidraw
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/excalidraw-0.1.1/excalidraw-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      category: Utilities
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 0.1.0
@@ -469,6 +548,42 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/excalidraw-0.1.0/excalidraw-0.1.0.tgz
     version: 0.1.0
   ghost:
+  - annotations:
+      category: CMS
+      displayName: Ghost
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-29T12:31:35.757626662Z"
+    dependencies:
+    - name: ghost
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~19.3.9
+    description: Publishing platform designed to create SEO-optimized blogs, magazines,
+      websites and news sites.
+    digest: c9d283a6afd88b05f153bb303e787af9c95dd91b7be9f91a9b04bfa0d702f3d1
+    home: https://ghost.org/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.png
+    keywords:
+    - Blog
+    - Magazine
+    - Websites
+    - CMS
+    maintainers:
+    - name: Ghost Foundation © 2023
+      url: https://ghost.org/
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: ghost
+    sources:
+    - https://github.com/TryGhost/Ghost
+    - https://github.com/bitnami/charts/tree/main/bitnami/ghost
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/ghost-1.0.8/ghost-1.0.8.tgz
+    version: 1.0.8
   - annotations:
       category: CMS
       gallery: |
@@ -735,6 +850,34 @@ entries:
     version: 1.0.0
   gitea:
   - annotations:
+      displayName: Gitea
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-06-29T12:31:35.921471055Z"
+    dependencies:
+    - name: gitea
+      repository: https://dl.gitea.io/charts/
+      version: 8.3.0
+    description: Gitea is a community managed lightweight code hosting solution written
+      in Go. It is published under the MIT license.
+    digest: e712a6bb6aeb5ff86d60a24c72f695f1b6ab40fb54343a219482e12bc6300ce7
+    home: https://gitea.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitea/gitea_icon_2.png
+    keywords:
+    - Collaboration
+    - Coding
+    - Git
+    - CI/CD
+    - Issue Tracking
+    name: gitea
+    sources:
+    - https://gitea.com/gitea/helm-chart
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/gitea-0.0.6/gitea-0.0.6.tgz
+    version: 0.0.6
+  - annotations:
       licenses: MIT
     apiVersion: v2
     appVersion: 1.16.0
@@ -868,6 +1011,43 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/gitea-0.0.1/gitea-0.0.1.tgz
     version: 0.0.1
   penpot:
+  - annotations:
+      category: Design
+      displayName: Penpot
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
+    created: "2023-06-29T12:31:36.165345518Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: ada369e2e40c71dfeaeced3dc6dde94b8fec6f3a0ecde32cd76bd6fdfd3e39f2
+    home: https://github.com/codechem/helm/tree/main/charts/penpot
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.25/penpot-1.0.25.tgz
+    version: 1.0.25
   - annotations:
       category: Design
       gallery: |
@@ -1393,6 +1573,42 @@ entries:
   supabase:
   - annotations:
       category: Backend-as-Service (BaaS)
+      displayName: Supabase
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_3.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_4.webp
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-06-29T12:31:36.35713302Z"
+    dependencies:
+    - name: supabase
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: ~0.3.6
+    description: Firebase alternative for building secure and performant Postgres
+      backends with minimal configuration.
+    digest: 46583fbf891f86eb0da69ed1fbe76031b1cd63c12b4e0bb19f755879ceee7309
+    home: https://supabase.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
+    keywords:
+    - Postgres
+    - BaaS
+    - DB
+    - Auth
+    maintainers:
+    - name: Supabase
+      url: https://github.com/supabase
+    name: supabase
+    sources:
+    - https://github.com/supabase/supabase
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/supabase-1.0.9/supabase-1.0.9.tgz
+    version: 1.0.9
+  - annotations:
+      category: Backend-as-Service (BaaS)
       gallery: |
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
@@ -1692,6 +1908,27 @@ entries:
     version: 1.0.0
   uptime-kuma:
   - annotations:
+      displayName: Uptime Kuma
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 1.21.3
+    created: "2023-06-29T12:31:36.505070581Z"
+    description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
+    digest: bbea77b0c95998f0f0f1c88f0da005bfdb84be73413851461a4005a3da680b98
+    home: https://github.com/louislam/uptime-kuma
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptime-kuma/uptime-kuma_icon_2.png
+    keywords:
+    - Monitoring
+    - Performance
+    - DevOps
+    name: uptime-kuma
+    sources:
+    - https://github.com/louislam/uptime-kuma
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.6/uptime-kuma-0.0.6.tgz
+    version: 0.0.6
+  - annotations:
       licenses: MIT
     apiVersion: v2
     appVersion: 1.21.3
@@ -1774,6 +2011,46 @@ entries:
   wiki:
   - annotations:
       category: Developer Tools
+      displayName: Wiki.js
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_gallery_1.webp
+      licenses: AGPL-3.0
+    apiVersion: v2
+    appVersion: 2.5.299
+    created: "2023-06-29T12:31:36.656319891Z"
+    dependencies:
+    - name: wiki
+      repository: https://charts.js.wiki
+      version: 2.2.20
+    description: Make documentation a joy to write using Wiki.js's beautiful and intuitive
+      interface
+    digest: fbd7c26199a982c5fb6a9a52de2169d05f5b2ecdb2030c8c3d96a108cdf58935
+    home: https://js.wiki/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_icon_2.png
+    keywords:
+    - Wiki
+    - Documentation
+    - Knowledgebase"
+    - Docs
+    - Reference
+    - Editor
+    maintainers:
+    - name: Requarks.io
+      url: https://www.requarks.io/
+    - email: github@ngpixel.com
+      name: Nicolas Giard
+      url: https://github.com/NGPixel
+    - email: james@fuziontech.net
+      name: James Greenhill
+      url: https://github.com/fuziontech
+    name: wiki
+    sources:
+    - https://github.com/Requarks/wiki
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/wiki-0.0.3/wiki-0.0.3.tgz
+    version: 0.0.3
+  - annotations:
+      category: Developer Tools
       gallery: |
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_gallery_1.webp
       licenses: AGPL-3.0
@@ -1850,4 +2127,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-06-29T12:14:00.385587666Z"
+generated: "2023-06-29T12:31:36.656615995Z"
