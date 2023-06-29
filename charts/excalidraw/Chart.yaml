@@ -3,13 +3,8 @@ apiVersion: v2
 name: excalidraw
 description: An open source virtual hand-drawn style whiteboard. Collaborative and end-to-end encrypted.
 
-version: 0.1.1
+version: 0.1.2
 appVersion: 0.1.0
-
-dependencies:
-  - name: excalidraw
-    version: "0.1.0"
-    repository: "file://./charts/excalidraw"
 
 home: https://github.com/excalidraw/excalidraw
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.png
