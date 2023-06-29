@@ -4,7 +4,7 @@ name: gitea
 description: Gitea is a community managed lightweight code hosting solution written in Go. It is published under the MIT license.
 
 type: application
-version: 0.0.5
+version: 0.0.6
 appVersion: "1.16.0"
 
 dependencies:
@@ -24,4 +24,5 @@ keywords:
   - Issue Tracking
 
 annotations:
+  displayName: Gitea
   licenses: MIT

@@ -3,7 +3,7 @@ apiVersion: v2
 name: excalidraw
 description: An open source virtual hand-drawn style whiteboard. Collaborative and end-to-end encrypted.
 
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.1.0
 
 dependencies:
@@ -21,5 +21,6 @@ keywords:
   - Collaboration
 
 annotations:
+  displayName: Excalidraw
   category: Utilities
   licenses: Apache-2.0
