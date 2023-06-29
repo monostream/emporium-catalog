@@ -1,0 +1,6 @@
+dependencies:
+- name: wiki
+  repository: https://charts.js.wiki
+  version: 2.2.20
+digest: sha256:379c3279f8eb0905ac6d76f290ec2cd2e7985d87c36068cc9c5a963bb5d15ef2
+generated: "2023-06-29T11:40:05.758241+02:00"
