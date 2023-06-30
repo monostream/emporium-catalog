@@ -506,6 +506,29 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 0.1.0
+    created: "2023-06-30T12:00:11.369571764Z"
+    description: An open source virtual hand-drawn style whiteboard. Collaborative
+      and end-to-end encrypted.
+    digest: 917bd6dd15255056a6c0244ffda141977c73233653144dfe259fb5127705b241
+    home: https://excalidraw.com
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.png
+    keywords:
+    - Diagrams
+    - Collaboration
+    name: excalidraw
+    sources:
+    - https://github.com/excalidraw/excalidraw
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/excalidraw-0.1.4/excalidraw-0.1.4.tgz
+    version: 0.1.4
+  - annotations:
+      category: Utilities
+      displayName: Excalidraw
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_gallery_1.png
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 0.1.0
     created: "2023-06-29T15:31:00.523527669Z"
     description: An open source virtual hand-drawn style whiteboard. Collaborative
       and end-to-end encrypted.
@@ -1055,6 +1078,44 @@ entries:
     - https://github.com/monostream/test-charts/releases/download/gitea-0.0.1/gitea-0.0.1.tgz
     version: 0.0.1
   penpot:
+  - annotations:
+      category: Design
+      displayName: Penpot
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
+    created: "2023-06-30T12:00:11.572684033Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: 81b70f4bd9c7c56887bd729c7da21a45d10cf81ecfb458fc0a9afa672cf76b00
+    home: https://penpot.app
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    - https://github.com/codechem/helm/tree/main/charts/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.26/penpot-1.0.26.tgz
+    version: 1.0.26
   - annotations:
       category: Design
       displayName: Penpot
@@ -1956,6 +2017,27 @@ entries:
       licenses: MIT
     apiVersion: v2
     appVersion: 1.21.3
+    created: "2023-06-30T12:00:11.713388303Z"
+    description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
+    digest: a3feea1ab67410ff276c2d35c324469f497507d62544f3099905fb9815840b0f
+    home: https://uptime.kuma.pet/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptime-kuma/uptime-kuma_icon_2.png
+    keywords:
+    - Monitoring
+    - Performance
+    - DevOps
+    name: uptime-kuma
+    sources:
+    - https://github.com/louislam/uptime-kuma
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/uptime-kuma-0.0.7/uptime-kuma-0.0.7.tgz
+    version: 0.0.7
+  - annotations:
+      displayName: Uptime Kuma
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 1.21.3
     created: "2023-06-29T12:31:36.505070581Z"
     description: Uptime Kuma is an easy-to-use self-hosted monitoring tool.
     digest: bbea77b0c95998f0f0f1c88f0da005bfdb84be73413851461a4005a3da680b98
@@ -2171,4 +2253,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-06-29T15:31:00.523762372Z"
+generated: "2023-06-30T12:00:11.713569203Z"
