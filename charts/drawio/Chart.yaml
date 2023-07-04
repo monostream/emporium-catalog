@@ -4,7 +4,7 @@ name: drawio
 description: Online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams.
 
 type: application
-version: 0.1.9
+version: 0.1.10
 appVersion: "21.3.3"
 
 home: https://www.drawio.com/
