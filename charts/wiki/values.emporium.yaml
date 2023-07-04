@@ -5,14 +5,14 @@ wiki:
       glass.monostream.com/enabled: "true"
       kubernetes.io/tls-acme: "true"
     hosts:
-      - host: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .AppStore.Name }}-tls
+      - secretName: {{ .Emporium.Name }}-tls
         hosts:
-          - {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
 # https://docs.requarks.io/install/kubernetes
 # kubectl delete pvc/data-wiki-postgresql-0

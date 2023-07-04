@@ -18,13 +18,13 @@
 ## @type string
 ## @description The title of your Blog. (You can change this later)
 ghost:
-  ghostUsername: "{{ .AppStore.UserSupplied.Username }}"
-  ghostPassword: "{{ .AppStore.UserSupplied.Password }}"
-  ghostEmail: "{{ .AppStore.UserSupplied.Email }}"
-  ghostBlogTitle: "{{ .AppStore.UserSupplied.Title }}"
+  ghostUsername: "{{ .Emporium.UserSupplied.Username }}"
+  ghostPassword: "{{ .Emporium.UserSupplied.Password }}"
+  ghostEmail: "{{ .Emporium.UserSupplied.Email }}"
+  ghostBlogTitle: "{{ .Emporium.UserSupplied.Title }}"
   ghostEnableHttps: true
 
-  ghostHost: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+  ghostHost: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
   service:
     type: ClusterIP
@@ -38,5 +38,5 @@ ghost:
       glass.monostream.com/enabled: "true"
       kubernetes.io/tls-acme: "true"
 
-    hostname: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+    hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
     tls: true

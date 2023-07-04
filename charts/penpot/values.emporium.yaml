@@ -50,24 +50,24 @@ frontend:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - host: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
     tls:
-      - secretName: {{ .AppStore.Name }}-tls
+      - secretName: {{ .Emporium.Name }}-tls
         hosts:
-          - {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
 persistence:
   enabled: true
   size: 50Gi
 
 config:
-  publicURI: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+  publicURI: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
   flags: "enable-registration enable-login enable-smtp disable-demo-users disable-demo-warning"
-  apiSecretKey: "{{ .AppStore.UserSupplied.APISecretKey }}"
+  apiSecretKey: "{{ .Emporium.UserSupplied.APISecretKey }}"
 
   postgresql:
-    host: {{ .AppStore.Name }}-postgresql
+    host: {{ .Emporium.Name }}-postgresql
     port: 5432
     database: penpot
     existingSecret: "penpot-secret"
@@ -76,16 +76,16 @@ config:
       passwordKey: "postgresql-password"
 
   redis:
-    host: {{ .AppStore.Name }}-redis-headless
+    host: {{ .Emporium.Name }}-redis-headless
     port: 6379
     database: "0"
 
   smtp:
     enabled: true
-    defaultFrom: "{{ .AppStore.UserSupplied.SMTPDefaultFrom }}"
-    defaultReplyTo: "{{ .AppStore.UserSupplied.SMTPDefaultReplyTo }}"
-    host: "{{ .AppStore.UserSupplied.SMTPHost }}"
-    port: "{{ .AppStore.UserSupplied.SMTPPort }}"
+    defaultFrom: "{{ .Emporium.UserSupplied.SMTPDefaultFrom }}"
+    defaultReplyTo: "{{ .Emporium.UserSupplied.SMTPDefaultReplyTo }}"
+    host: "{{ .Emporium.UserSupplied.SMTPHost }}"
+    port: "{{ .Emporium.UserSupplied.SMTPPort }}"
     tls: true
     existingSecret: "penpot-secret"
     secretKeys:
@@ -93,13 +93,13 @@ config:
       passwordKey: "smtp-password"
 
 smtp:
-  username: "{{ .AppStore.UserSupplied.SMTPUsername }}"
-  password: "{{ .AppStore.UserSupplied.SMTPPassword }}"
+  username: "{{ .Emporium.UserSupplied.SMTPUsername }}"
+  password: "{{ .Emporium.UserSupplied.SMTPPassword }}"
 
 postgresql:
   auth:
     username: admin
-    password: "{{ .AppStore.UserSupplied.PostgresPassword }}"
+    password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
     database: penpot
 
   # providers:

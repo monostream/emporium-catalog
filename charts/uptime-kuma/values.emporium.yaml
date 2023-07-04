@@ -6,11 +6,11 @@ ingress:
     kubernetes.io/tls-acme: "true"
 
   hosts:
-    - host: {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+    - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: {{ .AppStore.Name }}-tls
+    - secretName: {{ .Emporium.Name }}-tls
       hosts:
-        - {{ .AppStore.Subdomain }}.{{ .AppStore.DNSZone }}
+        - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
