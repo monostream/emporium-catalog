@@ -1,0 +1,21 @@
+apiVersion: v2
+name: nextcloud
+description: A Helm chart for Kubernetes
+
+type: application
+version: 0.0.1
+appVersion: "26.0.2"
+
+dependencies:
+  - name: nextcloud
+    version: 3.5.13
+    repository: https://nextcloud.github.io/helm/
+
+home: https://nextcloud.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/nextcloud_icon_2.png
+
+annotations:
+  category: Utilities
+  licenses: AGPL-3.0
+  gallery: |
+    https://raw.githubusercontent.com/nextcloud/screenshots/master/nextcloud-hub-files-25-preview.png
