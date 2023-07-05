@@ -1,0 +1,22 @@
+huginn:
+  appSecretToken: "verysecrettoken-changeme"
+  domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  invitationCode: ""
+  skipInvitationCode: "false"
+
+ingress:
+  enabled: true
+
+  annotations:
+    glass.monostream.com/enabled: "true"
+    kubernetes.io/tls-acme: "true"
+
+  hosts:
+    - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
