@@ -1243,6 +1243,31 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/gitea-0.0.1/gitea-0.0.1.tgz
     version: 0.0.1
+  huginn:
+  - annotations:
+      displayName: Huginn
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.0.2
+    created: "2023-07-05T14:02:05.592592453Z"
+    dependencies:
+    - name: postgresql
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 12.6.0
+    description: A Helm chart for Kubernetes
+    digest: bfae7af867855d97076048270d7f2f891532e69500918eaf6cf65b90f62920a4
+    home: https://github.com/huginn/huginn
+    icon: https://raw.githubusercontent.com/huginn/huginn/master/media/huginn-icon-square.svg
+    keywords:
+    - Automation
+    - Agent
+    name: huginn
+    sources:
+    - https://github.com/huginn/huginn
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/huginn-0.1.1/huginn-0.1.1.tgz
+    version: 0.1.1
   penpot:
   - annotations:
       category: Design
@@ -2554,4 +2579,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-07-05T13:38:03.960133967Z"
+generated: "2023-07-05T14:02:05.592896355Z"
