@@ -12,7 +12,9 @@ ingress:
   enabled: true
 
   annotations:
-    glass.monostream.com/enabled: "true"
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
     kubernetes.io/tls-acme: "true"
 
   hosts:

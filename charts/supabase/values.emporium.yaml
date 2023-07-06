@@ -13,7 +13,9 @@ supabase:
       pathType: Prefix
 
       annotations:
-        glass.monostream.com/enabled: "true"
+        {{- if .Emporium.Annotations }}
+        {{- toYaml .Emporium.Annotations | nindent 8 }}
+        {{- end }}
         kubernetes.io/tls-acme: "true"
 
       hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
@@ -26,5 +28,7 @@ supabase:
       tls: true
 
       annotations:
-        glass.monostream.com/enabled: "true"
+        {{- if .Emporium.Annotations }}
+        {{- toYaml .Emporium.Annotations | nindent 8 }}
+        {{- end }}
         kubernetes.io/tls-acme: "true"

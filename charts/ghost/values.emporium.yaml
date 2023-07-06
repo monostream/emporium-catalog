@@ -35,7 +35,9 @@ ghost:
     pathType: Prefix
 
     annotations:
-      glass.monostream.com/enabled: "true"
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
       kubernetes.io/tls-acme: "true"
 
     hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
