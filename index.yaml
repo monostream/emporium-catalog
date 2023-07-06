@@ -1249,6 +1249,30 @@ entries:
       licenses: MIT
     apiVersion: v2
     appVersion: 0.0.2
+    created: "2023-07-06T07:34:05.142769497Z"
+    dependencies:
+    - name: postgresql
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 12.6.0
+    description: A Helm chart for Kubernetes
+    digest: 375e0b990cdaadfb4ab8791a040a67d6f7c46968ede5ebec51fc76f810a8c913
+    home: https://github.com/huginn/huginn
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/huginn/huginn_icon_2.png
+    keywords:
+    - Automation
+    - Agent
+    name: huginn
+    sources:
+    - https://github.com/huginn/huginn
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/huginn-0.1.2/huginn-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      displayName: Huginn
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.0.2
     created: "2023-07-05T14:02:05.592592453Z"
     dependencies:
     - name: postgresql
@@ -2579,4 +2603,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-07-05T14:02:05.592896355Z"
+generated: "2023-07-06T07:34:05.143052798Z"
