@@ -34,6 +34,32 @@ entries:
       licenses: MIT
     apiVersion: v2
     appVersion: 0.1.0
+    created: "2023-07-12T15:02:34.446080011Z"
+    description: An open source alternative ChatGPT UI.
+    digest: cd9e3e59e531f274691a2f019496ec11f0b8682fb00cb0c2471980ea8f16e3d6
+    home: https://www.chatbotui.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_icon_2.png
+    keywords:
+    - ChatGPT
+    - AI
+    maintainers:
+    - name: Mckay Wrigley
+      url: https://github.com/mckaywrigley
+    name: chatbotui
+    sources:
+    - https://github.com/mckaywrigley/chatbot-ui
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/chatbotui-0.1.14/chatbotui-0.1.14.tgz
+    version: 0.1.14
+  - annotations:
+      category: AI
+      displayName: Chatbot UI
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_gallery_1.jpg
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.1.0
     created: "2023-07-12T14:47:37.246485163Z"
     description: An open source alternative ChatGPT UI.
     digest: a466f953a663ccd9df509eeff3292d56bb9b5b6cc39acde9bc4bb23e9be3ac1a
@@ -2929,4 +2955,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-07-12T14:47:37.24688818Z"
+generated: "2023-07-12T15:02:34.446327913Z"
