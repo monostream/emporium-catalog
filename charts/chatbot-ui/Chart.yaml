@@ -4,7 +4,7 @@ name: chatbotui
 description: An open source alternative ChatGPT UI.
 
 type: application
-version: 0.1.12
+version: 0.1.13
 appVersion: "0.1.0"
 
 home: https://www.chatbotui.com/
