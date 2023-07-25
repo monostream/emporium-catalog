@@ -5,6 +5,15 @@
 openai:
   apiKey: "{{ .Emporium.UserSupplied.OpenAIAPIKey }}"
 
+## @userSupplied DefaultModel
+## @label OpenAI Model
+## @type string
+## @description choose the model that is used (eg. gpt-4, gpt-3.5-turbo) see https://platform.openai.com/docs/models/how-we-use-your-data for more information
+chatbotui:
+  defaultModel: "{{ .Emporium.UserSupplied.DefaultModel }}"
+  defaultSystemPrompt: "You are MonoGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown."
+  defaultTemperature: 1
+
 image:
   tag: latest
 
