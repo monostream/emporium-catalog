@@ -1,30 +1,5 @@
 apiVersion: v1
 entries:
-  Huginn:
-  - annotations:
-      displayName: Huginn
-      licenses: MIT
-    apiVersion: v2
-    appVersion: 0.0.1
-    created: "2023-07-05T13:38:03.959990563Z"
-    dependencies:
-    - name: postgresql
-      repository: oci://registry-1.docker.io/bitnamicharts
-      version: 12.6.0
-    description: A Helm chart for Kubernetes
-    digest: dcbb73ffdde5e731dcaca76de2a705a146824b50095d16691bd447e005bd633f
-    home: https://github.com/huginn/huginn
-    icon: https://raw.githubusercontent.com/huginn/huginn/master/media/huginn-icon-square.svg
-    keywords:
-    - Automation
-    - Agent
-    name: Huginn
-    sources:
-    - https://github.com/huginn/huginn
-    type: application
-    urls:
-    - https://github.com/monostream/test-charts/releases/download/Huginn-0.1.0/Huginn-0.1.0.tgz
-    version: 0.1.0
   chatbotui:
   - annotations:
       category: AI
