@@ -1,9 +1,9 @@
 apiVersion: v2
 name: gitlab
-description: A Helm chart for Kubernetes
+description: A single plattform to experience and share frustration with other developers
 type: application
 
-version: 0.1.4
+version: 0.1.7
 
 appVersion: "0.0.3"
 
