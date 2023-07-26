@@ -62,6 +62,8 @@ gitlab:
 certmanager:
   install: false
   installCRDs: false
+certmanager-issuer:
+  email: shitlab@shit.lab
 
 nginx-ingress:
   enabled: false
