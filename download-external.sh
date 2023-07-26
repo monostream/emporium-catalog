@@ -19,6 +19,7 @@ charts=(
   "bitnami/ghost@19.3.6"
   "codechem/penpot@1.0.10"
   "requarks/wiki@2.2.20"
+  "gitlab/gitlab@7.2.1"
 )
 
 for chart in "${charts[@]}"
