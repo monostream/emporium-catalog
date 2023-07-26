@@ -43,8 +43,7 @@ global:
     enabled: false
     provider: nginx
 
-  grafana:
-    enabled: false
+
 
 gitlab:
   gitlab-shell:
@@ -60,11 +59,18 @@ gitlab:
       tls:
         secretName: gitlab-webservice-tls
  
+certmanager:
+  install: false
+  installCRDs: false
+
 nginx-ingress:
   enabled: false
  
 prometheus:
   install: false
+
+grafana:
+  enabled: false
 
 gitlab-runner:
   install: false
