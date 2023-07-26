@@ -10,6 +10,7 @@ set -o noglob
 helm repo add codechem https://charts.codechem.com
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add requarks https://charts.js.wiki
+helm repo add gitlab https://charts.gitlab.io
 
 helm repo update
 
