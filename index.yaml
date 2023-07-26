@@ -1469,6 +1469,34 @@ entries:
       licenses: MIT
     apiVersion: v2
     appVersion: 0.0.3
+    created: "2023-07-26T20:20:53.287807333Z"
+    dependencies:
+    - name: gitlab
+      repository: https://charts.gitlab.io/
+      version: 7.2.1
+    description: A single plattform to experience and share frustration with other
+      developers
+    digest: 5cc4fda832da2dfc5ad34db96ff27fc20bc67d97d30c5ff03f6a6c8e3c2bf9e5
+    home: https://gitlab.com/
+    icon: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAA3lBMVEX////iQyn8bSb8oybhMw32zcjgQCn8pSb8bCT8ah/8YADiPiL8aSbiQSbrUij8aybgLwD8nADhOhz0YSf8ZhL8oRjhNxb98vDgMQn0wbv93NLqUCj7lW/+7un7ekL7ooL7nib7cyb65OH31NDkVT/ytq/qhXjnalnpe23sj4T1yMPvo5ryXif8xrX6kyb8zb75fyb96NnlXUnyuLHnbVztmY/odWbwq6P53tvjSjLlW0f8sJb8h1j8v6v8t6D7fkv7dTf5dRD7v4H82b37pDj7tW380a38y6D7qEX838sijp3sAAAGD0lEQVR4nO2aiXrTOBRGKyd1m9VZnKRb2tIVutB2ykBgWAoUCu//QqMsSrxItiwplpPvPw9wc3/pWL62s7EBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgDKjEyNlTkZGypjnqtZqkU3tMqcfW63aroF+jHPaahDSaJ2aKaO/UuY5qxFK7R/NMpeTMo2PRnoyyqhFJrSGWmUGrIyuC+Z505m21v+gVea8Py3TuTDUlzlma6+r6VTS8SYa6ssYu2XCWhtolBnssDL9R2O9mWG+9qR/rlHmsU/MuGCcEyYpbe1So867+UKRlpnxwRTX87XX0nSwWCjS+ddgf/rUGovWNK6gx/KiTKNjsD9tNncWnZHaO+U672uBOuUizTWvg52pazoILhSpvTfaoxbhzkhZVdPdMjGyUub50A91pqxpSFLt8cgkZ41QZ6SsuPjhhSKNM7NtqjNqkUhCtce7q3KkTmHGbzZ0654R4fOK0nljuFNVInIR1bE5uoVUBsOdKrLL6UxF05ikyrqb5jIqF9X0tUKdC04dnRnXGCfRc2ZMX6FQpxGvU4jx+zp+GVK9rjLX2dzh1OlfL6HjrDQ4S6+i6UX0RB7TqC2h44xwl56QncyFeCrQOvbH79hNTFFTwUopnVlGGcSP+AmZ35XFxga2VLbH73O+XNkvIO7lTDRf+5ggOnTPyXgBnfIltT9+x4buhabZZkqRpPSWaPdLlLixjKdpX+SC7fG7JmyM7GR59BFKavuWyBm61dY+wQW74zdn6F6sPclQ6KPYBavj91B4zozpn2/Kcp7ggvYHOx24Q3cgYlmWlDr2xu8ktwxi74PwaaKkBrH2RkowdJvH1vgtGrqXgKXxWzR0LwFL4/envCSlmn6yEXDUct2cArqulTdSB7530yRLT0l/oNn1/CMLCSvbDqVLQy4zH403/pnt7fwD7lWdGd39ZWV097vsR6p7uSf8z3fm1JeR0XWb3uIn/K+5J/xccQLUm6YzhvI5TuVz7gmrThjP6D66+/VIfT/vgINoQno9GjtzXNKNVa/mPdbsxRM6jiFV3Sandu5HDTch3UYTxDfQRsI7n9eG42hfje4+v3D1riAJdU3lGjrGzzsh31J9U7mGWrFUnFDjvuEST1g194QjcUJlU4WGThLm/nI/KaGiqUJDJwnzDjh7tBDhNbJuo0uiU0wICw8XB5WkhjKbmmgopXKQe8IvotsFo5sloptoKMX/knvCk8QLcYy8qW5DfIbOqFp4jfGUoqkjbWqaoZTKYf4BN76maUq5kYno3qQXsvAAzH1+ilNPfaJKOUNn5P7sNOFAYhNTTRUN2mH8/E/SMUOZTUwxVcZQStXSF8QjqU10PKGpcobSLbTxtnTMwE+caxYITJUzlM4zvrX/Rd3KeSowVdJQ6uitrYCyh43DO1NlDbV2zMw4TL/tz4g8NMoaaulmv2DgS0cMmSptqFOxdxFOGcpHDJqaNmgHAtr7qwmLWJGOyEyVN7QIAamo32SPm5mp8oY6/jfb/5+dclCVvC9OTZU2dLtq9RQNcluVNtVryt4knIrN+2CU4ZOkqfX7rXvJiP5TAS7BAEcypnr1t1ulrbde6hP92FBbs6iQu/TbhvfqeKtUKm0dv0rdxkIZyhgepphKDS1NSTW1aIYyEk2dGMpIMbV4hjLuxGfqzNB5xARTC2koQ2jqwtBSmqn+YTENZXBNDRmabGoBz9AoHFMjhiaZWsn9U68CMVPr95x4U6KmFt1QRshUz+MYyjd1BQxlBEwVGMozdSUMZcxNjZ+hsYzM1FUxlDExlXuGxk2teytlKIOa6jmJhgZM9VbKUMbg8LtEvGnG74fFeJbPyo+2ZML2D9utqvKz3ZMK+NN2o+oMn9Mj9p5X6wyNkmpq+5ftFnX5nRyx/dt2g/okmdp7frDdnhF+ibZx9Q1lCExdB0MZD8dxU3vH62EoI2bq+hjKeAlHbL/Ybsg8QVN7pfUylDE3df0MZbxM5tTeOhrKePjTbrf/rKehjOHf1Z6zAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQPH5H/mFe5RAq03ZAAAAAElFTkSuQmCC
+    keywords:
+    - Collaboration
+    - Coding
+    - Git
+    - CI/CD
+    - Issue Tracking
+    name: gitlab
+    sources:
+    - https://docs.gitlab.com/charts/installation/
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/gitlab-0.1.7/gitlab-0.1.7.tgz
+    version: 0.1.7
+  - annotations:
+      displayName: GitLab
+      licenses: MIT
+    apiVersion: v2
+    appVersion: 0.0.3
     created: "2023-07-26T13:55:31.000812252Z"
     dependencies:
     - name: gitlab
@@ -3154,4 +3182,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-07-26T13:55:31.001282193Z"
+generated: "2023-07-26T20:20:53.287999738Z"
