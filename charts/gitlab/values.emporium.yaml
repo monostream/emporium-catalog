@@ -24,11 +24,13 @@ global:
   hosts:
     https: true
     domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
- 
+  
     gitlab:
       name: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
   ingress:
+    configureCertmanager: false
+    enabled: true
     annotations:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
@@ -38,43 +40,33 @@ global:
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
       nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
       nginx.ingress.kubernetes.io/service-upstream: "true"
-    class: nginx
-    configureCertmanager: false
-    enabled: false
-    provider: nginx
-
-
-
+    
 gitlab:
-  gitlab-shell:
-    enabled: false
-  kas:
-    ingress:
+  gitlab:
+    gitlab-shell:
+      enabled: false
+    kas:
+      ingress:
+        enabled: true
+        tls:
+          secretName: gitlab-kas-tls
+    webservice:
       enabled: true
-      tls:
-        secretName: gitlab-kas-tls
-  webservice:
-    enabled: true
-    ingress:
-      tls:
-        secretName: gitlab-webservice-tls
+      ingress:
+        tls:
+          secretName: gitlab-webservice-tls
+
+  nginx-ingress:
+    enabled: false
  
-certmanager:
-  install: false
-  installCRDs: false
-certmanager-issuer:
-  email: shitlab@shit.lab
+  prometheus:
+    install: false
 
-nginx-ingress:
-  enabled: false
- 
-prometheus:
-  install: false
+  gitlab-runner:
+    install: false
+    runners:
+      privileged: true
 
-grafana:
-  enabled: false
-
-gitlab-runner:
-  install: false
-  runners:
-    privileged: true
+  certmanager:
+    install: false
+    installCRDs: false
