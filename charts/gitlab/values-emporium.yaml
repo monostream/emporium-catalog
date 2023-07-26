@@ -1,0 +1,72 @@
+global:
+  edition: ce
+  
+  # appConfig: 
+    # omniauth:
+    #   allowBypassTwoFactor: []
+    #   allowSingleSignOn: true
+    #   autoLinkLdapUser: true
+    #   autoLinkSamlUser: true
+    #   autoLinkUser:
+    #   - azure_activedirectory_v2
+    #   autoSignInWithProvider: azure_activedirectory_v2
+    #   blockAutoCreatedUsers: false
+    #   enabled: true
+    #   externalProviders: []
+    #   providers:
+    #   - key: azure
+    #     secret: gitlab-auth
+    #   syncProfileAttributes:
+    #   - email
+    #   syncProfileFromProvider:
+    #   - azure_activedirectory_v2
+
+  hosts:
+    https: true
+    domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+ 
+    gitlab:
+      name: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+  ingress:
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/service-upstream: "true"
+    class: nginx
+    configureCertmanager: false
+    enabled: false
+    provider: nginx
+
+  grafana:
+    enabled: false
+
+gitlab:
+  gitlab-shell:
+    enabled: false
+  kas:
+    ingress:
+      enabled: true
+      tls:
+        secretName: gitlab-kas-tls
+  webservice:
+    enabled: true
+    ingress:
+      tls:
+        secretName: gitlab-webservice-tls
+ 
+nginx-ingress:
+  enabled: false
+ 
+prometheus:
+  install: false
+
+gitlab-runner:
+  install: false
+  runners:
+    privileged: true
