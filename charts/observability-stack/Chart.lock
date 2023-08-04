@@ -4,7 +4,7 @@ dependencies:
   version: 48.2.0
 - name: loki
   repository: https://grafana.github.io/helm-charts
-  version: 2.16.0
+  version: 5.10.0
 - name: tempo
   repository: https://grafana.github.io/helm-charts
   version: 1.3.1
@@ -14,5 +14,5 @@ dependencies:
 - name: kubernetes-dashboard
   repository: https://kubernetes.github.io/dashboard/
   version: 6.0.8
-digest: sha256:4fec33cd17b8a5ef175393c0bd9aa6732f584dfa8447f1b9442baea56adfa735
-generated: "2023-08-04T15:17:10.550184+02:00"
+digest: sha256:8f70fa38496d49a5d6434a2af5d68de6066cd9ab74c300529b7b6cfd25dc99bf
+generated: "2023-08-04T17:18:06.000094+02:00"
