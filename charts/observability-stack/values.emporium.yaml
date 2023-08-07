@@ -38,15 +38,12 @@ prometheus:
         kubernetes.io/tls-acme: "true"
 
       hosts:
-        - host: grafana-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-          paths:
-          - path: /
-            pathType: Prefix
+        - grafana.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
       tls:
         - secretName: grafana-{{ .Emporium.Name }}-tls
           hosts:
-            - grafana-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+            - grafana.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
     adminPassword: devcloud
 
@@ -190,7 +187,7 @@ dashboard:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - host: dashboard-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - host: dashboard.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
         paths:
         - path: /
           pathType: Prefix
@@ -198,4 +195,4 @@ dashboard:
     tls:
       - secretName: dashboard-{{ .Emporium.Name }}-tls
         hosts:
-          - dashboard-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+          - dashboard.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
