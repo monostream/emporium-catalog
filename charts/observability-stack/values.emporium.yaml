@@ -28,6 +28,26 @@ prometheus:
                 storage: 20Gi
 
   grafana:
+    ingress:
+      enabled: true
+
+      annotations:
+        {{- if .Emporium.Annotations }}
+        {{- toYaml .Emporium.Annotations | nindent 6 }}
+        {{- end }}
+        kubernetes.io/tls-acme: "true"
+
+      hosts:
+        - host: grafana-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+          paths:
+          - path: /
+            pathType: Prefix
+
+      tls:
+        - secretName: grafana-{{ .Emporium.Name }}-tls
+          hosts:
+            - grafana-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
     adminPassword: devcloud
 
     grafana.ini:
@@ -158,3 +178,24 @@ promtail:
   config:
     clients:
       - url: http://{{ .Emporium.Name }}-loki:3100/loki/api/v1/push
+
+dashboard:
+  ingress:
+    enabled: true
+
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+
+    hosts:
+      - host: dashboard-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        paths:
+        - path: /
+          pathType: Prefix
+
+    tls:
+      - secretName: dashboard-{{ .Emporium.Name }}-tls
+        hosts:
+          - dashboard-{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
