@@ -64,7 +64,7 @@ persistence:
   size: 50Gi
 
 config:
-  publicURI: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  publicURI: "https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}"
   flags: "enable-registration enable-login enable-smtp disable-demo-users disable-demo-warning"
   apiSecretKey: "{{ .Emporium.UserSupplied.APISecretKey }}"
 
@@ -94,16 +94,6 @@ config:
       usernameKey: "smtp-username"
       passwordKey: "smtp-password"
 
-smtp:
-  username: "{{ .Emporium.UserSupplied.SMTPUsername }}"
-  password: "{{ .Emporium.UserSupplied.SMTPPassword }}"
-
-postgresql:
-  auth:
-    username: admin
-    password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
-    database: penpot
-
   providers:
     oidc:
       enabled: true
@@ -118,3 +108,14 @@ postgresql:
       # scopes: "scope1 scope2"
       # nameAttribute: ""
       # emailAttribute: ""
+
+smtp:
+  username: "{{ .Emporium.UserSupplied.SMTPUsername }}"
+  password: "{{ .Emporium.UserSupplied.SMTPPassword }}"
+
+postgresql:
+  auth:
+    username: admin
+    password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
+    database: penpot
+
