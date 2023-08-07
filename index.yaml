@@ -1892,6 +1892,44 @@ entries:
       licenses: MPL-2.0
     apiVersion: v2
     appVersion: 1.16.0-beta
+    created: "2023-08-07T15:02:41.724875616Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: a33dac673489b6ead3c67cc2909f23233f5d9509d9ab01f02587e9c7de6471f7
+    home: https://penpot.app
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    - https://github.com/codechem/helm/tree/main/charts/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.30/penpot-1.0.30.tgz
+    version: 1.0.30
+  - annotations:
+      category: Design
+      displayName: Penpot
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
+    apiVersion: v2
+    appVersion: 1.16.0-beta
     created: "2023-08-07T13:51:14.737437147Z"
     dependencies:
     - condition: global.postgresqlEnabled
@@ -3422,4 +3460,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-08-07T13:51:14.737817144Z"
+generated: "2023-08-07T15:02:41.725190418Z"
