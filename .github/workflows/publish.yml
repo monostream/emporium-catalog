@@ -31,6 +31,10 @@ jobs:
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo add gitea-charts https://dl.gitea.io/charts
           helm repo add requarks https://charts.js.wiki
+          helm repo add gitlab https://charts.gitlab.io
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
