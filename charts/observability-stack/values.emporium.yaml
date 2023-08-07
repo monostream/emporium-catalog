@@ -33,7 +33,7 @@ prometheus:
 
       annotations:
         {{- if .Emporium.Annotations }}
-        {{- toYaml .Emporium.Annotations | nindent 6 }}
+        {{- toYaml .Emporium.Annotations | nindent 8 }}
         {{- end }}
         kubernetes.io/tls-acme: "true"
 
