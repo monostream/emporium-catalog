@@ -1706,6 +1706,51 @@ entries:
       displayName: Observability Stack
       licenses: Apache-2.0
     apiVersion: v2
+    appVersion: 0.0.2
+    created: "2023-08-07T08:32:29.612018026Z"
+    dependencies:
+    - alias: prometheus
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 48.2.0
+    - name: loki
+      repository: https://grafana.github.io/helm-charts
+      version: 5.10.0
+    - name: tempo
+      repository: https://grafana.github.io/helm-charts
+      version: 1.3.1
+    - name: promtail
+      repository: https://grafana.github.io/helm-charts
+      version: 6.11.9
+    - alias: dashboard
+      name: kubernetes-dashboard
+      repository: https://kubernetes.github.io/dashboard/
+      version: 6.0.8
+    description: An all-in-one observability stack for Kubernetes, integrating Grafana,
+      Prometheus, Loki, Tempo, Promtail, and the Kubernetes Dashboard.
+    digest: dfdb722447ee02c8b05445dfe6a0432ab38052703e7020dac5ced05955c61afe
+    home: https://grafana.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_icon_2.png
+    keywords:
+    - Observability
+    - Metrics
+    - Logging
+    - Alerting
+    name: observability-stack
+    sources:
+    - https://github.com/grafana/grafana
+    - https://github.com/grafana/loki
+    - https://github.com/grafana/tempo
+    - https://github.com/prometheus/prometheus
+    - https://github.com/kubernetes/dashboard
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/observability-stack-0.0.2/observability-stack-0.0.2.tgz
+    version: 0.0.2
+  - annotations:
+      category: Developer Tools
+      displayName: Observability Stack
+      licenses: Apache-2.0
+    apiVersion: v2
     appVersion: 0.0.1
     created: "2023-08-04T15:21:20.778216724Z"
     dependencies:
@@ -3228,4 +3273,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-08-04T15:21:20.778433623Z"
+generated: "2023-08-07T08:32:29.6122715Z"
