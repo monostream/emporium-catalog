@@ -104,17 +104,17 @@ postgresql:
     password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
     database: penpot
 
-  # providers:
-    # oidc:
-    #   enabled: false
-    #   baseURI: ""
-    #   clientID: ""
-    #   clientSecret: ""
-    #   authURI: ""
-    #   tokenURI: ""
-    #   userURI: ""
-    #   roles: "role1 role2"
-    #   rolesAttribute: ""
-    #   scopes: "scope1 scope2"
-    #   nameAttribute: ""
-    #   emailAttribute: ""
+  providers:
+    oidc:
+      enabled: true
+      baseURI: "{{ .Emporium.OpenIDConnect.Issuer }}"
+      clientID: "{{ .Emporium.OpenIDConnect.ClientID }}"
+      clientSecret: "{{ .Emporium.OpenIDConnect.ClientSecret }}"
+      # authURI: ""
+      # tokenURI: ""
+      # userURI: ""
+      # roles: "role1 role2"
+      # rolesAttribute: ""
+      # scopes: "scope1 scope2"
+      # nameAttribute: ""
+      # emailAttribute: ""
