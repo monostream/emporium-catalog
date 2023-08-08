@@ -1471,6 +1471,36 @@ entries:
       oidcRedirectPaths: /users/auth/openid_connect/callback
     apiVersion: v2
     appVersion: 0.0.3
+    created: "2023-08-08T13:40:24.946423777Z"
+    dependencies:
+    - name: gitlab
+      repository: https://charts.gitlab.io/
+      version: 7.2.1
+    description: A single plattform to experience and share frustration with other
+      developers
+    digest: bb90afa0e01202cae479bd93541b1e67ad1f85a3782e85d43387f7358a32321a
+    home: https://gitlab.com/
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.png
+    keywords:
+    - Collaboration
+    - Coding
+    - Git
+    - CI/CD
+    - Issue Tracking
+    name: gitlab
+    sources:
+    - https://docs.gitlab.com/charts/installation/
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/gitlab-0.1.11/gitlab-0.1.11.tgz
+    version: 0.1.11
+  - annotations:
+      category: Developer Tools
+      displayName: GitLab
+      licenses: MIT
+      oidcRedirectPaths: /users/auth/openid_connect/callback
+    apiVersion: v2
+    appVersion: 0.0.3
     created: "2023-08-08T13:20:00.677012284Z"
     dependencies:
     - name: gitlab
@@ -3724,4 +3754,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-08-08T13:20:00.677258206Z"
+generated: "2023-08-08T13:40:24.94674978Z"
