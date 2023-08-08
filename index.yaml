@@ -1935,6 +1935,45 @@ entries:
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
         https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
       licenses: MPL-2.0
+      oidcRedirectPaths: /api/auth/oauth/oidc/callback
+    apiVersion: v2
+    appVersion: 1.16.0-beta
+    created: "2023-08-08T08:47:19.699583838Z"
+    dependencies:
+    - condition: global.postgresqlEnabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.x.x
+    - condition: global.redisEnabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 17.x.x
+    description: The Open-Source design and prototyping platform
+    digest: 8dac89d30d1b1b7b63136b0e742533792d25a2af310c652acab755afb48170d3
+    home: https://penpot.app
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.png
+    keywords:
+    - Design
+    - Prototype
+    maintainers:
+    - name: codechem
+      url: https://codechem.com
+    name: penpot
+    sources:
+    - https://github.com/penpot/penpot
+    - https://github.com/codechem/helm/tree/main/charts/penpot
+    type: application
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/penpot-1.0.31/penpot-1.0.31.tgz
+    version: 1.0.31
+  - annotations:
+      category: Design
+      displayName: Penpot
+      gallery: |
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+      licenses: MPL-2.0
     apiVersion: v2
     appVersion: 1.16.0-beta
     created: "2023-08-07T15:02:41.724875616Z"
@@ -3505,4 +3544,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-08-08T08:27:14.107318238Z"
+generated: "2023-08-08T08:47:19.700050946Z"
