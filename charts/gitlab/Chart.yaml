@@ -4,7 +4,7 @@ name: gitlab
 description: A single plattform to experience and share frustration with other developers
 
 type: application
-version: 0.1.12
+version: 0.1.13
 appVersion: "0.0.3"
 
 home: https://gitlab.com/
