@@ -1,1 +1,18 @@
+authentik:
+  name:
+  label:
+  args:
+    name:
+    scope:
+    response_type:
+    issuer:
+    discovery:
+    client_auth_method:
+    send_scope_to_token_endpoint:
+    pkce:
+    client_options:
+      identifier:
+      secret:
+      redirect_uri:
+
 gitlab: {}

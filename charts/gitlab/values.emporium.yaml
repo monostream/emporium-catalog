@@ -16,27 +16,27 @@ authentik:
       redirect_uri: "https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}/users/auth/openid_connect/callback"
 
 global:
-  edition: ce
-    appConfig:
-      omniauth:
-        allowBypassTwoFactor: []
-        allowSingleSignOn: true
-        autoLinkLdapUser: true
-        autoLinkSamlUser: true
-        autoLinkUser:
-        - openid_connect
-        autoSignInWithProvider: openid_connect
-        blockAutoCreatedUsers: false
-        enabled: true
-        externalProviders: []
-        providers:
-        - key: authentik
-          secret: gitlab-auth
-        syncProfileAttributes:
-        - email
-        syncProfileFromProvider:
-        - openid_connect
+  appConfig:
+    omniauth:
+      allowBypassTwoFactor: []
+      allowSingleSignOn: true
+      autoLinkLdapUser: true
+      autoLinkSamlUser: true
+      autoLinkUser:
+      - openid_connect
+      autoSignInWithProvider: openid_connect
+      blockAutoCreatedUsers: false
+      enabled: true
+      externalProviders: []
+      providers:
+      - key: authentik
+        secret: gitlab-auth
+      syncProfileAttributes:
+      - email
+      syncProfileFromProvider:
+      - openid_connect
 
+  edition: ce
 
   hosts:
     https: true
