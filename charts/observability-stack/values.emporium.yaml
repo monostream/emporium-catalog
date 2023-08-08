@@ -187,11 +187,8 @@ dashboard:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - host: dashboard.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-        paths:
-        - path: /
-          pathType: Prefix
-
+      - dashboard.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+ 
     tls:
       - secretName: dashboard-{{ .Emporium.Name }}-tls
         hosts:
