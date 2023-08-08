@@ -156,6 +156,7 @@ prometheus:
 
 loki:
   loki:
+    auth_enabled: false
     commonConfig:
       replication_factor: 1
     storage:
@@ -177,6 +178,21 @@ promtail:
       - url: http://{{ .Emporium.Name }}-loki:3100/loki/api/v1/push
 
 dashboard:
+  extraArgs:
+    - --enable-insecure-login
+
+  protocolHttp: true
+
+  service:
+    type: ClusterIP
+    externalPort: 80
+
+  metricsScraper:
+    enabled: true
+
+  metrics-server:
+    enabled: false
+
   ingress:
     enabled: true
 
