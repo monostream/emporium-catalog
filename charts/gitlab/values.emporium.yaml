@@ -1,30 +1,47 @@
+authentik: |
+  name: "openid_connect"
+  label: "Emporium"
+  args:
+    name: "openid_connect"
+    scope: ["openid","profile","email"]
+    response_type: "code"
+    issuer: "{{ .Emporium.OpenIDConnect.Issuer }}"
+    discovery: true
+    client_auth_method: "query"
+    send_scope_to_token_endpoint: "false"
+    pkce: true
+    client_options:
+      identifier: "{{ .Emporium.OpenIDConnect.ClientID }}"
+      secret: "{{ .Emporium.OpenIDConnect.ClientSecret }}"
+      redirect_uri: "https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}/users/auth/openid_connect/callback"
+
 global:
   edition: ce
-  
-  # appConfig: 
-    # omniauth:
-    #   allowBypassTwoFactor: []
-    #   allowSingleSignOn: true
-    #   autoLinkLdapUser: true
-    #   autoLinkSamlUser: true
-    #   autoLinkUser:
-    #   - azure_activedirectory_v2
-    #   autoSignInWithProvider: azure_activedirectory_v2
-    #   blockAutoCreatedUsers: false
-    #   enabled: true
-    #   externalProviders: []
-    #   providers:
-    #   - key: azure
-    #     secret: gitlab-auth
-    #   syncProfileAttributes:
-    #   - email
-    #   syncProfileFromProvider:
-    #   - azure_activedirectory_v2
+    appConfig:
+      omniauth:
+        allowBypassTwoFactor: []
+        allowSingleSignOn: true
+        autoLinkLdapUser: true
+        autoLinkSamlUser: true
+        autoLinkUser:
+        - openid_connect
+        autoSignInWithProvider: openid_connect
+        blockAutoCreatedUsers: false
+        enabled: true
+        externalProviders: []
+        providers:
+        - key: authentik
+          secret: gitlab-auth
+        syncProfileAttributes:
+        - email
+        syncProfileFromProvider:
+        - openid_connect
+
 
   hosts:
     https: true
     domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-  
+
     gitlab:
       name: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
@@ -41,7 +58,7 @@ global:
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
       nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
       nginx.ingress.kubernetes.io/service-upstream: "true"
-    
+
 gitlab:
   gitlab:
     gitlab-shell:
@@ -59,7 +76,7 @@ gitlab:
 
   nginx-ingress:
     enabled: false
- 
+
   prometheus:
     install: false
 
