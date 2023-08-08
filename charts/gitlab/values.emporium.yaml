@@ -1,4 +1,4 @@
-authentik: |
+authentik:
   name: "openid_connect"
   label: "Emporium"
   args:
