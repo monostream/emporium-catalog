@@ -1,3 +1,57 @@
+## @userSupplied ArtifactsBasicAuthPassword
+## @label Artifacts Basic Auth Password
+## @type string
+## @description Generate with `openssl rand -hex 16` for example
+
+## @userSupplied ArtifactsBasicAuthUsername
+## @label The Basic Auth Username to use
+## @type string
+## @description The SMTP default email to send from
+
+## @userSupplied ArtifactsCookieAuthHashKey
+## @label Artifacts Cookie-Auth HashKey
+## @type string
+## @description The Cookie-Auth HashKey to use
+
+## @userSupplied ArtifactsCookieSecretKey
+## @label Artifacts Cookie SecretKey
+## @type string
+## @description The Cookie SecretKey to use
+
+## @userSupplied ArtifactsOidcClientId
+## @label Artifacts Oidc ClientId
+## @type integer
+## @description The Oidc ClientId to use
+
+## @userSupplied ArtifactsOidcIssuer
+## @label Artifacts Oidc Issuer
+## @type string
+## @description The Oidc Issuer to use
+
+## @userSupplied ArtifactsPersistenceSize
+## @label Artifacts Persistence Size
+## @type string
+## @description Size of the local Artifacts volume
+
+## @userSupplied ArtifactsPersistenceStorageClass
+## @label Artifacts Persistence StorageClass
+## @type string
+## @description The StorageClass to use for the Artifacts volume
+
+## @userSupplied PostgresqlPassword
+## @label Postgresql Password
+## @type string
+## @description The database password to use
+
+## @userSupplied PostgresqlPersistenceSize
+## @label Postgresql Persistence Size
+## @type string
+## @description Size of the local Postgresql volume
+
+## @userSupplied PostgresqlPersistenceStorageClass
+## @label Postgresql Persistence StorageClass
+## @type string
+## @description The StorageClass to use for the Postgresql volume
 artifacts:
   auth:
     basic:
