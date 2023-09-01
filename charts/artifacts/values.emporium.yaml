@@ -42,16 +42,6 @@
 ## @label Postgresql Password
 ## @type string
 ## @description The database password to use
-
-## @userSupplied PostgresqlPersistenceSize
-## @label Postgresql Persistence Size
-## @type string
-## @description Size of the local Postgresql volume
-
-## @userSupplied PostgresqlPersistenceStorageClass
-## @label Postgresql Persistence StorageClass
-## @type string
-## @description The StorageClass to use for the Postgresql volume
 artifacts:
   auth:
     basic:
@@ -136,8 +126,3 @@ postgresql:
   auth:
     database: artifacts
     postgresPassword: {{ .Emporium.UserSupplied.PostgresqlPassword }}
-  primary:
-    persistence:
-      enabled: true
-      size: {{ .Emporium.UserSupplied.PostgresqlPersistenceSize }}Gi
-      storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
