@@ -20,7 +20,7 @@
 
 ## @userSupplied ArtifactsOidcClientId
 ## @label Artifacts Oidc ClientId
-## @type integer
+## @type string
 ## @description The Oidc ClientId to use
 
 ## @userSupplied ArtifactsOidcIssuer
