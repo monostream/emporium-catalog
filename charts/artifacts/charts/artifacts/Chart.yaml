@@ -1,0 +1,8 @@
+apiVersion: v2
+type: application
+
+name: artifacts
+description: Artifacts
+
+version: 0.0.4
+appVersion: 0.0.4

@@ -1,0 +1,35 @@
+apiVersion: v2
+
+name: artifacts
+description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
+
+version: 0.0.1
+appVersion: 0.0.4
+
+dependencies:
+  - name: postgresql
+    version: 12.10.0
+    repository: https://charts.bitnami.com/bitnami
+
+
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.png
+sources:
+  - https://github.com/monostream/artifacts
+
+keywords:
+  - Repository
+  - SelfHosted
+  - Docker
+  - HelmCharts
+  - NPM
+  - Maven
+  - NuGet
+
+annotations:
+  displayName: Artifacts
+  category: Developer Tools
+  licenses: Apache-2.0
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_1.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_2.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_3.png

@@ -1,0 +1,89 @@
+artifacts:
+  auth:
+    basic:
+      password: {{ .Emporium.UserSupplied.ArtifactsBasicAuthPassword }}
+      username: {{ .Emporium.UserSupplied.ArtifactsBasicAuthUsername }}
+    cookie:
+      hashKey: {{ .Emporium.UserSupplied.ArtifactsCookieAuthHashKey }}
+      secretKey: {{ .Emporium.UserSupplied.ArtifactsCookieSecretKey }}
+    oidc:
+      clientId: {{ .Emporium.UserSupplied.ArtifactsOidcClientId }}
+      issuer: {{ .Emporium.UserSupplied.ArtifactsOidcIssuer }}
+  baseUrl: https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  database:
+    url: postgresql://postgres:{{ .Emporium.UserSupplied.PostgresqlPassword }}@{{ .Emporium.Name }}-postgresql:5432/artifacts
+  image:
+    pullPolicy: Always
+    repository: monostream/artifacts
+    tag: 0.0.4
+  ingress:
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    enabled: true
+    hosts:
+    - host: pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: api.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: '*.docker.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: '*.helm.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: '*.maven.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: '*.nuget.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: '*.npm.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      paths:
+      - path: /
+        pathType: Prefix
+    ingressClassName: nginx
+    tls:
+    - hosts:
+      - pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - api.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - '*.docker.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      - '*.helm.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      - '*.maven.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      - '*.nuget.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      - '*.npm.pkg.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
+      secretName: artifacts-tls
+  persistence:
+    enabled: true
+    size: {{ .Emporium.UserSupplied.ArtifactsPersistenceSize }}
+    storageClass: {{ .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
+  serviceAccount:
+    create: true
+    name: artifacts
+  storage:
+    filesystem:
+      path: /data
+
+postgresql:
+  auth:
+    database: artifacts
+    postgresPassword: {{ .Emporium.UserSupplied.PostgresqlPassword }}
+  primary:
+    persistence:
+      enabled: true
+      size: {{ .Emporium.UserSupplied.PostgresqlPersistenceSize }}
+      storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
