@@ -43,10 +43,30 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Common labels
+*/}}
+{{- define "artifacts.workerLabels" -}}
+helm.sh/chart: {{ include "artifacts.chart" . }}
+{{ include "artifacts.workerSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "artifacts.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "artifacts.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+worker selector labels
+*/}}
+{{- define "artifacts.workerSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "artifacts.name" . }}-worker
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 

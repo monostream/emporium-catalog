@@ -1,19 +1,20 @@
+{{- if gt (.Values.replicaCount | int) 1 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "artifacts.fullname" . }}
+  name: {{ include "artifacts.fullname" . }}-worker
   labels:
-    {{- include "artifacts.labels" . | nindent 4 }}
+    {{- include "artifacts.workerLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      {{- include "artifacts.selectorLabels" . | nindent 6 }}
+      {{- include "artifacts.workerSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "artifacts.selectorLabels" . | nindent 8 }}
+        {{- include "artifacts.workerSelectorLabels" . | nindent 8 }}
       {{- with .Values.annotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -29,11 +30,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["artifacts"]
-          {{- if gt (.Values.replicaCount | int) 1 }}
-          args: ["--disable-worker"]
-          {{- else }}
           args: ["--gc-enabled"]
-          {{- end }}
           env:
             - name: BASE_URL
               value: {{ required "missing required value baseUrl" .Values.baseUrl | quote }}
@@ -115,13 +112,6 @@ spec:
             - name: CSP_POLICY
               value: {{ .Values.csp.policy | quote }}
             {{- end }}
-          ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-            - name: http-artifacts
-              containerPort: 8081
-              protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -142,3 +132,4 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+{{- end }}
