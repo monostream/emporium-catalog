@@ -1,13 +1,3 @@
-## @userSupplied ArtifactsOidcClientId
-## @label Artifacts Oidc ClientId
-## @type string
-## @description The Oidc ClientId to use
-
-## @userSupplied ArtifactsOidcIssuer
-## @label Artifacts Oidc Issuer
-## @type string
-## @description The Oidc Issuer to use
-
 ## @userSupplied ArtifactsPersistenceSize
 ## @label Artifacts Persistence Size
 ## @type string
@@ -25,8 +15,8 @@
 artifacts:
   auth:
     oidc:
-      clientId: {{ .Emporium.UserSupplied.ArtifactsOidcClientId }}
-      issuer: {{ .Emporium.UserSupplied.ArtifactsOidcIssuer }}
+      clientId: {{ .Emporium.OpenIDConnect.ClientID }}
+      issuer: {{ .Emporium.OpenIDConnect.Issuer }}
   baseUrl: https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
   database:
     url: postgresql://postgres:{{ .Emporium.UserSupplied.PostgresqlPassword }}@{{ .Emporium.Name }}-postgresql:5432/artifacts
