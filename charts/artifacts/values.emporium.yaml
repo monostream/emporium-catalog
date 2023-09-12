@@ -23,15 +23,13 @@ artifacts:
   image:
     pullPolicy: Always
     repository: monostream/artifacts
-    tag: 0.0.6
   ingress:
     annotations:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
-      glass.monostream.com/enabled: "true"
-      glass.monostream.com/auth-disabled: "true"
+      glass.monostream.com/list-application: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
       nginx.ingress.kubernetes.io/proxy-buffering: "off"
       nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
