@@ -178,24 +178,6 @@ promtail:
       - url: http://{{ .Emporium.Name }}-loki:3100/loki/api/v1/push
 
 
-pyroscope:
-  ingress:
-    enabled: true
-
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-
-    hosts:
-      - pyroscope.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
- 
-    tls:
-      - secretName: pyroscope-{{ .Emporium.Name }}-tls
-        hosts:
-          - pyroscope.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-
 dashboard:
   extraArgs:
     - --enable-insecure-login
