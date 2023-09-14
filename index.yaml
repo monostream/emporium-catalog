@@ -11,6 +11,40 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 0.0.7
+    created: "2023-09-14T12:00:27.256517904Z"
+    dependencies:
+    - name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.10.0
+    description: Your all-in-one, self-hosted package registry. Easily host and manage
+      Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central
+      location.
+    digest: 360aa415b476940272280cb5fa741bcf9a376e5f1062b2120e55c582559c3f02
+    icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.png
+    keywords:
+    - Repository
+    - SelfHosted
+    - Docker
+    - HelmCharts
+    - NPM
+    - Maven
+    - NuGet
+    name: artifacts
+    sources:
+    - https://github.com/monostream/artifacts
+    urls:
+    - https://github.com/monostream/test-charts/releases/download/artifacts-0.0.13/artifacts-0.0.13.tgz
+    version: 0.0.13
+  - annotations:
+      category: Developer Tools
+      displayName: Artifacts
+      gallery: |-
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_1.png
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_2.png
+        https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_3.png
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 0.0.7
     created: "2023-09-13T09:57:57.750568509Z"
     dependencies:
     - name: postgresql
@@ -4319,4 +4353,4 @@ entries:
     urls:
     - https://github.com/monostream/test-charts/releases/download/wiki-0.0.1/wiki-0.0.1.tgz
     version: 0.0.1
-generated: "2023-09-14T11:10:14.696887132Z"
+generated: "2023-09-14T12:00:27.256845823Z"
