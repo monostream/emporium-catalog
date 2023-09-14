@@ -2,25 +2,25 @@
 ## @label Artifacts Persistence Size
 ## @type string
 ## @description Size of the local Artifacts volume
-## @optional true
+## @optional
 
 ## @userSupplied ArtifactsPersistenceStorageClass
 ## @label Artifacts Persistence StorageClass
 ## @type string
 ## @description The StorageClass to use for the Artifacts volume
-## @optional true
+## @optional
 
 ## @userSupplied PostgresqlPersistenceSize
 ## @label Postgresql Persistence Size
 ## @type string
 ## @description Size of the local Postgresql volume
-## @optional true
+## @optional
 
 ## @userSupplied PostgresqlPersistenceStorageClass
 ## @label Postgresql Persistence StorageClass
 ## @type string
 ## @description The StorageClass to use for the Postgresql volume
-## @optional true
+## @optional
 
 ## @userSupplied PostgresqlPassword
 ## @label Postgresql Password
