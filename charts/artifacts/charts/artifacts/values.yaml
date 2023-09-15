@@ -15,14 +15,22 @@ annotations: {}
 
 replicaCount: 1
 
-baseUrl:
+hosts:
+#  The domain under which 2pack will be available
+  domain:
+  https: true
 
+# If enabled only a static page will be shown when visiting the portal
 disableUI:
+
+# The secret in which the encryption key (32bytes) and the cookie signing key (64bytes) are stored
+# the encryption key is used to encrypt sensitive information like user tokens, credentials and proxy credentials
 encryptionKey:
   secretName:
   secretKey:
 
 auth:
+  # the only way to currently login to the portal UI is via OAuth2
   oidc:
     issuer:
     clientId:
@@ -31,6 +39,7 @@ auth:
     hashKey:
       secretName:
       secretKey:
+  # the admin credentials for repository access (no portal UI access possible with these)
   basic:
     username:
     password:
@@ -74,18 +83,21 @@ persistence:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+#  hosts:
+#    - host: chart-example.local
+#      paths:
+#        - path: /
+#          pathType: Prefix
+#  tls:
+#    - secretName: chart-example-tls
+#      hosts:
+#        - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

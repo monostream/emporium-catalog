@@ -36,7 +36,7 @@ spec:
           {{- end }}
           env:
             - name: BASE_URL
-              value: {{ required "missing required value baseUrl" .Values.baseUrl | quote }}
+              value: {{ print (.Values.hosts.https | ternary "https://" "http://") (required "missing required value hosts.domain" .Values.hosts.domain) | quote }}
             {{- if .Values.auth.basic.username }}
             - name: USERNAME
               value: {{ .Values.auth.basic.username | quote }}
@@ -107,8 +107,14 @@ spec:
             - name: DEPLOYMENT_MODE
               value: distributed
             {{- end }}
+            {{- if lt (.Values.replicaCount | int) 2 }}
+            - name: DATABASE_DSN
+              value: {{ (.Values.database.url | default "sqlite:///data/inventory.sqlite") | quote }}
+            {{- end }}
+            {{- if gt (.Values.replicaCount | int) 1 }}
             - name: DATABASE_DSN
               value: {{ required "missing required value database.url" .Values.database.url | quote }}
+            {{- end }}
             - name: TMPDIR
               value: /data/tmp
             {{- if .Values.csp.enabled }}

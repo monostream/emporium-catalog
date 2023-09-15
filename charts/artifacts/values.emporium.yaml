@@ -25,15 +25,20 @@
 ## @userSupplied PostgresqlPassword
 ## @label Postgresql Password
 ## @type string
-## @description The database password to use
+## @description The database password to use (if left empty SQLite will be used)
+## @optional
 artifacts:
   auth:
     oidc:
       clientId: {{ .Emporium.OpenIDConnect.ClientID }}
       issuer: {{ .Emporium.OpenIDConnect.Issuer }}
-  baseUrl: https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  hosts:
+    domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    https: true
+  {{- if .Emporium.UserSupplied.PostgresqlPassword }}
   database:
     url: postgresql://postgres:{{ .Emporium.UserSupplied.PostgresqlPassword }}@{{ .Emporium.Name }}-postgresql:5432/artifacts
+  {{- end }}
   image:
     pullPolicy: Always
     repository: monostream/artifacts
@@ -43,52 +48,9 @@ artifacts:
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       emporium.build/auth-disabled: "true"
+      emporium.build/auth-app-redirects: "/auth/callback"
       kubernetes.io/tls-acme: "true"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/proxy-buffering: "off"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
-      nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     enabled: true
-    hosts:
-    - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-      paths:
-      - path: /
-        pathType: Prefix
-    - host: api.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-      paths:
-      - path: /
-        pathType: Prefix
-    - host: '*.docker.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      paths:
-      - path: /
-        pathType: Prefix
-    - host: '*.helm.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      paths:
-      - path: /
-        pathType: Prefix
-    - host: '*.maven.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      paths:
-      - path: /
-        pathType: Prefix
-    - host: '*.nuget.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      paths:
-      - path: /
-        pathType: Prefix
-    - host: '*.npm.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      paths:
-      - path: /
-        pathType: Prefix
-    ingressClassName: nginx
-    tls:
-    - hosts:
-      - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-      - api.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-      - '*.docker.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      - '*.helm.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      - '*.maven.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      - '*.nuget.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      - '*.npm.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}'
-      secretName: artifacts-tls
   persistence:
     enabled: true
     {{- if .Emporium.UserSupplied.ArtifactsPersistenceSize }}
@@ -104,6 +66,7 @@ artifacts:
     filesystem:
       path: /data
 
+{{- if .Emporium.UserSupplied.PostgresqlPassword }}
 postgresql:
   auth:
     database: artifacts
@@ -117,3 +80,4 @@ postgresql:
       {{- if .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
       storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
       {{- end }}
+  {{- end }}
