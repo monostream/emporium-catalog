@@ -27,6 +27,12 @@
 ## @type string
 ## @description The database password to use (if left empty SQLite will be used)
 ## @optional
+
+{{- if .Emporium.UserSupplied.PostgresqlPassword }}
+global:
+  postgresql:
+    enabled: true
+{{- end }}
 artifacts:
   auth:
     oidc:

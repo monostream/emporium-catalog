@@ -10,7 +10,7 @@ dependencies:
   - name: postgresql
     version: 12.10.0
     repository: https://charts.bitnami.com/bitnami
-    condition: artifacts.database.url
+    condition: global.postgresql.enabled
 
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.png
 sources:
