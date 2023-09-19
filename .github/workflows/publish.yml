@@ -8,14 +8,24 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    container:
-      image: monostream/devcloud-build-golang:1
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Install cm-push plugin
+        run: |
+          helm plugin install https://github.com/chartmuseum/helm-push.git
 
       - name: Add helm repos
         run: |
