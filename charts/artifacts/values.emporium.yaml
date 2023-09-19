@@ -47,14 +47,12 @@ artifacts:
   {{- end }}
   image:
     pullPolicy: Always
-    repository: monostream/artifacts
+    repository: monostream.docker.pkg.emporium.rocks
   ingress:
     annotations:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
-      emporium.build/auth-disabled: "true"
-      emporium.build/auth-app-redirects: "/auth/callback"
       kubernetes.io/tls-acme: "true"
     enabled: true
   persistence:

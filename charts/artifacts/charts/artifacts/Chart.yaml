@@ -1,9 +1,0 @@
-apiVersion: v2
-type: application
-
-name: artifacts
-description: artifacts is a minimalistic artifact repository which supports Docker, Helm, NPM, Maven and NuGet artifacts.
-  It also has the possibility to act as caching proxy for other Docker, NPM and Maven repositories.
-
-version: 0.0.8
-appVersion: 0.0.7
