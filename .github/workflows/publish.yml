@@ -23,11 +23,7 @@ jobs:
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-<<<<<<< Updated upstream
-          helm repo add monostream https://monostream.helm.pkg.emporium.rocks
-=======
           helm repo add emporium-apps ${{ vars.HELM_REPO }}  --username ${{ secrets.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
->>>>>>> Stashed changes
 
       - name: Run cm-push
         run: |
