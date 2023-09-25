@@ -3,7 +3,7 @@ apiVersion: v2
 name: kubernetes-dashboard
 description: General-purpose web UI for Kubernetes clusters
 
-version: 0.0.1
+version: 0.0.2
 appVersion: 0.0.1
 
 dependencies:
@@ -13,11 +13,12 @@ dependencies:
     alias: dashboard
 
 home: https://github.com/kubernetes/dashboard
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_icon_2.png
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/kubernetes-dashboard/kubernetes-dashboard_icon_2.png
 sources:
   - https://github.com/kubernetes/dashboard
 keywords:
-  - 
+  - Kubernetes
+  - Dashboard
 annotations:
   displayName: Kubernetes Dashboard
   category: Developer Tools
