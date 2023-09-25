@@ -4,6 +4,18 @@ gitea:
     username: admin
     password: "dsH638dpp)28k"
     email: "admin@localhost"
+  # oauth:
+  # - name: 'OAuth 1'
+  #   provider: 
+  #   key:
+  #   secret:
+  #   existingSecret:
+  #   autoDiscoverUrl:
+  #   useCustomUrls:
+  #   customAuthUrl:
+  #   customTokenUrl:
+  #   customProfileUrl:
+  #   customEmailUrl:
 
   config:
     actions:
@@ -25,6 +37,12 @@ gitea:
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
+      #TOOD: should be done more explicit
+      emporium.build/auth-skip-paths: '/*'
+      nginx.ingress.kubernetes.io/proxy-body-size: '0'
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
+      nginx.ingress.kubernetes.io/service-upstream: 'true'
     hosts:
       - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
         paths:
