@@ -37,8 +37,7 @@ gitea:
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
-      #TOOD: should be done more explicit
-      emporium.build/auth-skip-paths: '/*'
+      emporium.build/auth-skip-paths: '/api/v1'
       nginx.ingress.kubernetes.io/proxy-body-size: '0'
       nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
       nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
