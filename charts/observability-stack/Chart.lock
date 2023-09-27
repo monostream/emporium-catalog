@@ -14,8 +14,5 @@ dependencies:
 - name: pyroscope
   repository: https://grafana.github.io/helm-charts
   version: 1.0.2
-- name: kubernetes-dashboard
-  repository: https://kubernetes.github.io/dashboard/
-  version: 6.0.8
-digest: sha256:3fa645521b903debabe481779fd8bfb4f917573c64167681d87d0754eaf8f3b7
-generated: "2023-09-14T13:08:28.759575+02:00"
+digest: sha256:3d7e97d2abe9af260f6c754e804f2d34f490b4c9dc2f913061e882d0fe54e0ce
+generated: "2023-09-25T14:27:46.897535+02:00"
