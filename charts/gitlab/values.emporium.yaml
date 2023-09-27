@@ -81,7 +81,7 @@ gitlab:
     install: false
 
   gitlab-runner:
-    install: false
+    install: true
     runners:
       privileged: true
 
