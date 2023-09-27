@@ -4,8 +4,8 @@ name: gitlab
 description: A single plattform to experience and share frustration with other developers
 
 type: application
-version: 0.1.14
-appVersion: "0.0.4"
+version: 0.1.16
+appVersion: "0.0.6"
 
 home: https://gitlab.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.png

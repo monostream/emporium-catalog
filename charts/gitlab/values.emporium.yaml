@@ -53,6 +53,7 @@ global:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
+      emporium.build/auth-skip-paths: '/, /favicon.ico, /users/sign_in, /-/manifest.json, /-/health, /api/*, /assets/*, /oauth/*, /static/*, regex(^(\/([^\/])+){2,}\.git.*$)'
       kubernetes.io/tls-acme: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
