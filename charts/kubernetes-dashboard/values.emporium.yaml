@@ -24,9 +24,9 @@ dashboard:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - dashboard.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
  
     tls:
       - secretName: dashboard-{{ .Emporium.Name }}-tls
         hosts:
-          - dashboard.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
