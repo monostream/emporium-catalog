@@ -38,12 +38,12 @@ prometheus:
         kubernetes.io/tls-acme: "true"
 
       hosts:
-        - grafana.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
       tls:
         - secretName: grafana-{{ .Emporium.Name }}-tls
           hosts:
-            - grafana.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+            - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
     adminPassword: devcloud
 
