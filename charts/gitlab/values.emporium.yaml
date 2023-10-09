@@ -45,6 +45,10 @@ global:
     gitlab:
       name: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
 
+    minio:
+      name: minio.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      https: true
+
   ingress:
     configureCertmanager: false
     enabled: true
