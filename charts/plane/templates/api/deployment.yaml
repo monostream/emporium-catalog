@@ -42,7 +42,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-postgresql
-                  key: password
+                  key: postgres-password
             - name: PGHOST
               value: {{ include "plane.fullname" . }}-postgres
             - name: PGDATABASE
