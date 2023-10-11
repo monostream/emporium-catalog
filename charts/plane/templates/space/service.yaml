@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "plane.fullname" . }}-space
+  labels:
+    {{- include "plane.space.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.space.service.type }}
+  ports:
+    - port: {{ .Values.space.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "plane.space.selectorLabels" . | nindent 4 }}
