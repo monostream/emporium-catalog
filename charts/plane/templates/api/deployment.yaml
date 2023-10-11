@@ -93,9 +93,12 @@ spec:
             - "./bin/worker"
           env:
             - name: PGUSER
-              value: {{ .Values.postgresql.auth.username }}
+              value: postgres
             - name: PGPASSWORD
-              value: {{ .Values.postgresql.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgresql
+                  key: postgres-password
             - name: PGHOST
               value: {{ include "plane.fullname" . }}-postgres
             - name: PGDATABASE
@@ -115,7 +118,10 @@ spec:
             - name: ENABLE_EMAIL_PASSWORD
               value: "1"
             - name: SECRET_KEY
-              value: {{ .Values.api.secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "plane.fullname" . }}
+                  key: secret-key
           ports:
             - name: http
               containerPort: {{ .Values.api.service.port }}
@@ -127,9 +133,12 @@ spec:
             - "./bin/beat"
           env:
             - name: PGUSER
-              value: {{ .Values.postgresql.auth.username }}
+              value: postgres
             - name: PGPASSWORD
-              value: {{ .Values.postgresql.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgresql
+                  key: postgres-password
             - name: PGHOST
               value: {{ include "plane.fullname" . }}-postgres
             - name: PGDATABASE
@@ -149,7 +158,10 @@ spec:
             - name: ENABLE_EMAIL_PASSWORD
               value: "1"
             - name: SECRET_KEY
-              value: {{ .Values.api.secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "plane.fullname" . }}
+                  key: secret-key
           ports:
             - name: http
               containerPort: {{ .Values.api.service.port }}
