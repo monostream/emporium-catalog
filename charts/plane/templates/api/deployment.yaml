@@ -66,9 +66,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "plane.fullname" . }}
                   key: secret-key
-          envFrom:
-            - secretRef:
-                name: {{ .Values.master.extraEnvVarsSecret }}
           ports:
             - name: http
               containerPort: {{ .Values.api.service.port }}
