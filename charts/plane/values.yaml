@@ -49,7 +49,11 @@ ingress:
 postgresql:
   auth:
     database: plane
-redis: {}
+
+redis:
+  replica:
+    replicaCount: 1
+
 minio: {}
 
 imagePullSecrets: []
