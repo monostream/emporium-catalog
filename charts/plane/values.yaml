@@ -5,8 +5,6 @@
 replicaCount: 1
 
 api:
-  secretKey: {{ randAlphaNum 32 | b64enc | quote }}
-
   service:
     type: ClusterIP
     port: 8000
@@ -50,8 +48,6 @@ ingress:
 
 postgresql:
   auth:
-    username: plane
-    password: {{ randAlphaNum 32 | b64enc | quote }}
     database: plane
 redis: {}
 minio: {}
