@@ -58,6 +58,9 @@ spec:
           {{ end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ template "uptime-kuma.fullname" . }}-pvc
+              mountPath: /app/data 
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
