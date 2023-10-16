@@ -14,6 +14,6 @@ porter:
           - /
 
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
+      - secretName: porter-cert-tls
         hosts:
           - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
