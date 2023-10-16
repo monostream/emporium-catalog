@@ -9,7 +9,9 @@ porter:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        paths:
+          - /
 
     tls:
       - secretName: {{ .Emporium.Name }}-tls
