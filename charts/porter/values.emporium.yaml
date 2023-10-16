@@ -1,4 +1,8 @@
 porter:
+  server:
+    additionalEnv:
+      - FEATURE_FLAG_CLIENT: database
+
   ingress:
     enabled: true
 
