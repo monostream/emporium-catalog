@@ -1,0 +1,25 @@
+apiVersion: v2
+
+name: porter
+description: A Helm chart for Kubernetes
+
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+
+dependencies:
+  - name: porter
+    version: 0.142.0
+    repository: https://charts-self-hosted.porter.run
+
+home: https://www.porter.run/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/porter/porter_icon_2.png
+sources:
+  - https://github.com/porter-dev/porter
+  - https://github.com/porter-dev/porter-charts
+keywords:
+  - PaaS
+
+annotations:
+  displayName: Porter
+  category: Developer Tools
