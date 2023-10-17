@@ -38,6 +38,7 @@ ghost:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
+      nginx.ingress.kubernetes.io/proxy-body-size: 10m
       kubernetes.io/tls-acme: "true"
 
     hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
