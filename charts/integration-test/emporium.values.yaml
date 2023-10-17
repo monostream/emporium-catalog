@@ -1,0 +1,14 @@
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+   - secretName: {{ .Emporium.Name }}-tls
+     hosts:
+       - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}

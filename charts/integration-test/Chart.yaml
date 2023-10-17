@@ -1,0 +1,17 @@
+apiVersion: v2
+
+name: integration-test
+description: Emporium app used for integration testing.
+
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+
+home: https://emporium.build
+keywords:
+  - Testing
+  - Integration
+
+annotations:
+  displayName: Integration Test
+  oidcRedirectPaths: /test/callback,/test2/callback
