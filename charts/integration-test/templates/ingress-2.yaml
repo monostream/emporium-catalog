@@ -30,8 +30,8 @@ spec:
   tls:
     {{- range .Values.ingress.tls }}
     - hosts:
-        second.{{- range .hosts }}
-        - {{ . | quote }}
+        {{- range .hosts }}
+        - second.{{ . | quote }}
         {{- end }}
       secretName: second-{{ .secretName }}
     {{- end }}
