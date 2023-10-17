@@ -1,0 +1,121 @@
+## @userSupplied APISecretKey
+## @label API Secret Key
+## @type string
+## @description Generate with `openssl rand -hex 16` for example
+
+## @userSupplied SMTPDefaultFrom
+## @label SMTP Default From
+## @type string
+## @description The SMTP default email to send from
+
+## @userSupplied SMTPDefaultReplyTo
+## @label SMTP Default Reply To
+## @type string
+## @description The SMTP default email to reply to
+
+## @userSupplied SMTPHost
+## @label SMTP Host
+## @type string
+## @description The SMTP host to use
+
+## @userSupplied SMTPPort
+## @label SMTP Port
+## @type integer
+## @description The SMTP host port to use
+
+## @userSupplied SMTPUsername
+## @label SMTP Username
+## @type string
+## @description The SMTP username to use
+
+## @userSupplied SMTPPassword
+## @label SMTP Password
+## @type string
+## @description The SMTP password to use
+
+## @userSupplied PostgresPassword
+## @label Postgres Password
+## @type string
+## @description The database password to use
+global:
+  postgresqlEnabled: true
+  redisEnabled: true
+
+frontend:
+  ingress:
+    enabled: true
+
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+
+    hosts:
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+persistence:
+  enabled: true
+  size: 50Gi
+
+config:
+  publicURI: "https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}"
+  flags: "enable-registration enable-login enable-smtp disable-demo-users disable-demo-warning"
+  apiSecretKey: "{{ .Emporium.UserSupplied.APISecretKey }}"
+
+  postgresql:
+    host: {{ .Emporium.Name }}-postgresql
+    port: 5432
+    database: penpot
+    existingSecret: "penpot-secret"
+    secretKeys:
+      usernameKey: "postgresql-username"
+      passwordKey: "postgresql-password"
+
+  redis:
+    host: {{ .Emporium.Name }}-redis-headless
+    port: 6379
+    database: "0"
+
+  smtp:
+    enabled: true
+    defaultFrom: "{{ .Emporium.UserSupplied.SMTPDefaultFrom }}"
+    defaultReplyTo: "{{ .Emporium.UserSupplied.SMTPDefaultReplyTo }}"
+    host: "{{ .Emporium.UserSupplied.SMTPHost }}"
+    port: "{{ .Emporium.UserSupplied.SMTPPort }}"
+    tls: true
+    existingSecret: "penpot-secret"
+    secretKeys:
+      usernameKey: "smtp-username"
+      passwordKey: "smtp-password"
+
+  providers:
+    oidc:
+      enabled: true
+      baseURI: "{{ .Emporium.OpenIDConnect.Issuer }}"
+      clientID: "{{ .Emporium.OpenIDConnect.ClientID }}"
+      clientSecret: "{{ .Emporium.OpenIDConnect.ClientSecret }}"
+      # authURI: ""
+      # tokenURI: ""
+      # userURI: ""
+      # roles: "role1 role2"
+      # rolesAttribute: ""
+      # scopes: "scope1 scope2"
+      # nameAttribute: ""
+      # emailAttribute: ""
+
+smtp:
+  username: "{{ .Emporium.UserSupplied.SMTPUsername }}"
+  password: "{{ .Emporium.UserSupplied.SMTPPassword }}"
+
+postgresql:
+  auth:
+    username: admin
+    password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
+    database: penpot
+

@@ -1,0 +1,95 @@
+authentik:
+  name: "openid_connect"
+  label: "Emporium"
+  args:
+    name: "openid_connect"
+    scope: ["openid","profile","email"]
+    response_type: "code"
+    issuer: "{{ .Emporium.OpenIDConnect.Issuer }}"
+    discovery: true
+    client_auth_method: "query"
+    send_scope_to_token_endpoint: "false"
+    pkce: true
+    client_options:
+      identifier: "{{ .Emporium.OpenIDConnect.ClientID }}"
+      secret: "{{ .Emporium.OpenIDConnect.ClientSecret }}"
+      redirect_uri: "https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}/users/auth/openid_connect/callback"
+
+global:
+  appConfig:
+    omniauth:
+      allowBypassTwoFactor: []
+      allowSingleSignOn: true
+      autoLinkLdapUser: true
+      autoLinkSamlUser: true
+      autoLinkUser:
+      - openid_connect
+      autoSignInWithProvider: openid_connect
+      blockAutoCreatedUsers: false
+      enabled: true
+      externalProviders: []
+      providers:
+      - key: authentik
+        secret: gitlab-auth
+      syncProfileAttributes:
+      - email
+      syncProfileFromProvider:
+      - openid_connect
+
+  edition: ce
+
+  hosts:
+    https: true
+    domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+    gitlab:
+      name: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+    minio:
+      name: minio.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      https: true
+
+  ingress:
+    configureCertmanager: false
+    enabled: true
+    class: nginx
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      emporium.build/auth-skip-paths: '/, /favicon.ico, /users/sign_in, /-/manifest.json, /-/health, /api/*, /assets/*, /oauth/*, /static/*, regex(^(\/([^\/])+){2,}\.git.*$)'
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/service-upstream: "true"
+
+gitlab:
+  gitlab:
+    gitlab-shell:
+      enabled: false
+    kas:
+      ingress:
+        enabled: true
+        tls:
+          secretName: gitlab-kas-tls
+    webservice:
+      enabled: true
+      ingress:
+        tls:
+          secretName: gitlab-webservice-tls
+
+  nginx-ingress:
+    enabled: false
+
+  prometheus:
+    install: false
+
+  gitlab-runner:
+    install: true
+    runners:
+      privileged: true
+
+  certmanager:
+    install: false
+    installCRDs: false

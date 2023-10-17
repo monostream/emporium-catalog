@@ -1,0 +1,39 @@
+apiVersion: v2
+
+name: plane
+description: Project management tool from the future
+
+type: application
+version: 0.1.6
+appVersion: v0.13.2-dev
+
+home: https://plane.so/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.png
+sources:
+  - https://github.com/makeplane/plane
+maintainers:
+  - name: Plane
+    url: https://plane.so
+keywords:
+  - Project Management
+  - Productivity
+  - Collaboration
+
+dependencies:
+  - name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami
+  - name: redis
+    repository: https://charts.bitnami.com/bitnami
+    version: 17.x.x
+  - name: minio
+    repository: https://charts.bitnami.com/bitnami
+    version: 12.x.x
+
+annotations:
+  displayName: Plane
+  category: Project Management
+  licenses: AGPL-3.0
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_1.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_2.png

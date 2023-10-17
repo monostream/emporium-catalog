@@ -1,0 +1,25 @@
+apiVersion: v2
+
+name: huginn
+description: A Helm chart for Kubernetes
+
+type: application
+version: 0.1.3
+appVersion: "0.0.2"
+
+dependencies:
+  - name: postgresql
+    repository: oci://registry-1.docker.io/bitnamicharts
+    version: 12.6.0
+
+home: https://github.com/huginn/huginn
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/huginn/huginn_icon_2.png
+sources:
+  - https://github.com/huginn/huginn
+keywords:
+  - Automation
+  - Agent
+
+annotations:
+  displayName: Huginn
+  licenses: MIT

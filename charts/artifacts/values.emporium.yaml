@@ -1,0 +1,87 @@
+## @userSupplied ArtifactsPersistenceSize
+## @label Artifacts Persistence Size
+## @type string
+## @description Size of the local Artifacts volume
+## @optional
+
+## @userSupplied ArtifactsPersistenceStorageClass
+## @label Artifacts Persistence StorageClass
+## @type string
+## @description The StorageClass to use for the Artifacts volume
+## @optional
+
+## @userSupplied PostgresqlPersistenceSize
+## @label Postgresql Persistence Size
+## @type string
+## @description Size of the local Postgresql volume
+## @optional
+
+## @userSupplied PostgresqlPersistenceStorageClass
+## @label Postgresql Persistence StorageClass
+## @type string
+## @description The StorageClass to use for the Postgresql volume
+## @optional
+
+## @userSupplied PostgresqlPassword
+## @label Postgresql Password
+## @type string
+## @description The database password to use (if left empty SQLite will be used)
+## @optional
+
+{{- if .Emporium.UserSupplied.PostgresqlPassword }}
+global:
+  postgresql:
+    enabled: true
+{{- end }}
+artifacts:
+  auth:
+    oidc:
+      clientId: {{ .Emporium.OpenIDConnect.ClientID }}
+      issuer: {{ .Emporium.OpenIDConnect.Issuer }}
+  hosts:
+    domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    https: true
+  {{- if .Emporium.UserSupplied.PostgresqlPassword }}
+  database:
+    url: postgresql://postgres:{{ .Emporium.UserSupplied.PostgresqlPassword }}@{{ .Emporium.Name }}-postgresql:5432/artifacts
+  {{- end }}
+  image:
+    pullPolicy: Always
+    repository: monostream.docker.pkg.emporium.rocks
+  ingress:
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+    enabled: true
+  persistence:
+    enabled: true
+    {{- if .Emporium.UserSupplied.ArtifactsPersistenceSize }}
+    size: {{ .Emporium.UserSupplied.ArtifactsPersistenceSize }}Gi
+    {{- end }}
+    {{- if .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
+    storageClass: {{ .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
+    {{- end }}
+  serviceAccount:
+    create: true
+    name: artifacts
+  storage:
+    filesystem:
+      path: /data
+
+{{- if .Emporium.UserSupplied.PostgresqlPassword }}
+postgresql:
+  auth:
+    database: artifacts
+    postgresPassword: {{ .Emporium.UserSupplied.PostgresqlPassword }}
+  primary:
+    persistence:
+      enabled: true
+      {{- if .Emporium.UserSupplied.PostgresqlPersistenceSize }}
+      size: {{ .Emporium.UserSupplied.PostgresqlPersistenceSize }}Gi
+      {{- end }}
+      {{- if .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
+      storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
+      {{- end }}
+  {{- end }}

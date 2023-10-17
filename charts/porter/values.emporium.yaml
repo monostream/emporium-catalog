@@ -1,0 +1,26 @@
+porter:
+  server:
+    url: https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+    additionalEnv:
+      FEATURE_FLAG_CLIENT: database
+
+  ingress:
+    enabled: true
+
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+      kubernetes.io/tls-acme: "true"
+
+    hosts:
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        paths:
+          - /
+
+    tls:
+      - secretName: porter-cert-tls
+        hosts:
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}

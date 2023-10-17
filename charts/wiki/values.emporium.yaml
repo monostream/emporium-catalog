@@ -1,0 +1,20 @@
+wiki:
+  ingress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+# https://docs.requarks.io/install/kubernetes
+# kubectl delete pvc/data-wiki-postgresql-0

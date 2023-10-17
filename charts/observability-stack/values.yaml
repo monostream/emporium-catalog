@@ -1,0 +1,6 @@
+prometheus: {}
+loki: {}
+tempo: {}
+promtail: {}
+pyroscope: {}
+dashboard: {}

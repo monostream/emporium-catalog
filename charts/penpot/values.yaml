@@ -412,9 +412,9 @@ config:
       authURI: ""
       tokenURI: ""
       userURI: ""
-      roles: "role1 role2"
+      roles: ""
       rolesAttribute: ""
-      scopes: "scope1 scope2"
+      scopes: ""
       nameAttribute: ""
       emailAttribute: ""
     ## @param config.providers.ldap.enabled Whether to enable LDAP configuration. To enable LDAP, also add `enable-login-with-ldap` to the flags.

@@ -1,0 +1,13 @@
+ingress:
+  enabled: true
+
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+
+  host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  tls:
+    secretName: plane-tls
+    host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}

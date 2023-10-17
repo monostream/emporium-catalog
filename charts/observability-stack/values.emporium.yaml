@@ -1,0 +1,178 @@
+prometheus:
+  prometheusOperator:
+    enabled: true
+
+    admissionWebhooks:
+      timeoutSeconds: 30
+
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelector: {}
+      serviceMonitorSelectorNilUsesHelmValues: false
+
+      podMonitorSelector: {}
+      podMonitorSelectorNilUsesHelmValues: false
+
+      probeSelector: {}
+      probeSelectorNilUsesHelmValues: false
+
+      ruleSelector: {}
+      ruleSelectorNilUsesHelmValues: false
+      
+      storageSpec: 
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 20Gi
+
+  grafana:
+    ingress:
+      enabled: true
+
+      annotations:
+        {{- if .Emporium.Annotations }}
+        {{- toYaml .Emporium.Annotations | nindent 8 }}
+        {{- end }}
+        kubernetes.io/tls-acme: "true"
+
+      hosts:
+        - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+      tls:
+        - secretName: grafana-{{ .Emporium.Name }}-tls
+          hosts:
+            - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+    adminPassword: devcloud
+
+    grafana.ini:
+      alerting:
+        enabled: false
+      analytics:
+        check_for_updates: false
+
+      users:
+        allow_sign_up: false
+        allow_org_create: false
+        auto_assign_org: true
+        auto_assign_org_role: true
+        viewers_can_edit: true
+        editors_can_admin: false
+
+      auth:
+        disable_login_form: false
+
+      auth.basic:
+        enabled: false
+
+      auth.anonymous:
+        enabled: true
+        org_name: Main Org.
+        org_role: Viewer
+
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        labelValue: 1
+        searchNamespace: "ALL"
+
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+        - name: Prometheus
+          type: prometheus
+          uid: prometheus
+          url: http://{{ .Emporium.Name }}-prometheus-prometheus:9090
+          access: proxy
+        - name: Loki
+          type: loki
+          uid: loki
+          url: http://{{ .Emporium.Name }}-loki:3100
+          jsonData:
+            maxLines: 1000
+            derivedFields:
+            - name: Trace ID
+              datasourceUid: tempo
+              matcherRegex: "traceId=(\\w+)"
+              url: "$${__value.raw}"
+          access: proxy
+        - name: Tempo
+          type: tempo
+          uid: tempo
+          url: http://{{ .Emporium.Name }}-tempo:3100
+          access: proxy
+
+  defaultRules:
+    create: true
+    rules:
+      alertmanager: true
+      etcd: true
+      configReloaders: true
+      general: true
+      k8s: true
+      kubeApiserverAvailability: true
+      kubeApiserverBurnrate: true
+      kubeApiserverHistogram: true
+      kubeApiserverSlos: true
+      kubeControllerManager: true
+      kubelet: true
+      kubeProxy: false
+      kubePrometheusGeneral: true
+      kubePrometheusNodeRecording: true
+      kubernetesApps: true
+      kubernetesResources: true
+      kubernetesStorage: true
+      kubernetesSystem: true
+      kubeScheduler: true
+      kubeStateMetrics: true
+      network: true
+      node: true
+      nodeExporterAlerting: true
+      nodeExporterRecording: true
+      prometheus: true
+      prometheusOperator: true
+  
+  kubeApiServer: 
+    enabled: true
+
+  kubeControllerManager:
+    enabled: false
+
+  coreDns:
+    enabled: true
+
+  kubeEtcd:
+    enabled: true
+
+  kubeScheduler:
+    enabled: false
+
+  kubeProxy:
+    enabled: false
+
+loki:
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    storage:
+      type: 'filesystem'
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 50Gi
+
+
+promtail:
+  rbac:
+    create: true
+    pspEnabled: false
+
+  config:
+    clients:
+      - url: http://{{ .Emporium.Name }}-loki:3100/loki/api/v1/push

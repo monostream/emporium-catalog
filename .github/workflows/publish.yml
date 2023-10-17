@@ -7,11 +7,8 @@ on:
 
 jobs:
   release:
-    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
-    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
-    permissions:
-      contents: write
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,13 +23,38 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
 
+      - name: Install cm-push plugin
+        run: |
+          helm plugin install https://github.com/chartmuseum/helm-push.git
+
       - name: Add helm repos
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo add gitea-charts https://dl.gitea.io/charts
+          helm repo add requarks https://charts.js.wiki
+          helm repo add gitlab https://charts.gitlab.io
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+          helm repo add emporium-apps ${{ vars.HELM_REPO }}  --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
           helm repo add nextcloud https://nextcloud.github.io/helm/
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.5.0
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Run cm-push
+        run: |
+          changed_charts=()
+          for dir in charts/*; do
+              if [ -d "$dir" ] && git diff --quiet HEAD~1 HEAD -- "$dir"; then
+                  continue
+              fi
+              changed_charts+=("$dir")
+          done
+
+          for chart in "${changed_charts[@]}"; do
+              echo "Changed chart detected: $chart"
+              echo "Linting..."
+              helm lint $chart
+
+              echo "Pushing..."
+              # Package and push the chart
+              helm cm-push $chart emporium-apps
+          done

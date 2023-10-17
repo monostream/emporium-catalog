@@ -1,0 +1,44 @@
+## @userSupplied Username
+## @label Admin Username
+## @type string
+## @description Username of the admin user
+
+## @userSupplied Password
+## @label Admin Password
+## @type string
+## @description Must be at least 10 characters long
+
+## @userSupplied Email
+## @label Admin Email
+## @type string
+## @description Email of the admin user, this is used to sign in.
+
+## @userSupplied Title
+## @label Blog Title
+## @type string
+## @description The title of your Blog. (You can change this later)
+ghost:
+  ghostUsername: "{{ .Emporium.UserSupplied.Username }}"
+  ghostPassword: "{{ .Emporium.UserSupplied.Password }}"
+  ghostEmail: "{{ .Emporium.UserSupplied.Email }}"
+  ghostBlogTitle: "{{ .Emporium.UserSupplied.Title }}"
+  ghostEnableHttps: true
+
+  ghostHost: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
+  service:
+    type: ClusterIP
+
+  ingress:
+    enabled: true
+
+    pathType: Prefix
+
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+
+    hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    tls: true

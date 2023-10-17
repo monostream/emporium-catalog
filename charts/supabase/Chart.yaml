@@ -4,7 +4,7 @@ name: supabase
 description: Firebase alternative for building secure and performant Postgres backends with minimal configuration.
 
 type: application
-version: 1.0.6
+version: 1.0.12
 appVersion: 1.0.0
 
 dependencies:
@@ -26,7 +26,8 @@ maintainers:
     url: https://github.com/supabase
 
 annotations:
-  category: Backend-as-Service (BaaS)
+  displayName: Supabase
+  category: Developer Tools
   licenses: Apache-2.0
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp

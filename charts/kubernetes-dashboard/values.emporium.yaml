@@ -1,0 +1,32 @@
+dashboard:
+  extraArgs:
+    - --enable-insecure-login
+
+  protocolHttp: true
+
+  service:
+    type: ClusterIP
+    externalPort: 80
+
+  metricsScraper:
+    enabled: true
+
+  metrics-server:
+    enabled: false
+
+  ingress:
+    enabled: true
+
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+
+    hosts:
+      - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+ 
+    tls:
+      - secretName: dashboard-{{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
