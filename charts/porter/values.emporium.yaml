@@ -1,5 +1,7 @@
 porter:
   server:
+    url: https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+
     additionalEnv:
       FEATURE_FLAG_CLIENT: database
 
