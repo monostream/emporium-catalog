@@ -31,14 +31,14 @@ spec:
     {{- range .Values.ingress.tls }}
     - hosts:
         {{- range .hosts }}
-        - third.{{ . | quote }}
+        - {{ printf "third.%s" . | quote }}
         {{- end }}
       secretName: third-{{ .secretName }}
     {{- end }}
   {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
-    - host: third.{{ .host | quote }}
+    - host: {{ printf "third.%s" .host | quote }}
       http:
         paths:
           {{- range .paths }}
