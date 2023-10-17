@@ -4,7 +4,7 @@ name: integration-test
 description: Emporium app used for integration testing.
 
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: 0.1.0
 
 home: https://emporium.build
