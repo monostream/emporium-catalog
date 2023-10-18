@@ -3,12 +3,12 @@ name: nextcloud
 description: A safe home for all your data – community-driven, free & open source.
 
 type: application
-version: 0.0.6
-appVersion: "26.0.2"
+version: 0.0.15
+appVersion: "27.1.2"
 
 dependencies:
   - name: nextcloud
-    version: 3.5.13
+    version: 4.3.4
     repository: https://nextcloud.github.io/helm/
 
 home: https://nextcloud.com/
