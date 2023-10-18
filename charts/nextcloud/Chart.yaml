@@ -15,6 +15,7 @@ home: https://nextcloud.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/icon.png
 
 annotations:
+  displayName: Nextcloud
   category: Utilities
   licenses: AGPL-3.0
   gallery: |
