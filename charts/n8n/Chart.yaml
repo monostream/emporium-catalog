@@ -3,17 +3,32 @@ apiVersion: v2
 name: n8n
 description: A powerful workflow automation tool.
 
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.1.0
 
-home: https://n8n.io/
 dependencies:
   - name: n8n
     version: 0.13.0
     repository: https://8gears.container-registry.com/chartrepo/library
+
+home: https://n8n.io/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/n8n/n8n_icon_2.png
+sources:
+  - https://github.com/n8n-io/n8n
+  - https://github.com/8gears/n8n-helm-chart
+maintainers:
+  - name: n8n GmbH
+    url: https://n8n.io
+  - name: 8gears AG
+    url: https://8gears.com/
 keywords:
   - Automation
   - APIs
-
+  - Integrations
 
 type: application
+
+annotations:
+  displayName: n8n
+  category: Utilities
+  licenses: Sustainable Use License
