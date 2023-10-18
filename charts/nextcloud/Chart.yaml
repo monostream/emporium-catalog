@@ -1,5 +1,5 @@
 apiVersion: v2
-name: Nextcloud
+name: nextcloud
 description: A safe home for all your data – community-driven, free & open source
 
 type: application
