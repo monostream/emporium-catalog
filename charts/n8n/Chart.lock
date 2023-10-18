@@ -1,0 +1,6 @@
+dependencies:
+- name: n8n
+  repository: https://8gears.container-registry.com/chartrepo/library
+  version: 0.13.0
+digest: sha256:6c0e9f4f7fe91ea429cacbe373320614f79d33519f8472b9e29a15f596bf5e2b
+generated: "2023-10-18T07:35:06.074833+02:00"

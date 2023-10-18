@@ -1,0 +1,24 @@
+n8n:
+  # config:
+  #   database:
+  #     type: postgresdb
+  #     postgresdb:
+  #       host: {{ .Emporium.Name }}-postgresql
+
+  # existingSecret: {{ .Emporium.Name }}-emporium
+
+  ingress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        paths:
+          - /
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
