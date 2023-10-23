@@ -4,11 +4,11 @@ name: plane
 description: Project management tool from the future
 
 type: application
-version: 0.1.6
+version: 0.1.7
 appVersion: v0.13.2-dev
 
 home: https://plane.so/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.png
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
 sources:
   - https://github.com/makeplane/plane
 maintainers:
