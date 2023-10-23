@@ -43,10 +43,8 @@ jobs:
         run: |
           changed_charts=()
 
-          prev_push_sha=$(git log --pretty=format:"%H" -n 2 | tail -n 1)
-
           for dir in charts/*; do
-              if [ -d "$dir" ] && git diff --quiet $prev_push_sha HEAD -- "$dir"; then
+              if [ -d "$dir" ] && git diff --quiet HEAD-1 HEAD -- "$dir"; then
                   continue
               fi
               changed_charts+=("$dir")
