@@ -43,7 +43,7 @@ jobs:
         run: |
           changed_charts=()
 
-          last_push_sha=$(git rev-parse emporium-apps/master)
+          last_push_sha=$(git rev-parse "$GITHUB_REF")
 
           for dir in charts/*; do
               if [ -d "$dir" ] && git diff --quiet $last_push_sha HEAD -- "$dir"; then
