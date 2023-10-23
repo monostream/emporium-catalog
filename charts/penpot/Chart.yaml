@@ -4,7 +4,7 @@ name: penpot
 description: The Open-Source design and prototyping platform
 
 type: application
-version: 1.0.32
+version: 1.0.33
 appVersion: 1.19.2
 
 home: https://penpot.app

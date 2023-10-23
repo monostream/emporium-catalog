@@ -3,7 +3,7 @@ apiVersion: v2
 name: wiki
 description: Make documentation a joy to write using Wiki.js's beautiful and intuitive interface
 
-version: 0.0.5
+version: 0.0.6
 appVersion: 2.5.299
 
 dependencies:
