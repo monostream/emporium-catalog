@@ -4,7 +4,7 @@ name: gitlab
 description: A single plattform to experience and share frustration with other developers
 
 type: application
-version: 0.1.19
+version: 16.5.0
 appVersion: "0.0.8"
 
 home: https://gitlab.com/
@@ -20,7 +20,7 @@ keywords:
 
 dependencies:
   - name: gitlab
-    version: 7.4.1
+    version: 7.5.0
     repository: https://charts.gitlab.io/
 
 annotations:
