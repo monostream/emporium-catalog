@@ -1,0 +1,35 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1_54)">
+<rect x="2.5" y="2.5" width="507" height="507" rx="47.5" fill="url(#paint0_radial_1_54)" stroke="url(#paint1_linear_1_54)" stroke-width="5"/>
+<g filter="url(#filter0_i_1_54)">
+<path d="M86 230C86 302.349 162.112 361 256 361C269.42 361 282.477 359.802 295 357.536C312.667 375.524 364 403.1 406 407.5C393.167 397.115 373.5 377.5 362 332.422C401.008 308.418 426 271.458 426 230C426 157.651 349.888 99 256 99C162.112 99 86 157.651 86 230Z" fill="url(#paint2_linear_1_54)"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_i_1_54" x="86" y="99" width="340" height="318.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="10"/>
+<feGaussianBlur stdDeviation="5"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_1_54"/>
+</filter>
+<radialGradient id="paint0_radial_1_54" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256) rotate(90) scale(512)">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#959595"/>
+</radialGradient>
+<linearGradient id="paint1_linear_1_54" x1="256" y1="0" x2="256" y2="512" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#5E5E5E"/>
+</linearGradient>
+<linearGradient id="paint2_linear_1_54" x1="256" y1="99" x2="256" y2="407.5" gradientUnits="userSpaceOnUse">
+<stop stop-color="#B5DDF9"/>
+<stop offset="1" stop-color="#3D6F94"/>
+</linearGradient>
+<clipPath id="clip0_1_54">
+<rect width="512" height="512" fill="white"/>
+</clipPath>
+</defs>
+</svg>
