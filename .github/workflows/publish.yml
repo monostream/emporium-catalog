@@ -42,8 +42,11 @@ jobs:
       - name: Run cm-push
         run: |
           changed_charts=()
+
+          last_push_sha=$(git rev-parse emporium-apps/master)
+
           for dir in charts/*; do
-              if [ -d "$dir" ] && git diff --quiet HEAD~1 HEAD -- "$dir"; then
+              if [ -d "$dir" ] && git diff --quiet $last_push_sha HEAD -- "$dir"; then
                   continue
               fi
               changed_charts+=("$dir")
