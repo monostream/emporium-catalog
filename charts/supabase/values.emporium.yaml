@@ -1,5 +1,5 @@
 supabase:
-  publicUrl: api.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  publicUrl: api.{{ .Emporium.Integrations.DNS.Hostname }}
 
   auth:
     image:
@@ -18,13 +18,13 @@ supabase:
         {{- end }}
         kubernetes.io/tls-acme: "true"
 
-      hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      hostname: {{ .Emporium.Integrations.DNS.Hostname }}
       tls: true
 
   kong:
     ingress:
       enabled: true
-      hostname: api.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      hostname: api.{{ .Emporium.Integrations.DNS.Hostname }}
       tls: true
 
       annotations:

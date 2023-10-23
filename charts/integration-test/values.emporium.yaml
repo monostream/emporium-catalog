@@ -9,7 +9,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-staging
 
   hosts:
-    - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
       paths:
         - path: /
           pathType: Prefix
@@ -17,4 +17,4 @@ ingress:
   tls:
    - secretName: {{ .Emporium.Name }}-tls
      hosts:
-       - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+       - {{ .Emporium.Integrations.DNS.Hostname }}

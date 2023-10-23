@@ -15,10 +15,10 @@ n8n:
       {{- end }}
       kubernetes.io/tls-acme: "true"
     hosts:
-      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - host: {{ .Emporium.Integrations.DNS.Hostname }}
         paths:
           - /
     tls:
       - secretName: {{ .Emporium.Name }}-tls
         hosts:
-          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+          - {{ .Emporium.Integrations.DNS.Hostname }}

@@ -1,16 +1,16 @@
 nextcloud:
   ingress:
     enabled: true
-    
+
     annotations:
       kubernetes.io/tls-acme: "true"
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
-      
+
       nginx.ingress.kubernetes.io/proxy-body-size: 5000m
     hosts:
-      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - host: {{ .Emporium.Integrations.DNS.Hostname }}
         paths:
           - path: /
             pathType: Prefix
@@ -18,16 +18,16 @@ nextcloud:
     tls:
       - secretName: nextcloud-tls
         hosts:
-          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+          - {{ .Emporium.Integrations.DNS.Hostname }}
 
   phpClientHttpsFix:
     enabled: true
     protocol: https
 
   nextcloud:
-    host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
-    username: 
-    password: 
+    host: {{ .Emporium.Integrations.DNS.Hostname }}
+    username:
+    password:
     ## Use an existing secret
     existingSecret:
       enabled: true
@@ -44,7 +44,7 @@ nextcloud:
     mail:
       enabled: false
       fromAddress: user
-      domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      domain: {{ .Emporium.Integrations.DNS.Hostname }}
       smtp:
         host: domain.com
         secure: ssl
@@ -52,7 +52,7 @@ nextcloud:
         authtype: LOGIN
         name: user
         password: pass
-    
+
 
   externalDatabase:
     enabled: true
@@ -85,8 +85,8 @@ nextcloud:
       postgresql:
         # global.postgresql.auth overrides postgresql.auth
         auth:
-          username: 
-          password: 
+          username:
+          password:
           database: nextcloud
           existingSecret: "nextcloud-postgresql"
           secretKeys:
@@ -109,7 +109,7 @@ nextcloud:
     enabled: true
     auth:
       enabled: true
-      password: 
+      password:
       existingSecret: "nextcloud-redis"
       existingSecretPasswordKey: "redis-password"
 

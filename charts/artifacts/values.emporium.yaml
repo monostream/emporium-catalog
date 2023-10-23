@@ -36,10 +36,10 @@ global:
 artifacts:
   auth:
     oidc:
-      clientId: {{ .Emporium.OpenIDConnect.ClientID }}
-      issuer: {{ .Emporium.OpenIDConnect.Issuer }}
+      clientId: {{ .Emporium.Integrations.OIDC.ClientID }}
+      issuer: {{ .Emporium.Integrations.OIDC.Issuer }}
   hosts:
-    domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    domain: {{ .Emporium.Integrations.DNS.Hostname }}
     https: true
   {{- if .Emporium.UserSupplied.PostgresqlPassword }}
   database:

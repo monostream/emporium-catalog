@@ -24,7 +24,7 @@ ghost:
   ghostBlogTitle: "{{ .Emporium.UserSupplied.Title }}"
   ghostEnableHttps: true
 
-  ghostHost: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  ghostHost: {{ .Emporium.Integrations.DNS.Hostname }}
 
   service:
     type: ClusterIP
@@ -41,5 +41,5 @@ ghost:
       nginx.ingress.kubernetes.io/proxy-body-size: 10m
       kubernetes.io/tls-acme: "true"
 
-    hostname: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    hostname: {{ .Emporium.Integrations.DNS.Hostname }}
     tls: true

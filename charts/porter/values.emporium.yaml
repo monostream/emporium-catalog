@@ -1,6 +1,6 @@
 porter:
   server:
-    url: https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    url: https://{{ .Emporium.Integrations.DNS.Hostname }}
 
     additionalEnv:
       FEATURE_FLAG_CLIENT: database
@@ -16,11 +16,11 @@ porter:
       kubernetes.io/tls-acme: "true"
 
     hosts:
-      - host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      - host: {{ .Emporium.Integrations.DNS.Hostname }}
         paths:
           - /
 
     tls:
       - secretName: porter-cert-tls
         hosts:
-          - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+          - {{ .Emporium.Integrations.DNS.Hostname }}

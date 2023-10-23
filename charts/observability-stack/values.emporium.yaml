@@ -18,8 +18,8 @@ prometheus:
 
       ruleSelector: {}
       ruleSelectorNilUsesHelmValues: false
-      
-      storageSpec: 
+
+      storageSpec:
         volumeClaimTemplate:
           spec:
             accessModes: ["ReadWriteOnce"]
@@ -38,12 +38,12 @@ prometheus:
         kubernetes.io/tls-acme: "true"
 
       hosts:
-        - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+        - {{ .Emporium.Integrations.DNS.Hostname }}
 
       tls:
         - secretName: grafana-{{ .Emporium.Name }}-tls
           hosts:
-            - {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+            - {{ .Emporium.Integrations.DNS.Hostname }}
 
     adminPassword: devcloud
 
@@ -135,8 +135,8 @@ prometheus:
       nodeExporterRecording: true
       prometheus: true
       prometheusOperator: true
-  
-  kubeApiServer: 
+
+  kubeApiServer:
     enabled: true
 
   kubeControllerManager:

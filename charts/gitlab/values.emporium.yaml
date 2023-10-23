@@ -5,15 +5,15 @@ authentik:
     name: "openid_connect"
     scope: ["openid","profile","email"]
     response_type: "code"
-    issuer: "{{ .Emporium.OpenIDConnect.Issuer }}"
+    issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
     discovery: true
     client_auth_method: "query"
     send_scope_to_token_endpoint: "false"
     pkce: true
     client_options:
-      identifier: "{{ .Emporium.OpenIDConnect.ClientID }}"
-      secret: "{{ .Emporium.OpenIDConnect.ClientSecret }}"
-      redirect_uri: "https://{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}/users/auth/openid_connect/callback"
+      identifier: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+      secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+      redirect_uri: "https://{{ .Emporium.Integrations.DNS.Hostname }}/users/auth/openid_connect/callback"
 
 global:
   appConfig:
@@ -40,13 +40,13 @@ global:
 
   hosts:
     https: true
-    domain: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    domain: {{ .Emporium.Integrations.DNS.Hostname }}
 
     gitlab:
-      name: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      name: {{ .Emporium.Integrations.DNS.Hostname }}
 
     minio:
-      name: minio.{{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+      name: minio.{{ .Emporium.Integrations.DNS.Hostname }}
       https: true
 
   ingress:

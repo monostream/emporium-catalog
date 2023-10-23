@@ -7,7 +7,7 @@ ingress:
     {{- end }}
     kubernetes.io/tls-acme: "true"
 
-  host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+  host: {{ .Emporium.Integrations.DNS.Hostname }}
   tls:
     secretName: plane-tls
-    host: {{ .Emporium.Subdomain }}.{{ .Emporium.DNSZone }}
+    host: {{ .Emporium.Integrations.DNS.Hostname }}
