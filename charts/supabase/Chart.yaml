@@ -4,7 +4,7 @@ name: supabase
 description: Firebase alternative for building secure and performant Postgres backends with minimal configuration.
 
 type: application
-version: 1.0.12
+version: 1.0.13
 appVersion: 1.0.0
 
 dependencies:
@@ -13,7 +13,7 @@ dependencies:
     repository: oci://registry-1.docker.io/bitnamicharts
 
 home: https://supabase.com/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.png
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.svg
 sources:
   - https://github.com/supabase/supabase
 keywords:
