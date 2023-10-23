@@ -12,7 +12,7 @@ dependencies:
     repository: https://charts.js.wiki
 
 home: https://js.wiki/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_icon_2.png
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_icon_2.svg
 sources:
   - https://github.com/Requarks/wiki
 maintainers:
