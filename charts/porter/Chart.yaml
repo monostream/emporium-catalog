@@ -13,7 +13,7 @@ dependencies:
     repository: https://charts-self-hosted.porter.run
 
 home: https://www.porter.run/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/porter/porter_icon_2.png
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/porter/porter_icon_2.svg
 sources:
   - https://github.com/porter-dev/porter
   - https://github.com/porter-dev/porter-charts
