@@ -4,7 +4,7 @@ name: huginn
 description: A Helm chart for Kubernetes
 
 type: application
-version: 0.1.4
+version: 0.1.5
 appVersion: "0.0.2"
 
 dependencies:
@@ -13,7 +13,7 @@ dependencies:
     version: 12.6.0
 
 home: https://github.com/huginn/huginn
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/huginn/huginn_icon_2.png
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/huginn/huginn_icon_2.svg
 sources:
   - https://github.com/huginn/huginn
 keywords:
