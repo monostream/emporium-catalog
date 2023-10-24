@@ -53,8 +53,13 @@ spec:
               value: {{ include "plane.fullname" . }}-redis-master
             - name: REDIS_PORT
               value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "plane.fullname" . }}-redis
+                  key: redis-password
             - name: REDIS_URL
-              value: "redis://{{ include "plane.fullname" . }}-redis-master:6379"
+              value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)"
             - name: DOCKERIZED
               value: "1"
             - name: ENABLE_SIGNUP
