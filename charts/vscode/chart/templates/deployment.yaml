@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "codespace.fullname" . }}
+  labels:
+    {{- include "codespace.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "codespace.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "codespace.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "codespace.fullname" . }}
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: codespace
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "codespace.fullname" . }}
+                  key: codespace-password
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - mountPath: /home/codespace
+              name: {{ template "codespace.fullname" . }}
+            {{- end }}
+            - name: dind
+              mountPath: /var/run/dind
+          # livenessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        - name: docker
+          securityContext:
+            privileged: true
+          image: "{{ .Values.docker.repository }}:{{ .Values.docker.tag }}"
+          imagePullPolicy: {{ .Values.docker.pullPolicy }}
+          args:
+            - "--group"
+            - "1000"
+            - "--host"
+            - "unix:///var/run/dind/docker.sock"
+            - "--mtu"
+            - "1440"
+          ports:
+            - name: docker
+              containerPort: 2376
+              protocol: TCP
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - mountPath: /home/codespace
+              name: {{ template "codespace.fullname" . }}
+            {{- end }}
+            - name: dind
+              mountPath: /var/run/dind
+          resources:
+            {{- toYaml .Values.docker.resources | nindent 12 }}
+      {{- if .Values.persistence.enabled }}
+      initContainers:
+        - name: init-volume
+          image: busybox:stable
+          command: ["chown","1000:1000","/home/codespace"]
+          volumeMounts:
+            - mountPath: /home/codespace
+              name: {{ template "codespace.fullname" . }}
+      {{- end }}
+      volumes:
+        - name: dind
+          emptyDir: {}
+        {{- if .Values.persistence.enabled }}
+        - name: {{ template "codespace.fullname" . }}
+          persistentVolumeClaim:
+            claimName: {{ template "codespace.fullname" . }}
+        {{- end }}

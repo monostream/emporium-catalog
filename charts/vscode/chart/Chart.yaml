@@ -1,0 +1,8 @@
+apiVersion: v2
+type: application
+
+name: vscode
+description: Visual Studio Code in your Browser
+
+version: 0.1.0
+appVersion: latest

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+echo DevCloud Codespace starting...
+
+export PASSWORD="${PASSWORD:-devcloud}"
+
+if [ ! -d $HOME/.kube/config ]; then
+    if [ -f "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt" ] && [ -f "/var/run/secrets/kubernetes.io/serviceaccount/token" ]; then
+        kubectl config set-cluster default \
+            --server="https://kubernetes.default.svc" \
+            --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+            --embed-certs=true
+
+        kubectl config set-credentials default \
+            --token="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+
+        kubectl config set-context default --cluster=default --user=default
+        kubectl config use-context default
+    fi
+fi
+
+if [ ! -d $HOME/workspace ]; then
+    cp -r /usr/share/codespace/workspace $HOME/workspace
+fi
+
+if [ ! -d $HOME/.config/code-server ]; then
+    mkdir -p $HOME/.config
+    cp -r /usr/share/codespace/config $HOME/.config/code-server
+fi
+
+if [ ! -d $HOME/.local/share/code-server ]; then
+    mkdir -p $HOME/.local/share
+    cp -r /usr/share/codespace/code-server $HOME/.local/share/
+fi
+
+/usr/lib/code-server/bin/code-server \
+    --disable-telemetry \
+    --disable-update-check \
+    --auth password \
+    --bind-addr 0.0.0.0:8080 \
+    $HOME/workspace

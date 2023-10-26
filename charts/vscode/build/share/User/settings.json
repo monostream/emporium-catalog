@@ -1,0 +1,7 @@
+{
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.colorTheme": "GitHub Dark",
+    "workbench.iconTheme": "vscode-icons",
+    "vsicons.dontShowNewVersionMessage": true,
+    "telemetry.enableTelemetry": false
+}
