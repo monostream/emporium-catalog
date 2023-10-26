@@ -65,8 +65,8 @@ RUN curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/de
    && rm -rf /var/lib/apt/lists/*
 
 # Chromium
-RUN apt-get update && apt-get install -y snapd \
-   && snap install chromium \
+RUN apt-get update && apt-get install -y \
+   chromium-browser \
    && rm -rf /var/lib/apt/lists/*
 
 # Delete any existing user and group with ID 1000
