@@ -2,7 +2,33 @@ apiVersion: v2
 type: application
 
 name: vscode
-description: Visual Studio Code in your Browser
+description: Visual Studio Code in your Browser - A comprehensive DevOps tool within your Kubernetes cluster.
 
 version: 0.1.0
-appVersion: latest
+appVersion: "4.18.0"
+
+home: https://coder.com/
+icon: https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg
+
+sources:
+  - https://github.com/cdr/code-server
+  - https://github.com/microsoft/vscode
+
+maintainers:
+  - name: Monostream
+    url: https://github.com/monostream
+
+keywords:
+  - Visual Studio Code
+  - Kubernetes
+  - DevOps
+  - Development
+  - Coding
+
+annotations:
+  displayName: VS Code Space
+  category: Development Tools
+  licenses: MIT 
+  gallery: |
+   https://raw.githubusercontent.com/coder/code-server/main/docs/assets/screenshot-1.png
+   https://raw.githubusercontent.com/coder/code-server/main/docs/assets/screenshot-2.png
