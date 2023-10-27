@@ -64,10 +64,11 @@ RUN curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/de
    && apt-get install -y dotnet-sdk-7.0 \
    && rm -rf /var/lib/apt/lists/*
 
-# Chromium
-RUN apt-get update && apt-get install -y \
-   chromium-browser \
-   && rm -rf /var/lib/apt/lists/*
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+ && sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+ && apt-get update\
+ && apt --fix-broken install \
+ && apt-get install google-chrome-stable -y
 
 # Delete any existing user and group with ID 1000
 RUN deluser --remove-home $(getent passwd 1000 | cut -d: -f1) || true \
@@ -102,7 +103,7 @@ RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-ser
    --install-extension "redhat.vscode-yaml" \
    --install-extension "github.github-vscode-theme" \
    --install-extension "vscode-icons-team.vscode-icons" \
-   --install-extension "auchenberg.vscode-browser-preview" \
+   --install-extension "ms-vscode.live-server" \
    --install-extension "ms-azuretools.vscode-docker" \
    --install-extension "ms-kubernetes-tools.vscode-kubernetes-tools" \
    --install-extension "redhat.java" \

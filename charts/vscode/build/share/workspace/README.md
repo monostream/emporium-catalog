@@ -43,4 +43,4 @@ VS Code Space leverages the open-source version of [Visual Studio Code](https://
 - [Docker](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker)
 - [Kubernetes](https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools)
 - [GitHub Theme](https://marketplace.visualstudio.com/items?itemName=GitHub.github-vscode-theme)
-- [Browser Preview](https://marketplace.visualstudio.com/items?itemName=auchenberg.vscode-browser-preview)
+- [Browser Preview](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server)
