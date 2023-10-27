@@ -1,0 +1,122 @@
+# Default values for chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: browserless/chrome
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.60.1-chrome-stable"
+
+env:
+  WORKSPACE_DIR: "/downloads"
+  METRICS_JSON_PATH: "/metrics/metrics.json"
+  # User Defined
+  HOST: ""
+  WORKSPACE_DELETE_EXPIRED: false
+  WORKSPACE_EXPIRE_DAYS: "30"  
+  CHROME_REFRESH_TIME: "3600000"  
+  MAX_CONCURRENT_SESSIONS: "5"  
+  MAX_QUEUE_LENGTH: "5"  
+  CONNECTION_TIMEOUT: "30000"  
+  DEFAULT_BLOCK_ADS: "true"  
+  DEFAULT_HEADLESS: "true"  
+  DEFAULT_IGNORE_HTTPS_ERRORS: "true"  
+  DEFAULT_IGNORE_DEFAULT_ARGS: "true"  
+  ENABLE_API_GET: "true"  
+  FUNCTION_ENABLE_INCOGNITO_MODE: "true"  
+  EXIT_ON_HEALTH_FAILURE: "true"  
+  DISABLE_AUTO_SET_DOWNLOAD_BEHAVIOR: "false"  
+  ENABLE_DEBUGGER: "true"  
+  ENABLE_CORS: "false"  
+  ENABLE_XVBF: "true"  
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

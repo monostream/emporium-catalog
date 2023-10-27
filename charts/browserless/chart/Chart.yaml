@@ -1,0 +1,30 @@
+apiVersion: v2
+name: browserless
+description: Browserless - Headless Browser Automation in a Kubernetes Cluster
+version: 0.1.0
+appVersion: "1.16.0"
+
+home: https://browserless.io/
+icon: https://raw.githubusercontent.com/browserless/chrome/master/assets/browserless_logo_screen_gradient.png
+
+sources:
+ - https://github.com/browserless/chrome
+ - https://browserless.io/
+
+maintainers:
+  - name: Browserless Team
+    email: support@browserless.io
+    url: https://browserless.io/
+
+keywords:
+  - browser automation
+  - web scraping
+  - automated testing
+  - headless browser
+
+annotations:
+  displayName: Browserless
+  category: Development
+  licenses: GPL-3.0-or-later OR Browserless Commercial License
+  gallery: |
+    https://raw.githubusercontent.com/browserless/chrome/master/assets/demo.gif
