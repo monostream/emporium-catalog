@@ -1,0 +1,27 @@
+## @userSupplied GitHubURL
+## @label GitHub URL
+## @type string
+## @description The GitHub url for where you want to configure the runner
+
+## @userSupplied GitHubPAT
+## @label GitHub Personal Access Token
+## @type string
+## @description Personal Access Token for the GitHub API
+
+## @userSupplied RunnerScaleSetName
+## @label Runner scale set name
+## @type string
+## @description Name of the runner scale set to create, used to select the runner via the "runs-on" annotation of a workflow
+
+## @userSupplied MaxRunners
+## @label Maximum runners
+## @type number
+## @description The max number of runners the autoscaling runner set will scale up to
+## @optional
+
+gha-runner-scale-set:
+  githubConfigUrl: {{ .Emporium.UserSupplied.GitHubURL }}
+  githubConfigSecret:
+    github_token: {{ .Emporium.UserSupplied.GitHubPAT }}
+  runnerScaleSetName: {{ .Emporium.UserSupplied.RunnerScaleSetName }}
+  maxRunners: {{ .Emporium.UserSupplied.MaxRunners }}

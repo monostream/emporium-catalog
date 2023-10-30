@@ -1,0 +1,8 @@
+gha-runner-scale-set:
+  githubConfigUrl: ""
+  githubConfigSecret:
+    github_token: ""
+  maxRunners:
+  runnerScaleSetName: ""
+  containerMode:
+    type: "dind"
