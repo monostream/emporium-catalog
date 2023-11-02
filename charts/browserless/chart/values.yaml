@@ -14,15 +14,18 @@ browserless:
   maxConcurrentSessions: 5
   maxQueueLength: 5
   preBootChrome: "true"
+  preBootQuantity: 0
   token:
   enableDebugger: "true"
-  enableCors: "true"
+  enableCors: "false"
   enableXVBF: "true"
   enableApiGet: "true"
   defaultBlockAds: "false"
   defaultHeadless: "true"
+  defaultLaunchArgs: []
   defaultIgnoreHTTPSErrors: "true"
   defaultIgnoreDefaultArgs: "false"
+  defaultStealth: "false"
   disableAutoSetDownloadBehaviour: "true"
   exitOnHealthFailure: "true"
   functionEnableIncognitoMode: "true"
@@ -30,6 +33,7 @@ browserless:
   workspaceExpireDays: "30"
   chromeRefreshTime: "3600000"
   connectionTimeout: "120000"
+  maxPayloadSize: "5mb"
   
 serviceAccount:
   # Specifies whether a service account should be created
@@ -113,3 +117,23 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+

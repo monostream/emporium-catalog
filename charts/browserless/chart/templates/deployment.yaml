@@ -45,6 +45,8 @@ spec:
               value: "/tmp/metrics.json"
             - name: HOST
               value: "0.0.0.0"
+            - name: PORT
+              value: "{{ .Values.service.port }}"
             - name: WORKSPACE_DELETE_EXPIRED
               value: "{{ .Values.browserless.workspaceDeleteExpired }}"
             - name: WORKSPACE_EXPIRE_DAYS
@@ -53,8 +55,10 @@ spec:
               value: "{{ .Values.browserless.chromeRefreshTime }}"
             - name: MAX_CONCURRENT_SESSIONS
               value: "{{ .Values.browserless.maxConcurrentSessions }}"
-            - name: MAX_QUEUE_LENGTH
+            - name: QUEUE_LENGTH
               value: "{{ .Values.browserless.maxQueueLength }}"
+            - name: MAX_PAYLOAD_SIZE
+              value: "{{ .Values.browserless.maxPayloadSize }}"
             - name: CONNECTION_TIMEOUT
               value: "{{ .Values.browserless.connectionTimeout }}"
             - name: DEFAULT_BLOCK_ADS
@@ -91,18 +95,50 @@ spec:
               value: "true"
             - name: TIMEOUT
               value: "60000000"
+            - name: SINGLE_RUN
+              value: "false"
+            - name: DEFAULT_LAUNCH_ARGS
+              value: "{{ .Values.browserless.defaultLaunchArgs }}"
+            - name: DEFAULT_DUMPIO
+              value: "false"
+            - name: DEFAULT_STEALTH
+              value: "{{ .Values.browserless.defaultStealth }}" 
+            - name: PREBOOT_QUANTITY
+              value: "{{ .Values.browserless.preBootQuantity }}" 
+            - name: PRINT_GET_STARTED_LINKS
+              value: "false"
+            - name: PRINT_NETWORK_INFO
+              value: "true"
+            - name: ENABLE_HEAP_DUMP
+              value: "false"
+            # OTHER ENV VARS  
+            # ALLOW_FILE_PROTOCOL: false,
+            # FUNCTION_BUILT_INS: [ 'url' ],
+            # FUNCTION_ENV_VARS: [],
+            # FUNCTION_ENABLE_INCOGNITO_MODE: true,
+            # FUNCTION_EXTERNALS: [ 'lighthouse', 'node-pdftk', 'sharp' ],
+            # FAILED_HEALTH_URL: null,
+            # QUEUE_ALERT_URL: null,
+            # REJECT_ALERT_URL: null,
+            # TIMEOUT_ALERT_URL: null,
+            # ERROR_ALERT_URL: null,
+            # SESSION_CHECK_FAIL_URL: null,
+            # PRE_REQUEST_HEALTH_CHECK: false,
+            # EXIT_ON_HEALTH_FAILURE: true,
+            # SOCKET_CLOSE_METHOD: 'http',
+            # PROXY_URL: undefined,
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
