@@ -33,12 +33,14 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            capabilities:
+              add:
+                - SYS_ADMIN  
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: WORKSPACE_DIR
-              value: "{{ .Values.env.WORKSPACE_DIR }}"
+              value: "/downloads"
             - name: METRICS_JSON_PATH
               value: "{{ .Values.env.METRICS_JSON_PATH }}"
             - name: HOST
@@ -77,28 +79,45 @@ spec:
               value: "{{ .Values.env.ENABLE_CORS }}"
             - name: ENABLE_XVBF
               value: "{{ .Values.env.ENABLE_XVBF }}"
+            - name: TOKEN
+              value: "{{ .Values.env.TOKEN }}"
+            - name: PREBOOT_CHROME
+              value: "{{ .Values.env.PREBOOT_CHROME }}"
+            - name: MAX_CPU_PERCENT
+              value: "{{ .Values.env.PREBOOT_CHROME }}"
+            - name: MAX_MEMORY_PERCENT
+              value: "{{ .Values.env.PREBOOT_CHROME }}"
+            - name: KEEP_ALIVE
+              value: "{{ .Values.env.PREBOOT_CHROME }}"
+            - name: TIMEOUT
+              value: "60000000"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: dshm
-              mountPath: /dev/shm
+            - name:  temp-storage
+              mountPath: /tmp
+            - name:  workdir
+              mountPath: /downloads
       volumes:
-        - name: dshm
-          emptyDir:
-            medium: Memory
-            sizeLimit: 2Gi
+        - name:  temp-storage
+          emptyDir: {}
+        - name:  workdir
+          emptyDir: {}
+          # emptyDir:
+          #   medium: Memory
+          #   sizeLimit: 2Gi
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

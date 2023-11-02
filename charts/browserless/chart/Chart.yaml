@@ -1,7 +1,7 @@
 apiVersion: v2
 name: browserless
 description: Browserless - Headless Browser Automation in a Kubernetes Cluster
-version: 0.1.0
+version: 0.1.3
 appVersion: "1.16.0"
 
 home: https://browserless.io/
