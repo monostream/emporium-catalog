@@ -133,7 +133,7 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /pressure
               port: http
           readinessProbe:
             httpGet:
