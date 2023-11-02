@@ -42,53 +42,53 @@ spec:
             - name: WORKSPACE_DIR
               value: "/downloads"
             - name: METRICS_JSON_PATH
-              value: "{{ .Values.env.METRICS_JSON_PATH }}"
+              value: "/tmp/metrics.json"
             - name: HOST
-              value: "{{ .Values.env.HOST }}"
+              value: "0.0.0.0"
             - name: WORKSPACE_DELETE_EXPIRED
-              value: "{{ .Values.env.WORKSPACE_DELETE_EXPIRED }}"
+              value: "{{ .Values.browserless.workspaceDeleteExpired }}"
             - name: WORKSPACE_EXPIRE_DAYS
-              value: "{{ .Values.env.WORKSPACE_EXPIRE_DAYS }}"
+              value: "{{ .Values.browserless.workspaceExpireDays }}"
             - name: CHROME_REFRESH_TIME
-              value: "{{ .Values.env.CHROME_REFRESH_TIME }}"
+              value: "{{ .Values.browserless.chromeRefreshTime }}"
             - name: MAX_CONCURRENT_SESSIONS
-              value: "{{ .Values.env.MAX_CONCURRENT_SESSIONS }}"
+              value: "{{ .Values.browserless.maxConcurrentSessions }}"
             - name: MAX_QUEUE_LENGTH
-              value: "{{ .Values.env.MAX_QUEUE_LENGTH }}"
+              value: "{{ .Values.browserless.maxQueueLength }}"
             - name: CONNECTION_TIMEOUT
-              value: "{{ .Values.env.CONNECTION_TIMEOUT }}"
+              value: "{{ .Values.browserless.connectionTimeout }}"
             - name: DEFAULT_BLOCK_ADS
-              value: "{{ .Values.env.DEFAULT_BLOCK_ADS }}"
+              value: "{{ .Values.browserless.defaultBlockAds }}"
             - name: DEFAULT_HEADLESS
-              value: "{{ .Values.env.DEFAULT_HEADLESS }}"
+              value: "{{ .Values.browserless.defaultHeadless }}"
             - name: DEFAULT_IGNORE_HTTPS_ERRORS
-              value: "{{ .Values.env.DEFAULT_IGNORE_HTTPS_ERRORS }}"
+              value: "{{ .Values.browserless.defaultIgnoreHTTPSErrors }}"
             - name: DEFAULT_IGNORE_DEFAULT_ARGS
-              value: "{{ .Values.env.DEFAULT_IGNORE_DEFAULT_ARGS }}"
+              value: "{{ .Values.browserless.defaultIgnoreDefaultArgs }}"
             - name: ENABLE_API_GET
-              value: "{{ .Values.env.ENABLE_API_GET }}"
+              value: "{{ .Values.browserless.enableApiGet }}"
             - name: FUNCTION_ENABLE_INCOGNITO_MODE
-              value: "{{ .Values.env.FUNCTION_ENABLE_INCOGNITO_MODE }}"
+              value: "{{ .Values.browserless.functionEnableIncognitoMode }}"
             - name: EXIT_ON_HEALTH_FAILURE
-              value: "{{ .Values.env.EXIT_ON_HEALTH_FAILURE }}"
+              value: "{{ .Values.browserless.exitOnHealthFailure }}"
             - name: DISABLE_AUTO_SET_DOWNLOAD_BEHAVIOR
-              value: "{{ .Values.env.DISABLE_AUTO_SET_DOWNLOAD_BEHAVIOR }}"
+              value: "{{ .Values.browserless.disableAutoSetDownloadBehaviour }}"
             - name: ENABLE_DEBUGGER
-              value: "{{ .Values.env.ENABLE_DEBUGGER }}"
+              value: "{{ .Values.browserless.enableDebugger }}"
             - name: ENABLE_CORS
-              value: "{{ .Values.env.ENABLE_CORS }}"
+              value: "{{ .Values.browserless.enableCors }}"
             - name: ENABLE_XVBF
-              value: "{{ .Values.env.ENABLE_XVBF }}"
+              value: "{{ .Values.browserless.enableXVBF }}"
             - name: TOKEN
-              value: "{{ .Values.env.TOKEN }}"
+              value: "{{ .Values.browserless.token }}"
             - name: PREBOOT_CHROME
-              value: "{{ .Values.env.PREBOOT_CHROME }}"
+              value: "{{ .Values.browserless.preBootChrome }}"
             - name: MAX_CPU_PERCENT
-              value: "{{ .Values.env.PREBOOT_CHROME }}"
+              value: "90"
             - name: MAX_MEMORY_PERCENT
-              value: "{{ .Values.env.PREBOOT_CHROME }}"
+              value: "90"
             - name: KEEP_ALIVE
-              value: "{{ .Values.env.PREBOOT_CHROME }}"
+              value: "true"
             - name: TIMEOUT
               value: "60000000"
           ports:
