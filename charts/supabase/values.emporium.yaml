@@ -1,3 +1,17 @@
+## @userSupplied StorageSize
+## @label Storage Size
+## @type string
+## @description The size of the volume used for the storage service (e.g. 8Gi or 100Mi).
+##              Default is 8Gi.
+## @optional
+
+## @userSupplied DatabaseSize
+## @label Database Size
+## @type string
+## @description The size of the volume used for the Postgres DB (e.g. 8Gi or 100Mi).
+##              Default is 8Gi.
+## @optional
+
 supabase:
   publicUrl: api.{{ .Emporium.Integrations.DNS.Hostname }}
 
@@ -32,3 +46,19 @@ supabase:
         {{- toYaml .Emporium.Annotations | nindent 8 }}
         {{- end }}
         kubernetes.io/tls-acme: "true"
+
+  storage:
+    persistence:
+      size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
+
+  postgresql:
+    persistence:
+      size: {{ default "8Gi" .Emporium.UserSupplied.DatabaseSize }}
+
+  auth:
+    extraConfig: |
+      GOTRUE_SMTP_HOST={{ .Emporium.Integrations.SMTP.Host }}
+      GOTRUE_SMTP_PORT={{ .Emporium.Integrations.SMTP.Port }}
+      GOTRUE_SMTP_USER={{ .Emporium.Integrations.SMTP.From }}
+      GOTRUE_SMTP_PASS={{ .Emporium.Integrations.SMTP.Password }}
+      GOTRUE_SMTP_ADMIN_EMAIL={{ .Emporium.Integrations.SMTP.ReplyTo }}
