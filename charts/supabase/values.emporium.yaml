@@ -52,6 +52,8 @@ supabase:
       size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
 
   postgresql:
+    auth:
+      postgresPassword: {{ randAlphaNum 32 | b64enc }}
     persistence:
       size: {{ default "8Gi" .Emporium.UserSupplied.DatabaseSize }}
 
