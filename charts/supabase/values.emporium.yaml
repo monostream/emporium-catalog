@@ -55,6 +55,10 @@ supabase:
     persistence:
       size: {{ default "8Gi" .Emporium.UserSupplied.DatabaseSize }}
 
+  jwt:
+    anonKey: {{ randAlphaNum 32 | b64enc }}
+    serviceKey: {{ randAlphaNum 32 | b64enc }}
+
   auth:
     extraConfig: |
       GOTRUE_SMTP_HOST: {{ .Emporium.Integrations.SMTP.Host | quote }}
