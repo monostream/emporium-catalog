@@ -49,6 +49,13 @@ spec:
                 name: {{ $fullName }}-api
                 port:
                   number: {{ .Values.space.service.port }}
+          - path: /uploads/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-minio
+                port:
+                  number: 9000
           - path: /
             pathType: Prefix
             backend:

@@ -55,7 +55,7 @@ redis:
     replicaCount: 1
 
 minio:
-  defaultBuckets: uploads
+  defaultBuckets: uploads:download
 
 imagePullSecrets: []
 nameOverride: ""
