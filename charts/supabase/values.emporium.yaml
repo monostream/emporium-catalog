@@ -57,8 +57,8 @@ supabase:
 
   auth:
     extraConfig: |
-      GOTRUE_SMTP_HOST={{ .Emporium.Integrations.SMTP.Host }}
-      GOTRUE_SMTP_PORT={{ .Emporium.Integrations.SMTP.Port }}
-      GOTRUE_SMTP_USER={{ .Emporium.Integrations.SMTP.From }}
-      GOTRUE_SMTP_PASS={{ .Emporium.Integrations.SMTP.Password }}
-      GOTRUE_SMTP_ADMIN_EMAIL={{ .Emporium.Integrations.SMTP.ReplyTo }}
+      GOTRUE_SMTP_HOST: {{ .Emporium.Integrations.SMTP.Host | quote }}
+      GOTRUE_SMTP_PORT: {{ .Emporium.Integrations.SMTP.Port | quote }}
+      GOTRUE_SMTP_USER: {{ .Emporium.Integrations.SMTP.From | quote }}
+      GOTRUE_SMTP_PASS: {{ .Emporium.Integrations.SMTP.Password | quote }}
+      GOTRUE_SMTP_ADMIN_EMAIL: {{ .Emporium.Integrations.SMTP.ReplyTo | quote }}
