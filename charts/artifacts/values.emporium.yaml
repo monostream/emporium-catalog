@@ -47,7 +47,7 @@ artifacts:
   {{- end }}
   image:
     pullPolicy: Always
-    repository: monostream.docker.pkg.emporium.rocks
+    repository: monostream.docker.pkg.emporium.rocks/artifacts
   ingress:
     annotations:
       {{- if .Emporium.Annotations }}
