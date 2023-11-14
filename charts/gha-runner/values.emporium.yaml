@@ -15,13 +15,20 @@
 
 ## @userSupplied MaxRunners
 ## @label Maximum runners
-## @type number
+## @type integer
 ## @description The max number of runners the autoscaling runner set will scale up to
 ## @optional
 
+gha-runner-scale-set-controller:
+  serviceAccount:
+    create: true
+    name: {{ .Emporium.Name }}-gha-runner-scale-set-controller
 gha-runner-scale-set:
   githubConfigUrl: {{ .Emporium.UserSupplied.GitHubURL }}
   githubConfigSecret:
     github_token: {{ .Emporium.UserSupplied.GitHubPAT }}
   runnerScaleSetName: {{ .Emporium.UserSupplied.RunnerScaleSetName }}
   maxRunners: {{ .Emporium.UserSupplied.MaxRunners }}
+  controllerServiceAccount:
+    namespace: {{ .Emporium.Namespace }}
+    name: {{ .Emporium.Name }}-gha-runner-scale-set-controller
