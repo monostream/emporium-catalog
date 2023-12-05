@@ -3,7 +3,7 @@ apiVersion: v2
 name: artifacts
 description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
 
-version: 0.0.27
+version: 0.0.28
 appVersion: 0.0.10
 
 dependencies:
@@ -36,3 +36,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_2.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_3.png
+  oidcRedirectPaths: /auth/callback
