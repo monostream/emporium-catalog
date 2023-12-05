@@ -67,7 +67,7 @@ artifacts:
   persistence:
     enabled: true
     {{- if .Emporium.UserSupplied.ArtifactsPersistenceSize }}
-    size: {{ .Emporium.UserSupplied.ArtifactsPersistenceSize }}Gi
+    size: {{ .Emporium.UserSupplied.ArtifactsPersistenceSize }}
     {{- end }}
     {{- if .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
     storageClass: {{ .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
@@ -88,7 +88,7 @@ postgresql:
     persistence:
       enabled: true
       {{- if .Emporium.UserSupplied.PostgresqlPersistenceSize }}
-      size: {{ .Emporium.UserSupplied.PostgresqlPersistenceSize }}Gi
+      size: {{ .Emporium.UserSupplied.PostgresqlPersistenceSize }}
       {{- end }}
       {{- if .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
       storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
