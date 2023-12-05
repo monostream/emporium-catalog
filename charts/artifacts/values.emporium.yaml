@@ -28,6 +28,12 @@
 ## @description The database password to use (if left empty SQLite will be used)
 ## @optional
 
+## @userSupplied EnablePublicRead
+## @label Enable public read
+## @type boolean
+## @description Enable anonymous read access for repositories set to public
+## @optional
+
 {{- if .Emporium.UserSupplied.PostgresqlPassword }}
 global:
   postgresql:
@@ -38,6 +44,9 @@ artifacts:
     oidc:
       clientId: {{ .Emporium.Integrations.OIDC.ClientID }}
       issuer: {{ .Emporium.Integrations.OIDC.Issuer }}
+  {{- if .Emporium.UserSupplied.EnablePublicRead }}
+  enablePublicRead: true
+  {{- end }}
   hosts:
     domain: {{ .Emporium.Integrations.DNS.Hostname }}
     https: true
