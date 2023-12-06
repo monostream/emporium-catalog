@@ -37,6 +37,14 @@ web:
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
 
+smtp:
+  enabled: false
+  host:
+  username:
+  password:
+  port:
+  from:
+
 ingress:
   enabled: false
   className: ""

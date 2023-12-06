@@ -11,3 +11,11 @@ ingress:
   tls:
     secretName: plane-tls
     host: {{ .Emporium.Integrations.DNS.Hostname }}
+
+smtp:
+  enabled: true
+  host: {{ .Emporium.Integrations.SMTP.Host }}
+  username: {{ .Emporium.Integrations.SMTP.Username | quote }}
+  password: {{ .Emporium.Integrations.SMTP.Password | quote }}
+  port: {{ .Emporium.Integrations.SMTP.Port }}
+  from: {{ .Emporium.Integrations.SMTP.From | quote }}
