@@ -137,7 +137,7 @@ API environment variables
   value: http://{{ .Release.Name }}-minio:9000
 - name: WEB_URL
   value: https://{{ .Values.ingress.host }}
-{{ -if .Values.smtp.enabled }}
+{{- if .Values.smtp.enabled }}
 - name: EMAIL_HOST
   value: {{ .Values.smtp.host }}
 - name: EMAIL_HOST_USER
