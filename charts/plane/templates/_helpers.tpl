@@ -145,7 +145,7 @@ API environment variables
 - name: EMAIL_HOST_PASSWORD
   value: {{ .Values.smtp.password | quote }}
 - name: EMAIL_PORT
-  value: {{ .Values.smtp.port }}
+  value: {{ .Values.smtp.port | quote }}
 - name: EMAIL_FROM
   value: {{ .Values.smtp.from | quote }}
 {{- end }}

@@ -17,5 +17,5 @@ smtp:
   host: {{ .Emporium.Integrations.SMTP.Host }}
   username: {{ .Emporium.Integrations.SMTP.Username | quote }}
   password: {{ .Emporium.Integrations.SMTP.Password | quote }}
-  port: {{ .Emporium.Integrations.SMTP.Port }}
+  port: {{ .Emporium.Integrations.SMTP.Port | quote }}
   from: {{ .Emporium.Integrations.SMTP.From | quote }}
