@@ -1,12 +1,18 @@
 apiVersion: v2
-
 name: penpot
 description: The Open-Source design and prototyping platform
-
 type: application
-version: 1.0.35
-appVersion: 1.19.2
-
+version: 1.0.37
+appVersion: 1.19.3
+dependencies:
+  - condition: global.postgresqlEnabled
+    name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami
+  - condition: global.redisEnabled
+    name: redis
+    version: 17.x.x
+    repository: https://charts.bitnami.com/bitnami
 home: https://penpot.app
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.svg
 sources:
@@ -18,17 +24,6 @@ maintainers:
 keywords:
   - Design
   - Prototype
-
-dependencies:
-  - condition: global.postgresqlEnabled
-    name: postgresql
-    repository: https://charts.bitnami.com/bitnami
-    version: 12.x.x
-  - condition: global.redisEnabled
-    name: redis
-    repository: https://charts.bitnami.com/bitnami
-    version: 17.x.x
-
 annotations:
   displayName: Penpot
   category: Design
