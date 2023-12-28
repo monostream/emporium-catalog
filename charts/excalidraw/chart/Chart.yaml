@@ -6,10 +6,6 @@ description: An open source virtual hand-drawn style whiteboard. Collaborative a
 version: 0.1.10
 appVersion: 0.1.0
 
-dependencies:
-  - name: excalidraw
-    version: 0.1.0
-
 home: https://excalidraw.com
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.svg
 sources:
