@@ -22,7 +22,6 @@ keywords:
   - Git
   - CI/CD
   - Issue Tracking
-
 annotations:
   displayName: Gitea
   licenses: MIT

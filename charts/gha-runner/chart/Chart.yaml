@@ -5,10 +5,10 @@ version: 0.0.5
 appVersion: 0.7.0
 dependencies:
   - name: gha-runner-scale-set-controller
-    version: 0.8.1
+    version: 0.7.0
     repository: oci://ghcr.io/actions/actions-runner-controller-charts
   - name: gha-runner-scale-set
-    version: 0.8.1
+    version: 0.7.0
     repository: oci://ghcr.io/actions/actions-runner-controller-charts
 icon: https://avatars.githubusercontent.com/u/44036562?s=256&v=4
 sources:

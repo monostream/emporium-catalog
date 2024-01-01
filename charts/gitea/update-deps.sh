@@ -14,4 +14,4 @@ if [[ -z ${HELM_EXISTS} ]]; then
   exit 1
 fi
 
-depschecker chart ./chart --update
+depschecker -f deps.json

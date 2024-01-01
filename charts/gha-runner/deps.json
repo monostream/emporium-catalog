@@ -1,0 +1,7 @@
+[
+    {
+       "provider":"chart",
+       "name":"gha-runner",
+       "repo":"./chart"
+    }
+]
