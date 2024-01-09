@@ -7,4 +7,5 @@ if [[ -z ${CLI_EXISTS} ]]; then
   exit 1
 fi
 
+echo "Checking updates for supabase"
 depschecker -f deps.json

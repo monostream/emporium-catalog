@@ -7,4 +7,5 @@ if [[ -z ${CLI_EXISTS} ]]; then
   exit 1
 fi
 
-depschecker -f deps.json
+echo "Checking updates for vscode"
+depschecker -f deps.json -u
