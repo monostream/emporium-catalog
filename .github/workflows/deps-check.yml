@@ -13,12 +13,6 @@ jobs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
 
     steps:
-    - name: Install Git and Deps Checker
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git curl
-        # Add commands here to install deps-checker if needed
-
     - name: Checkout code
       uses: actions/checkout@v4
 
