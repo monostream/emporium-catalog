@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-CLI_EXISTS=$(which depschecker)
+CLI_EXISTS=$(which deps-checker)
 
 if [[ -z ${CLI_EXISTS} ]]; then
-  echo "ERROR: depschecker not found"
+  echo "ERROR: deps-checker not found"
   exit 1
 fi
 
 echo "Checking updates for kubernetes-dashboard"
-depschecker -f deps.json
+deps-checker -f deps.json -u
