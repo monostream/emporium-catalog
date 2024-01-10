@@ -36,7 +36,7 @@ jobs:
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-          helm repo add emporium-apps ${{ vars.HELM_REPO }}  --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
+          helm repo add emporium-apps ${{ vars.HELM_REPO }} --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
           helm repo add nextcloud https://nextcloud.github.io/helm/
 
       - name: Run cm-push
@@ -44,10 +44,13 @@ jobs:
           changed_charts=()
 
           for dir in charts/*; do
-              if [ -d "$dir" ] && git diff --quiet HEAD~1 HEAD -- "$dir"; then
-                  continue
+              if [ -d "$dir" ]; then
+                  chart_dir="$dir/chart"
+                  if git diff --quiet HEAD~1 HEAD -- "$chart_dir"; then
+                      continue
+                  fi
+                  changed_charts+=("$chart_dir")
               fi
-              changed_charts+=("$dir")
           done
 
           for chart in "${changed_charts[@]}"; do
