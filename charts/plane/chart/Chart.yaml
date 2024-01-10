@@ -4,8 +4,8 @@ name: plane
 description: Project management tool from the future
 
 type: application
-version: 0.1.15
-appVersion: v0.14.1-dev
+version: 0.1.16
+appVersion: v0.14.2-dev
 
 home: https://plane.so/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
