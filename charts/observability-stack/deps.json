@@ -1,0 +1,7 @@
+[
+    {
+       "provider":"chart",
+       "name":"observability-stack",
+       "repo":"./chart"
+    }
+]

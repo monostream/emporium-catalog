@@ -1,1 +1,0 @@
-Ingress controller for Kubernetes using NGINX as a reverse proxy and load balancer

@@ -1,0 +1,10 @@
+[
+    {
+       "provider":"chart",
+       "name":"excalidraw",
+       "repo":"./chart",
+       "imageTagPaths": [
+        "image.tag"
+      ]
+    }
+]

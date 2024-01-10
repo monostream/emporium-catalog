@@ -1,0 +1,10 @@
+[
+    {
+       "provider":"chart",
+       "name":"browserless",
+       "repo":"./chart",
+       "imageTagPaths": [
+        "image.tag"
+      ]
+    }
+]

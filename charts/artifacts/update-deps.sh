@@ -7,5 +7,5 @@ if [[ -z ${CLI_EXISTS} ]]; then
   exit 1
 fi
 
-echo "Checking updates for observability-stack"
+echo "Checking updates for artifacts"
 deps-checker -f deps.json -u

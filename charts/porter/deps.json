@@ -1,0 +1,7 @@
+[
+    {
+       "provider":"chart",
+       "name":"porter",
+       "repo":"./chart"
+    }
+]
