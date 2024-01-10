@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-updates:
-    runs-on: self-hosted-linux-x64
+    runs-on: ubuntu-latest
     outputs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
 
