@@ -8,6 +8,7 @@ on:
 jobs:
   check-updates:
     runs-on: ubuntu-latest
+    container: monostream/deps-checker:latest
     outputs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
 
@@ -38,15 +39,6 @@ jobs:
     - name: Find and Run Update Scripts
       run: |
         find . -name 'update-deps.sh' -execdir sh -c 'echo "\n---" && bash {}' \; >> deps-update-output.txt
-
-    - name: Run Deps Checker
-      run: |
-        docker run --rm \
-        --user $(id -u):$(id -g) \
-        -e WORKING_DIR=/data \
-        -e DEPS_PATH=/data/deps.json \
-        -v ${{ github.workspace }}:/data \
-        monostream/deps-checker:latest find . -name 'update-deps.sh' -execdir sh -c 'echo "\n---" && bash {}' \; >> deps-update-output.txt
 
     - name: Check for deps changes
       id: git_changes
