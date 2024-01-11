@@ -18,6 +18,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debugging Information
+      run: |
+        echo "Current Directory:"
+        pwd
+        echo "List files:"
+        ls -lah
 
     - name: Navigate to code directory
       run: cd $GITHUB_WORKSPACE
