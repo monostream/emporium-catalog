@@ -13,8 +13,15 @@ jobs:
       options: --user root
     outputs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
-
+        
     steps:
+    - name: Debugging Information
+      run: |
+        echo "Current Directory:"
+        pwd
+        echo "List files:"
+        ls -lah
+
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -24,9 +31,6 @@ jobs:
         pwd
         echo "List files:"
         ls -lah
-
-    - name: Navigate to code directory
-      run: cd $GITHUB_WORKSPACE
 
     - name: Setup Git
       run: |
@@ -41,7 +45,7 @@ jobs:
 
     - name: Find and Run Update Scripts
       run: |
-        find . -name 'update-deps.sh' -execdir sh -c 'echo "\n---" && bash {}' \; >> deps-update-output.txt
+        find . -name 'update-deps.sh' -execdir sh -c 'echo "\n---" && bash {}' \; >> deps-update-output.txt; cat deps-update-output.txt
 
     - name: Check for deps changes
       id: git_changes
