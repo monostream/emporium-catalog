@@ -13,15 +13,8 @@ jobs:
       options: --user root
     outputs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
-        
-    steps:
-    - name: Debugging Information
-      run: |
-        echo "Current Directory:"
-        pwd
-        echo "List files:"
-        ls -lah
 
+    steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -31,7 +24,15 @@ jobs:
         pwd
         echo "List files:"
         ls -lah
-
+        echo "Git Version:"
+        git --version
+        echo "Git Configuration:"
+        git config --list
+    
+    - name: Adjust File Permissions
+      run: |
+        sudo chown -R $(whoami) .git
+    
     - name: Setup Git
       run: |
         git config user.email "roboterli@users.noreply.github.com"
