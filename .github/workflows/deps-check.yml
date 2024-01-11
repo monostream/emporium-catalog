@@ -18,6 +18,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+
+    - name: Navigate to code directory
+      run: cd $GITHUB_WORKSPACE
+
     - name: Setup Git
       run: |
         git config user.email "roboterli@users.noreply.github.com"
