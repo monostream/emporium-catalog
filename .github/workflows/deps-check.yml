@@ -16,9 +16,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
     - name: Setup Git
       run: |
         git config user.email "roboterli@users.noreply.github.com"
@@ -85,11 +82,3 @@ jobs:
             });
           }
           core.setOutput('pr-number', prNumber);
-
-    - name: Trigger generate-matrix workflow
-      uses: benc-uk/workflow-dispatch@v1
-      if: steps.git_changes.outputs.changes == 'true'
-      with:
-        workflow: Build and Push Docker Images
-        token: ${{ secrets.GITHUB_TOKEN }}
-        ref: feature/update-deps
