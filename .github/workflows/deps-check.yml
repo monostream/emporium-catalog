@@ -28,6 +28,7 @@ jobs:
         git --version
         echo "Git Configuration:"
         git config --list
+        git config --global --add safe.directory ${PWD}
         git pull
     
     - name: Setup Git
