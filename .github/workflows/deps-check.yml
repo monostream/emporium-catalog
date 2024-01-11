@@ -28,10 +28,7 @@ jobs:
         git --version
         echo "Git Configuration:"
         git config --list
-    
-    - name: Adjust File Permissions
-      run: |
-        sudo chown -R $(whoami) .git
+        git pull
     
     - name: Setup Git
       run: |
