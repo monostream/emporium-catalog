@@ -47,6 +47,11 @@ jobs:
           echo "changes=false" >> $GITHUB_OUTPUT
         fi
 
+    - name: List files in the workspace
+      run: | 
+        ls -la ${{ github.workspace }}
+        ls -la ${PWD}
+      
     - name: Check for existing PR and Create if not exists
       uses: actions/github-script@v7
       if: steps.git_changes.outputs.changes == 'true'
@@ -86,3 +91,7 @@ jobs:
             });
           }
           core.setOutput('pr-number', prNumber);
+
+
+
+          home/runner/work/test-charts/test-charts/deps-update-output.txt
