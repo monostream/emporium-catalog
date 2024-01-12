@@ -58,7 +58,7 @@ jobs:
         script: |
           const fs = require('fs');
           const { repo, owner } = context.repo;
-          const depsUpdateOutput = fs.readFileSync('${{ github.workspace }}/deps-update-output.txt', 'utf8');
+          const depsUpdateOutput = fs.readFileSync('deps-update-output.txt', 'utf8');
 
           const { data: existingPRs } = await github.rest.pulls.list({
             owner,
