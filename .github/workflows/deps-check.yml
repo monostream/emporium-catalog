@@ -17,22 +17,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Debugging Information
-      run: |
-        echo "Current Directory:"
-        pwd
-        echo "List files:"
-        ls -lah
-        echo "Git Version:"
-        git --version
-        echo "Git Configuration:"
-        git config --list
-        git config --global --add safe.directory ${PWD}
-        git pull
-    
+           
     - name: Setup Git
       run: |
+        chown -R $(id -u):$(id -g) $PWD
+        git config --global --add safe.directory ${PWD}
         git config user.email "roboterli@users.noreply.github.com"
         git config user.name "Roboterli"
         git fetch origin
@@ -49,7 +38,7 @@ jobs:
     - name: Check for deps changes
       id: git_changes
       run: |
-        if git status --porcelain | grep -q "deps.json"; then
+        if git status --porcelain | grep -q "deps-update-output.txt"; then
           echo "changes=true" >> $GITHUB_OUTPUT
           git add .
           git commit -m "Prepare for dependency update"
