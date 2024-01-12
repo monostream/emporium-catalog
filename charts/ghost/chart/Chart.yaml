@@ -1,36 +1,32 @@
-apiVersion: v2
-
-name: ghost
-description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
-
-version: 1.0.15
-appVersion: 5.73.2
-
-dependencies:
-  - name: ghost
-    version: 19.6.6
-    repository: oci://registry-1.docker.io/bitnamicharts
-
-home: https://ghost.org/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.svg
-sources:
-  - https://github.com/TryGhost/Ghost
-  - https://github.com/bitnami/charts/tree/main/bitnami/ghost
-maintainers:
-  - name: Ghost Foundation © 2023
-    url: https://ghost.org/
-  - name: VMware, Inc.
-    url: https://github.com/bitnami/charts
-keywords:
-  - Blog
-  - Magazine
-  - Websites
-  - CMS
-
 annotations:
-  displayName: Ghost
   category: CMS
-  licenses: Apache-2.0
+  displayName: Ghost
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
+  licenses: Apache-2.0
+apiVersion: v2
+appVersion: 5.73.2
+dependencies:
+- name: ghost
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 19.6.17
+description: Publishing platform designed to create SEO-optimized blogs, magazines,
+  websites and news sites.
+home: https://ghost.org/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.svg
+keywords:
+- Blog
+- Magazine
+- Websites
+- CMS
+maintainers:
+- name: Ghost Foundation © 2023
+  url: https://ghost.org/
+- name: VMware, Inc.
+  url: https://github.com/bitnami/charts
+name: ghost
+sources:
+- https://github.com/TryGhost/Ghost
+- https://github.com/bitnami/charts/tree/main/bitnami/ghost
+version: 1.0.15

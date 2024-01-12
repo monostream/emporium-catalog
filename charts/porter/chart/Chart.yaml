@@ -1,25 +1,20 @@
+annotations:
+  category: Developer Tools
+  displayName: Porter
 apiVersion: v2
-
-name: porter
-description: Platform as a Service, Reimagined.
-
-type: application
-version: 0.1.8
 appVersion: 0.1.0
-
 dependencies:
-  - name: porter
-    version: 0.142.0
-    repository: https://charts-self-hosted.porter.run
-
+- name: porter
+  repository: https://charts-self-hosted.porter.run
+  version: 0.159.0
+description: Platform as a Service, Reimagined.
 home: https://www.porter.run/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/porter/porter_icon_2.svg
-sources:
-  - https://github.com/porter-dev/porter
-  - https://github.com/porter-dev/porter-charts
 keywords:
-  - PaaS
-
-annotations:
-  displayName: Porter
-  category: Developer Tools
+- PaaS
+name: porter
+sources:
+- https://github.com/porter-dev/porter
+- https://github.com/porter-dev/porter-charts
+type: application
+version: 0.1.8
