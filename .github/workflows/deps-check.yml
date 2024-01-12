@@ -49,7 +49,6 @@ jobs:
 
     - name: List files in the workspace
       run: |
-        ls -la ${{ github.workspace }}
         ls -la ${PWD}
       
     - name: Check for existing PR and Create if not exists
