@@ -48,7 +48,7 @@ jobs:
         fi
 
     - name: List files in the workspace
-      run: | 
+      run: |
         ls -la ${{ github.workspace }}
         ls -la ${PWD}
       
@@ -91,7 +91,3 @@ jobs:
             });
           }
           core.setOutput('pr-number', prNumber);
-
-
-
-          home/runner/work/test-charts/test-charts/deps-update-output.txt
