@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"ghost",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "ghost",
+    "repo": "./chart"
+  }
 ]

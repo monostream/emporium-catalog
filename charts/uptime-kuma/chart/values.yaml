@@ -1,62 +1,16 @@
-# Default values for uptime-kuma.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 1
-
-image:
-  repository: louislam/uptime-kuma
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.23.3-debian"
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-persistence:
-  enabled: true
-  accessMode: ReadWriteOnce
-  size: 10Gi
-
-livenessProbe:
-  enabled: true
-  timeoutSeconds: 2
-  initialDelaySeconds: 15
-
-readinessProbe:
-  enabled: true
-  initialDelaySeconds: 5
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: false
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 3001
-
-ingress:
+affinity: {}
+autoscaling:
   enabled: false
-  className: ""
+  maxReplicas: 100
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 80
+fullnameOverride: ""
+image:
+  pullPolicy: Always
+  repository: louislam/uptime-kuma
+  tag: 1.23.11-debian
+imagePullSecrets: []
+ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
@@ -76,37 +30,37 @@ ingress:
         proxy_set_header   Upgrade $http_upgrade;
         proxy_cache_bypass $http_upgrade;
       }
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
+  className: ""
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
+  hosts:
+  - host: chart-example.local
+    paths:
+    - path: /
+      pathType: ImplementationSpecific
+  tls: []
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 15
+  timeoutSeconds: 2
+nameOverride: ""
 nodeSelector: {}
-
+persistence:
+  accessMode: ReadWriteOnce
+  enabled: true
+  size: 10Gi
+podAnnotations: {}
+podSecurityContext: {}
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+replicaCount: 1
+resources: {}
+securityContext: {}
+service:
+  port: 3001
+  type: ClusterIP
+serviceAccount:
+  annotations: {}
+  create: false
+  name: ""
 tolerations: []
-
-affinity: {}

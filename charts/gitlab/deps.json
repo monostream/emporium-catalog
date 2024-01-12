@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"gitlab",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "gitlab",
+    "repo": "./chart"
+  }
 ]
