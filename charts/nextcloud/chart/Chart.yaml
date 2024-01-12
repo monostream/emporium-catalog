@@ -1,22 +1,18 @@
-apiVersion: v2
-name: nextcloud
-description: A safe home for all your data – community-driven, free & open source.
-
-type: application
-version: 0.0.30
-appVersion: "27.1.2"
-
-dependencies:
-  - name: nextcloud
-    version: 4.3.4
-    repository: https://nextcloud.github.io/helm/
-
-home: https://nextcloud.com/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/nextcloud_icon_2.svg
-
 annotations:
-  displayName: Nextcloud
   category: Utilities
-  licenses: AGPL-3.0
+  displayName: Nextcloud
   gallery: |
     https://raw.githubusercontent.com/nextcloud/screenshots/master/nextcloud-hub-files-25-preview.png
+  licenses: AGPL-3.0
+apiVersion: v2
+appVersion: 27.1.2
+dependencies:
+- name: nextcloud
+  repository: https://nextcloud.github.io/helm/
+  version: 4.5.10
+description: A safe home for all your data – community-driven, free & open source.
+home: https://nextcloud.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/nextcloud_icon_2.svg
+name: nextcloud
+type: application
+version: 0.0.30

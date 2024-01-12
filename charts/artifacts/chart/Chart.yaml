@@ -1,39 +1,35 @@
-apiVersion: v2
-
-name: artifacts
-description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
-
-version: 0.0.29
-appVersion: 0.0.12
-
-dependencies:
-  - name: artifacts
-    version: 0.0.12
-    repository: https://monostream.helm.pkg.emporium.rocks
-  - name: postgresql
-    version: 12.12.10
-    repository: https://charts.bitnami.com/bitnami
-    condition: global.postgresql.enabled
-
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.svg
-sources:
-  - https://github.com/monostream/artifacts
-
-keywords:
-  - Repository
-  - SelfHosted
-  - Docker
-  - HelmCharts
-  - NPM
-  - Maven
-  - NuGet
-
 annotations:
-  displayName: Artifacts
   category: Developer Tools
-  licenses: Apache-2.0
+  displayName: Artifacts
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_2.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_3.png
+  licenses: Apache-2.0
   oidcRedirectPaths: /auth/callback
+apiVersion: v2
+appVersion: 0.0.12
+dependencies:
+- name: artifacts
+  repository: https://monostream.helm.pkg.emporium.rocks
+  version: 0.0.12
+- condition: global.postgresql.enabled
+  name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 13.2.29
+description: Your all-in-one, self-hosted package registry. Easily host and manage
+  Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central
+  location.
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.svg
+keywords:
+- Repository
+- SelfHosted
+- Docker
+- HelmCharts
+- NPM
+- Maven
+- NuGet
+name: artifacts
+sources:
+- https://github.com/monostream/artifacts
+version: 0.0.29

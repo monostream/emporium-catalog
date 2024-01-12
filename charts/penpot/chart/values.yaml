@@ -4,7 +4,7 @@ backend:
     allowPrivilegeEscalation: false
     capabilities:
       drop:
-        - all
+      - all
     enabled: true
     readOnlyRootFilesystem: false
     runAsNonRoot: true
@@ -12,7 +12,7 @@ backend:
   image:
     imagePullPolicy: IfNotPresent
     repository: penpotapp/backend
-    tag: 1.19.2
+    tag: 1.19.3
   nodeSelector: {}
   podSecurityContext:
     enabled: true
@@ -130,7 +130,7 @@ exporter:
     allowPrivilegeEscalation: false
     capabilities:
       drop:
-        - all
+      - all
     enabled: true
     readOnlyRootFilesystem: false
     runAsNonRoot: true
@@ -138,7 +138,7 @@ exporter:
   image:
     imagePullPolicy: IfNotPresent
     repository: penpotapp/exporter
-    tag: 1.19.2
+    tag: 1.19.3
   nodeSelector: {}
   podSecurityContext:
     enabled: true
@@ -156,7 +156,7 @@ frontend:
   image:
     imagePullPolicy: IfNotPresent
     repository: penpotapp/frontend
-    tag: 1.19.2
+    tag: 1.19.3
   ingress:
     annotations: {}
     enabled: false
@@ -179,7 +179,7 @@ global:
 nameOverride: ""
 persistence:
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   annotations: {}
   enabled: false
   existingClaim: ""
