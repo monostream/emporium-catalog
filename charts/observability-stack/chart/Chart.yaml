@@ -1,39 +1,40 @@
+annotations:
+  category: Developer Tools
+  displayName: Observability Stack
+  licenses: Apache-2.0
 apiVersion: v2
-name: observability-stack
-description: An all-in-one observability stack for Kubernetes, integrating Grafana, Prometheus, Loki, Tempo, Promtail, and Pyroscope.
-version: 0.0.17
 appVersion: 0.0.2
 dependencies:
-  - name: kube-prometheus-stack
-    version: 55.5.0
-    repository: https://prometheus-community.github.io/helm-charts
-    alias: prometheus
-  - name: loki
-    version: 5.41.4
-    repository: https://grafana.github.io/helm-charts
-  - name: tempo
-    version: 1.7.1
-    repository: https://grafana.github.io/helm-charts
-  - name: promtail
-    version: 6.15.3
-    repository: https://grafana.github.io/helm-charts
-  - name: pyroscope
-    version: 1.3.1
-    repository: https://grafana.github.io/helm-charts
+- alias: prometheus
+  name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 55.8.2
+- name: loki
+  repository: https://grafana.github.io/helm-charts
+  version: 5.41.6
+- name: tempo
+  repository: https://grafana.github.io/helm-charts
+  version: 1.7.1
+- name: promtail
+  repository: https://grafana.github.io/helm-charts
+  version: 6.15.3
+- name: pyroscope
+  repository: https://grafana.github.io/helm-charts
+  version: 1.3.4
+description: An all-in-one observability stack for Kubernetes, integrating Grafana,
+  Prometheus, Loki, Tempo, Promtail, and Pyroscope.
 home: https://grafana.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_icon_2.svg
-sources:
-  - https://github.com/grafana/grafana
-  - https://github.com/grafana/loki
-  - https://github.com/grafana/tempo
-  - https://github.com/grafana/pyroscope
-  - https://github.com/prometheus/prometheus
 keywords:
-  - Observability
-  - Metrics
-  - Logging
-  - Alerting
-annotations:
-  displayName: Observability Stack
-  category: Developer Tools
-  licenses: Apache-2.0
+- Observability
+- Metrics
+- Logging
+- Alerting
+name: observability-stack
+sources:
+- https://github.com/grafana/grafana
+- https://github.com/grafana/loki
+- https://github.com/grafana/tempo
+- https://github.com/grafana/pyroscope
+- https://github.com/prometheus/prometheus
+version: 0.0.17

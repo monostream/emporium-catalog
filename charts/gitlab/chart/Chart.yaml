@@ -1,30 +1,25 @@
-apiVersion: v2
-
-name: gitlab
-description: A single plattform to experience and share frustration with other developers
-
-type: application
-version: 16.5.1
-appVersion: "0.0.8"
-
-home: https://gitlab.com/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.svg
-sources:
-  - https://docs.gitlab.com/charts/installation/
-keywords:
-  - Collaboration
-  - Coding
-  - Git
-  - CI/CD
-  - Issue Tracking
-
-dependencies:
-  - name: gitlab
-    version: 7.5.0
-    repository: https://charts.gitlab.io/
-
 annotations:
+  category: Developer Tools
   displayName: GitLab
   licenses: MIT
-  category: Developer Tools
   oidcRedirectPaths: /users/auth/openid_connect/callback
+apiVersion: v2
+appVersion: 0.0.8
+dependencies:
+- name: gitlab
+  repository: https://charts.gitlab.io/
+  version: 7.7.3
+description: A single plattform to experience and share frustration with other developers
+home: https://gitlab.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.svg
+keywords:
+- Collaboration
+- Coding
+- Git
+- CI/CD
+- Issue Tracking
+name: gitlab
+sources:
+- https://docs.gitlab.com/charts/installation/
+type: application
+version: 16.5.1

@@ -1,10 +1,10 @@
 [
-    {
-       "provider":"chart",
-       "name":"supabase",
-       "repo":"./chart",
-       "imageTagPaths": [
-        "image.tag"
-      ]
-    }
+  {
+    "provider": "chart",
+    "name": "supabase",
+    "repo": "./chart",
+    "imageTagPaths": [
+      "image.tag"
+    ]
+  }
 ]
