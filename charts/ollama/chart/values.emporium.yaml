@@ -1,0 +1,33 @@
+## @userSupplied RuntimeClassName
+## @label Runtime class name
+## @type string
+## @description Name of the Runtime class which is capable of running GPU enabled workload
+
+## @userSupplied StorageSize
+## @label StorageSize
+## @type string
+## @description The size of the storage volume
+ollama:
+  runtimeClassName: {{ .Emporium.UserSupplied.RuntimeClassName }}
+
+  persistentVolume:
+    size: {{ .Emporium.UserSupplied.StorageSize }}
+
+ollama-webui:
+  ingress:
+    enabled: true
+    className: ""
+    annotations: 
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: 
+      - secretName: {{ .Emporium.Name }}-webui-tls
+        hosts:
+          - {{ .Emporium.Integrations.DNS.Hostname }}
