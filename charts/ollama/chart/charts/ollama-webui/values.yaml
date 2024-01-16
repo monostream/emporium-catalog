@@ -11,8 +11,8 @@ image:
   tag: "main"
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: "ollama-webui"
+fullnameOverride: "ollama-webui"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -89,7 +89,8 @@ persistence:
   
   size: 8Gi
 
-  accessMode: ReadWriteOnce
+  accessModes: 
+  - ReadWriteOnce
 
   mountPath: /app/backend/data
   # subPath: ""

@@ -2,7 +2,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "ollama-webui.fullname" . }}-pvc
+  name: {{ include "ollama-webui.fullname" . }}
   labels:
     {{- include "ollama-webui.labels" . | nindent 4 }}
   {{- with .Values.persistence.annotations }}
@@ -11,7 +11,7 @@ metadata:
   {{- end }}
 spec:
   accessModes:
-    - {{ .Values.persistence.accessMode | quote }}
+{{ toYaml .Values.persistence.accessModes | indent 4 }}
   resources:
     requests:
       storage: {{ .Values.persistence.size | quote }}

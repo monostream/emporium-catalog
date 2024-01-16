@@ -43,12 +43,15 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-          - name: {{ include "ollama-webui.fullname" . }}-volume
+          - name: {{ include "ollama-webui.fullname" . }}
             mountPath: {{ .Values.persistence.mountPath }}
+          env:
+          - name: OLLAMA_API_BASE_URL
+            value: "http://ollama:11434/api"
       volumes:
-      - name: {{ include "ollama-webui.fullname" . }}-volume
+      - name: {{ include "ollama-webui.fullname" . }}
         persistentVolumeClaim:
-          claimName: {{ include "ollama-webui.fullname" . }}-pvc
+          claimName: {{ include "ollama-webui.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

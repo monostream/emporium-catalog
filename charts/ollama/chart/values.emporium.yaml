@@ -8,15 +8,24 @@
 ## @type string
 ## @description The size of the storage volume
 ollama:
+  nameOverride: "ollama"
+  fullnameOverride: "ollama"
+
+  ollama:
+    gpu:
+      enabled: true
+      number: 1
+    defaultModel: "llama2"
+
   runtimeClassName: {{ .Emporium.UserSupplied.RuntimeClassName }}
 
   persistentVolume:
+    enabled: true
     size: {{ .Emporium.UserSupplied.StorageSize }}
 
 ollama-webui:
   ingress:
     enabled: true
-    className: ""
     annotations: 
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
