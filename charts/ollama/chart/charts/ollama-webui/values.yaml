@@ -89,8 +89,7 @@ persistence:
   
   size: 8Gi
 
-  accessModes:
-    - ReadWriteOnce
+  accessMode: ReadWriteOnce
 
   mountPath: /app/backend/data
   # subPath: ""
