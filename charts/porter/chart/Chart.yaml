@@ -6,7 +6,7 @@ appVersion: 0.1.0
 dependencies:
 - name: porter
   repository: https://charts-self-hosted.porter.run
-  version: 0.160.0
+  version: 0.161.0
 description: Platform as a Service, Reimagined.
 home: https://www.porter.run/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/porter/porter_icon_2.svg

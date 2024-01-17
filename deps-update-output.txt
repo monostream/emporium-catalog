@@ -147,3 +147,100 @@ redis: error parsing latest version, probably 18.6.4? (current 17.x.x)
 postgresql: error parsing latest version, probably 13.2.30? (current 12.x.x)
 minio: error parsing latest version, probably 13.0.2? (current 12.x.x)
 No updates found
+
+---
+Checking updates for supabase
+| Source | Name     | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                |
+| ------ | -------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------------- |
+| docker | supabase |             | 2.2.2           | 2.3.0       |                    |                | oci://registry-1.docker.io/bitnamicharts |
+Chart dependency supabase updated successfully in Chart.yaml to version 2.3.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for uptime-kuma
+No updates found
+
+---
+Checking updates for gitlab
+No updates found
+
+---
+Checking updates for browserless
+No updates found
+
+---
+Checking updates for kubernetes-dashboard
+No updates found
+
+---
+Checking updates for vscode
+No updates found
+
+---
+Checking updates for artifacts
+No updates found
+
+---
+Checking updates for drawio
+| Source    | Name          | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
+| --------- | ------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
+| dockerhub | jgraph/drawio |             | 22.1.18         | 22.1.19     |                    |                | https://hub.docker.com/r/jgraph/drawio/tags |
+Image tag image.tag updated successfully in values file to version 22.1.19
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for excalidraw
+No updates found
+
+---
+Checking updates for n8n
+No updates found
+
+---
+Checking updates for ghost
+No updates found
+
+---
+Checking updates for gha-runner
+No updates found
+
+---
+Checking updates for nextcloud
+No updates found
+
+---
+Checking updates for gitea
+No updates found
+
+---
+Checking updates for porter
+| Source | Name   | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | porter |             | 0.160.0         | 0.161.0     |                    | 0.11.1         | https://charts-self-hosted.porter.run |
+Chart dependency porter updated successfully in Chart.yaml to version 0.161.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for observability-stack
+| Source | Name                  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                          |
+| ------ | --------------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------------- |
+| helm   | kube-prometheus-stack |             | 55.8.2          | 55.8.3      |                    | v0.70.0        | https://prometheus-community.github.io/helm-charts |
+Chart dependency kube-prometheus-stack updated successfully in Chart.yaml to version 55.8.3!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for penpot
+redis: error parsing latest version, probably 18.6.4? (current 17.x.x)
+postgresql: error parsing latest version, probably 13.2.30? (current 12.x.x)
+No updates found
+
+---
+Checking updates for chatbot-ui
+No updates found
+
+---
+Checking updates for plane
+redis: error parsing latest version, probably 18.6.4? (current 17.x.x)
+postgresql: error parsing latest version, probably 13.2.30? (current 12.x.x)
+minio: error parsing latest version, probably 13.0.3? (current 12.x.x)
+No updates found
