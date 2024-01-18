@@ -16,7 +16,7 @@ dependencies:
 - condition: global.postgresql.enabled
   name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 13.2.30
+  version: 13.3.0
 description: Your all-in-one, self-hosted package registry. Easily host and manage
   Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central
   location.

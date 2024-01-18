@@ -24,11 +24,11 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/d
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
-ENV KUBECTL_VERSION="v1.29.0"
+ENV KUBECTL_VERSION="v1.29.1"
 RUN curl -fsSL "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
-ENV HELM_VERSION="v3.13.3"
+ENV HELM_VERSION="v3.14.0"
 RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-amd64/helm
 
 # Java

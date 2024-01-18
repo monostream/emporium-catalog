@@ -40,7 +40,7 @@ fullnameOverride: ""
 image:
   pullPolicy: IfNotPresent
   repository: jgraph/drawio
-  tag: 22.1.19
+  tag: 22.1.21
 imagePullSecrets: []
 ingress:
   annotations: {}
