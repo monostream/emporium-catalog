@@ -1,7 +1,7 @@
 apiVersion: v2
 name: fooocus
 description: Fooocus is an image generating software (based on Gradio).
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.1.0
 home: https://github.com/lllyasviel/Fooocus
 #icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ollama/ollama_icon_1.png
