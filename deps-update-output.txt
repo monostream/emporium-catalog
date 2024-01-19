@@ -349,3 +349,100 @@ minio: error parsing latest version, probably 13.1.1? (current 12.x.x)
 redis: error parsing latest version, probably 18.7.0? (current 17.x.x)
 postgresql: error parsing latest version, probably 13.3.0? (current 12.x.x)
 No updates found
+
+---
+Checking updates for supabase
+No updates found
+
+---
+Checking updates for uptime-kuma
+No updates found
+
+---
+Checking updates for gitlab
+| Source | Name   | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                 |
+| ------ | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------- |
+| helm   | gitlab |             | 7.7.3           | 7.8.0       |                    | v16.8.0        | https://charts.gitlab.io/ |
+Chart dependency gitlab updated successfully in Chart.yaml to version 7.8.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for browserless
+No updates found
+
+---
+Checking updates for kubernetes-dashboard
+No updates found
+
+---
+Checking updates for vscode
+No updates found
+
+---
+Checking updates for artifacts
+| Source | Name       | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                          |
+| ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
+| helm   | postgresql |             | 13.3.0          | 13.3.1      |                    | 16.1.0         | https://charts.bitnami.com/bitnami |
+Chart dependency postgresql updated successfully in Chart.yaml to version 13.3.1!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for drawio
+No updates found
+
+---
+Checking updates for excalidraw
+No updates found
+
+---
+Checking updates for n8n
+No updates found
+
+---
+Checking updates for ghost
+| Source | Name  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                |
+| ------ | ----- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------------- |
+| docker | ghost |             | 19.7.1          | 19.7.2      |                    |                | oci://registry-1.docker.io/bitnamicharts |
+Chart dependency ghost updated successfully in Chart.yaml to version 19.7.2!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for gha-runner
+No updates found
+
+---
+Checking updates for nextcloud
+No updates found
+
+---
+Checking updates for gitea
+No updates found
+
+---
+Checking updates for porter
+No updates found
+
+---
+Checking updates for observability-stack
+| Source | Name      | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | --------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | pyroscope |             | 1.3.5           | 1.3.6       |                    | 1.3.0          | https://grafana.github.io/helm-charts |
+Chart dependency pyroscope updated successfully in Chart.yaml to version 1.3.6!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for penpot
+postgresql: error parsing latest version, probably 13.3.1? (current 12.x.x)
+redis: error parsing latest version, probably 18.7.1? (current 17.x.x)
+No updates found
+
+---
+Checking updates for chatbot-ui
+No updates found
+
+---
+Checking updates for plane
+minio: error parsing latest version, probably 13.1.1? (current 12.x.x)
+redis: error parsing latest version, probably 18.7.1? (current 17.x.x)
+postgresql: error parsing latest version, probably 13.3.1? (current 12.x.x)
+No updates found
