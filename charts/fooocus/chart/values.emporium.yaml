@@ -3,13 +3,12 @@
 ## @type string
 ## @description Name of the Runtime class which is capable of running GPU enabled workload
 
+runtimeClassName: {{ .Emporium.UserSupplied.RuntimeClassName }}
+
 ## @userSupplied StorageSize
 ## @label StorageSize
 ## @type string
-## @description The size of the storage volume
-
-runtimeClassName: {{ .Emporium.UserSupplied.RuntimeClassName }}
-
+## @description The size of the storage volume (eg. 100Gi for 100 Gibibytes)
 persistence:
   enabled: true
   size: {{ .Emporium.UserSupplied.StorageSize }}
