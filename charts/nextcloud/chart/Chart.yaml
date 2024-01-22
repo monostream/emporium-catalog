@@ -9,7 +9,7 @@ appVersion: 27.1.2
 dependencies:
 - name: nextcloud
   repository: https://nextcloud.github.io/helm/
-  version: 4.5.10
+  version: 4.5.11
 description: A safe home for all your data – community-driven, free & open source.
 home: https://nextcloud.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/nextcloud_icon_2.svg
