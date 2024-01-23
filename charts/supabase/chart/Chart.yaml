@@ -12,7 +12,7 @@ appVersion: 1.0.0
 dependencies:
 - name: supabase
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.4.0
+  version: 2.5.0
 description: Firebase alternative for building secure and performant Postgres backends
   with minimal configuration.
 home: https://supabase.com/

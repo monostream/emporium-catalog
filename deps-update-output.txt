@@ -549,3 +549,114 @@ postgresql: error parsing latest version, probably 13.3.1? (current 12.x.x)
 minio: error parsing latest version, probably 13.2.0? (current 12.x.x)
 redis: error parsing latest version, probably 18.7.1? (current 17.x.x)
 No updates found
+
+---
+Checking updates for supabase
+| Source | Name     | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                |
+| ------ | -------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------------- |
+| docker | supabase |             | 2.4.0           | 2.5.0       |                    |                | oci://registry-1.docker.io/bitnamicharts |
+Chart dependency supabase updated successfully in Chart.yaml to version 2.5.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for uptime-kuma
+No updates found
+
+---
+Checking updates for gitlab
+No updates found
+
+---
+Checking updates for browserless
+No updates found
+
+---
+Checking updates for kubernetes-dashboard
+No updates found
+
+---
+Checking updates for vscode
+| Source | Name        | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
+| ------ | ----------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
+| github | Code Server |             | v4.20.0         | v4.20.1     |                    |                | https://github.com/cdr/code-server/releases |
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for artifacts
+| Source | Name       | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                          |
+| ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
+| helm   | postgresql |             | 13.3.1          | 13.4.0      |                    | 16.1.0         | https://charts.bitnami.com/bitnami |
+Chart dependency postgresql updated successfully in Chart.yaml to version 13.4.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for drawio
+No updates found
+
+---
+Checking updates for excalidraw
+No updates found
+
+---
+Checking updates for n8n
+n8n: error getting versions: yaml: line 9: mapping values are not allowed in this context
+No updates found
+
+---
+Checking updates for ghost
+| Source | Name  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                |
+| ------ | ----- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------------- |
+| docker | ghost |             | 19.8.0          | 19.8.1      |                    |                | oci://registry-1.docker.io/bitnamicharts |
+Chart dependency ghost updated successfully in Chart.yaml to version 19.8.1!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for gha-runner
+No updates found
+
+---
+Checking updates for nextcloud
+No updates found
+
+---
+Checking updates for gitea
+| Source | Name  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                   |
+| ------ | ----- | ----------- | --------------- | ----------- | ------------------ | -------------- | --------------------------- |
+| helm   | gitea |             | 10.0.2          | 10.1.0      |                    | 1.21.4         | https://dl.gitea.io/charts/ |
+Chart dependency gitea updated successfully in Chart.yaml to version 10.1.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for porter
+| Source | Name   | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | porter |             | 0.162.0         | 0.163.0     |                    | 0.11.1         | https://charts-self-hosted.porter.run |
+Chart dependency porter updated successfully in Chart.yaml to version 0.163.0!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for observability-stack
+| Source | Name                  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                          |
+| ------ | --------------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------------- |
+| helm   | kube-prometheus-stack |             | 56.0.1          | 56.0.3      |                    | v0.71.0        | https://prometheus-community.github.io/helm-charts |
+| helm   | loki                  |             | 5.41.7          | 5.41.8      |                    | 2.9.3          | https://grafana.github.io/helm-charts              |
+Chart dependency loki updated successfully in Chart.yaml to version 5.41.8!
+Chart dependency kube-prometheus-stack updated successfully in Chart.yaml to version 56.0.3!
+Updated deps.json with the latest versions of the dependencies.
+
+---
+Checking updates for penpot
+postgresql: error parsing latest version, probably 13.4.0? (current 12.x.x)
+redis: error parsing latest version, probably 18.8.0? (current 17.x.x)
+No updates found
+
+---
+Checking updates for chatbot-ui
+No updates found
+
+---
+Checking updates for plane
+postgresql: error parsing latest version, probably 13.4.0? (current 12.x.x)
+minio: error parsing latest version, probably 13.2.0? (current 12.x.x)
+redis: error parsing latest version, probably 18.8.0? (current 17.x.x)
+No updates found

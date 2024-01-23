@@ -6,7 +6,7 @@ appVersion: 1.16.0
 dependencies:
 - name: gitea
   repository: https://dl.gitea.io/charts/
-  version: 10.0.2
+  version: 10.1.0
 description: Gitea is a community managed lightweight code hosting solution written
   in Go. It is published under the MIT license.
 home: https://gitea.com/

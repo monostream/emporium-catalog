@@ -10,7 +10,7 @@ appVersion: 5.73.2
 dependencies:
 - name: ghost
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 19.8.0
+  version: 19.8.1
 description: Publishing platform designed to create SEO-optimized blogs, magazines,
   websites and news sites.
 home: https://ghost.org/
