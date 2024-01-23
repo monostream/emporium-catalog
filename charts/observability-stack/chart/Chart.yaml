@@ -37,3 +37,5 @@ annotations:
   displayName: Observability Stack
   category: Developer Tools
   licenses: Apache-2.0
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_1.png
