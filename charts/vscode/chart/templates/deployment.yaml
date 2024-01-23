@@ -30,12 +30,6 @@ spec:
             runAsUser: 1000
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            - name: PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "codespace.fullname" . }}
-                  key: codespace-password
           ports:
             - name: http
               containerPort: 8080

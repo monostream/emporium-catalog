@@ -36,6 +36,6 @@ fi
 /usr/lib/code-server/bin/code-server \
     --disable-telemetry \
     --disable-update-check \
-    --auth password \
+    --auth none \
     --bind-addr 0.0.0.0:8080 \
     $HOME/workspace
