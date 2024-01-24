@@ -1,8 +1,7 @@
 ## @userSupplied StorageSize
 ## @label Storage Size
 ## @type string
-## @description Size of the attached storage volume (e.g. 20Gi or 900Mi).
-##              Default is 8Gi.
+## @description Size of the attached storage volume (e.g. 20Gi or 900Mi). Default is 8Gi.
 ## @optional
 
 ingress:

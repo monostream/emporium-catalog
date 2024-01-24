@@ -4,7 +4,7 @@ type: application
 name: vscode
 description: Visual Studio Code in your Browser - A comprehensive DevOps tool within your Kubernetes cluster.
 
-version: 0.1.4
+version: 0.1.5
 appVersion: "4.20.0"
 
 home: https://coder.com/
