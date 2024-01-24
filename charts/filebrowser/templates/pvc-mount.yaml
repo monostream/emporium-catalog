@@ -1,0 +1,28 @@
+{{- if and .Values.mount.enabled (not .Values.mount.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "chart.fullname" . }}-mount
+{{- with .Values.persistence.annotations  }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+{{- if .Values.mount.labels }}
+{{ toYaml .Values.mount.labels | indent 4 }}
+{{- end }}
+spec:
+  accessModes:
+    - {{ .Values.mount.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.mount.size | quote }}
+{{- if .Values.mount.storageClass }}
+{{- if (eq "-" .Values.mount.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.mount.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}

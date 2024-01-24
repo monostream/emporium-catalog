@@ -1,0 +1,39 @@
+## @userSupplied StorageSize
+## @label Storage Size
+## @type string
+## @description Size of the attached storage volume (e.g. 20Gi or 900Mi). Default is 8Gi.
+## @optional
+
+## @userSupplied ExistingClaim
+## @label Existing Claim
+## @type string
+## @description Name of an existing persistent volume claim
+## @optional
+
+ingress:
+  enabled: true
+
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+          
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
+
+
+mount:
+  enabled: true
+  storageClass: ""
+  existingClaim: {{ .Emporium.UserSupplied.ExistingClaim }}
+  accessMode: ReadWriteOnce
+  size: {{ default "100Gi" .Emporium.UserSupplied.StorageSize }}

@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: FB_NOAUTH
+              value: noauth
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: cache
+              mountPath: /database
+            - name: config-init
+              mountPath: /.filebrowser.json
+              subPath: .filebrowser.json
+      volumes:
+      - name: cache
+        {{- if and .Values.cache.enabled .Values.cache.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.cache.existingClaim }}
+        {{- else if .Values.cache.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-cache
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - name: data
+        {{- if and .Values.mount.enabled .Values.mount.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.mount.existingClaim }}
+        {{- else if .Values.mount.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-data
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - name: config-init
+        {{- if .Values.existingSecretForConfig }}
+        secret:
+          secretName: {{ .Values.existingSecretForConfig }}
+        {{- else }}
+        configMap:
+          name: {{ template "chart.fullname" . }}
+        {{- end }}
+      
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
