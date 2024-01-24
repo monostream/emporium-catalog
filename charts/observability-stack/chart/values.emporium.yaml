@@ -109,6 +109,9 @@ prometheus:
         org_role: Viewer
 
     sidecar:
+      datasources:
+        enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
+
       dashboards:
         enabled: true
         label: grafana_dashboard
