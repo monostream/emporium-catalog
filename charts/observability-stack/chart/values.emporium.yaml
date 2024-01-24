@@ -1,11 +1,41 @@
+## @userSupplied PrometheusEnabled
+## @label Enable Prometheus
+## @type boolean
+## @description Enable Prometheus for metrics collection.
+##              Default is disabled.
+## @optional
+
+## @userSupplied PrometheusRetention
+## @label Prometheus Retention Period
+## @type string
+## @description Retention period for Prometheus metrics (e.g. 10d or 120h).
+##              Default is 10d. Only applicable if Prometheus is enabled.
+## @optional
+
+## @userSupplied PrometheusRetentionSize
+## @label Prometheus Retention Size
+## @type boolean
+## @description Retention size for Prometheus metrics (e.g. 20Gi or 900Mi).
+##              Default is "". Only applicable if Prometheus is enabled.
+## @optional
+
+## @userSupplied PrometheusStorageSize
+## @label Prometheus Storage Size
+## @type string
+## @description Size of the prometheus storage volume (e.g. 20Gi or 900Mi).
+##              Default is 20Gi. Only applicable if Prometheus is enabled.
+## @optional
+
 prometheus:
   prometheusOperator:
-    enabled: true
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
 
     admissionWebhooks:
       timeoutSeconds: 30
 
   prometheus:
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
+
     prometheusSpec:
       serviceMonitorSelector: {}
       serviceMonitorSelectorNilUsesHelmValues: false
@@ -19,13 +49,19 @@ prometheus:
       ruleSelector: {}
       ruleSelectorNilUsesHelmValues: false
 
+      retention: {{ default "10d" .Emporium.UserSupplied.PrometheusRetention }}
+      retentionSize: {{ default "" .Emporium.UserSupplied.PrometheusRetentionSize }}
+
       storageSpec:
         volumeClaimTemplate:
           spec:
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
-                storage: 20Gi
+                storage: {{ default "20Gi" .Emporium.UserSupplied.PrometheusStorageSize }}
+
+  nodeExporter:
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
 
   grafana:
     ingress:
@@ -83,11 +119,13 @@ prometheus:
       datasources.yaml:
         apiVersion: 1
         datasources:
+        {{- if (default false .Emporium.UserSupplied.PrometheusEnabled) }}
         - name: Prometheus
           type: prometheus
           uid: prometheus
           url: http://{{ .Emporium.Name }}-prometheus-prometheus:9090
           access: proxy
+        {{- end }}
         - name: Loki
           type: loki
           uid: loki
