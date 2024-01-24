@@ -1,3 +1,10 @@
+## @userSupplied StorageSize
+## @label Storage Size
+## @type string
+## @description Size of the attached storage volume (e.g. 20Gi or 900Mi).
+##              Default is 8Gi.
+## @optional
+
 ingress:
   enabled: true
 
@@ -16,3 +23,7 @@ ingress:
     - secretName: {{ .Emporium.Name }}-tls
       hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}
+
+persistence:
+  enabled: true
+  size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
