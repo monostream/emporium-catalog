@@ -1,12 +1,11 @@
+## @userSupplied StorageSize
+## @label Storage Size
+## @type string
+## @description Size of the storage volume (e.g. 20Gi or 900Mi).
+##              Default is 8Gi.
+## @optional
+
 n8n:
-  # config:
-  #   database:
-  #     type: postgresdb
-  #     postgresdb:
-  #       host: {{ .Emporium.Name }}-postgresql
-
-  # existingSecret: {{ .Emporium.Name }}-emporium
-
   ingress:
     enabled: true
     annotations:
@@ -22,3 +21,7 @@ n8n:
       - secretName: {{ .Emporium.Name }}-tls
         hosts:
           - {{ .Emporium.Integrations.DNS.Hostname }}
+
+  persistence:
+    enabled: true
+    size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
