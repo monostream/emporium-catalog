@@ -1,15 +1,13 @@
 ## @userSupplied StorageSize
 ## @label Storage Size
 ## @type string
-## @description The size of the volume used for the storage service (e.g. 8Gi or 100Mi).
-##              Default is 8Gi.
+## @description The size of the volume used for the storage service (e.g. 8Gi or 100Mi). Default is 8Gi.
 ## @optional
 
 ## @userSupplied DatabaseSize
 ## @label Database Size
 ## @type string
-## @description The size of the volume used for the Postgres DB (e.g. 8Gi or 100Mi).
-##              Default is 8Gi.
+## @description The size of the volume used for the Postgres DB (e.g. 8Gi or 100Mi). Default is 8Gi.
 ## @optional
 
 supabase:
