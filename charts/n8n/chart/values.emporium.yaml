@@ -25,3 +25,6 @@ n8n:
     enabled: true
     type: dynamic
     size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
+
+  extraEnv:
+    N8N_USER_MANAGEMENT_DISABLED: 'true'
