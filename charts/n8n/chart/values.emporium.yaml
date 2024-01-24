@@ -1,8 +1,7 @@
 ## @userSupplied StorageSize
 ## @label Storage Size
 ## @type string
-## @description Size of the storage volume (e.g. 20Gi or 900Mi).
-##              Default is 8Gi.
+## @description Size of the storage volume (e.g. 20Gi or 900Mi). Default is 8Gi.
 ## @optional
 
 n8n:
