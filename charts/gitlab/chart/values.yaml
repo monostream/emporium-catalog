@@ -14,5 +14,8 @@ authentik:
       identifier:
       secret:
       redirect_uri:
+      gitlab:
+        groups_attribute:
+        admin_groups:
 
 gitlab: {}

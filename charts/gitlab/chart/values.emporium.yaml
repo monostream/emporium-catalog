@@ -1,9 +1,10 @@
+## The part involving group_attribute and admin_groups definitely seems not to work in the CE edition
 authentik:
   name: "openid_connect"
   label: "Emporium"
   args:
     name: "openid_connect"
-    scope: ["openid","profile","email"]
+    scope: ["openid","profile","email","read:org"]
     response_type: "code"
     issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
     discovery: true
@@ -14,6 +15,9 @@ authentik:
       identifier: "{{ .Emporium.Integrations.OIDC.ClientID }}"
       secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
       redirect_uri: "https://{{ .Emporium.Integrations.DNS.Hostname }}/users/auth/openid_connect/callback"
+      gitlab:
+        groups_attribute: "groups"
+        admin_groups: ["authentik Admins"]
 
 global:
   appConfig:
