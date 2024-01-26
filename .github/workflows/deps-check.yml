@@ -9,7 +9,7 @@ jobs:
   check-updates:
     runs-on: ubuntu-latest
     container: 
-      image: monostream/deps-checker:latest
+      image: monostream/deps-checker:test
       options: --user root
     outputs:
         matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -25,68 +25,76 @@ jobs:
         git config user.email "roboterli@users.noreply.github.com"
         git config user.name "Roboterli"
         git fetch origin
-        if ! git checkout feature/update-deps 2>/dev/null; then
-            git checkout -b feature/update-deps
-        else
-            git pull origin feature/update-deps
+
+    - name: Check and Run Dependency Updates
+      run: |
+        CLI_EXISTS=$(which deps-checker)
+        if [[ -z ${CLI_EXISTS} ]]; then
+          echo "ERROR: deps-checker not found"
+          exit 1
         fi
 
-    - name: Find and Run Update Scripts
-      run: |
-        find . -name 'update-deps.sh' -execdir sh -c 'echo "\n---" && bash {}' \; >> deps-update-output.txt; cat deps-update-output.txt
+        DEPS_FILES=$(find . -name 'deps.json')
 
-    - name: Check for deps changes
-      id: git_changes
-      run: |
-        if git status --porcelain | grep -q "deps-update-output.txt"; then
-          echo "changes=true" >> $GITHUB_OUTPUT
-          git add .
-          git commit -m "Prepare for dependency update"
-          git push origin feature/update-deps
-        else
-          echo "changes=false" >> $GITHUB_OUTPUT
-        fi
+        for DEPS_FILE in ${DEPS_FILES}; do
+          CHART_PATH=$(dirname "${DEPS_FILE}")
+          CHART_NAME=$(basename $CHART_PATH)
+          BRANCH_NAME="update/${CHART_NAME}"
 
-    - name: List files in the workspace
-      run: |
-        ls -la ${PWD}
-      
-    - name: Check for existing PR and Create if not exists
+          echo "Checking updates for ${CHART_NAME}"
+          
+          echo "Saving output to deps-update-${CHART_NAME}.txt"
+          deps-checker -f "${DEPS_FILE}" -u > "deps-update-${CHART_NAME}.txt"
+
+          # Check if branch exists
+          if git rev-parse --verify origin/${BRANCH_NAME} > /dev/null 2>&1; then
+            echo "Branch ${BRANCH_NAME} already exists, checking it out."
+            git checkout ${BRANCH_NAME}
+            git pull origin ${BRANCH_NAME}
+          else
+            echo "Creating new branch ${BRANCH_NAME}."
+            git checkout -b ${BRANCH_NAME}
+          fi
+
+          if git status --porcelain | grep -q "${DEPS_FILE}"; then
+            echo "Changes found for ${CHART_NAME}"
+            git add ${DEPS_FILE} "deps-update-${CHART_NAME}.txt"
+            git commit -m "Update dependencies for ${CHART_NAME}"
+            git push origin ${BRANCH_NAME}
+            echo "::set-output name=BRANCH_NAME::${BRANCH_NAME}"
+            echo "::set-output name=DEPS_UPDATE_FILE::deps-update-${CHART_NAME}.txt"
+          else
+            echo "No changes for ${CHART_NAME}"
+          fi
+        done
+      id: changes
+
+    - name: Create Pull Request
+      if: steps.changes.outputs.BRANCH_NAME != ''
       uses: actions/github-script@v7
-      if: steps.git_changes.outputs.changes == 'true'
       with:
         script: |
-          const fs = require('fs');
+          const branchName = `${{ steps.changes.outputs.BRANCH_NAME }}`;
+          const depsUpdateFile = `${{ steps.changes.outputs.DEPS_UPDATE_FILE }}`;
           const { repo, owner } = context.repo;
-          const depsUpdateOutput = fs.readFileSync('deps-update-output.txt', 'utf8');
+          const fs = require('fs');
+          const depsUpdateOutput = fs.readFileSync(depsUpdateFile, 'utf8');
 
           const { data: existingPRs } = await github.rest.pulls.list({
             owner,
             repo,
-            head: 'monostream:feature/update-deps',
+            head: `monostream:${branchName}`,
             base: 'main'
           });
-          let prNumber = null;
+
           if (existingPRs.length === 0) {
-            const pr = await github.rest.pulls.create({
+            await github.rest.pulls.create({
               owner,
               repo,
-              title: 'Update deps',
-              head: 'feature/update-deps',
+              title: `Update dependencies for ${branchName}`,
+              head: branchName,
               base: 'main',
-              body: `Update dependencies:\n\n${depsUpdateOutput}`,
-            });
-            prNumber = pr.number;
-          } else {
-            prNumber = existingPRs[0].number;
-            let body = existingPRs[0].body || '';
-            body += `\n\nUpdate dependencies:\n\n${depsUpdateOutput}`;
-            
-            await github.rest.pulls.update({
-              owner,
-              repo,
-              pull_number: prNumber,
-              body: body,
+              body: `This PR updates the dependencies for ${branchName}.\n\nDependency Updates:\n${depsUpdateOutput}`,
             });
           }
-          core.setOutput('pr-number', prNumber);
+
