@@ -11,9 +11,7 @@ jobs:
     container: 
       image: monostream/deps-checker:test
       options: --user root
-    outputs:
-        matrix: ${{ steps.set-matrix.outputs.matrix }}
-
+      
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -76,9 +74,6 @@ jobs:
             git push origin ${BRANCH_NAME}
 
             sleep 5
-
-            echo "BRANCH_NAME=${BRANCH_NAME}" >> $env:GITHUB_OUTPUT
-            echo "DEPS_UPDATE_FILE=deps-update-${CHART_NAME}.txt" >> $env:GITHUB_OUTPUT
 
             PR_EXISTS=$(gh pr list --head $BRANCH_NAME --base main --json number --jq ".[] | select(.number != null)")
 
