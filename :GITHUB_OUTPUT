@@ -2,3 +2,5 @@ BRANCH_NAME=update/supabase
 DEPS_UPDATE_FILE=deps-update-supabase.txt
 BRANCH_NAME=update/nextcloud
 DEPS_UPDATE_FILE=deps-update-nextcloud.txt
+BRANCH_NAME=update/excalidraw
+DEPS_UPDATE_FILE=deps-update-excalidraw.txt
