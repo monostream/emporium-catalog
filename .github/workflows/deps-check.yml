@@ -72,38 +72,18 @@ jobs:
             echo "BRANCH_NAME=${BRANCH_NAME}" >> $env:GITHUB_OUTPUT
             echo "DEPS_UPDATE_FILE=deps-update-${CHART_NAME}.txt" >> $env:GITHUB_OUTPUT
 
+            PR_EXISTS=$(gh pr list --head $BRANCH_NAME --base main --json number --jq ".[] | select(.number != null)")
+
+            if [ -z "$PR_EXISTS" ]; then
+              PR_TITLE="Update dependencies for $BRANCH_NAME"
+              PR_BODY="This PR updates the dependencies for $BRANCH_NAME.\n\nDependency Updates:\n$DEPS_UPDATE_OUTPUT"
+    
+              gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head $BRANCH_NAME
+            fi
+
           else
             echo "No changes for ${CHART_NAME}"
           fi
         done
       id: changes
-
-    - name: Create Pull Request
-      if: steps.changes.outputs.BRANCH_NAME != ''
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const branchName = `${{ steps.changes.outputs.BRANCH_NAME }}`;
-          const depsUpdateFile = `${{ steps.changes.outputs.DEPS_UPDATE_FILE }}`;
-          const { repo, owner } = context.repo;
-          const fs = require('fs');
-          const depsUpdateOutput = fs.readFileSync(depsUpdateFile, 'utf8');
-
-          const { data: existingPRs } = await github.rest.pulls.list({
-            owner,
-            repo,
-            head: `monostream:${branchName}`,
-            base: 'main'
-          });
-
-          if (existingPRs.length === 0) {
-            await github.rest.pulls.create({
-              owner,
-              repo,
-              title: `Update dependencies for ${branchName}`,
-              head: branchName,
-              base: 'main',
-              body: `This PR updates the dependencies for ${branchName}.\n\nDependency Updates:\n${depsUpdateOutput}`,
-            });
-          }
 
