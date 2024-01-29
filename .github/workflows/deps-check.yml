@@ -59,8 +59,7 @@ jobs:
           if git status --porcelain | grep -q "deps-update-${CHART_NAME}.txt"; then
             echo "Changes found for ${CHART_NAME}"
             git add .
-            git reset -- deps-update-${CHART_NAME}.txt
-            git clean -f
+            git reset -- deps-update-*.txt
             
             if git diff --cached --quiet; then
               echo "No staged changes to commit."
@@ -69,8 +68,10 @@ jobs:
             fi
 
             git push origin ${BRANCH_NAME}
-            echo "::set-output name=BRANCH_NAME::${BRANCH_NAME}"
-            echo "::set-output name=DEPS_UPDATE_FILE::deps-update-${CHART_NAME}.txt"
+
+            echo "BRANCH_NAME=${BRANCH_NAME}" >> $env:GITHUB_OUTPUT
+            echo "DEPS_UPDATE_FILE=deps-update-${CHART_NAME}.txt" >> $env:GITHUB_OUTPUT
+
           else
             echo "No changes for ${CHART_NAME}"
           fi
