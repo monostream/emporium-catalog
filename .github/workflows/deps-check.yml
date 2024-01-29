@@ -27,6 +27,8 @@ jobs:
         git fetch origin
 
     - name: Check and Run Dependency Updates
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         CLI_EXISTS=$(which deps-checker)
         if [[ -z ${CLI_EXISTS} ]]; then
