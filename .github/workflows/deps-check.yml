@@ -61,7 +61,13 @@ jobs:
             git add .
             git reset -- deps-update-${CHART_NAME}.txt
             git clean -f
-            git commit -m "Update dependencies for ${CHART_NAME}"
+            
+            if git diff --cached --quiet; then
+              echo "No staged changes to commit."
+            else
+              git commit -m "Update dependencies for ${CHART_NAME}"
+            fi
+
             git push origin ${BRANCH_NAME}
             echo "::set-output name=BRANCH_NAME::${BRANCH_NAME}"
             echo "::set-output name=DEPS_UPDATE_FILE::deps-update-${CHART_NAME}.txt"
