@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"nextcloud",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "nextcloud",
+    "repo": "./chart"
+  }
 ]
