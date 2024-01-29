@@ -40,13 +40,7 @@ jobs:
           CHART_PATH=$(dirname "${DEPS_FILE}")
           CHART_NAME=$(basename $CHART_PATH)
           BRANCH_NAME="update/${CHART_NAME}"
-
-          echo "Checking updates for ${CHART_NAME}"
-          
-          echo "Saving output to deps-update-${CHART_NAME}.txt"
-          deps-checker -f "${DEPS_FILE}" -u > "deps-update-${CHART_NAME}.txt"
-
-          # Check if branch exists
+        
           if git rev-parse --verify origin/${BRANCH_NAME} > /dev/null 2>&1; then
             echo "Branch ${BRANCH_NAME} already exists, checking it out."
             git checkout ${BRANCH_NAME}
@@ -55,10 +49,18 @@ jobs:
             echo "Creating new branch ${BRANCH_NAME}."
             git checkout -b ${BRANCH_NAME}
           fi
-
-          if git status --porcelain | grep -q "${DEPS_FILE}"; then
+        
+          echo "Checking updates for ${CHART_NAME}"
+          
+          echo "Saving output to deps-update-${CHART_NAME}.txt"
+          deps-checker -f "${DEPS_FILE}" -u > "deps-update-${CHART_NAME}.txt"
+        
+        
+          if git status --porcelain | grep -q "deps-update-${CHART_NAME}.txt"; then
             echo "Changes found for ${CHART_NAME}"
             git add .
+            git reset -- deps-update-${CHART_NAME}.txt
+            git clean -f
             git commit -m "Update dependencies for ${CHART_NAME}"
             git push origin ${BRANCH_NAME}
             echo "::set-output name=BRANCH_NAME::${BRANCH_NAME}"
