@@ -43,6 +43,9 @@ jobs:
           CHART_NAME=$(basename $CHART_PATH)
           BRANCH_NAME="update/${CHART_NAME}"
         
+          git checkout main
+          git pull origin main
+
           if git rev-parse --verify origin/${BRANCH_NAME} > /dev/null 2>&1; then
             echo "Branch ${BRANCH_NAME} already exists, checking it out."
             git checkout ${BRANCH_NAME}
