@@ -71,6 +71,8 @@ jobs:
 
             git push origin ${BRANCH_NAME}
 
+            sleep 5
+
             echo "BRANCH_NAME=${BRANCH_NAME}" >> $env:GITHUB_OUTPUT
             echo "DEPS_UPDATE_FILE=deps-update-${CHART_NAME}.txt" >> $env:GITHUB_OUTPUT
 
