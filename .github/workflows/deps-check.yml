@@ -58,7 +58,7 @@ jobs:
 
           if git status --porcelain | grep -q "${DEPS_FILE}"; then
             echo "Changes found for ${CHART_NAME}"
-            git add ${DEPS_FILE} "deps-update-${CHART_NAME}.txt"
+            git add .
             git commit -m "Update dependencies for ${CHART_NAME}"
             git push origin ${BRANCH_NAME}
             echo "::set-output name=BRANCH_NAME::${BRANCH_NAME}"
