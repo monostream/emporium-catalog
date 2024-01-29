@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"ollama",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "ollama",
+    "repo": "./chart"
+  }
 ]

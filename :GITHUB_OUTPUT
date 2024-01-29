@@ -8,3 +8,5 @@ BRANCH_NAME=update/fooocus
 DEPS_UPDATE_FILE=deps-update-fooocus.txt
 BRANCH_NAME=update/vscode
 DEPS_UPDATE_FILE=deps-update-vscode.txt
+BRANCH_NAME=update/gitea
+DEPS_UPDATE_FILE=deps-update-gitea.txt
