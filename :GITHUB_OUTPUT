@@ -6,3 +6,5 @@ BRANCH_NAME=update/excalidraw
 DEPS_UPDATE_FILE=deps-update-excalidraw.txt
 BRANCH_NAME=update/fooocus
 DEPS_UPDATE_FILE=deps-update-fooocus.txt
+BRANCH_NAME=update/vscode
+DEPS_UPDATE_FILE=deps-update-vscode.txt
