@@ -65,6 +65,7 @@ jobs:
             
             if git diff --cached --quiet; then
               echo "No staged changes to commit."
+              continue
             else
               git commit -m "Update dependencies for ${CHART_NAME}"
             fi
