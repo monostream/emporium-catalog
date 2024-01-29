@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"supabase",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "supabase",
+    "repo": "./chart"
+  }
 ]
