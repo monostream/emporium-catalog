@@ -1,6 +1,0 @@
-dependencies:
-- name: excalidraw
-  repository: ""
-  version: 0.1.0
-digest: sha256:d735144d0840a9a6b0370a7496e5bf49096e511d62f3a7bf50df9747e61f877f
-generated: "2023-10-23T13:58:37.951798+02:00"
