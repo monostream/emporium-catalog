@@ -8,7 +8,7 @@ dependencies:
     version: 0.0.12
     repository: https://monostream.helm.pkg.emporium.rocks
   - name: postgresql
-    version: 13.4.4
+    version: 14.0.0
     repository: https://charts.bitnami.com/bitnami
     condition: global.postgresql.enabled
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.svg
