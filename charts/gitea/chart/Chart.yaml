@@ -6,7 +6,7 @@ version: 0.0.12
 appVersion: "1.16.0"
 dependencies:
   - name: gitea
-    version: 10.1.0
+    version: 10.1.1
     repository: https://dl.gitea.io/charts/
 home: https://gitea.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitea/gitea_icon_2.svg

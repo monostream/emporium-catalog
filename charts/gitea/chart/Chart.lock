@@ -1,6 +1,6 @@
 dependencies:
 - name: gitea
   repository: https://dl.gitea.io/charts/
-  version: 10.1.0
-digest: sha256:ac60462d5856b38a87d849a452b5060dff1a2c4f339dcd068923123b098d960c
-generated: "2024-01-29T16:42:48.593115356Z"
+  version: 10.1.1
+digest: sha256:16944e4c488eccd6d1bac34a2a47b282d3d807e4b257ed2d75dd5b9bc55cbcf3
+generated: "2024-02-02T08:05:51.576848509Z"
