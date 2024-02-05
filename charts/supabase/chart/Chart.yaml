@@ -6,7 +6,7 @@ version: 1.0.20
 appVersion: 1.0.0
 dependencies:
   - name: supabase
-    version: 2.7.0
+    version: 2.7.1
     repository: oci://registry-1.docker.io/bitnamicharts
 home: https://supabase.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.svg
