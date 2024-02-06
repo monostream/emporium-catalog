@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"gha-runner",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "gha-runner",
+    "repo": "./chart"
+  }
 ]
