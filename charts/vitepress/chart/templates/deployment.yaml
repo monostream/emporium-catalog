@@ -38,12 +38,18 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           env:
+            {{- if .Values.basePath }}
             - name: BASE_PATH
-              value: {{ .Values.basePath }}
+              value: {{ .Values.basePath | quote }}
+            {{- end }}
+            {{- if .Values.gitUrl }}
             - name: GIT_URL
-              value: {{ .Values.gitUrl }}
+              value: {{ .Values.gitUrl | quote }}
+            {{- end }}
+            {{- if .Values.pollInterval }}
             - name: POLL_INTERVAL
-              value: {{ .Values.pollInterval }}
+              value: {{ .Values.pollInterval | quote }}
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

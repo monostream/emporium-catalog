@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: mporium-apps.docker.pkg.emporium.rocks/vitepress
+  repository: emporium-apps.docker.pkg.emporium.rocks/vitepress
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -19,7 +19,7 @@ podLabels: {}
 
 basePath: ""
 gitUrl: ""
-pollInterval:
+pollInterval: ""
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -64,14 +64,16 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+# livenessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+#     initialDelaySeconds: 120
+# readinessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+#     initialDelaySeconds: 120
 
 # Additional volumes on the output Deployment definition.
 volumes: []
