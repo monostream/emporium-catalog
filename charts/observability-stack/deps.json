@@ -1,7 +1,7 @@
 [
-    {
-       "provider":"chart",
-       "name":"observability-stack",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "observability-stack",
+    "repo": "./chart"
+  }
 ]
