@@ -1,0 +1,27 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "chart.fullname" . }}-workdir
+  annotations:
+    {{- with .Values.storage.workdir.annotations }}
+    {{ toYaml . | indent 4 }}
+    {{- end }}
+    "helm.sh/resource-policy": "keep"
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    {{- if .Values.storage.workdir.labels }}
+    {{ toYaml .Values.storage.workdir.labels | indent 4 }}
+    {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.storage.workdir.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.workdir.size | quote }}
+  {{- if .Values.storage.workdir.storageClass }}
+  {{- if (eq "-" .Values.storage.workdir.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.storage.workdir.storageClass }}"
+  {{- end }}
+  {{- end }}

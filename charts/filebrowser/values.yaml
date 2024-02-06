@@ -14,19 +14,20 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-cache:
-  enabled: true
-  storageClass: ""
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  size: 10Gi
+storage:
+  workdir:
+    enabled: true
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 10Gi
 
-mount:
-  enabled: true
-  storageClass: ""
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  size: 100Gi
+  data:
+    enabled: true
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 100Gi
 
 config: |
   {
@@ -52,16 +53,16 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  fsGroup: 100
 
-securityContext: {}
+securityContext:
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+  runAsUser: 1027
 
 service:
   type: ClusterIP
