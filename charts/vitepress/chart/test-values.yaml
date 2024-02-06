@@ -1,0 +1,19 @@
+basePath: "/docs"
+gitUrl: "https://github.com/monostream/emporium-docs.git"
+pollInterval: "60"
+
+ingress:
+  enabled: true
+
+  annotations:
+    kubernetes.io/tls-acme: "true"
+
+  hosts:
+    - host: "docs-bubu.emporium.build"
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: docs-bubu-tls
+      hosts:
+        - "docs-bubu.emporium.build"

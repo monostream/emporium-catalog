@@ -16,16 +16,16 @@
 ## @description The interval in seconds at which to poll the Git repository for changes (default: 60)
 ## @optional
 
-basePath: {{ .Emporium.UserSupplied.BasePath }}
-gitUrl: {{ .Emporium.UserSupplied.GitUrl }}
-pollInterval: {{ .Emporium.UserSupplied.PollInterval }}
+basePath: {{ .Emporium.UserSupplied.BasePath | quote }}
+gitUrl: {{ .Emporium.UserSupplied.GitUrl | quote }}
+pollInterval: {{ .Emporium.UserSupplied.PollInterval | quote }}
 
 ingress:
   enabled: true
 
   annotations:
     {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 6 }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
     {{- end }}
     kubernetes.io/tls-acme: "true"
 
