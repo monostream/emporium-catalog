@@ -35,6 +35,6 @@ ingress:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: {{ prinft "%s-tls" .Emporium.Name }}
+    - secretName: {{ printf "%s-tls" .Emporium.Name }}
       hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}

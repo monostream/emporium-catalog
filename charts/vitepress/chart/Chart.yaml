@@ -3,7 +3,7 @@ apiVersion: v2
 name: vitepress
 description: Live-reloading Vite & Vue Powered Static Site Generator
 
-version: 0.1.1
+version: 0.1.2
 appVersion: "1.0.0-rc.41"
 
 home: https://vitepress.dev/
