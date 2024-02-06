@@ -1,0 +1,34 @@
+apiVersion: v2
+
+name: vitepress
+description: Live-reloading Vite & Vue Powered Static Site Generator
+
+version: 0.1.0
+appVersion: "1.0.0-rc.41"
+
+home: https://vitepress.dev/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/vitepress/vitepress_icon_2.svg
+sources:
+  - https://github.com/vuejs/vitepress
+  - https://github.com/monostream/emporium-docs/
+maintainers:
+  - name: Evan You
+    url: https://github.com/yyx990803
+  - name: Monostream AG
+    url: https://monostream.com
+keywords:
+  - Vite
+  - Vue
+  - Static Site Generator
+  - Documentation
+  - Blog
+  - CMS
+
+annotations:
+  displayName: VitePress
+  category: CMS
+  licenses: MIT license
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/vitepress/vitepress_gallery_1.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/vitepress/vitepress_gallery_2.webp
+
