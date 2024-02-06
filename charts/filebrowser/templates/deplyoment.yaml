@@ -56,27 +56,27 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
-            - name: cache
+            - name: workdir
               mountPath: /database
             - name: config-init
               mountPath: /.filebrowser.json
               subPath: .filebrowser.json
       volumes:
-      - name: cache
-        {{- if and .Values.cache.enabled .Values.cache.existingClaim }}
+      - name: workdir
+        {{- if and .Values.storage.workdir.enabled .Values.storage.workdir.existingClaim }}
         persistentVolumeClaim:
-          claimName: {{ .Values.cache.existingClaim }}
-        {{- else if .Values.cache.enabled }}
+          claimName: {{ .Values.storage.workdir.existingClaim }}
+        {{- else if .Values.storage.workdir.enabled }}
         persistentVolumeClaim:
-          claimName: {{ include "chart.fullname" . }}-cache
+          claimName: {{ include "chart.fullname" . }}-workdir
         {{- else }}
         emptyDir: {}
         {{- end }}
       - name: data
-        {{- if and .Values.mount.enabled .Values.mount.existingClaim }}
+        {{- if and .Values.storage.data.enabled .Values.storage.data.existingClaim }}
         persistentVolumeClaim:
-          claimName: {{ .Values.mount.existingClaim }}
-        {{- else if .Values.mount.enabled }}
+          claimName: {{ .Values.storage.data.existingClaim }}
+        {{- else if .Values.storage.data.enabled }}
         persistentVolumeClaim:
           claimName: {{ include "chart.fullname" . }}-data
         {{- else }}
@@ -90,7 +90,6 @@ spec:
         configMap:
           name: {{ template "chart.fullname" . }}
         {{- end }}
-      
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

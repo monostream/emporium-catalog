@@ -1,0 +1,40 @@
+## @userSupplied BasePath
+## @label Base Path
+## @type string
+## @description The base path of the VitePress site (default: "/docs")
+## @optional
+
+## @userSupplied GitUrl
+## @label Git Repository URL
+## @type string
+## @description The URL of the Git repository containing the VitePress site (default: "https://github.com/monostream/emporium-docs.git")
+## @optional
+
+## @userSupplied PollInterval
+## @label Poll Interval
+## @type number
+## @description The interval in seconds at which to poll the Git repository for changes (default: 60)
+## @optional
+
+basePath: {{ .Emporium.UserSupplied.BasePath | quote }}
+gitUrl: {{ .Emporium.UserSupplied.GitUrl | quote }}
+pollInterval: {{ .Emporium.UserSupplied.PollInterval | quote }}
+
+ingress:
+  enabled: true
+
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ printf "%s-tls" .Emporium.Name }}
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}

@@ -1,11 +1,11 @@
-# Default values for chart.
+# Default values for vitepress.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: filebrowser/filebrowser
+  repository: emporium-apps.docker.pkg.emporium.rocks/vitepress
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -14,55 +14,23 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-storage:
-  workdir:
-    enabled: true
-    storageClass: ""
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    size: 10Gi
-
-  data:
-    enabled: true
-    storageClass: ""
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    size: 100Gi
-
-config: |
-  {
-    "port": 80,
-    "baseURL": "",
-    "address": "",
-    "log": "stdout",
-    "database": "/database/filebrowser.db",
-    "root": "/data"
-  }
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext:
-  fsGroup: 100
+basePath: ""
+gitUrl: ""
+pollInterval: ""
 
-securityContext:
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  runAsUser: 1027
+  # runAsUser: 1000
 
 service:
   type: ClusterIP
@@ -96,12 +64,16 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+# livenessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+#     initialDelaySeconds: 120
+# readinessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+#     initialDelaySeconds: 120
 
 # Additional volumes on the output Deployment definition.
 volumes: []

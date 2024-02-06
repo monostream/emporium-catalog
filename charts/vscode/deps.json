@@ -1,45 +1,45 @@
 [
-    {
-       "provider":"chart",
-       "name":"vscode",
-       "repo":"./chart",
-       "imageTagPaths": [
-        "image.tag"
-       ]
-    },
-    {
-        "provider": "github",
-        "name": "Code Server",
-        "repo": "cdr/code-server",
-        "currentTag": "v4.18.0",
-        "envVar": "CODE_SERVER_VERSION"
-    },
-    {
-        "provider": "github",
-        "name": "Docker CLI",
-        "repo": "docker/cli",
-        "currentTag": "v23.0.1",
-        "envVar": "DOCKER_CLIENT_VERSION"
-      },
-      {
-        "provider": "github",
-        "name": "Docker Buildx",
-        "repo": "docker/buildx",
-        "currentTag": "v0.11.2",
-        "envVar": "DOCKER_BUILDX_VERSION"
-      },
-      {
-        "provider": "github",
-        "name": "Kubernetes CLI",
-        "repo": "kubernetes/kubernetes",
-        "currentTag": "v1.26.10",
-        "envVar": "KUBECTL_VERSION"
-      },
-      {
-        "provider": "github",
-        "name": "Helm CLI",
-        "repo": "helm/helm",
-        "currentTag": "v3.12.1",
-        "envVar": "HELM_VERSION"
-      }
+  {
+    "provider": "chart",
+    "name": "vscode",
+    "repo": "./chart",
+    "imageTagPaths": [
+      "image.tag"
+    ]
+  },
+  {
+    "provider": "github",
+    "name": "Code Server",
+    "repo": "cdr/code-server",
+    "currentTag": "v4.21.0",
+    "envVar": "CODE_SERVER_VERSION"
+  },
+  {
+    "provider": "github",
+    "name": "Docker CLI",
+    "repo": "docker/cli",
+    "currentTag": "v23.0.1",
+    "envVar": "DOCKER_CLIENT_VERSION"
+  },
+  {
+    "provider": "github",
+    "name": "Docker Buildx",
+    "repo": "docker/buildx",
+    "currentTag": "v0.12.1",
+    "envVar": "DOCKER_BUILDX_VERSION"
+  },
+  {
+    "provider": "github",
+    "name": "Kubernetes CLI",
+    "repo": "kubernetes/kubernetes",
+    "currentTag": "v1.29.1",
+    "envVar": "KUBECTL_VERSION"
+  },
+  {
+    "provider": "github",
+    "name": "Helm CLI",
+    "repo": "helm/helm",
+    "currentTag": "v3.14.0",
+    "envVar": "HELM_VERSION"
+  }
 ]
