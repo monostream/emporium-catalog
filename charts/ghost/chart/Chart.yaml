@@ -1,7 +1,7 @@
 apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
-version: 1.0.19
+version: 1.0.20
 appVersion: 5.73.2
 dependencies:
   - name: ghost
