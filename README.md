@@ -1,6 +1,6 @@
-# Helm Charts packaged for Emporium by monostream
+# Emporium Catalog: Helm Charts packaged for Emporium by monostream
 
-## Usage
+## Manual Usage
 
 [Helm](https://helm.sh) must be installed to use the charts. Please refer to
 Helm's [documentation](https://helm.sh/docs) to get started.
