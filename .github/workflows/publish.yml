@@ -47,9 +47,9 @@ jobs:
           for dir in charts/*; do
               if [ -d "$dir" ]; then
                   chart_dir="$dir/chart"
-                  if git diff --quiet HEAD~1 HEAD -- "$chart_dir"; then
-                      continue
-                  fi
+                  # if git diff --quiet HEAD~1 HEAD -- "$chart_dir"; then
+                  #     continue
+                  # fi
                   changed_charts+=("$chart_dir")
               fi
           done
