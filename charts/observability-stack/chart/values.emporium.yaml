@@ -14,7 +14,7 @@
 
 ## @userSupplied PrometheusRetentionSize
 ## @label Prometheus Retention Size
-## @type boolean
+## @type string
 ## @description Retention size for Prometheus metrics (e.g. 20Gi or 900Mi).
 ##              Default is "". Only applicable if Prometheus is enabled.
 ## @optional
