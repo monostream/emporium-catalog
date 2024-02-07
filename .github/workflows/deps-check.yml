@@ -56,7 +56,8 @@ jobs:
           echo "Checking updates for ${CHART_NAME}"
           
           echo "Saving output to deps-update-${CHART_NAME}.txt"
-          deps-checker -f "${DEPS_FILE}" -u > "deps-update-${CHART_NAME}.txt"
+          DEPS_UPDATE_OUTPUT=$(deps-checker -f "${DEPS_FILE}" -u)
+          echo "${DEPS_UPDATE_OUTPUT}" > "deps-update-${CHART_NAME}.txt"
         
         
           if git status --porcelain | grep -q "deps-update-${CHART_NAME}.txt"; then
@@ -80,6 +81,7 @@ jobs:
             if [ -z "$PR_EXISTS" ]; then
               PR_TITLE="Update dependencies for $BRANCH_NAME"
               PR_BODY="This PR updates the dependencies for $BRANCH_NAME.\n\nDependency Updates:\n$DEPS_UPDATE_OUTPUT"
+              PR_BODY=$(printf "This PR updates the dependencies for %s.\n\nDependency Updates:\n%s" "$BRANCH_NAME" "$DEPS_UPDATE_OUTPUT")
     
               gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head $BRANCH_NAME
             fi
