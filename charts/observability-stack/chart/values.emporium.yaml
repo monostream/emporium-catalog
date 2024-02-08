@@ -26,6 +26,13 @@
 ##              Default is 20Gi. Only applicable if Prometheus is enabled.
 ## @optional
 
+## @userSupplied LokiStorageSize
+## @label Loki Storage Size
+## @type string
+## @description Size of the Loki storage volume (e.g. 20Gi or 900Mi).
+##              Default is 20Gi. Only applicable if Prometheus is enabled.
+## @optional
+
 prometheus:
   prometheusOperator:
     enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
@@ -206,7 +213,7 @@ loki:
     replicas: 1
     persistence:
       enabled: true
-      size: 50Gi
+      size: {{ default "50Gi" .Emporium.UserSupplied.LokiStorageSize }}
 
 
 promtail:
