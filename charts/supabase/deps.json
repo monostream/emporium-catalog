@@ -1,7 +1,0 @@
-[
-  {
-    "provider": "chart",
-    "name": "supabase",
-    "repo": "./chart"
-  }
-]

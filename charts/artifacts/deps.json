@@ -1,7 +1,0 @@
-[
-  {
-    "provider": "chart",
-    "name": "artifacts",
-    "repo": "./chart"
-  }
-]

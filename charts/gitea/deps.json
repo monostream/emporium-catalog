@@ -1,7 +1,0 @@
-[
-  {
-    "provider": "chart",
-    "name": "gitea",
-    "repo": "./chart"
-  }
-]

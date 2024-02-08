@@ -1,7 +1,0 @@
-[
-    {
-       "provider":"chart",
-       "name":"kubernetes-dashboard",
-       "repo":"./chart"
-    }
-]

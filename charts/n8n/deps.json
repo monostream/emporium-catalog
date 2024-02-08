@@ -1,7 +1,0 @@
-[
-    {
-       "provider":"chart",
-       "name":"n8n",
-       "repo":"./chart"
-    }
-]

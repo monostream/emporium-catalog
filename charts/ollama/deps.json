@@ -1,7 +1,0 @@
-[
-  {
-    "provider": "chart",
-    "name": "ollama",
-    "repo": "./chart"
-  }
-]

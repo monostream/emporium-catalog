@@ -28,19 +28,10 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        CLI_EXISTS=$(which deps-checker)
-        if [[ -z ${CLI_EXISTS} ]]; then
-          echo "ERROR: deps-checker not found"
-          exit 1
-        fi
+        for CHART in $(ls charts/); do
+          CHART_PATH="${CHART}/chart"
+          BRANCH_NAME="update/${CHART}"
 
-        DEPS_FILES=$(find . -name 'deps.json')
-
-        for DEPS_FILE in ${DEPS_FILES}; do
-          CHART_PATH=$(dirname "${DEPS_FILE}")
-          CHART_NAME=$(basename $CHART_PATH)
-          BRANCH_NAME="update/${CHART_NAME}"
-        
           git checkout main
           git pull origin main
 
@@ -53,15 +44,15 @@ jobs:
             git checkout -b ${BRANCH_NAME}
           fi
         
-          echo "Checking updates for ${CHART_NAME}"
+          echo "Checking updates for ${CHART}"
           
-          echo "Saving output to deps-update-${CHART_NAME}.txt"
-          DEPS_UPDATE_OUTPUT=$(deps-checker -f "${DEPS_FILE}" -u)
-          echo "${DEPS_UPDATE_OUTPUT}" > "deps-update-${CHART_NAME}.txt"
+          echo "Saving output to deps-update-${CHART}.txt"
+          DEPS_UPDATE_OUTPUT=$(deps-checker --chart "${CHART}" --update)
+          echo "${DEPS_UPDATE_OUTPUT}" > "deps-update-${CHART}.txt"
         
         
-          if git status --porcelain | grep -q "deps-update-${CHART_NAME}.txt"; then
-            echo "Changes found for ${CHART_NAME}"
+          if git status --porcelain | grep -q "deps-update-${CHART}.txt"; then
+            echo "Changes found for ${CHART}"
             git add .
             git reset -- deps-update-*.txt
             
@@ -69,7 +60,7 @@ jobs:
               echo "No staged changes to commit."
               continue
             else
-              git commit -m "Update dependencies for ${CHART_NAME}"
+              git commit -m "Update dependencies for ${CHART}"
             fi
 
             git push origin ${BRANCH_NAME}
@@ -80,14 +71,13 @@ jobs:
 
             if [ -z "$PR_EXISTS" ]; then
               PR_TITLE="Update dependencies for $BRANCH_NAME"
-              PR_BODY="This PR updates the dependencies for $BRANCH_NAME.\n\nDependency Updates:\n$DEPS_UPDATE_OUTPUT"
               PR_BODY=$(printf "This PR updates the dependencies for %s.\n\nDependency Updates:\n%s" "$BRANCH_NAME" "$DEPS_UPDATE_OUTPUT")
     
               gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head $BRANCH_NAME
             fi
 
           else
-            echo "No changes for ${CHART_NAME}"
+            echo "No changes for ${CHART}"
           fi
         done
       id: changes
