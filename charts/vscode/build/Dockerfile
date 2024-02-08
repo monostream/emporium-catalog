@@ -13,7 +13,7 @@ RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVE
    && rm /usr/bin/code-server
 
 # Docker CLI
-ENV DOCKER_CLIENT_VERSION="23.0.1"
+ENV DOCKER_CLIENT_VERSION="25.0.3"
 RUN curl -fsSL -o - https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
 
 # Docker Buildx Plugin
