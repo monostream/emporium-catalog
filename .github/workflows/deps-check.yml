@@ -9,7 +9,7 @@ jobs:
   check-updates:
     runs-on: ubuntu-latest
     container: 
-      image: monostream/deps-checker:test
+      image: monostream/deps-checker:0.0.1
       options: --user root
       
     steps:
@@ -28,12 +28,6 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        CLI_EXISTS=$(which deps-checker)
-        if [[ -z ${CLI_EXISTS} ]]; then
-          echo "ERROR: deps-checker not found"
-          exit 1
-        fi
-
         DEPS_FILES=$(find . -name 'deps.json')
 
         for DEPS_FILE in ${DEPS_FILES}; do
@@ -80,7 +74,6 @@ jobs:
 
             if [ -z "$PR_EXISTS" ]; then
               PR_TITLE="Update dependencies for $BRANCH_NAME"
-              PR_BODY="This PR updates the dependencies for $BRANCH_NAME.\n\nDependency Updates:\n$DEPS_UPDATE_OUTPUT"
               PR_BODY=$(printf "This PR updates the dependencies for %s.\n\nDependency Updates:\n%s" "$BRANCH_NAME" "$DEPS_UPDATE_OUTPUT")
     
               gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head $BRANCH_NAME
