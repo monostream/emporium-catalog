@@ -1,0 +1,12 @@
+[
+  {
+    "provider": "chart",
+    "name": "plane",
+    "repo": "./chart",
+    "imageTagPaths": [
+      "api.image.tag",
+      "space.image.tag",
+      "web.image.tag"
+    ]
+  }
+]

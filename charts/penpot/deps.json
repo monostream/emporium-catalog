@@ -1,0 +1,12 @@
+[
+  {
+    "provider": "chart",
+    "name": "penpot",
+    "repo": "./chart",
+    "imageTagPaths": [
+      "backend.image.tag",
+      "frontend.image.tag",
+      "exporter.image.tag"
+    ]
+  }
+]
