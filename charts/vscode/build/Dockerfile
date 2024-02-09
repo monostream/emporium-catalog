@@ -1,4 +1,4 @@
-FROM buildpack-deps:lunar
+FROM buildpack-deps:jammy
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
