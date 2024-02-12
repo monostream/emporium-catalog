@@ -4,7 +4,7 @@ type: application
 name: filebrowser
 description: A Helm chart for Kubernetes
 
-version: 0.1.4
+version: 0.1.5
 appVersion: "v2.26.0"
 
 home: https://filebrowser.org/
@@ -22,6 +22,7 @@ keywords:
   - Utility
 
 annotations:
+  emporiumVersion: "0.3.0"
   displayName: Filebrowser
   category: Utility
   licenses: MIT

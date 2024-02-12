@@ -1,15 +1,3 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type string
-## @description Size of the attached storage volume (e.g. 20Gi or 900Mi). Default is 8Gi.
-## @optional
-
-## @userSupplied ExistingClaim
-## @label Existing Claim
-## @type string
-## @description Name of an existing persistent volume claim
-## @optional
-
 ingress:
   enabled: true
 
@@ -37,3 +25,44 @@ mount:
   existingClaim: {{ .Emporium.UserSupplied.ExistingClaim }}
   accessMode: ReadWriteOnce
   size: {{ default "100Gi" .Emporium.UserSupplied.StorageSize }}
+
+
+storage:
+
+## @userSupplied StorageCacheEnabled
+## @label Enable CacheDir
+## @type string
+## @description Size of the caching disk
+## @optional
+
+## @userSupplied Cache Dir
+## @label Cache DirSize
+## @type string
+## @description Size of the caching disk
+## @optional
+  workdir:
+    enabled: {{ default false .Emporium.UserSupplied.StorageCacheEnabled }}
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: {{ default "10Gi" .Emporium.UserSupplied.StorageSize }}
+
+
+## userSupplied ExistingClaim
+## label Existing Claim
+## type persistentVolumeClaim
+## description Leave empty to create a new volume
+## optional
+
+## @userSupplied StorageSize
+## @label Storage Size
+## @type string
+## @description Size of the attached storage volume (e.g. 20Gi or 900Mi). Default is 8Gi.
+## @optional
+
+  data:
+    enabled: true
+    storageClass: "{{ .Emporium.UserSupplied.ExistingClaim.StorageClass }}"
+    existingClaim: "{{ .Emporium.UserSupplied.ExistingClaim.Name }}"
+    accessMode: ReadWriteOnce
+    size: {{ default "100Gi" .Emporium.UserSupplied.StorageSize }}
