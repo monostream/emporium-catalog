@@ -1,9 +1,9 @@
 dependencies:
 - name: artifacts
   repository: https://monostream.helm.pkg.emporium.rocks
-  version: 0.0.12
+  version: 0.0.13
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 14.0.4
-digest: sha256:b774338bbcc95ff527b69ea650a416802fcf32b24a557bc9f0502253fe4735e6
-generated: "2024-02-09T08:05:30.604987476Z"
+  version: 14.0.5
+digest: sha256:9a1abfa2d6c4df8988b86a3777f8034afc4e6589b36286a72a18f0294dd93c62
+generated: "2024-02-13T08:07:27.339090519Z"
