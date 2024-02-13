@@ -40,4 +40,4 @@ storage:
 
   data:
     enabled: true
-    existingClaim: "{{ .Emporium.Integrations.Volumes.Data.Name }}"
+    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"
