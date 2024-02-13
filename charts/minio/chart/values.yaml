@@ -1,0 +1,32 @@
+minio:
+  image:
+    tag: RELEASE.2024-02-13T15-35-11Z
+    pullPolicy: IfNotPresent
+  deploymentUpdate:
+    type: Recreate
+  replicas: 1
+  mode: standalone
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    volumeName: ""
+    accessMode: ReadWriteOnce
+    size: 50Gi
+    subPath: ""
+
+  oidc:
+    enabled: false
+    configUrl: "https://identity-provider-url/.well-known/openid-configuration"
+    clientId: "minio"
+    clientSecret: ""
+    # Provide existing client secret from the Kubernetes Secret resource, existing secret will have priority over `clientSecret`
+    existingClientSecretName: ""
+    existingClientSecretKey: ""
+    claimName: "policy"
+    scopes: "openid,profile,email"
+    redirectUri: "https://console-endpoint-url/oauth_callback"
+    # Can leave empty
+    claimPrefix: ""
+    comment: ""
+    displayName: ""

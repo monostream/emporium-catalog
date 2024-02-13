@@ -42,6 +42,7 @@ jobs:
           helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
           helm repo add emporium-apps ${{ vars.HELM_REPO }} --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
           helm repo add nextcloud https://nextcloud.github.io/helm/
+          helm repo add minio https://charts.min.io/
 
       - name: Run cm-push
         run: |
