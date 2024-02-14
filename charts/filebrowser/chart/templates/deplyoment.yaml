@@ -84,6 +84,7 @@ spec:
         {{- else }}
         emptyDir: {}
         {{- end }}
+      - name: config-init
         configMap:
           name: {{ template "chart.fullname" . }}
       {{- with .Values.nodeSelector }}
