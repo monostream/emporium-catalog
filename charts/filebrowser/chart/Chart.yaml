@@ -4,7 +4,7 @@ type: application
 name: filebrowser
 description: A Helm chart for Kubernetes
 
-version: 0.1.9
+version: 0.1.10
 appVersion: "v2.26.0"
 
 home: https://filebrowser.org/

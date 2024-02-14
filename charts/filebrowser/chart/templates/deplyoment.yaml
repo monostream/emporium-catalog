@@ -39,6 +39,8 @@ spec:
           env:
             - name: FB_NOAUTH
               value: noauth
+            - name: FB_PORT
+              value: {{ .Values.service.port | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -82,11 +84,6 @@ spec:
         {{- else }}
         emptyDir: {}
         {{- end }}
-      - name: config-init
-        {{- if .Values.existingSecretForConfig }}
-        secret:
-          secretName: {{ .Values.existingSecretForConfig }}
-        {{- else }}
         configMap:
           name: {{ template "chart.fullname" . }}
         {{- end }}
