@@ -32,14 +32,14 @@
     "provider": "github",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.29.1",
+    "currentTag": "v1.29.2",
     "envVar": "KUBECTL_VERSION"
   },
   {
     "provider": "github",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.14.0",
+    "currentTag": "v3.14.1",
     "envVar": "HELM_VERSION"
   }
 ]
