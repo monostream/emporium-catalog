@@ -1,15 +1,3 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type string
-## @description Size of the attached storage volume (e.g. 20Gi or 900Mi). Default is 8Gi.
-## @optional
-
-## @userSupplied ExistingClaim
-## @label Existing Claim
-## @type string
-## @description Name of an existing persistent volume claim
-## @optional
-
 ingress:
   enabled: true
 
@@ -24,16 +12,32 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-          
+
   tls:
     - secretName: {{ .Emporium.Name }}-tls
       hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}
 
 
-mount:
-  enabled: true
-  storageClass: ""
-  existingClaim: {{ .Emporium.UserSupplied.ExistingClaim }}
-  accessMode: ReadWriteOnce
-  size: {{ default "100Gi" .Emporium.UserSupplied.StorageSize }}
+## @userSupplied CacheEnabled
+## @label Enable Cache Directory
+## @type boolean
+## @description Use a caching disk for the filebrowser. Default is false.
+## @optional
+
+## @userSupplied CacheSize
+## @label Cache Directory Size
+## @type string
+## @description Size for cache directory (e.g. 20Gi or 900Mi). Default is 10Gi. Only relevant if CacheEnabled is true.
+## @optional
+storage:
+  workdir:
+    enabled: {{ default false .Emporium.UserSupplied.CacheEnabled }}
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: {{ default "10Gi" .Emporium.UserSupplied.StorageSize }}
+
+  data:
+    enabled: true
+    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"

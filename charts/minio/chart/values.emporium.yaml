@@ -1,0 +1,56 @@
+
+minio:
+
+  consoleIngress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/service-upstream: "true"
+    path: /
+    hosts:
+      - {{ .Emporium.Integrations.DNS.Hostname }}
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Integrations.DNS.Hostname }}
+
+  ingress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/service-upstream: "true"
+    path: /
+    hosts:
+      - s3-{{ .Emporium.Integrations.DNS.Hostname }}
+    tls:
+      - secretName: {{ .Emporium.Name }}-s3-tls
+        hosts:
+          - s3-{{ .Emporium.Integrations.DNS.Hostname }}
+
+  oidc:
+    enabled: true
+    configUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+    clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+    clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+    # Provide existing client secret from the Kubernetes Secret resource, existing secret will have priority over `clientSecret`
+    existingClientSecretName: ""
+    existingClientSecretKey: ""
+    claimName: "policy"
+    scopes: "openid,profile,email,read:org,policy"
+    redirectUri: "https://{{ .Emporium.Integrations.DNS.Hostname }}/oauth_callback"
+    # Can leave empty
+    claimPrefix: ""
+    comment: ""
+    displayName: "Emporium"

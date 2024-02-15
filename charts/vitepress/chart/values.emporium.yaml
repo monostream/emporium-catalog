@@ -12,7 +12,7 @@
 
 ## @userSupplied PollInterval
 ## @label Poll Interval
-## @type number
+## @type integer
 ## @description The interval in seconds at which to poll the Git repository for changes (default: 60)
 ## @optional
 
