@@ -19,6 +19,9 @@ persistence:
   accessMode: ReadWriteOnce
   size: 8Gi
 
+app:
+  nvidiaEnabled: false
+
 ingress:
   enabled: false
   ingressClassName: "nginx"
@@ -35,6 +38,9 @@ ingress:
   #      - chart-example.local
 
 resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
 
 docker:
   repository: docker

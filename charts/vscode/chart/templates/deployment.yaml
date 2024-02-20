@@ -93,3 +93,23 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "codespace.fullname" . }}
         {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      tolerations:
+        {{- with .Values.tolerations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.app.nvidiaEnabled }}
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+        {{- end }}
+      {{- if .Values.app.nvidiaEnabled }}
+      runtimeClassName: nvidia 
+      {{- end }}
