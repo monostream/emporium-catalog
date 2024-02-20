@@ -12,7 +12,6 @@ porter:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
-      cert-manager.io/cluster-issuer: letsencrypt-staging
       kubernetes.io/tls-acme: "true"
 
     hosts:
