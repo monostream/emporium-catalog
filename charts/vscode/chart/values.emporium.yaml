@@ -29,7 +29,7 @@ persistence:
 
 ## @userSupplied NvidiaEnabled
 ## @label use NVidia CPU for Video Transcoding
-## @type string
+## @type bool
 ## @description Your streaming setup benefits heavily when you can transcode stuff on your GPU
 ## @optional
 app:
