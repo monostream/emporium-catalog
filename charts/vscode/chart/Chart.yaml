@@ -4,7 +4,7 @@ type: application
 name: vscode
 description: Visual Studio Code in your Browser - A comprehensive DevOps tool within your Kubernetes cluster.
 
-version: 0.1.8
+version: 0.1.13
 appVersion: "4.21.1"
 
 home: https://coder.com/
@@ -27,7 +27,7 @@ keywords:
 
 annotations:
   displayName: VS Code Space
-  category: Development Tools
+  category: Developer Tools
   licenses: MIT
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/vscode/vscode_gallery_1.webp

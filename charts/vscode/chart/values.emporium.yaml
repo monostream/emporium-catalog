@@ -25,13 +25,12 @@ ingress:
 
 persistence:
   enabled: true
-  size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
+  size: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
 
 ## @userSupplied NvidiaEnabled
-## @label use NVidia CPU for Video Transcoding
-## @type bool
-## @description Your streaming setup benefits heavily when you can transcode stuff on your GPU
+## @label use NVidia CPU
+## @type boolean
 ## @optional
-app:
-  baseurl: {{ .Emporium.Integrations.DNS.Hostname }}
+gpu:
   nvidiaEnabled: {{ default false .Emporium.UserSupplied.NvidiaEnabled }}
+  runtimeClass: "nvidia"

@@ -49,8 +49,6 @@ spec:
           #   httpGet:
           #     path: /healthz
           #     port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
         - name: docker
           securityContext:
             privileged: true
@@ -97,19 +95,32 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
+        {{- with .Values.affinity }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        {{- if .Values.gpu.nvidiaEnabled }}
+        nodeAffinity:
+          {{- if .Values.affinity.nodeAffinity }}
+          {{- toYaml .Values.affinity.nodeAffinity | nindent 10 }}
+          {{- end }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.present
+                operator: In
+                values:
+                - "true"
+        {{- end }}
       tolerations:
         {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if .Values.app.nvidiaEnabled }}
+        {{- if .Values.gpu.nvidiaEnabled }}
         - key: nvidia.com/gpu
           operator: Exists
           effect: NoSchedule
         {{- end }}
-      {{- if .Values.app.nvidiaEnabled }}
-      runtimeClassName: nvidia 
+      {{- if .Values.gpu.nvidiaEnabled }}
+      runtimeClassName: {{ .Values.gpu.runtimeClass }} 
       {{- end }}

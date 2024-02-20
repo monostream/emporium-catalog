@@ -19,8 +19,9 @@ persistence:
   accessMode: ReadWriteOnce
   size: 8Gi
 
-app:
+gpu:
   nvidiaEnabled: false
+  runtimeClass: "nvidia"
 
 ingress:
   enabled: false
