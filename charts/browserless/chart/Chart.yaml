@@ -1,7 +1,7 @@
 apiVersion: v2
 name: browserless
 description: Browserless - Headless Browser Automation in a Kubernetes Cluster
-version: 0.1.5
+version: 0.1.6
 appVersion: "1.16.0"
 
 home: https://browserless.io/
@@ -24,7 +24,7 @@ keywords:
 
 annotations:
   displayName: Browserless
-  category: Development
+  category: Developer Tools
   licenses: GPL-3.0-or-later OR Browserless Commercial License
   gallery: |
     https://raw.githubusercontent.com/browserless/chrome/master/assets/demo.gif

@@ -3,7 +3,7 @@ apiVersion: v2
 name: wiki
 description: Make documentation a joy to write using Wiki.js's beautiful and intuitive interface
 
-version: 0.0.8
+version: 0.0.9
 appVersion: 2.5.299
 
 dependencies:
@@ -33,7 +33,7 @@ keywords:
   - Editor
 annotations:
   displayName: Wiki.js
-  category: Developer Tools
+  category: CMS
   licenses: AGPL-3.0
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_gallery_1.webp

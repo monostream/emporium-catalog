@@ -19,5 +19,6 @@ keywords:
   - CI/CD
   - Issue Tracking
 annotations:
+  category: Developer Tools
   displayName: Gitea
   licenses: MIT

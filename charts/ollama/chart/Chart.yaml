@@ -1,7 +1,7 @@
 apiVersion: v2
 name: ollama
 description: An all in one self hosted LLM stack based on Ollama
-version: 0.1.4
+version: 0.1.5
 appVersion: 0.1.0
 dependencies:
   - name: ollama
@@ -16,8 +16,9 @@ sources:
   - https://github.com/jmorganca/ollama
   - https://github.com/ollama-webui/ollama-webui
 keywords:
+  - AI
   - LLM
 annotations:
   displayName: Ollama
-  category: LLM
+  category: AI
   licenses: MIT license
