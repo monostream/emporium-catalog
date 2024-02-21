@@ -138,7 +138,7 @@ spec:
                 exit 0;
               fi
               cd /data;
-              /bin/forgejo-runner register --no-interactive --token "${CONFIG_TOKEN}" --name "${CONFIG_NAME}" --instance "${CONFIG_INSTANCE}" --labels docker:docker://node:21-bullseye 2>&1 | tee /tmp/reg.log;
+              /bin/forgejo-runner register --no-interactive --token "${CONFIG_TOKEN}" --name "${CONFIG_NAME}" --instance "${CONFIG_INSTANCE}" --labels docker:docker://catthehacker/ubuntu:act-latest 2>&1 | tee /tmp/reg.log;
               cat /tmp/reg.log | grep 'Runner registered successfully';
           envFrom:
             - secretRef:
