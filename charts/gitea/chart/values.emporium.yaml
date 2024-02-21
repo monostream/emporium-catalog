@@ -1,21 +1,31 @@
+## @userSupplied Username
+## @label Admin username
+## @type string
+## @description Admin Username
+
+## @userSupplied Password
+## @label Admin password
+## @type string
+## @description Admin password
+
 gitea:
   admin:
     existingSecret:
-    username: admin
-    password: "dsH638dpp)28k"
-    email: "admin@localhost"
-  # oauth:
-  # - name: 'OAuth 1'
-  #   provider:
-  #   key:
-  #   secret:
-  #   existingSecret:
-  #   autoDiscoverUrl:
-  #   useCustomUrls:
-  #   customAuthUrl:
-  #   customTokenUrl:
-  #   customProfileUrl:
-  #   customEmailUrl:
+    username: {{ .Emporium.UserSupplied.Username }}
+    password: {{ .Emporium.UserSupplied.Password }}
+    email: 'gitea@{{ .Emporium.Integrations.DNS.Hostname }}'
+  oauth:
+    - name: 'emporium'
+      provider: 'openidConnect'
+      key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+      secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+      autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+      scopes: "email profile"
+      groupClaimName: "groups"
+      adminGroup: "authentik Admins"
+
+  strategy:
+    type: 'Recreate'
 
   config:
     actions:
@@ -23,12 +33,16 @@ gitea:
     api:
       ENABLE_SWAGGER: 'false'
     service:
-      DISABLE_REGISTRATION: 'false'
+      DISABLE_REGISTRATION: 'true'
       SHOW_REGISTRATION_BUTTON: 'false'
-    # openid:
-    #   ENABLE_OPENID_SIGNIN: 'false'
-    #   ENABLE_OPENID_SIGNUP: 'false'
-    #   ENABLE_AUTO_REGISTRATION: 'true'
+    openid:
+      ENABLE_OPENID_SIGNIN: 'true'
+      ENABLE_OPENID_SIGNUP: 'false'
+    oauth2_client:
+      ENABLE_AUTO_REGISTRATION: 'true'
+      OPENID_CONNECT_SCOPES: 'openid email profile'
+      ACCOUNT_LINKING: 'login'
+      USERNAME: 'email'
 
   ingress:
     enabled: true
@@ -37,7 +51,7 @@ gitea:
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
-      emporium.build/auth-skip-paths: '/api/v1'
+      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
       nginx.ingress.kubernetes.io/proxy-body-size: '0'
       nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
       nginx.ingress.kubernetes.io/proxy-read-timeout: '600'

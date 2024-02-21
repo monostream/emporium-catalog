@@ -1,0 +1,28 @@
+## @userSupplied ForgejoURL
+## @label Forgejo URL
+## @type string
+## @description The Forgejo url for where you want to configure the runner
+
+## @userSupplied Token
+## @label Runner registration token
+## @type string
+## @description Forgejo runner registration token
+
+## @userSupplied RunnerName
+## @label Runner name
+## @type string
+## @description Name of the runner to create, used to select the runner via the "runs-on" annotation of a workflow
+
+## @userSupplied RunnerCount
+## @label Number of runners
+## @type integer
+## @description The number of concurrent runners (default: 1)
+## @optional
+
+replicaCount: {{ .Emporium.UserSupplied.RunnerCount | default 1 }}
+runner:
+  config:
+    create: true
+    instance: {{ .Emporium.UserSupplied.ForgejoURL }}
+    name: {{ .Emporium.UserSupplied.RunnerName }}
+    token: {{ .Emporium.UserSupplied.Token }}

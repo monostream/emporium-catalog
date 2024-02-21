@@ -1,0 +1,96 @@
+## @userSupplied Username
+## @label Admin username
+## @type string
+## @description Admin Username
+
+## @userSupplied Password
+## @label Admin password
+## @type string
+## @description Admin password
+
+## @userSupplied EnableHA
+## @label Enable High Availability
+## @type boolean
+## @description Installs a highly available version of the chart
+## @optional
+
+forgejo:
+  redis-cluster:
+    enabled: {{ .Emporium.UserSupplied.EnableHA }}
+  postgresql:
+    enabled: {{ not .Emporium.UserSupplied.EnableHA }}
+  postgresql-ha:
+    enabled: {{ .Emporium.UserSupplied.EnableHA }}
+
+  persistence:
+    enabled: true
+    size: 30Gi
+
+  strategy:
+    type: 'Recreate'
+
+  ingress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
+      nginx.ingress.kubernetes.io/proxy-body-size: '0'
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
+      nginx.ingress.kubernetes.io/service-upstream: 'true'
+    hosts:
+      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Integrations.DNS.Hostname }}
+
+  gitea:
+    admin:
+      existingSecret:
+      username: {{ .Emporium.UserSupplied.Username }}
+      password: {{ .Emporium.UserSupplied.Password }}
+      email: 'forgejo@{{ .Emporium.Integrations.DNS.Hostname }}'
+    oauth:
+      - name: 'emporium'
+        provider: 'openidConnect'
+        key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+        secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+        autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+        scopes: "email profile"
+        groupClaimName: "groups"
+        adminGroup: "authentik Admins"
+
+    config:
+      database:
+        DB_TYPE: postgres
+      session:
+        PROVIDER: db
+      cache:
+        ADAPTER: {{ ternary "redis-cluster" "memory" (.Emporium.UserSupplied.EnableHA | default false)  }}
+      queue:
+        TYPE: {{ ternary "redis" "level" (.Emporium.UserSupplied.EnableHA | default false) }}
+      indexer:
+        ISSUE_INDEXER_TYPE: bleve
+        REPO_INDEXER_ENABLED: true
+      actions:
+        ENABELD: 'true'
+      api:
+        ENABLE_SWAGGER: 'false'
+      service:
+        DISABLE_REGISTRATION: 'true'
+        SHOW_REGISTRATION_BUTTON: 'false'
+      openid:
+        ENABLE_OPENID_SIGNIN: 'true'
+        ENABLE_OPENID_SIGNUP: 'false'
+      oauth2_client:
+        ENABLE_AUTO_REGISTRATION: 'true'
+        OPENID_CONNECT_SCOPES: 'openid email profile'
+        ACCOUNT_LINKING: 'login'
+        USERNAME: 'email'
