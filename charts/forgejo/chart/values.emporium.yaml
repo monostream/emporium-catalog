@@ -16,11 +16,11 @@
 
 forgejo:
   redis-cluster:
-    enabled: {{ .Emporium.UserSupplied.EnableHA }}
+    enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
   postgresql:
-    enabled: {{ not .Emporium.UserSupplied.EnableHA }}
+    enabled: {{ not (.Emporium.UserSupplied.EnableHA | default false) }}
   postgresql-ha:
-    enabled: {{ .Emporium.UserSupplied.EnableHA }}
+    enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
 
   persistence:
     enabled: true
