@@ -1,0 +1,174 @@
+image:
+  repository: monostream/devcloud-jenkins
+  pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+baseUrl:
+
+adminUser: admin
+adminPassword:
+
+oidc: {}
+  # clientId: ""
+  # clientSecret: ""
+  # issuerUrl: ""
+
+loop:
+  uri: "http://localhost"
+
+devcloud:
+  id:
+  name:
+
+  service:
+    type: ClusterIP
+    port: 8000
+    annotations: {}
+
+serviceAccount:
+  create: true
+  name:
+
+service:
+  type: ClusterIP
+  port: 80
+
+jnlp:
+  service:
+    type: ClusterIP
+    port: 50000
+    annotations: {}
+
+ingress:
+  enabled: false
+  ingressClassName: "nginx"
+  annotations: {}
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+persistence:
+  enabled: true
+  # storageClass: "-"
+  accessMode: ReadWriteOnce
+  size: 100Gi
+  annotations: {}
+
+workspace:
+  persistence:
+    enabled: true
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 1000Gi
+    annotations: {}
+
+initVolume:
+  repository: busybox
+  pullPolicy: Always
+  tag: stable
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+extraEnv: []
+
+nodeSelector: {}
+
+affinity: 
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - jenkins-agent
+        topologyKey: kubernetes.io/hostname
+      weight: 100
+  
+tolerations: []
+
+agent:
+  image: 
+    repository: monostream/devcloud-jenkins-agent
+    pullPolicy: Always  
+  
+  persistence:
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 512Gi
+    annotations: {}
+
+  initVolume:
+    repository: busybox
+    pullPolicy: Always
+    tag: stable
+  
+  resources: 
+    limits:
+     #cpu: 100m
+      memory: 4Gi
+    requests:
+     #cpu: 100m
+      memory: 2Gi
+
+  docker: 
+    repository: docker
+    pullPolicy: Always 
+    tag: 23.0.1-dind
+ 
+    persistence:
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 100Gi
+      annotations: {}
+    
+    resources: 
+      limits:
+       #cpu: 100m
+        memory: 12Gi
+      requests:
+       #cpu: 100m
+        memory: 8Gi
+
+  nodeSelector: {}
+
+  affinity: 
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - jenkins-agent
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - jenkins
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+          
+  tolerations: []

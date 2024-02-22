@@ -1,0 +1,191 @@
+image:
+  repository: monostream/devcloud-jenkins
+  pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: {{ .Emporium.Name }}
+fullnameOverride: ""
+
+baseUrl: {{ .Emporium.Integrations.DNS.Hostname }}
+
+adminUser: admin
+adminPassword: eeec792-e741-4e4e-bec1-eeeeee3c6777
+
+oidc:
+  clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+  clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+  issuerUrl: "{{ .Emporium.Integrations.OIDC.Issuer }}"
+
+devcloud:
+  id:
+  name:
+
+  service:
+    type: ClusterIP
+    port: 8000
+    annotations: {}
+
+serviceAccount:
+  create: true
+  name:
+
+service:
+  type: ClusterIP
+  port: 80
+
+jnlp:
+  service:
+    type: ClusterIP
+    port: 50000
+    annotations: {}
+
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+   - secretName: {{ .Emporium.Name }}-tls
+     hosts:
+       - {{ .Emporium.Integrations.DNS.Hostname }}
+
+## @userSupplied JenkinsDataSize
+## @label DataDir
+## @type string
+## @description Size of the volume where jenkins stores the config
+## @optional
+
+## @userSupplied JenkinsWorspaceSize
+## @label JenkinsWorkspaceSize
+## @type string
+## @description Size for the workspace
+## @optional
+
+## @userSupplied AgentWorspaceSize
+## @label Jenkins Agent Workspace Spize
+## @type string
+## @description Size on the agent, where all the work is done.
+## @optional
+persistence:
+  enabled: true
+  # storageClass: "-"
+  accessMode: ReadWriteOnce
+  size: {{ default "10Gi" .Emporium.UserSupplied.DataSize }}
+  annotations: {}
+
+workspace:
+  persistence:
+    enabled: true
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: {{ default "100Gi" .Emporium.UserSupplied.WorspaceSize }}
+    annotations: {}
+
+initVolume:
+  repository: busybox
+  pullPolicy: Always
+  tag: stable
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+extraEnv: []
+
+nodeSelector: {}
+
+affinity: 
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - jenkins-agent
+        topologyKey: kubernetes.io/hostname
+      weight: 100
+  
+tolerations: []
+
+agent:
+  image: 
+    repository: monostream/devcloud-jenkins-agent
+    pullPolicy: Always  
+  
+  persistence:
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: {{ default "100Gi" .Emporium.UserSupplied.AgentWorspaceSize }}
+    annotations: {}
+
+  initVolume:
+    repository: busybox
+    pullPolicy: Always
+    tag: stable
+  
+  resources: 
+    limits:
+     #cpu: 100m
+      memory: 4Gi
+    requests:
+     #cpu: 100m
+      memory: 2Gi
+
+  docker: 
+    repository: docker
+    pullPolicy: Always 
+    tag: 23.0.1-dind
+ 
+    persistence:
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 100Gi
+      annotations: {}
+    
+    resources: 
+      limits:
+       #cpu: 100m
+        memory: 12Gi
+      requests:
+       #cpu: 100m
+        memory: 8Gi
+
+  nodeSelector: {}
+
+  affinity: 
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - jenkins-agent
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - jenkins
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+          
+  tolerations: []

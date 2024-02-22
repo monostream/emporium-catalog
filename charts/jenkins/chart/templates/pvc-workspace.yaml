@@ -1,0 +1,25 @@
+{{- if and .Values.workspace.persistence.enabled (not .Values.workspace.persistence.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "jenkins.fullname" . }}-workspace
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+  {{- with .Values.workspace.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.workspace.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.workspace.persistence.size | quote }}
+{{- if .Values.workspace.persistence.storageClass }}
+{{- if (eq "-" .Values.workspace.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.workspace.persistence.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}

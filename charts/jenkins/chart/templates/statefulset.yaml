@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "jenkins.fullname" . }}-agent
+  labels:
+    {{- include "agent.labels" . | nindent 4 }}
+spec:
+  serviceName: devcloud-jenkins-agent
+  replicas: 1
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "agent.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "jenkins.serviceAccountName" . }}
+      containers:
+        - name: agent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          image: "{{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.agent.image.pullPolicy }}
+          env:
+            - name: JENKINS_URL
+              value: 
+            - name: JENKINS_TUNNEL
+              value: 
+            - name: JENKINS_USERNAME
+              value: "admin"
+            - name: JENKINS_PASSWORD
+              value: 
+            - name: JENKINS_AGENT_WORKDIR
+              value: "/home/jenkins/agent"
+            - name: JENKINS_AGENT_EXECUTORS
+              value: "4"
+          volumeMounts:
+            - name: data
+              mountPath: /var/jenkins_home
+            - name: data
+              mountPath: /home/jenkins/agent
+            - name: runtime
+              mountPath: /run/user/1000
+            - name: docker
+              mountPath: /var/lib/docker
+          resources:
+            {{- toYaml .Values.agent.resources | nindent 12 }}
+        - name: agent-docker
+          securityContext:
+            privileged: true
+          image: "{{ .Values.agent.docker.repository }}:{{ .Values.agent.docker.tag }}"
+          imagePullPolicy: {{ .Values.agent.docker.pullPolicy }}
+          args:
+            - "--group"
+            - "1000"
+            - "--host"
+            - "unix:///run/user/1000/docker.sock"
+            - "--mtu"
+            - "1440"
+          ports:
+            - name: docker
+              containerPort: 2376
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /var/jenkins_home
+            - name: data
+              mountPath: /home/jenkins/agent
+            - name: runtime
+              mountPath: /run/user/1000
+            - name: docker
+              mountPath: /var/lib/docker
+            - name: modules
+              mountPath: /lib/modules
+              readOnly: true
+          resources:
+            {{- toYaml .Values.agent.docker.resources | nindent 12 }}
+      initContainers:
+        - name: init-volume
+          image: "{{ .Values.agent.initVolume.repository }}:{{ .Values.agent.initVolume.tag }}"
+          imagePullPolicy: {{ .Values.agent.initVolume.pullPolicy }}
+          command: [ 'sh', '-c', 'chown 1000:1000 /mnt/data' ]
+          volumeMounts:
+            - name: data
+              mountPath: /mnt/data
+      {{- with .Values.agent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.agent.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.agent.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: runtime
+          emptyDir: {}
+        - name: modules
+          hostPath:
+            path: /lib/modules
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+        - {{ .Values.agent.persistence.accessMode | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.agent.persistence.size | quote }}
+        {{- if .Values.agent.persistence.storageClass }}
+        {{- if (eq "-" .Values.agent.persistence.storageClass) }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: "{{ .Values.agent.persistence.storageClass }}"
+        {{- end }}
+        {{- end }}
+    - metadata:
+        name: docker
+      spec:
+        accessModes:
+        - {{ .Values.agent.docker.persistence.accessMode | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.agent.docker.persistence.size | quote }}
+        {{- if .Values.agent.docker.persistence.storageClass }}
+        {{- if (eq "-" .Values.agent.docker.persistence.storageClass) }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: "{{ .Values.agent.docker.persistence.storageClass }}"
+        {{- end }}
+        {{- end }}

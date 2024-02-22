@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jenkins.fullname" . }}
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "jenkins.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jenkins.selectorLabels" . | nindent 8 }}
+        rollme: {{ randAlphaNum 5 | quote }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "jenkins.serviceAccountName" . }}
+      containers:
+        - name: jenkins
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: APPLICATION_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.labels['app.kubernetes.io/name']
+          - name: APPLICATION_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: BASE_URL
+            value: {{ required "missing value baseUrl" .Values.baseUrl }}
+          - name: ADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "jenkins.fullname" . }}
+                key: jenkins-username
+          - name: ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "jenkins.fullname" . }}
+                key: jenkins-password
+          {{- if .Values.oidc }}
+          - name: OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "jenkins.fullname" . }}
+                key: jenkins-oidc-client-id
+          - name: OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "jenkins.fullname" . }}
+                key: jenkins-oidc-client-secret
+          - name: OIDC_ISSUER_URL
+            value: {{ .Values.oidc.issuerUrl }}
+          {{- end }}
+          {{- if .Values.loop.uri }}
+          - name: LOOP_URI
+            value: {{ required "missing value loop.uri" .Values.loop.uri }}
+          {{- end }}
+          {{- if .Values.devcloud.id }}
+          - name: DEVCLOUD_ID
+            value: {{ required "missing value devcloud.id" .Values.devcloud.id }}
+          - name: DEVCLOUD_NAME
+            value: {{ required "missing value devcloud.name" .Values.devcloud.name }}
+          {{- end }}
+          {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: jnlp
+              containerPort: 50000
+              protocol: TCP
+            - name: api
+              containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /var/jenkins_home
+            - name: workspace
+              mountPath: /var/jenkins_home/workspace
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      initContainers:
+        - name: init-volume
+          image: "{{ .Values.initVolume.repository }}:{{ .Values.initVolume.tag }}"
+          imagePullPolicy: {{ .Values.initVolume.pullPolicy }}
+          command: [ 'sh', '-c', 'chown 1000:1000 /mnt/data /mnt/workspace' ]
+          volumeMounts:
+            - name: data
+              mountPath: /mnt/data
+            - name: workspace
+              mountPath: /mnt/workspace
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "jenkins.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: workspace
+          {{- if .Values.workspace.persistence.enabled }}
+          persistentVolumeClaim:
+            {{- if .Values.workspace.persistence.existingClaim }}
+            claimName: {{ .Values.workspace.persistence.existingClaim }}
+            {{- else }}
+            claimName: {{ (include "jenkins.fullname" .) }}-workspace
+            {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

@@ -1,0 +1,30 @@
+apiVersion: v2
+type: application
+
+name: jenkins
+description: the most popular and flexible CI/CD system in the world!
+
+version: 0.1.5
+appVersion: "2.426.3"
+
+home: https://www.jenkins.io/
+icon: https://www.jenkins.io/images/logos/cute/cute.svg
+sources:
+  - https://www.jenkins.io/doc/
+  - https://github.com/jenkinsci/jenkins
+
+keywords:
+  - Collaboration
+  - Coding
+  - CI/CD
+
+annotations:
+  category: Developer Tools
+  displayName: jenkins
+  licenses: MIT
+  oidcRedirectPaths: /securityRealm/finishLogin
+  gallery: |
+    https://www.jenkins.io/doc/book/resources/blueocean/dashboard/overview.png
+    https://www.jenkins.io/images/using/manage.png
+    https://www.jenkins.io/doc/book/resources/blueocean/intro/blueocean-plugins-filtered.png
+    https://www.jenkins.io/doc/book/resources/blueocean/pipeline-run-details/overview.png
