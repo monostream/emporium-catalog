@@ -80,5 +80,4 @@ Agent Selector labels
 {{- define "agent.selectorLabels" -}}
 app.kubernetes.io/name: "jenkins-agent"
 app.kubernetes.io/instance: {{ include "jenkins.name" . }}-agent
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end -}}
