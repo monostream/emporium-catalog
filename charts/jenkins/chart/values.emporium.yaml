@@ -57,36 +57,37 @@ ingress:
      hosts:
        - {{ .Emporium.Integrations.DNS.Hostname }}
 
-## @userSupplied JenkinsDataSize
+## @userSupplied ControllerConfigSize
 ## @label DataDir
 ## @type string
-## @description Size of the volume where jenkins stores the config
+## @description Size for the config volume on the controller
 ## @optional
 
-## @userSupplied JenkinsWorspaceSize
+## @userSupplied ControllerWorkspaceSize
 ## @label JenkinsWorkspaceSize
 ## @type string
-## @description Size for the workspace
+## @description Size for the workspace on the controller
 ## @optional
 
 ## @userSupplied AgentWorspaceSize
 ## @label Jenkins Agent Workspace Spize
 ## @type string
-## @description Size on the agent, where all the work is done.
+## @description Size for the workspace on the agents
 ## @optional
+
+## @userSupplied AgentDinDSize
+## @label Jenkins Agent DIND Spize
+## @type string
+## @description Size for the Docker in Docker on the agents
+## @optional
+
 persistence:
-  enabled: true
-  # storageClass: "-"
-  accessMode: ReadWriteOnce
-  size: {{ default "10Gi" .Emporium.UserSupplied.DataSize }}
+  size: {{ default "1Gi" .Emporium.UserSupplied.ControllerConfigSize }}
   annotations: {}
 
 workspace:
   persistence:
-    enabled: true
-    # storageClass: "-"
-    accessMode: ReadWriteOnce
-    size: {{ default "100Gi" .Emporium.UserSupplied.WorspaceSize }}
+    size: {{ default "50Gi" .Emporium.UserSupplied.ControllerWorkspaceSize }}
     annotations: {}
 
 initVolume:
@@ -124,26 +125,18 @@ tolerations: []
 agent:
   image: 
     repository: monostream/devcloud-jenkins-agent
-    pullPolicy: Always  
+    pullPolicy: Always
   
   persistence:
-    # storageClass: "-"
-    accessMode: ReadWriteOnce
-    size: {{ default "100Gi" .Emporium.UserSupplied.AgentWorspaceSize }}
-    annotations: {}
-
-  initVolume:
-    repository: busybox
-    pullPolicy: Always
-    tag: stable
+    size: {{ default "50Gi" .Emporium.UserSupplied.AgentWorspaceSize }}
   
   resources: 
     limits:
      #cpu: 100m
-      memory: 4Gi
+      memory:
     requests:
      #cpu: 100m
-      memory: 2Gi
+      memory:
 
   docker: 
     repository: docker
@@ -153,16 +146,16 @@ agent:
     persistence:
       # storageClass: "-"
       accessMode: ReadWriteOnce
-      size: 100Gi
+      size: {{ default "50Gi" .Emporium.UserSupplied.AgentDinDSize }}
       annotations: {}
     
     resources: 
       limits:
        #cpu: 100m
-        memory: 12Gi
+        memory:
       requests:
        #cpu: 100m
-        memory: 8Gi
+        memory:
 
   nodeSelector: {}
 
