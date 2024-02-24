@@ -2,9 +2,6 @@
   {
     "provider": "chart",
     "name": "drawio",
-    "repo": "./chart",
-    "imageTagPaths": [
-      "image.tag"
-    ]
+    "repo": "./chart"
   }
 ]
