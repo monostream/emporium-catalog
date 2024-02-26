@@ -1,7 +1,7 @@
 [
   {
     "provider": "chart",
-    "name": "drawio",
+    "name": "rotki",
     "repo": "./chart"
   }
 ]
