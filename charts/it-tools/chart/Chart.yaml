@@ -2,7 +2,7 @@ apiVersion: v2
 name: it-tools
 description: useful tools for devs with great UX.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: "2023.12.21-5ed3693"
 
 home: https://it-tools.tech/
