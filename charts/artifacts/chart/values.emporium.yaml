@@ -1,37 +1,37 @@
 ## @userSupplied ArtifactsPersistenceSize
-## @label Artifacts Persistence Size
+## @label Artifacts Volume Size
 ## @type byteSize
-## @description Size of the local Artifacts volume
+## @description Size of the local Artifacts volume. Default is 10Gi.
 ## @optional
 
 ## @userSupplied ArtifactsPersistenceStorageClass
-## @label Artifacts Persistence StorageClass
-## @type string
-## @description The StorageClass to use for the Artifacts volume
+## @label Artifacts Volume StorageClass
+## @type storageClass
+## @description The StorageClass to use for the Artifacts volume. If not provided, default storage class is used.
 ## @optional
 
 ## @userSupplied PostgresqlPersistenceSize
-## @label Postgresql Persistence Size
+## @label Postgresql Volume Size
 ## @type byteSize
-## @description Size of the local Postgresql volume
+## @description Size of the local Postgresql volume. Default is 8Gi.
 ## @optional
 
 ## @userSupplied PostgresqlPersistenceStorageClass
-## @label Postgresql Persistence StorageClass
-## @type string
-## @description The StorageClass to use for the Postgresql volume
+## @label Postgresql Volume StorageClass
+## @type storageClass
+## @description The StorageClass to use for the Postgresql volume. If not provided, default storage class is used.
 ## @optional
 
 ## @userSupplied PostgresqlPassword
 ## @label Postgresql Password
 ## @type string
-## @description The database password to use (if left empty SQLite will be used)
+## @description The database password to use. If left empty SQLite will be used.
 ## @optional
 
 ## @userSupplied EnablePublicRead
 ## @label Enable public read
 ## @type boolean
-## @description Enable anonymous read access for repositories set to public
+## @description Enable anonymous read access for repositories set to public. Default is false.
 ## @optional
 
 {{- if .Emporium.UserSupplied.PostgresqlPassword }}
