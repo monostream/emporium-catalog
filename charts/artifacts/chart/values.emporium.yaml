@@ -1,6 +1,6 @@
 ## @userSupplied ArtifactsPersistenceSize
 ## @label Artifacts Persistence Size
-## @type string
+## @type byteSize
 ## @description Size of the local Artifacts volume
 ## @optional
 
@@ -12,7 +12,7 @@
 
 ## @userSupplied PostgresqlPersistenceSize
 ## @label Postgresql Persistence Size
-## @type string
+## @type byteSize
 ## @description Size of the local Postgresql volume
 ## @optional
 
