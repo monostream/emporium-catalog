@@ -1,6 +1,6 @@
 dependencies:
 - name: porter
   repository: https://charts-self-hosted.porter.run
-  version: 0.170.0
-digest: sha256:55a6f7f94a4153d3c891044eb2c51104d7bdc0c77f5cf832afdd82b97bdad2ac
-generated: "2024-02-14T08:06:01.960229979Z"
+  version: 0.171.0
+digest: sha256:a044359979790056e22487b8398956eb795799d8d74202a3043244b59a998045
+generated: "2024-02-29T17:02:05.749196194Z"
