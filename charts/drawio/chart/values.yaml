@@ -6,7 +6,7 @@ replicaCount: 1
 image:
   repository: jgraph/drawio
   pullPolicy: IfNotPresent
-  tag: "24.0.1"
+  tag: "24.0.2"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
