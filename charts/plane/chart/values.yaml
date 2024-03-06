@@ -49,8 +49,11 @@ postgresql:
   auth:
     database: plane
 redis:
+  architecture: standalone
   replica:
-    replicaCount: 1
+    persistence:
+      enabled: false
+    replicaCount: 0
 minio:
   defaultBuckets: uploads:download
 imagePullSecrets: []
