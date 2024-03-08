@@ -11,7 +11,7 @@ api:
     repository: makeplane/plane-backend
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.15.4-dev"
+    tag: ""
 space:
   service:
     type: ClusterIP
@@ -20,7 +20,7 @@ space:
     repository: makeplane/plane-space
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.15.4-dev"
+    tag: ""
 web:
   service:
     type: ClusterIP
@@ -29,7 +29,7 @@ web:
     repository: makeplane/plane-frontend
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.15.4-dev"
+    tag: ""
 smtp:
   enabled: false
   host:

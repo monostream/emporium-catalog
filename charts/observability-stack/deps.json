@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "observability-stack",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:kube-prometheus-stack"
   }
 ]

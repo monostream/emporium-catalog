@@ -1,8 +1,9 @@
 [
   {
     "provider": "chart",
-    "name": "rotki",
+    "name": "it-tools",
     "repo": "./chart",
+    "allowPrerelease": true,
     "imageTagPaths": [
       "image.tag"
     ],

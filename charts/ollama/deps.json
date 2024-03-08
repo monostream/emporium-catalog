@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "ollama",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:ollama"
   }
 ]

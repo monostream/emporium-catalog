@@ -2,6 +2,7 @@
     {
        "provider":"chart",
        "name":"kubernetes-dashboard",
-       "repo":"./chart"
+       "repo":"./chart",
+       "appVersionMapping": "dependency:kubernetes-dashboard"
     }
 ]

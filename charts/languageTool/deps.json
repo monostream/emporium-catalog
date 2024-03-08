@@ -1,8 +1,9 @@
 [
   {
     "provider": "chart",
-    "name": "rotki",
+    "name": "languageTool",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
     ],

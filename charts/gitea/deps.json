@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "gitea",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:gitea"
   }
 ]

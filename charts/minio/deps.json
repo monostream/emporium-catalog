@@ -1,0 +1,12 @@
+[
+    {
+      "provider": "chart",
+      "name": "minio",
+      "repo": "./chart",
+      "imageTagPaths": [
+        "minio.image.tag"
+      ],
+      "appVersionMapping": "value:minio.image.tag"
+    }
+  ]
+  

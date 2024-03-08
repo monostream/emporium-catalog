@@ -1,6 +1,7 @@
 image:
   repository: monostream/devcloud-jenkins
   pullPolicy: Always
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""

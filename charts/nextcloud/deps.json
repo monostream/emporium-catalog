@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "nextcloud",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:nextcloud"
   }
 ]

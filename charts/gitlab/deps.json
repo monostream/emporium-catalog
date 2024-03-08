@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "gitlab",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:gitlab"
   }
 ]

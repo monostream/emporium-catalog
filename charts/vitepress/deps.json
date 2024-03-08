@@ -1,0 +1,11 @@
+[
+    {
+      "provider": "chart",
+      "name": "vitepress",
+      "repo": "./chart",
+      "imageTagPaths": [
+        "image.tag"
+      ],
+      "appVersionMapping": "value:image.tag"
+    }
+  ]

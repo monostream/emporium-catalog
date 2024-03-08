@@ -1,7 +1,7 @@
 [
   {
     "provider": "chart",
-    "name": "rotki",
+    "name": "filebrowser",
     "repo": "./chart",
     "imageTagPaths": [
       "image.tag"

@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "artifacts",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:artifacts"
   }
 ]

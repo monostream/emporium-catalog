@@ -1,7 +1,7 @@
 [
     {
        "provider":"chart",
-       "name":"browserless",
+       "name":"cyberchef",
        "repo":"./chart",
        "imageTagPaths": [
         "image.tag"
