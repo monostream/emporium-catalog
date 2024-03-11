@@ -11,21 +11,21 @@
     "provider": "github",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.21.1",
+    "currentTag": "v4.22.0",
     "envVar": "CODE_SERVER_VERSION"
   },
   {
     "provider": "github",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v25.0.3",
+    "currentTag": "v25.0.4",
     "envVar": "DOCKER_CLIENT_VERSION"
   },
   {
     "provider": "github",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
-    "currentTag": "v0.12.1",
+    "currentTag": "v0.13.0",
     "envVar": "DOCKER_BUILDX_VERSION"
   },
   {
