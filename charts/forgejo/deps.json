@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "forgejo",
-    "repo": "./chart"
+    "repo": "./chart",
+    "range": ">=4.0.x"
   }
 ]

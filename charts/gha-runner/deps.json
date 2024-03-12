@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "gha-runner",
-    "repo": "./chart"
+    "repo": "./chart",
+    "range": ">=0.8.x"
   }
 ]
