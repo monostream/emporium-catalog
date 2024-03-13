@@ -51,6 +51,11 @@ config:
     host: {{ .Emporium.Name }}-redis-headless
     port: 6379
     database: "0"
+    architecture: standalone
+    replica:
+      persistence:
+        enabled: false
+      replicaCount: 0
 
   smtp:
     enabled: true
