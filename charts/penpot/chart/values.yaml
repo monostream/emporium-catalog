@@ -191,6 +191,11 @@ postgresql:
     password: secretpassword
     username: example
 redis:
+  architecture: standalone
+  replica:
+    persistence:
+      enabled: false
+    replicaCount: 0
   auth:
     enabled: false
 serviceAccount:

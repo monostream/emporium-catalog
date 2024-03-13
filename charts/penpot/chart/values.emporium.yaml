@@ -88,10 +88,3 @@ postgresql:
     username: admin
     password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
     database: penpot
-
-redis:
-  architecture: standalone
-  replica:
-    persistence:
-      enabled: false
-    replicaCount: 0
