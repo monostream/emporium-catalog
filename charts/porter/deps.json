@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "porter",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:porter"
   }
 ]
