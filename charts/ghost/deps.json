@@ -2,6 +2,9 @@
   {
     "provider": "chart",
     "name": "ghost",
-    "repo": "./chart"
+    "repo": "./chart",
+    "range": ">=19.10.x",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:ghost"
   }
 ]

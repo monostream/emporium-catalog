@@ -2,6 +2,9 @@
   {
     "provider": "chart",
     "name": "n8n",
-    "repo": "./chart"
+    "repo": "./chart",
+    "range": ">=0.22.x",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:n8n"
   }
 ]

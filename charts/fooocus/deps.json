@@ -1,7 +1,12 @@
 [
-    {
-       "provider":"chart",
-       "name":"fooocus",
-       "repo":"./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "fooocus",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "imageTagPaths": [
+      "image.tag"
+    ],
+    "appVersionMapping": "value:image.tag"
+  }
 ]

@@ -6,4 +6,4 @@ dependencies:
   repository: oci://ghcr.io/actions/actions-runner-controller-charts
   version: 0.8.3
 digest: sha256:9926b938f28e8048542b92050a830cf0a782c7ad33f624943e0e4bc8bc0918cd
-generated: "2024-02-28T17:02:53.389213071Z"
+generated: "2024-03-14T10:40:56.831309+01:00"

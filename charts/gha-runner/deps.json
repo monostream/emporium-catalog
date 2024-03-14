@@ -2,6 +2,9 @@
   {
     "provider": "chart",
     "name": "gha-runner",
-    "repo": "./chart"
+    "repo": "./chart",
+    "range": ">=0.8.x",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:gha-runner-scale-set-controller"
   }
 ]

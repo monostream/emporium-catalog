@@ -3,10 +3,12 @@
     "provider": "chart",
     "name": "penpot",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "backend.image.tag",
       "frontend.image.tag",
       "exporter.image.tag"
-    ]
+    ],
+    "appVersionMapping": "value:backend.image.tag"
   }
 ]

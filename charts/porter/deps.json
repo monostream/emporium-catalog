@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "porter",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:porter"
   }
 ]

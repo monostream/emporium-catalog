@@ -3,4 +3,4 @@ dependencies:
   repository: oci://8gears.container-registry.com/library
   version: 0.22.0
 digest: sha256:d9081235a7c2c4e7bf46031d1532808ec278b3d0823547c056e211c11d0b0615
-generated: "2024-02-23T17:02:05.342772835Z"
+generated: "2024-03-14T16:52:17.536685+01:00"

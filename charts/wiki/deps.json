@@ -1,0 +1,8 @@
+[
+    {
+      "provider": "chart",
+      "name": "wiki",
+      "repo": "./chart",
+      "appVersionMapping": "dependency:wiki"
+    }
+  ]

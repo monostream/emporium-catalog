@@ -2,8 +2,8 @@ apiVersion: v2
 name: gitlab
 description: A single plattform to experience and share frustration with other developers
 type: application
-version: 0.2.11
-appVersion: "16.9.1"
+version: 0.2.12
+appVersion: "v16.9.2"
 home: https://gitlab.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.svg
 sources:

@@ -1,13 +1,12 @@
 [
   {
     "provider": "chart",
-    "name": "forgejo-runner",
+    "name": "jenkins",
     "repo": "./chart",
     "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag",
-      "dind.image.tag",
-      "kubectl.image.tag"
+      "agent.docker.tag"
     ],
     "appVersionMapping": "value:image.tag"
   }

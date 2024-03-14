@@ -1,13 +1,11 @@
 [
   {
     "provider": "chart",
-    "name": "forgejo-runner",
+    "name": "cyberchef",
     "repo": "./chart",
     "allowPrerelease": false,
     "imageTagPaths": [
-      "image.tag",
-      "dind.image.tag",
-      "kubectl.image.tag"
+      "image.tag"
     ],
     "appVersionMapping": "value:image.tag"
   }

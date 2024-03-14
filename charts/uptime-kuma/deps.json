@@ -1,10 +1,12 @@
 [
   {
     "provider": "chart",
-    "name": "supabase",
+    "name": "uptime-kuma",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
-    ]
+    ],
+    "appVersionMapping": "value:image.tag"
   }
 ]

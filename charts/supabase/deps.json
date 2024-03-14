@@ -2,6 +2,7 @@
   {
     "provider": "chart",
     "name": "supabase",
-    "repo": "./chart"
+    "repo": "./chart",
+    "appVersionMapping": "dependency:supabase"
   }
 ]

@@ -1,13 +1,11 @@
 [
   {
     "provider": "chart",
-    "name": "forgejo-runner",
+    "name": "it-tools",
     "repo": "./chart",
-    "allowPrerelease": false,
+    "allowPrerelease": true,
     "imageTagPaths": [
-      "image.tag",
-      "dind.image.tag",
-      "kubectl.image.tag"
+      "image.tag"
     ],
     "appVersionMapping": "value:image.tag"
   }

@@ -1,19 +1,16 @@
-dashboard:
-  extraArgs:
-    - --enable-insecure-login
+metricsScraper:
+  enabled: true
 
-  protocolHttp: true
+metrics-server:
+  enabled: false
 
-  service:
-    type: ClusterIP
-    externalPort: 80
+cert-manager:
+  enabled: false
 
-  metricsScraper:
-    enabled: true
+nginx:
+  enabled: false
 
-  metrics-server:
-    enabled: false
-
+app:
   ingress:
     enabled: true
 

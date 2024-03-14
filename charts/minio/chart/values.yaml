@@ -1,6 +1,6 @@
 minio:
   image:
-    tag: RELEASE.2024-02-13T15-35-11Z
+    tag: "RELEASE.2024-02-13T15-35-11Z"
     pullPolicy: IfNotPresent
   deploymentUpdate:
     type: Recreate

@@ -2,6 +2,10 @@
   {
     "provider": "chart",
     "name": "rotki",
-    "repo": "./chart"
+    "repo": "./chart",
+    "imageTagPaths": [
+      "image.tag"
+    ],
+    "appVersionMapping": "value:image.tag"
   }
 ]
