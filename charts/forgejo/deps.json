@@ -3,6 +3,8 @@
     "provider": "chart",
     "name": "forgejo",
     "repo": "./chart",
-    "range": ">=4.0.x"
+    "range": ">=4.0.x",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:forgejo"
   }
 ]
