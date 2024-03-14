@@ -1,27 +1,20 @@
 apiVersion: v2
 type: application
-
 name: filebrowser
 description: A Helm chart for Kubernetes
-
-version: 0.1.13
-appVersion: "v2.26.0"
-
+version: 0.1.14
+appVersion: "v2.27.0"
 home: https://filebrowser.org/
 icon: https://www.gitbook.com/cdn-cgi/image/width=36,dpr=2,height=36,fit=contain,format=auto/https%3A%2F%2F3149836655-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fspaces%252F-M8KDxOujDoPpJyJJ5_i%252Favatar-1590579241040.png%3Fgeneration%3D1590579241552005%26alt%3Dmedia
-
 sources:
   - https://github.com/filebrowser/filebrowser
   - https://filebrowser.org/
-
 maintainers:
   - name: Monostream
     url: https://github.com/monostream
-
 keywords:
   - Utilities
   - Storage
-
 annotations:
   emporiumVersion: "0.3.0"
   displayName: Filebrowser
@@ -31,5 +24,3 @@ annotations:
     https://3149836655-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-M8KDxOujDoPpJyJJ5_i%2Fuploads%2Fgit-blob-9390768b0cbb83b1e7da55c0ae13ecd2d8fcb114%2F2.PNG?alt=media
     https://3149836655-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-M8KDxOujDoPpJyJJ5_i%2Fuploads%2Fgit-blob-34a4697bbe32f8199174001c17f3b2095beefc97%2F4.PNG?alt=media
     https://3149836655-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-M8KDxOujDoPpJyJJ5_i%2Fuploads%2Fgit-blob-b9898a30b86b2026c4fdb9fe25104a0b74e6467f%2F5.PNG?alt=media
-
-

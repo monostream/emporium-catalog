@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "filebrowser",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
     ],
