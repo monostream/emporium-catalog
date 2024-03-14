@@ -88,4 +88,3 @@ postgresql:
     username: admin
     password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
     database: penpot
-

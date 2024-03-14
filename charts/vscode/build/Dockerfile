@@ -4,7 +4,7 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # Code Server
-ENV CODE_SERVER_VERSION="4.21.1"
+ENV CODE_SERVER_VERSION="4.22.0"
 RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb \
    && apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    ./code-server_${CODE_SERVER_VERSION}_amd64.deb \
@@ -13,11 +13,11 @@ RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVE
    && rm /usr/bin/code-server
 
 # Docker CLI
-ENV DOCKER_CLIENT_VERSION="25.0.3"
+ENV DOCKER_CLIENT_VERSION="25.0.4"
 RUN curl -fsSL -o - https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
 
 # Docker Buildx Plugin
-ENV DOCKER_BUILDX_VERSION="v0.12.1"
+ENV DOCKER_BUILDX_VERSION="v0.13.1"
 RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/docker/buildx/releases/download/${DOCKER_BUILDX_VERSION}/buildx-${DOCKER_BUILDX_VERSION}.linux-amd64" -o /usr/libexec/docker/cli-plugins/docker-buildx && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
 # Docker-in-Docker daemon socket
