@@ -3,18 +3,15 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-
 image:
   registry: code.forgejo.org
   repository: forgejo/runner
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 runner:
   config:
     # -- create a secret by run: forgejo-runner register --no-interactive --token {TOKEN} --name runner --instance https://next.forgejo.org
@@ -28,26 +25,22 @@ runner:
     requests:
       cpu: 50m
       memory: 128Mi
-
 dind:
   image:
     registry: docker.io
     repository: library/docker
     pullPolicy: IfNotPresent
-    tag: "25-dind"
-
+    tag: "25.0.4"
   resources:
     requests:
       cpu: 1
       memory: 2Gi
-
 kubectl:
   image:
     registry: docker.io
     repository: bitnami/kubectl
     pullPolicy: IfNotPresent
-    tag: "1.29"
-
+    tag: "1.29.2"
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -58,12 +51,10 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
 podAnnotations: {}
 podLabels: {}
-
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext:
   privileged: true
@@ -73,14 +64,12 @@ securityContext:
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo
@@ -95,7 +84,5 @@ volumeMounts: []
 #   readOnly: true
 
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
