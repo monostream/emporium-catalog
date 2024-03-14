@@ -10,7 +10,7 @@ jobs:
   check-updates:
     runs-on: ubuntu-latest
     container: 
-      image: monostream/deps-checker:0.0.1
+      image: emporium.docker.pkg.emporium.rocks/emporium-build:latest
       options: --user root
       
     steps:
@@ -51,7 +51,7 @@ jobs:
           echo "Checking updates for ${CHART_NAME}"
           
           echo "Saving output to deps-update-${CHART_NAME}.txt"
-          DEPS_UPDATE_OUTPUT=$(deps-checker -f "${DEPS_FILE}" -u)
+          DEPS_UPDATE_OUTPUT=$(emp chart updates --file "${DEPS_FILE}" --apply)
           echo "${DEPS_UPDATE_OUTPUT}" > "deps-update-${CHART_NAME}.txt"
         
         
