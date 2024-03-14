@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "gitlab",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:gitlab"
   }
 ]

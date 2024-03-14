@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "uptime-kuma",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
     ],

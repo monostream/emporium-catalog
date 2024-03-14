@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "nextcloud",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:nextcloud"
   }
 ]

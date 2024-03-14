@@ -12,7 +12,7 @@ backend:
   image:
     imagePullPolicy: IfNotPresent
     repository: penpotapp/backend
-    tag: 1.19.3
+    tag: ""
   nodeSelector: {}
   podSecurityContext:
     enabled: true
@@ -138,7 +138,7 @@ exporter:
   image:
     imagePullPolicy: IfNotPresent
     repository: penpotapp/exporter
-    tag: 1.19.3
+    tag: ""
   nodeSelector: {}
   podSecurityContext:
     enabled: true
@@ -156,7 +156,7 @@ frontend:
   image:
     imagePullPolicy: IfNotPresent
     repository: penpotapp/frontend
-    tag: 1.19.3
+    tag: ""
   ingress:
     annotations: {}
     enabled: false

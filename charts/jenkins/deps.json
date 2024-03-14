@@ -1,14 +1,13 @@
 [
-    {
-      "provider": "chart",
-      "name": "jenkins",
-      "repo": "./chart",
-      "allowPrerelease": false,
-      "imageTagPaths": [
-        "image.tag",
-        "agent.docker.tag"
-      ],
-      "appVersionMapping": "value:image.tag"
-    }
-  ]
-  
+  {
+    "provider": "chart",
+    "name": "jenkins",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "imageTagPaths": [
+      "image.tag",
+      "agent.docker.tag"
+    ],
+    "appVersionMapping": "value:image.tag"
+  }
+]

@@ -109,6 +109,7 @@ agent:
   image: 
     repository: monostream/devcloud-jenkins-agent
     pullPolicy: Always  
+    tag: ""
   
   persistence:
     # storageClass: "-"

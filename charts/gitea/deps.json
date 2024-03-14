@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "gitea",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:gitea"
   }
 ]

@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "forgejo-runner",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag",
       "dind.image.tag",

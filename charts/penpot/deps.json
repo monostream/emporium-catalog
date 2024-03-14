@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "penpot",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "backend.image.tag",
       "frontend.image.tag",
