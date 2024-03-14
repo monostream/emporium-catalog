@@ -39,7 +39,7 @@
     "provider": "github",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.14.2",
+    "currentTag": "v3.14.3",
     "envVar": "HELM_VERSION"
   }
 ]
