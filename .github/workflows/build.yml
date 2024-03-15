@@ -38,7 +38,7 @@ jobs:
       - name: Extract CODE_SERVER_VERSION from Dockerfile
         id: extract_version
         run: |
-          VERSION=$(grep 'ENV CODE_SERVER_VERSION' ./charts/vscode/build/Dockerfile | awk -F"=" '{print $2}')
+          VERSION=$(grep 'ENV CODE_SERVER_VERSION' ./charts/vscode/build/Dockerfile | awk -F"=" '{print $2}' | tr -d '"')
           echo "::set-output name=version::$VERSION"
   
       - name: Build and push vscode
