@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "vscode",
     "repo": "./chart",
+    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
     ]
@@ -11,7 +12,8 @@
     "provider": "github",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.22.0",
+    "currentTag": "v4.22.1",
+    "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
   {
@@ -19,6 +21,7 @@
     "name": "Docker CLI",
     "repo": "docker/cli",
     "currentTag": "v25.0.4",
+    "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },
   {
@@ -26,6 +29,7 @@
     "name": "Docker Buildx",
     "repo": "docker/buildx",
     "currentTag": "v0.13.1",
+    "allowPrerelease": false,
     "envVar": "DOCKER_BUILDX_VERSION"
   },
   {
@@ -33,13 +37,15 @@
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
     "currentTag": "v1.29.2",
+    "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },
   {
     "provider": "github",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.14.2",
+    "currentTag": "v3.14.3",
+    "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
 ]

@@ -4,7 +4,7 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # Code Server
-ENV CODE_SERVER_VERSION="4.22.0"
+ENV CODE_SERVER_VERSION="4.22.1"
 RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb \
    && apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    ./code-server_${CODE_SERVER_VERSION}_amd64.deb \
@@ -28,7 +28,7 @@ ENV KUBECTL_VERSION="v1.29.2"
 RUN curl -fsSL "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
-ENV HELM_VERSION="v3.14.2"
+ENV HELM_VERSION="v3.14.3"
 RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-amd64/helm
 
 # Java
