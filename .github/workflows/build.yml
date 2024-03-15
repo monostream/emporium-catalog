@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: ./charts/vscode/build/Dockerfile
-          context: .
+          context: ./charts/vscode/build/
           platforms: linux/amd64
           push: true
           tags: ${{ vars.CONTAINER_REGISTRY }}/vscode:${{ steps.extract_version.outputs.version }}
