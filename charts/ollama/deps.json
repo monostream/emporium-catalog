@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "ollama",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:ollama"
   }
 ]
