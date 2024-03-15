@@ -1,11 +1,11 @@
 apiVersion: v2
 name: ollama
 description: An all in one self hosted LLM stack based on Ollama
-version: 0.1.8
-appVersion: 0.1.0
+version: 0.1.9
+appVersion: 0.1.29
 dependencies:
   - name: ollama
-    version: 0.18.0
+    version: 0.19.0
     repository: https://otwld.github.io/ollama-helm/
   - name: ollama-webui
     version: 0.1.0
