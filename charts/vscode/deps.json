@@ -6,7 +6,8 @@
     "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
-    ]
+    ],
+    "appVersionMapping": "value:image.tag"
   },
   {
     "provider": "github",
