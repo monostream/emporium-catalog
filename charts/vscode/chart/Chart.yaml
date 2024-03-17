@@ -2,7 +2,7 @@ apiVersion: v2
 type: application
 name: vscode
 description: Visual Studio Code in your Browser - A comprehensive DevOps tool within your Kubernetes cluster.
-version: 0.1.17
+version: 0.1.18
 appVersion: "4.21.1"
 home: https://coder.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/vscode/vscode_icon_2.svg

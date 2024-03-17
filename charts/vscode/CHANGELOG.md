@@ -24,3 +24,8 @@
 | ------ | ------------------------------------------------------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------------------ |
 | docker | https://emporium-apps.docker.pkg.emporium.rocks/vscode |             | 4.21.1          | 4.22.1      |                    |                | https://emporium-apps.docker.pkg.emporium.rocks/vscode |
 
+# Updates Sunday, 17-Mar-2024 08:01:28 UTC
+| Source | Name                                                   | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                              |
+| ------ | ------------------------------------------------------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------------------ |
+| docker | https://emporium-apps.docker.pkg.emporium.rocks/vscode |             | 4.21.1          | 4.22.1      |                    |                | https://emporium-apps.docker.pkg.emporium.rocks/vscode |
+
