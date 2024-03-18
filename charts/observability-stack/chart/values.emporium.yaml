@@ -12,20 +12,20 @@
 
 ## @userSupplied PrometheusRetentionSize
 ## @label Prometheus Retention Size
-## @type string
-## @description Retention size for Prometheus metrics (e.g. 20Gi or 900Mi). Default is "". Only applicable if Prometheus is enabled.
+## @type byteSize
+## @description Retention size for Prometheus metrics. Default is "". Only applicable if Prometheus is enabled.
 ## @optional
 
 ## @userSupplied PrometheusStorageSize
 ## @label Prometheus Storage Size
-## @type string
-## @description Size of the prometheus storage volume (e.g. 20Gi or 900Mi). Default is 20Gi. Only applicable if Prometheus is enabled.
+## @type byteSize
+## @description Size of the prometheus storage volume. Default is 20Gi. Only applicable if Prometheus is enabled.
 ## @optional
 
 ## @userSupplied LokiStorageSize
 ## @label Loki Storage Size
-## @type string
-## @description Size of the Loki storage volume (e.g. 20Gi or 900Mi). Default is 20Gi. Only applicable if Prometheus is enabled.
+## @type byteSize
+## @description Size of the Loki storage volume. Default is 20Gi. Only applicable if Prometheus is enabled.
 ## @optional
 
 prometheus:

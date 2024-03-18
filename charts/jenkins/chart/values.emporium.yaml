@@ -59,26 +59,26 @@ ingress:
 
 ## @userSupplied ControllerConfigSize
 ## @label DataDir
-## @type string
-## @description Size for the config volume on the controller
+## @type byteSize
+## @description Size for the config volume on the controller. Default is 1Gi.
 ## @optional
 
 ## @userSupplied ControllerWorkspaceSize
 ## @label JenkinsWorkspaceSize
-## @type string
-## @description Size for the workspace on the controller
+## @type byteSize
+## @description Size for the workspace on the controller. Default is 50Gi.
 ## @optional
 
 ## @userSupplied AgentWorspaceSize
-## @label Jenkins Agent Workspace Spize
-## @type string
-## @description Size for the workspace on the agents
+## @label Jenkins Agent Workspace Size
+## @type byteSize
+## @description Size for the workspace on the agents. Default is 50Gi.
 ## @optional
 
 ## @userSupplied AgentDinDSize
-## @label Jenkins Agent DIND Spize
-## @type string
-## @description Size for the Docker in Docker on the agents
+## @label Jenkins Agent DIND Size
+## @type byteSize
+## @description Size for the Docker in Docker volume on the agents. Default is 50Gi.
 ## @optional
 
 persistence:
@@ -107,7 +107,7 @@ extraEnv: []
 
 nodeSelector: {}
 
-affinity: 
+affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
     - podAffinityTerm:
@@ -119,18 +119,18 @@ affinity:
             - jenkins-agent
         topologyKey: kubernetes.io/hostname
       weight: 100
-  
+
 tolerations: []
 
 agent:
-  image: 
+  image:
     repository: monostream/devcloud-jenkins-agent
     pullPolicy: Always
-  
+
   persistence:
     size: {{ default "50Gi" .Emporium.UserSupplied.AgentWorspaceSize }}
-  
-  resources: 
+
+  resources:
     limits:
      #cpu: 100m
       memory:
@@ -138,18 +138,18 @@ agent:
      #cpu: 100m
       memory:
 
-  docker: 
+  docker:
     repository: docker
-    pullPolicy: Always 
+    pullPolicy: Always
     tag: 23.0.1-dind
- 
+
     persistence:
       # storageClass: "-"
       accessMode: ReadWriteOnce
       size: {{ default "50Gi" .Emporium.UserSupplied.AgentDinDSize }}
       annotations: {}
-    
-    resources: 
+
+    resources:
       limits:
        #cpu: 100m
         memory:
@@ -159,7 +159,7 @@ agent:
 
   nodeSelector: {}
 
-  affinity: 
+  affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
       - podAffinityTerm:
@@ -180,5 +180,5 @@ agent:
               - jenkins
           topologyKey: kubernetes.io/hostname
         weight: 100
-          
+
   tolerations: []

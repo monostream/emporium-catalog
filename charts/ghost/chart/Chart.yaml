@@ -29,3 +29,4 @@ annotations:
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
+  emporiumVersion: v0.3.0

@@ -27,8 +27,8 @@ ingress:
 
 ## @userSupplied CacheSize
 ## @label Cache Directory Size
-## @type string
-## @description Size for cache directory (e.g. 20Gi or 900Mi). Default is 10Gi. Only relevant if CacheEnabled is true.
+## @type byteSize
+## @description Size for cache directory. Default is 10Gi. Only relevant if CacheEnabled is true.
 ## @optional
 storage:
   workdir:
