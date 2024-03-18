@@ -4,7 +4,7 @@ type: application
 name: jenkins
 description: the most popular and flexible CI/CD system in the world!
 
-version: 0.1.10
+version: 0.1.11
 appVersion: "2.440.1"
 
 home: https://www.jenkins.io/
