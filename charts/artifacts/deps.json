@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "artifacts",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:artifacts"
   }
 ]
