@@ -5,7 +5,7 @@
 
 ## @userSupplied StorageSize
 ## @label StorageSize
-## @type string
+## @type byteSize
 ## @description The size of the storage volume
 ollama:
   nameOverride: "ollama"
@@ -26,7 +26,7 @@ ollama:
 ollama-webui:
   ingress:
     enabled: true
-    annotations: 
+    annotations:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
@@ -36,7 +36,7 @@ ollama-webui:
         paths:
           - path: /
             pathType: ImplementationSpecific
-    tls: 
+    tls:
       - secretName: {{ .Emporium.Name }}-webui-tls
         hosts:
           - {{ .Emporium.Integrations.DNS.Hostname }}

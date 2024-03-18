@@ -116,8 +116,8 @@ nextcloud:
 
 ## @userSupplied StorageSize
 ## @label StorageSize
-## @type string
-## @description The size of the storage volume (eg. 100Gi for 100 Gibibytes)
+## @type byteSize
+## @description The size of the storage volume
   persistence:
     # Nextcloud Data (/var/www/html)
     enabled: true

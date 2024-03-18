@@ -7,15 +7,15 @@ runtimeClassName: {{ .Emporium.UserSupplied.RuntimeClassName }}
 
 ## @userSupplied StorageSize
 ## @label StorageSize
-## @type string
-## @description The size of the storage volume (eg. 100Gi for 100 Gibibytes)
+## @type byteSize
+## @description The size of the storage volume.
 persistence:
   enabled: true
   size: {{ .Emporium.UserSupplied.StorageSize }}
 
 ingress:
   enabled: true
-  annotations: 
+  annotations:
     {{- if .Emporium.Annotations }}
     {{- toYaml .Emporium.Annotations | nindent 4 }}
     {{- end }}
@@ -25,7 +25,7 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: 
+  tls:
     - secretName: {{ .Emporium.Name }}-tls
       hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}

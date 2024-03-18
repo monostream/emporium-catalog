@@ -2,7 +2,7 @@ apiVersion: v2
 name: nextcloud
 description: A safe home for all your data – community-driven, free & open source.
 type: application
-version: 0.0.34
+version: 0.0.35
 appVersion: "28.0.3"
 dependencies:
   - name: nextcloud
