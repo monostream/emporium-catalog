@@ -1,7 +1,7 @@
 apiVersion: v2
 name: ollama
 description: An all in one self hosted LLM stack based on Ollama
-version: 0.1.9
+version: 0.1.10
 appVersion: 0.1.29
 dependencies:
   - name: ollama
