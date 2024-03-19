@@ -3,3 +3,8 @@
 | ------ | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
 | helm   | porter |             | 0.175.0         | 0.176.0     |                    | 0.11.1         | https://charts-self-hosted.porter.run |
 
+# Updates Tuesday, 19-Mar-2024 08:02:35 UTC
+| Source | Name   | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | porter |             | 0.176.0         | 0.177.0     |                    | 0.11.1         | https://charts-self-hosted.porter.run |
+
