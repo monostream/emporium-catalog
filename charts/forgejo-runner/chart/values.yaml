@@ -30,7 +30,7 @@ dind:
     registry: docker.io
     repository: library/docker
     pullPolicy: IfNotPresent
-    tag: "25.0.4"
+    tag: "25.0.5"
   resources:
     requests:
       cpu: 1
