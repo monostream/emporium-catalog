@@ -19,3 +19,8 @@
 | ------ | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
 | helm   | loki |             | 5.44.4          | 5.45.0      |                    | 2.9.4          | https://grafana.github.io/helm-charts |
 
+# Updates Wednesday, 20-Mar-2024 17:02:22 UTC
+| Source | Name      | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | --------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | pyroscope |             | 1.4.1           | 1.5.0       |                    | 1.5.0          | https://grafana.github.io/helm-charts |
+
