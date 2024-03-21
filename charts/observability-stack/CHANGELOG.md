@@ -19,3 +19,18 @@
 | ------ | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
 | helm   | loki |             | 5.44.4          | 5.45.0      |                    | 2.9.4          | https://grafana.github.io/helm-charts |
 
+# Updates Wednesday, 20-Mar-2024 17:02:22 UTC
+| Source | Name      | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | --------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | pyroscope |             | 1.4.1           | 1.5.0       |                    | 1.5.0          | https://grafana.github.io/helm-charts |
+
+# Updates Thursday, 21-Mar-2024 08:01:50 UTC
+| Source | Name | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | loki |             | 5.45.0          | 5.46.0      |                    | 2.9.5          | https://grafana.github.io/helm-charts |
+
+# Updates Thursday, 21-Mar-2024 09:17:54 UTC
+| Source | Name                  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                          |
+| ------ | --------------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------------- |
+| helm   | kube-prometheus-stack |             | 57.0.3          | 57.1.0      |                    | v0.72.0        | https://prometheus-community.github.io/helm-charts |
+
