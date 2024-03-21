@@ -3,31 +3,25 @@ image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 password:
-
 service:
   type: ClusterIP
   port: 80
-
 persistence:
   enabled: false
   accessMode: ReadWriteOnce
   size: 8Gi
-
 gpu:
   nvidiaEnabled: false
   runtimeClass: "nvidia"
-
 ingress:
   enabled: false
   ingressClassName: "nginx"
   annotations: {}
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
       paths:
@@ -37,13 +31,11 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
 resources: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
-
 docker:
   repository: docker
   pullPolicy: Always
-  tag: 23.0.1-dind
+  tag: 26.0.0
