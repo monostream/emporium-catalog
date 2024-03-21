@@ -4,7 +4,7 @@ dependencies:
   version: 57.0.3
 - name: loki
   repository: https://grafana.github.io/helm-charts
-  version: 5.45.0
+  version: 5.46.0
 - name: tempo
   repository: https://grafana.github.io/helm-charts
   version: 1.7.2
@@ -14,5 +14,5 @@ dependencies:
 - name: pyroscope
   repository: https://grafana.github.io/helm-charts
   version: 1.5.0
-digest: sha256:4381942617225e6c8ab6c3be528204723df033cf8b1f7e8d09a6bc52a6757f87
-generated: "2024-03-20T17:02:19.434681443Z"
+digest: sha256:b9a310ffd87930478fcabe7ecf74b8c0c54d834303db941e310d727464b66ae4
+generated: "2024-03-21T08:01:47.344389955Z"
