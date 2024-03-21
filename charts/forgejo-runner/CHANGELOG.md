@@ -14,3 +14,8 @@
 | --------- | -------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------- |
 | dockerhub | library/docker |             | 25.0.4          | 25.0.5      |                    |                | https://hub.docker.com/r/library/docker/tags |
 
+# Updates Thursday, 21-Mar-2024 08:01:24 UTC
+| Source    | Name           | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                    |
+| --------- | -------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------- |
+| dockerhub | library/docker |             | 25.0.5          | 26.0.0      |                    |                | https://hub.docker.com/r/library/docker/tags |
+
