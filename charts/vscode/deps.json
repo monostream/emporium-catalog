@@ -5,7 +5,8 @@
     "repo": "./chart",
     "allowPrerelease": false,
     "imageTagPaths": [
-      "image.tag"
+      "image.tag",
+      "docker.tag"
     ],
     "appVersionMapping": "value:image.tag"
   },
