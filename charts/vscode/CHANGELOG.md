@@ -18,3 +18,13 @@
 | ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------- |
 | github | Docker CLI |             | v25.0.4         | v25.0.5     |                    |                | https://github.com/docker/cli/releases |
 
+# Updates Thursday, 21-Mar-2024 16:47:29 UTC
+| Source | Name       | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                              |
+| ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------- |
+| github | Docker CLI |             | v25.0.5         | v26.0.0     |                    |                | https://github.com/docker/cli/releases |
+
+# Updates Thursday, 21-Mar-2024 17:01:41 UTC
+| Source    | Name   | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                    |
+| --------- | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------- |
+| dockerhub | docker |             | 23.0.1-dind     | 26.0.0      |                    |                | https://hub.docker.com/r/library/docker/tags |
+
