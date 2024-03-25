@@ -13,3 +13,8 @@
 | -------- | ----- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------------- |
 | helm-oci | ghost |             | 19.11.4         | 19.11.5     |                    | 5.80.5         | oci://registry-1.docker.io/bitnamicharts |
 
+# Updates Saturday, 23-Mar-2024 08:01:29 UTC
+| Source   | Name  | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                |
+| -------- | ----- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------------- |
+| helm-oci | ghost |             | 19.11.5         | 19.11.6     |                    | 5.81.0         | oci://registry-1.docker.io/bitnamicharts |
+
