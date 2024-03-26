@@ -1,14 +1,14 @@
 apiVersion: v2
 name: artifacts
 description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
-version: 0.0.49
+version: 0.0.50
 appVersion: 0.0.14
 dependencies:
   - name: artifacts
     version: 0.0.14
     repository: https://monostream.helm.pkg.emporium.rocks
   - name: postgresql
-    version: 15.1.2
+    version: 15.1.4
     repository: https://charts.bitnami.com/bitnami
     condition: global.postgresql.enabled
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.svg
