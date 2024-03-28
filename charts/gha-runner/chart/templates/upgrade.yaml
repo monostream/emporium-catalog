@@ -1,0 +1,57 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-gha-runner-deployment-scaler
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-upgrade"
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
+- apiGroups: ["apps"] 
+  resources: ["deployments", "deployments/scale"]
+  verbs: ["update", "patch", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-gha-runner-deployment-scaler-binding
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-upgrade"
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-gha-runner-scale-set-controller
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ .Release.Name }}-gha-runner-deployment-scaler
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-gha-runner-pre-upgrade-job
+  labels:
+    app.kubernetes.io/component: pre-upgrade-job
+  annotations:
+    "helm.sh/hook": "pre-upgrade"
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: pre-upgrade-job
+    spec:
+      serviceAccountName: {{ .Release.Name }}-gha-runner-scale-set-controller
+      restartPolicy: OnFailure
+      containers:
+        - name: pre-upgrade
+          image: bitnami/kubectl:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              kubectl scale deployment/{{ .Release.Name }}-gha-rs-controller --replicas 0 -n {{ .Release.Namespace }} 
