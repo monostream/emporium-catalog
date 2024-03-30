@@ -13,3 +13,8 @@
 | ------ | ------------------------------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------ |
 | docker | https://ghcr.io/gchq/cyberchef |             | 10.10           | 10.12       |                    |                | https://ghcr.io/gchq/cyberchef |
 
+# Updates Saturday, 30-Mar-2024 17:02:43 UTC
+| Source | Name                           | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                      |
+| ------ | ------------------------------ | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------ |
+| docker | https://ghcr.io/gchq/cyberchef |             | 10.12           | 10.13       |                    |                | https://ghcr.io/gchq/cyberchef |
+
