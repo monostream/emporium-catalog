@@ -28,3 +28,8 @@
 | ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
 | helm   | postgresql |             | 15.2.0          | 15.2.1      |                    | 16.2.0         | https://charts.bitnami.com/bitnami |
 
+# Updates Tuesday, 02-Apr-2024 14:30:45 UTC
+| Source | Name      | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                  |
+| ------ | --------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------ |
+| helm   | artifacts |             | 0.0.14          | 0.0.15      |                    | 0.0.15         | https://monostream.helm.pkg.emporium.rocks |
+
