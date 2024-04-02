@@ -23,3 +23,8 @@
 | ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
 | helm   | postgresql |             | 15.1.4          | 15.2.0      |                    | 16.2.0         | https://charts.bitnami.com/bitnami |
 
+# Updates Tuesday, 02-Apr-2024 13:51:43 UTC
+| Source | Name       | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                          |
+| ------ | ---------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
+| helm   | postgresql |             | 15.2.0          | 15.2.1      |                    | 16.2.0         | https://charts.bitnami.com/bitnami |
+
