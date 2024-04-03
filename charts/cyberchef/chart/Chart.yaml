@@ -2,8 +2,8 @@ apiVersion: v2
 name: cyberchef
 description: useful tools for devs with great UX.
 type: application
-version: 0.1.7
-appVersion: "10.14"
+version: 0.1.8
+appVersion: "10.15"
 home: https://github.com/gchq/CyberChef
 sources:
   - https://github.com/gchq/CyberChef
