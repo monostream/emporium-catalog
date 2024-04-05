@@ -28,3 +28,8 @@
 | --------- | ------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
 | dockerhub | jgraph/drawio |             | 24.2.0          | 24.2.1      |                    |                | https://hub.docker.com/r/jgraph/drawio/tags |
 
+# Updates Wednesday, 03-Apr-2024 17:03:01 UTC
+| Source    | Name          | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
+| --------- | ------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
+| dockerhub | jgraph/drawio |             | 24.2.1          | 24.2.2      |                    |                | https://hub.docker.com/r/jgraph/drawio/tags |
+
