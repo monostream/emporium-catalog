@@ -18,3 +18,8 @@
 | -------- | ------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
 | helm-oci | forgejo |             | 5.0.1           | 5.0.2       |                    | 1.21.8-0       | oci://codeberg.org/forgejo-contrib |
 
+# Updates Friday, 05-Apr-2024 07:54:49 UTC
+| Source   | Name    | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                          |
+| -------- | ------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ---------------------------------- |
+| helm-oci | forgejo |             | 5.0.2           | 5.0.3       |                    | 1.21.10-0      | oci://codeberg.org/forgejo-contrib |
+
