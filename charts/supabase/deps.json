@@ -3,6 +3,7 @@
     "provider": "chart",
     "name": "supabase",
     "repo": "./chart",
+    "allowPrerelease": false,
     "appVersionMapping": "dependency:supabase"
   }
 ]
