@@ -1,6 +1,6 @@
 dependencies:
 - name: supabase
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 3.0.0
-digest: sha256:5a473be73f4c09d16216bcf8c1a3bfef1ca260175856795b0ce2e3edea356900
-generated: "2024-04-06T08:01:58.429039158Z"
+  version: 3.0.1
+digest: sha256:bc7b867a12835dbd545e9f9a053f17eb5d7617e92a0f7c4834f908b64e8bddfc
+generated: "2024-04-08T17:03:40.638554277Z"
