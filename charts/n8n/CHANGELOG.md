@@ -8,3 +8,8 @@
 | -------- | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
 | helm-oci | n8n  |             | 0.22.0          | 0.23.0      |                    | 1.33.1         | oci://8gears.container-registry.com/library |
 
+# Updates Monday, 08-Apr-2024 17:02:57 UTC
+| Source   | Name | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
+| -------- | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
+| helm-oci | n8n  |             | 0.23.0          | 0.23.1      |                    | 1.34.2         | oci://8gears.container-registry.com/library |
+
