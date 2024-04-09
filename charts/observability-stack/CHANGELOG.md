@@ -65,3 +65,8 @@
 | ------ | --------------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------------- |
 | helm   | kube-prometheus-stack |             | 57.2.1          | 58.0.0      |                    | v0.73.0        | https://prometheus-community.github.io/helm-charts |
 
+# Updates Tuesday, 09-Apr-2024 08:01:39 UTC
+| Source | Name | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | loki |             | 5.47.2          | 6.0.0       |                    | 3.0.0          | https://grafana.github.io/helm-charts |
+
