@@ -8,3 +8,8 @@
 | ------ | -------------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | --------------------------------------- |
 | helm   | kubernetes-dashboard |             | 7.1.3           | 7.2.0       |                    |                | https://kubernetes.github.io/dashboard/ |
 
+# Updates Tuesday, 09-Apr-2024 17:03:23 UTC
+| Source | Name                 | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                               |
+| ------ | -------------------- | ----------- | --------------- | ----------- | ------------------ | -------------- | --------------------------------------- |
+| helm   | kubernetes-dashboard |             | 7.2.0           | 7.3.0       |                    |                | https://kubernetes.github.io/dashboard/ |
+
