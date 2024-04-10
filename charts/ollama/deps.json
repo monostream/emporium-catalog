@@ -4,6 +4,7 @@
     "name": "ollama",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:ollama"
+    "appVersionMapping": "dependency:ollama",
+    "changelogPath": "./chart"
   }
 ]

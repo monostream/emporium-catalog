@@ -9,6 +9,7 @@
       "frontend.image.tag",
       "exporter.image.tag"
     ],
-    "appVersionMapping": "value:backend.image.tag"
+    "appVersionMapping": "value:backend.image.tag",
+    "changelogPath": "./chart"
   }
 ]

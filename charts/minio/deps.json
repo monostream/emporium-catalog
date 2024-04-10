@@ -6,7 +6,8 @@
       "imageTagPaths": [
         "minio.image.tag"
       ],
-      "appVersionMapping": "value:minio.image.tag"
+      "appVersionMapping": "value:minio.image.tag",
+      "changelogPath": "./chart"
     }
   ]
   

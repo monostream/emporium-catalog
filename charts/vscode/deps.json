@@ -8,10 +8,11 @@
       "image.tag",
       "docker.tag"
     ],
-    "appVersionMapping": "value:image.tag"
+    "appVersionMapping": "value:image.tag",
+    "changelogPath": "./chart"
   },
   {
-    "provider": "github",
+    "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
     "currentTag": "v4.22.1",
@@ -19,7 +20,7 @@
     "envVar": "CODE_SERVER_VERSION"
   },
   {
-    "provider": "github",
+    "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
     "currentTag": "v26.0.0",
@@ -27,7 +28,7 @@
     "envVar": "DOCKER_CLIENT_VERSION"
   },
   {
-    "provider": "github",
+    "provider": "github-tags",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
     "currentTag": "v0.13.1",
@@ -35,7 +36,7 @@
     "envVar": "DOCKER_BUILDX_VERSION"
   },
   {
-    "provider": "github",
+    "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
     "currentTag": "v1.29.3",
@@ -43,7 +44,7 @@
     "envVar": "KUBECTL_VERSION"
   },
   {
-    "provider": "github",
+    "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
     "currentTag": "v3.14.3",

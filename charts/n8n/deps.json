@@ -5,6 +5,7 @@
     "repo": "./chart",
     "range": ">=0.22.x",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:n8n"
+    "appVersionMapping": "dependency:n8n",
+    "changelogPath": "./chart"
   }
 ]

@@ -4,6 +4,7 @@
     "name": "nextcloud",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:nextcloud"
+    "appVersionMapping": "dependency:nextcloud",
+    "changelogPath": "./chart"
   }
 ]

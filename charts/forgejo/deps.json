@@ -5,6 +5,7 @@
     "repo": "./chart",
     "range": ">=4.0.x",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:forgejo"
+    "appVersionMapping": "dependency:forgejo",
+    "changelogPath": "./chart"
   }
 ]

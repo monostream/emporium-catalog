@@ -4,6 +4,7 @@
     "name": "observability-stack",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:kube-prometheus-stack"
+    "appVersionMapping": "dependency:kube-prometheus-stack",
+    "changelogPath": "./chart"
   }
 ]

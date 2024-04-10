@@ -6,6 +6,7 @@
       "imageTagPaths": [
         "image.tag"
       ],
-      "appVersionMapping": "value:image.tag"
+      "appVersionMapping": "value:image.tag",
+      "changelogPath": "./chart"
     }
   ]

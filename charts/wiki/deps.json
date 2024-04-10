@@ -3,6 +3,7 @@
       "provider": "chart",
       "name": "wiki",
       "repo": "./chart",
-      "appVersionMapping": "dependency:wiki"
+      "appVersionMapping": "dependency:wiki",
+      "changelogPath": "./chart"
     }
   ]

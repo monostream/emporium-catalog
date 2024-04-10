@@ -4,6 +4,7 @@
     "name": "gitlab",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:gitlab"
+    "appVersionMapping": "dependency:gitlab",
+    "changelogPath": "./chart"
   }
 ]

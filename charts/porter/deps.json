@@ -4,6 +4,7 @@
     "name": "porter",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:porter"
+    "appVersionMapping": "dependency:porter",
+    "changelogPath": "./chart"
   }
 ]

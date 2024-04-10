@@ -4,6 +4,7 @@
     "name": "gitea",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:gitea"
+    "appVersionMapping": "dependency:gitea",
+    "changelogPath": "./chart"
   }
 ]

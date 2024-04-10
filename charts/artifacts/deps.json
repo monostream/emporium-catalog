@@ -4,6 +4,7 @@
     "name": "artifacts",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:artifacts"
+    "appVersionMapping": "dependency:artifacts",
+    "changelogPath": "./chart"
   }
 ]

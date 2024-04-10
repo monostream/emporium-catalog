@@ -5,6 +5,7 @@
     "repo": "./chart",
     "range": ">=0.8.x",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:gha-runner-scale-set-controller"
+    "appVersionMapping": "dependency:gha-runner-scale-set-controller",
+    "changelogPath": "./chart"
   }
 ]
