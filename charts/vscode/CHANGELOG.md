@@ -28,3 +28,8 @@
 | --------- | ------ | ----------- | --------------- | ----------- | ------------------ | -------------- | -------------------------------------------- |
 | dockerhub | docker |             | 23.0.1-dind     | 26.0.0      |                    |                | https://hub.docker.com/r/library/docker/tags |
 
+# Updates Wednesday, 10-Apr-2024 14:58:43 UTC
+| Source | Name        | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
+| ------ | ----------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
+| github | Code Server |             | v4.22.1         | v4.23.0     |                    |                | https://github.com/cdr/code-server/releases |
+
