@@ -70,3 +70,8 @@
 | ------ | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
 | helm   | loki |             | 5.47.2          | 6.0.0       |                    | 3.0.0          | https://grafana.github.io/helm-charts |
 
+# Updates Wednesday, 10-Apr-2024 08:01:27 UTC
+| Source | Name | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| helm   | loki |             | 6.0.0           | 6.1.0       |                    | 3.0.0          | https://grafana.github.io/helm-charts |
+
