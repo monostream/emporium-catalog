@@ -1,9 +1,10 @@
 [
-    {
-       "provider":"chart",
-       "name":"kubernetes-dashboard",
-       "repo":"./chart",
-       "appVersionMapping": "dependency:kubernetes-dashboard",
-       "changelogPath": "./chart"
-    }
+  {
+    "provider": "chart",
+    "name": "kubernetes-dashboard",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:kubernetes-dashboard",
+    "changelogPath": "./chart"
+  }
 ]
