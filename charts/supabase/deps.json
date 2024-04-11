@@ -3,12 +3,8 @@
     "provider": "chart",
     "name": "supabase",
     "repo": "./chart",
-<<<<<<< HEAD
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:supabase"
-=======
     "appVersionMapping": "dependency:supabase",
     "changelogPath": "./chart"
->>>>>>> 5a7d729 (update deps.json)
   }
 ]

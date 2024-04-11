@@ -1,13 +1,4 @@
 [
-<<<<<<< HEAD
-  {
-    "provider": "chart",
-    "name": "kubernetes-dashboard",
-    "repo": "./chart",
-    "allowPrerelease": false,
-    "appVersionMapping": "dependency:kubernetes-dashboard"
-  }
-=======
     {
        "provider":"chart",
        "name":"kubernetes-dashboard",
@@ -15,5 +6,4 @@
        "appVersionMapping": "dependency:kubernetes-dashboard",
        "changelogPath": "./chart"
     }
->>>>>>> 5a7d729 (update deps.json)
 ]
