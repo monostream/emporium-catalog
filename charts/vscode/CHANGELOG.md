@@ -33,3 +33,8 @@
 | ------ | ----------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
 | github | Code Server |             | v4.22.1         | v4.23.0     |                    |                | https://github.com/cdr/code-server/releases |
 
+# Updates Thursday, 11-Apr-2024 08:01:50 UTC
+| Source | Name     | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                             |
+| ------ | -------- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------- |
+| github | Helm CLI |             | v3.14.3         | v3.14.4     |                    |                | https://github.com/helm/helm/releases |
+
