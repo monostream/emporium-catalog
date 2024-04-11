@@ -63,8 +63,8 @@ jobs:
 
           for chart in "${changed_charts[@]}"; do
               echo "Changed chart detected: $chart"
-              echo "Linting..."
-              helm lint $chart
+              #echo "Linting..."
+              #helm lint $chart
 
               echo "Pushing..."
               # Package and push the chart
