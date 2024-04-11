@@ -198,6 +198,7 @@ prometheus:
     enabled: false
 
 loki:
+  deploymentMode: SingleBinary
   loki:
     auth_enabled: false
     commonConfig:
