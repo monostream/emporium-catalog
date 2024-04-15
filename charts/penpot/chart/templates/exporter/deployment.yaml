@@ -30,7 +30,7 @@ spec:
           securityContext:
             {{- omit .Values.exporter.containerSecurityContext "enabled" | toYaml | nindent 12 }}
         {{- end }}
-          image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}"
+          image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.exporter.image.imagePullPolicy }}
           env:
             - name: PENPOT_PUBLIC_URI
