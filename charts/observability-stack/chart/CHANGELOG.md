@@ -1,3 +1,6 @@
+# Updates Tuesday, 16-Apr-2024 08:01:42 UTC
+- kube-prometheus-stack from 58.1.1 to 58.1.2
+
 # Updates Sunday, 14-Apr-2024 08:18:32 UTC
 - kube-prometheus-stack from 58.1.0 to 58.1.1
 
