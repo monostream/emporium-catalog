@@ -1,3 +1,6 @@
+# Updates Tuesday, 16-Apr-2024 08:03:06 UTC
+- Code Server from v4.23.0 to v4.23.1
+
 # Updates Friday, 12-Apr-2024 08:02:03 UTC
 - docker from 26.0.0 to 26.0.1
 
