@@ -1,3 +1,6 @@
+# Updates Wednesday, 17-Apr-2024 08:02:45 UTC
+- Kubernetes CLI from v1.29.3 to v1.29.4
+
 # Updates Tuesday, 16-Apr-2024 08:03:06 UTC
 - Code Server from v4.23.0 to v4.23.1
 
