@@ -32,7 +32,7 @@ ingress:
   hosts:
     - host: {{ .Emporium.Integrations.DNS.Hostname }}
       paths:
-        - path: /
+        - path: {{ .Emporium.UserSupplied.BasePath | default "/docs" }}
           pathType: Prefix
   tls:
     - secretName: {{ printf "%s-tls" .Emporium.Name }}
