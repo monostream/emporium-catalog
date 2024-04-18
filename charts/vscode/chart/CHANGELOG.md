@@ -1,3 +1,6 @@
+# Updates Thursday, 18-Apr-2024 08:02:13 UTC
+- Kubernetes CLI from v1.29.4 to v1.30.0
+
 # Updates Wednesday, 17-Apr-2024 08:02:45 UTC
 - Kubernetes CLI from v1.29.3 to v1.29.4
 
