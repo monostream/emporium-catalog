@@ -31,7 +31,7 @@
     "provider": "github-tags",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
-    "currentTag": "v0.13.1",
+    "currentTag": "v0.14.0",
     "allowPrerelease": false,
     "envVar": "DOCKER_BUILDX_VERSION"
   },
