@@ -2,8 +2,8 @@ apiVersion: v2
 name: gitlab
 description: A single plattform to experience and share frustration with other developers
 type: application
-version: 0.2.16
-appVersion: "v16.10.3"
+version: 0.2.17
+appVersion: "v16.11.0"
 home: https://gitlab.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.svg
 sources:
@@ -16,7 +16,7 @@ keywords:
   - Issue Tracking
 dependencies:
   - name: gitlab
-    version: 7.10.3
+    version: 7.11.0
     repository: https://charts.gitlab.io/
 annotations:
   displayName: GitLab
