@@ -1,3 +1,9 @@
+# Updates Friday, 19-Apr-2024 08:02:29 UTC
+- Docker CLI from v26.0.1 to v26.0.2
+
+# Updates Thursday, 18-Apr-2024 17:04:15 UTC
+- Docker Buildx from v0.13.1 to v0.14.0
+
 # Updates Thursday, 18-Apr-2024 08:02:13 UTC
 - Kubernetes CLI from v1.29.4 to v1.30.0
 
