@@ -1,3 +1,9 @@
+# Updates Friday, 19-Apr-2024 08:01:31 UTC
+- loki from 6.2.1 to 6.2.2
+
+# Updates Thursday, 18-Apr-2024 17:02:11 UTC
+- loki from 6.2.0 to 6.2.1
+
 # Updates Wednesday, 17-Apr-2024 08:01:38 UTC
 - kube-prometheus-stack from 58.1.2 to 58.1.3
 
