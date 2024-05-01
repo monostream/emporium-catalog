@@ -1,3 +1,6 @@
+# Updates Wednesday, 01-May-2024 17:03:37 UTC
+- postgresql from 15.2.7 to 15.2.8
+
 # Updates Tuesday, 30-Apr-2024 17:04:38 UTC
 - postgresql from 15.2.5 to 15.2.7
 
