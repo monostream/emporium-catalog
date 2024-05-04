@@ -1,11 +1,11 @@
 apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
-version: 1.0.38
-appVersion: 5.82.5
+version: 1.0.39
+appVersion: 5.82.6
 dependencies:
   - name: ghost
-    version: 20.0.5
+    version: 20.0.6
     repository: oci://registry-1.docker.io/bitnamicharts
 home: https://ghost.org/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.svg

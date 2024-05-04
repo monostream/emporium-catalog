@@ -1,3 +1,6 @@
+# Updates Saturday, 04-May-2024 08:03:21 UTC
+- ghost from 20.0.5 to 20.0.6
+
 # Updates Thursday, 02-May-2024 08:02:20 UTC
 - ghost from 20.0.4 to 20.0.5
 
