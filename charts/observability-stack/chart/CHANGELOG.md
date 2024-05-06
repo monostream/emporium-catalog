@@ -1,3 +1,6 @@
+# Updates Monday, 06-May-2024 17:02:59 UTC
+- tempo from 1.7.2 to 1.7.3
+
 # Updates Sunday, 05-May-2024 17:01:58 UTC
 - kube-prometheus-stack from 58.3.3 to 58.4.0
 
