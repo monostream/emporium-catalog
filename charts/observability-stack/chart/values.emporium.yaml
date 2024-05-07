@@ -83,7 +83,7 @@ prometheus:
           hosts:
             - {{ .Emporium.Integrations.DNS.Hostname }}
 
-    adminPassword: devcloud
+    adminPassword: ""
 
     grafana.ini:
       alerting:
