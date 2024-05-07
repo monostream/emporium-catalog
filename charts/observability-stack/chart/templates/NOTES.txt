@@ -1,11 +1,7 @@
-## Retrieve Grafana Admin Password
-
 To get the password for the Grafana `admin` user, use the following command:
-```bash
-kubectl get secret {{ .Release.Name }}-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
-```
 
-## Access Grafana
+kubectl get secret {{ .Release.Name }}-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+
 
 To access Grafana, use the following details:
 
