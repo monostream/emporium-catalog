@@ -1,3 +1,19 @@
+# Updates Monday, 06-May-2024 17:02:59 UTC
+- tempo from 1.7.2 to 1.7.3
+
+# Updates Sunday, 05-May-2024 17:01:58 UTC
+- kube-prometheus-stack from 58.3.3 to 58.4.0
+
+# Updates Friday, 03-May-2024 08:01:48 UTC
+- loki from 6.4.2 to 6.5.0
+- kube-prometheus-stack from 58.3.1 to 58.3.3
+
+# Updates Wednesday, 01-May-2024 08:01:53 UTC
+- kube-prometheus-stack from 58.2.2 to 58.3.1
+
+# Updates Tuesday, 30-Apr-2024 17:02:13 UTC
+- loki from 6.3.4 to 6.4.2
+
 # Updates Wednesday, 24-Apr-2024 08:01:42 UTC
 - kube-prometheus-stack from 58.2.1 to 58.2.2
 
