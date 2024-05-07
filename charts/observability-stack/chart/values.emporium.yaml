@@ -12,8 +12,8 @@
 
 ## @userSupplied PrometheusRetentionSize
 ## @label Prometheus Retention Size
-## @type byteSize
-## @description Retention size for Prometheus metrics. Default is "". Only applicable if Prometheus is enabled.
+## @type string
+## @description Retention size for Prometheus metrics (e.g. 20GB, 20GiB, 500MB, 500MiB). Default is "". Only applicable if Prometheus is enabled.
 ## @optional
 
 ## @userSupplied PrometheusStorageSize
