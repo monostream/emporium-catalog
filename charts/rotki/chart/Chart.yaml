@@ -2,8 +2,8 @@ apiVersion: v2
 name: rotki
 description: An open-source portfolio tracking, analytics, accounting, and tax reporting tool that emphasizes user privacy and financial transparency.
 type: application
-version: 0.1.5
-appVersion: "v1.32.2"
+version: 0.1.6
+appVersion: "v1.33.0"
 home: https://rotki.com/
 icon: https://raw.githubusercontent.com/rotki/rotki/develop/frontend/app/public/assets/images/rotkehlchen_no_text.png # Rotki logo from GitHub
 sources:
