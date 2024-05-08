@@ -1,8 +1,8 @@
 apiVersion: v2
 name: minio
-description: A Helm chart for Kubernetes
+description: The World's Most Advanced Object Store.
 type: application
-version: 0.1.4
+version: 0.1.5
 appVersion: "5.0.15"
 
 dependencies:
