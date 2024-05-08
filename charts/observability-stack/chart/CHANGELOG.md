@@ -1,3 +1,6 @@
+# Updates Wednesday, 08-May-2024 17:02:03 UTC
+- loki from 6.5.0 to 6.5.1
+
 # Updates Monday, 06-May-2024 17:02:59 UTC
 - tempo from 1.7.2 to 1.7.3
 
