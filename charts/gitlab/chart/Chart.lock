@@ -1,6 +1,6 @@
 dependencies:
 - name: gitlab
   repository: https://charts.gitlab.io/
-  version: 7.11.1
-digest: sha256:7a54a66058f395dbb29cf5814e7018666c812ca1d28b440af32d1921a7774bd7
-generated: "2024-04-24T17:01:43.452001288Z"
+  version: 7.11.2
+digest: sha256:e1a77b3ae195de5df0d23de7812568d031c5cf2a1bdd9dbf3a7cf09b191bf3f6
+generated: "2024-05-08T13:13:40.907842515Z"
