@@ -15,6 +15,10 @@ minio:
     size: 50Gi
     subPath: ""
 
+  resources:
+    requests:
+      memory: 1Gi
+
   oidc:
     enabled: false
     configUrl: "https://identity-provider-url/.well-known/openid-configuration"
