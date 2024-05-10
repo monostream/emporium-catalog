@@ -1,3 +1,6 @@
+# Updates Friday, 10-May-2024 08:01:27 UTC
+- library/docker from 26.1.1 to 26.1.2
+
 # Updates Wednesday, 01-May-2024 08:01:26 UTC
 - library/docker from 26.1.0 to 26.1.1
 
