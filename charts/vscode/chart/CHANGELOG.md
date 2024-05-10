@@ -1,3 +1,6 @@
+# Updates Friday, 10-May-2024 08:03:00 UTC
+- docker from 26.1.1 to 26.1.2
+
 # Updates Thursday, 09-May-2024 17:03:31 UTC
 - Docker CLI from v26.1.1 to v26.1.2
 
