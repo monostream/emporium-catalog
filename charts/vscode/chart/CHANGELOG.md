@@ -1,3 +1,9 @@
+# Updates Thursday, 09-May-2024 17:03:31 UTC
+- Docker CLI from v26.1.1 to v26.1.2
+
+# Updates Thursday, 09-May-2024 08:02:26 UTC
+- Code Server from v4.23.1 to v4.89.0
+
 # Updates Wednesday, 01-May-2024 08:03:42 UTC
 - docker from 26.1.0 to 26.1.1
 
