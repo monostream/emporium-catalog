@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "chart",
+    "name": "neuvector",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:core",
+    "changelogPath": "./chart"
+  }
+]

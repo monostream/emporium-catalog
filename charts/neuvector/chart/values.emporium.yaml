@@ -1,0 +1,92 @@
+## @userSupplied StorageSize
+## @label Storage Size
+## @type byteSize
+## @description Size of the storage volume for NeuVector Controller. Default is 20Gi.
+## @optional
+
+## @userSupplied PersistenceStorageClass
+## @label Volume StorageClass
+## @type storageClass
+## @description The StorageClass to use for the Neuvector Controller volume. If not provided, default storage class is used.
+## @optional
+
+## @userSupplied EnableFederation
+## @label Enable federation
+## @type boolean
+## @description Enable federation in order to join and manage multiple clusters. Default is false.
+## @optional
+
+neuvector:
+  controller:
+    replicas: 1
+    
+    pvc:
+      enabled: true
+      accessModes:
+        - ReadWriteMany
+      {{- if .Emporium.UserSupplied.PersistenceStorageClass }}
+      storageClass: {{ .Emporium.UserSupplied.PersistenceStorageClass }}
+      {{- end }}
+      capacity: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
+  
+    {{- if .Emporium.UserSupplied.EnableFederation }}
+    federation:
+      mastersvc:
+        type: ClusterIP
+        ingress:
+          enabled: true
+          host: neuvector-master.tribbles.cloud
+          ingressClassName: "nginx"
+          path: "/" 
+          annotations:
+            {{- if .Emporium.Annotations }}
+            {{- toYaml .Emporium.Annotations | nindent 12 }}
+            {{- end }}
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            kubernetes.io/tls-acme: "true"
+          tls: true
+          secretName: neuvector-master-tls
+      managedsvc:
+        type: ClusterIP
+        ingress:
+          enabled: true
+          host: neuvector-managed.tribbles.cloud
+          path: "/" 
+          annotations:
+            {{- if .Emporium.Annotations }}
+            {{- toYaml .Emporium.Annotations | nindent 12 }}
+            {{- end }}
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            kubernetes.io/tls-acme: "true"
+          tls: true
+          secretName: neuvector-managed-tls
+        annotations: {}
+    {{- end }}  
+  
+  manager:
+    svc:
+      type: ClusterIP 
+    ingress:
+      enabled: true
+      host: {{ .Emporium.Integrations.DNS.Hostname }}
+      path: "/"
+      annotations:
+        {{- if .Emporium.Annotations }}
+        {{- toYaml .Emporium.Annotations | nindent 8 }}
+        {{- end }}
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+        kubernetes.io/tls-acme: "true"
+      tls: true
+      secretName: {{ .Emporium.Name }}-tls
+      
+  cve:
+    scanner:
+      replicas: 1
+    adapter:
+      enabled: false
+      svc:
+        type: ClusterIP 
+  
+  containerd:
+    enabled: true
+    path: /var/run/containerd/containerd.sock

@@ -1,0 +1,32 @@
+apiVersion: v2
+name: neuvector
+description: OpenSource Container Security Platform
+version: 0.0.1
+appVersion: 5.3.2
+dependencies:
+  - name: core
+    version: 2.7.6
+    repository: https://neuvector.github.io/neuvector-helm/
+    alias: neuvector
+home: https://www.suse.com/neuvector/
+icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_icon_2.svg
+sources:
+  - https://github.com/neuvector/neuvector
+keywords:
+  - Security
+  - Vulnerability Management
+  - Compliance
+  - Runtime Security
+  - Supply Chain Security
+  - Network Visibility
+  - DLP
+annotations:
+  displayName: NeuVector
+  category: Security Tools
+  licenses: Apache-2.0
+  gallery: |-
+    https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_1.png
+    https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_2.png
+    https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_3.png
+    https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_4.png
+    https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_5.png

@@ -1,0 +1,7 @@
+To access Neuvector, use the following details:
+
+Username: admin
+Password: admin
+URL: https://{{ .Values.neuvector.manager.ingress.hosts }}
+
+Make sure to change the admin password!
