@@ -1,3 +1,7 @@
+# Updates Wednesday, 15-May-2024 08:02:17 UTC
+- Kubernetes CLI from v1.30.0 to v1.30.1
+- Code Server from v4.89.0 to v4.89.1
+
 # Updates Friday, 10-May-2024 08:03:00 UTC
 - docker from 26.1.1 to 26.1.2
 
