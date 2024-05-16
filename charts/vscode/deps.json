@@ -23,7 +23,7 @@
     "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v26.1.2",
+    "currentTag": "v26.1.3",
     "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },

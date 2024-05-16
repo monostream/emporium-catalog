@@ -1,3 +1,6 @@
+# Updates Thursday, 16-May-2024 17:03:30 UTC
+- Docker CLI from v26.1.2 to v26.1.3
+
 # Updates Thursday, 16-May-2024 08:02:31 UTC
 - Helm CLI from v3.14.4 to v3.15.0
 
