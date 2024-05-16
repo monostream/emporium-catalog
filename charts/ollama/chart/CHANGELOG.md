@@ -1,3 +1,6 @@
+# Updates Thursday, 16-May-2024 17:02:21 UTC
+- ollama from 0.29.0 to 0.29.1
+
 # Updates Thursday, 16-May-2024 08:01:30 UTC
 - ollama from 0.28.1 to 0.29.0
 
