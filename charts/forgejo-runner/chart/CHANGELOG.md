@@ -1,3 +1,6 @@
+# Updates Friday, 17-May-2024 08:01:39 UTC
+- library/docker from 26.1.2 to 26.1.3
+
 # Updates Wednesday, 15-May-2024 17:02:00 UTC
 - bitnami/kubectl from 1.30.0 to 1.30.1
 
