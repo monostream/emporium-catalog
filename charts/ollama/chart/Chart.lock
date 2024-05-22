@@ -1,9 +1,9 @@
 dependencies:
 - name: ollama
   repository: https://otwld.github.io/ollama-helm/
-  version: 0.28.1
+  version: 0.29.1
 - name: ollama-webui
   repository: file://./charts/ollama-webui
   version: 0.1.0
-digest: sha256:10bfeed88a200487a08135a8312489e6acdec7c4cd5e8a51a22ce54f789b914b
-generated: "2024-05-14T08:02:57.124287784Z"
+digest: sha256:c3095675b7157177dd7e58fab82ce8ffc9a5874e6ba50fc7cb8073d2157a1b51
+generated: "2024-05-16T17:02:21.104676168Z"
