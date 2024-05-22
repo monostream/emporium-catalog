@@ -1,3 +1,15 @@
+# Updates Wednesday, 22-May-2024 08:02:22 UTC
+- supabase from 5.1.0 to 5.1.1
+
+# Updates Tuesday, 21-May-2024 17:03:10 UTC
+- supabase from 5.0.0 to 5.1.0
+
+# Updates Tuesday, 21-May-2024 08:03:06 UTC
+- supabase from 4.0.8 to 5.0.0
+
+# Updates Saturday, 18-May-2024 08:04:02 UTC
+- supabase from 4.0.7 to 4.0.8
+
 # Updates Tuesday, 14-May-2024 08:02:03 UTC
 - supabase from 4.0.6 to 4.0.7
 
