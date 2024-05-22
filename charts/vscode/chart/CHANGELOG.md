@@ -1,3 +1,12 @@
+# Updates Friday, 17-May-2024 08:03:13 UTC
+- docker from 26.1.2 to 26.1.3
+
+# Updates Thursday, 16-May-2024 17:03:30 UTC
+- Docker CLI from v26.1.2 to v26.1.3
+
+# Updates Thursday, 16-May-2024 08:02:31 UTC
+- Helm CLI from v3.14.4 to v3.15.0
+
 # Updates Wednesday, 15-May-2024 08:02:17 UTC
 - Kubernetes CLI from v1.30.0 to v1.30.1
 - Code Server from v4.89.0 to v4.89.1
