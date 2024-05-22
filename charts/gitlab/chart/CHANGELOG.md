@@ -1,3 +1,6 @@
+# Updates Wednesday, 22-May-2024 17:01:50 UTC
+- gitlab from 8.0.0 to 8.0.1
+
 # Updates Thursday, 16-May-2024 17:01:44 UTC
 - gitlab from 7.11.2 to 8.0.0
 
