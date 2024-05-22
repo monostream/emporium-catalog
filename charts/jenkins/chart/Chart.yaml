@@ -2,8 +2,8 @@ apiVersion: v2
 type: application
 name: jenkins
 description: the most popular and flexible CI/CD system in the world!
-version: 0.1.20
-appVersion: "2.440.3"
+version: 0.1.21
+appVersion: "2.452.1"
 home: https://www.jenkins.io/
 icon: https://www.jenkins.io/images/logos/cute/cute.svg
 sources:
