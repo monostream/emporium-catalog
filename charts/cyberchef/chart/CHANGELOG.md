@@ -1,3 +1,9 @@
+# Updates Friday, 17-May-2024 08:02:16 UTC
+- https://ghcr.io/gchq/cyberchef from 10.18.5 to 10.18.6
+
+# Updates Thursday, 16-May-2024 17:02:32 UTC
+- https://ghcr.io/gchq/cyberchef from 10.18.3 to 10.18.5
+
 # Updates Thursday, 25-Apr-2024 08:01:21 UTC
 - https://ghcr.io/gchq/cyberchef from 10.17 to 10.18.3
 
