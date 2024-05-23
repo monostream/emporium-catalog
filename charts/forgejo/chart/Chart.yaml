@@ -2,11 +2,11 @@ apiVersion: v2
 name: forgejo
 description: forgejo is a community managed lightweight code hosting solution written in Go. It is published under the MIT license.
 type: application
-version: 0.0.28
-appVersion: "7.0.2"
+version: 0.0.29
+appVersion: "7.0.3"
 dependencies:
   - name: forgejo
-    version: 6.0.6
+    version: 6.0.7
     repository: oci://codeberg.org/forgejo-contrib
 home: https://forgejo.org/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/forgejo/forgejo_icon_3.svg
