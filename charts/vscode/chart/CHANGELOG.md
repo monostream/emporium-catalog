@@ -1,3 +1,6 @@
+# Updates Wednesday, 22-May-2024 17:05:13 UTC
+- Docker Buildx from v0.14.0 to v0.14.1
+
 # Updates Friday, 17-May-2024 08:03:13 UTC
 - docker from 26.1.2 to 26.1.3
 
