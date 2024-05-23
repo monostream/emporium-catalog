@@ -1,3 +1,8 @@
+# Updates Thursday, 23-May-2024 17:02:24 UTC
+- makeplane/plane-backend from v0.19-dev to v0.20-dev
+- makeplane/plane-frontend from v0.19-dev to v0.20-dev
+- makeplane/plane-space from v0.19-dev to v0.20-dev
+
 # Updates Friday, 03-May-2024 17:04:26 UTC
 - makeplane/plane-frontend from v0.18-dev to v0.19-dev
 - makeplane/plane-space from v0.18-dev to v0.19-dev
