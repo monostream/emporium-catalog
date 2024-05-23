@@ -1,3 +1,6 @@
+# Updates Wednesday, 22-May-2024 17:02:53 UTC
+- monostream/devcloud-jenkins from 2.440.3 to 2.452.1
+
 # Updates Friday, 17-May-2024 08:01:53 UTC
 - docker from 26.1.2 to 26.1.3
 
