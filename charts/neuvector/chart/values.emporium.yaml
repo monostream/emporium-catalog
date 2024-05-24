@@ -19,33 +19,32 @@
 neuvector:
   controller:
     replicas: 1
+    secret:
+      enabled: true
+      data:
+        oidcinitcfg.yaml:
+          always_reload: true
+          enable: true
+          issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
+          client_id: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+          client_secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+          default_role: reader
+          group_claim: "groups"
+          scopes:
+            - "openid"
+            - "profile"
+            - "email"
+          group_mapped_roles:
+            - group: "authentik Admins"
+              role: "fedAdmin"
+              domains:
+                - "*"
+        # userinitcfg.yaml:
+        #   users:
+        #     - Fullname: admin
+        #       Password: 
+        #       Role: admin   
 
-   secret:
-    enabled: true
-    data:
-      oidcinitcfg.yaml:
-        always_reload: true
-        enable: true
-        issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-        client_id: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-        client_secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-        default_role: reader
-        group_claim: "groups"
-        scopes:
-          - "openid"
-          - "profile"
-          - "email"
-        group_mapped_roles:
-          - group: "authentik Admins"
-            role: "fedAdmin"
-            domains:
-              - "*"
-      #userinitcfg.yaml:
-      #  users:
-      #  - Fullname: admin
-      #    Password: 
-      #    Role: admin   
-    
     pvc:
       enabled: true
       accessModes:
@@ -54,7 +53,7 @@ neuvector:
       storageClass: {{ .Emporium.UserSupplied.PersistenceStorageClass }}
       {{- end }}
       capacity: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
-  
+    
     {{- if .Emporium.UserSupplied.EnableFederation }}
     federation:
       mastersvc:
@@ -88,7 +87,7 @@ neuvector:
           secretName: neuvector-managed-tls
         annotations: {}
     {{- end }}  
-  
+
   manager:
     svc:
       type: ClusterIP 
