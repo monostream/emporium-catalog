@@ -1,3 +1,6 @@
+# Updates Thursday, 23-May-2024 17:03:24 UTC
+- Helm CLI from v3.15.0 to v3.15.1
+
 # Updates Wednesday, 22-May-2024 17:05:13 UTC
 - Docker Buildx from v0.14.0 to v0.14.1
 
