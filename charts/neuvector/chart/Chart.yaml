@@ -1,7 +1,7 @@
 apiVersion: v2
 name: neuvector
 description: OpenSource Container Security Platform
-version: 0.0.3
+version: 0.0.4
 appVersion: 5.3.2
 dependencies:
   - name: core
@@ -24,6 +24,7 @@ annotations:
   displayName: NeuVector
   category: Security Tools
   licenses: Apache-2.0
+  oidcRedirectPaths: /openId_auth
   gallery: |-
     https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_1.png
     https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_2.png
