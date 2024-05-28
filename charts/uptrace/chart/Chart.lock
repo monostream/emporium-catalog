@@ -1,0 +1,12 @@
+dependencies:
+- name: opentelemetry-operator
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.60.0
+- name: uptrace
+  repository: https://charts.uptrace.dev
+  version: 1.7.4
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.12.10
+digest: sha256:4b907eca2665fc81fa7e19009ca8419b9ec2e02158e1e50b0dbc1557a4232494
+generated: "2024-05-28T17:42:44.404762+02:00"

@@ -1,0 +1,84 @@
+opentelemetry-operator:
+  manager:
+    collectorImage:
+      repository: otel/opentelemetry-collector-k8s
+
+{{ $postgresqlPassword := randAlphaNum 16 }}
+postgresql:
+  fullnameOverride: "uptrace-postgresql"
+  auth:
+    database: "uptrace"
+    password: {{ $postgresqlPassword }}
+    username: "uptrace"
+
+uptrace:
+  otelcol:
+    enabled: false
+
+  postgresql:
+    enabled: false
+
+  ingress:
+    className: "nginx"
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+    tls:
+    - secretName: uptrace-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
+  uptrace:
+    config:
+      site:
+        addr: {{ .Emporium.Integrations.DNS.Hostname }}
+      pg:
+        # predictable because of postgresql.fullnameOverride
+        addr: uptrace-postgresql:5432
+        user: uptrace
+        password: {{ $postgresqlPassword }}
+        database: uptrace
+      auth:
+        oidc:
+          - id: emporium
+            display_name: Emporium
+            issuer_url: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+            client_id: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+            client_secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+            scopes:
+              - profile
+            claim: preferred_username
+
+      projects:
+        # Conventionally, the first project is used to monitor Uptrace itself.
+        - id: 1
+          name: Uptrace
+          # Token grants write access to the project. Keep a secret.
+          token: {{ randAlphaNum 16 }}
+          pinned_attrs:
+            - service_name
+            - host_name
+            - deployment_environment
+          # Group spans by deployment.environment attribute.
+          group_by_env: false
+          # Group funcs spans by service.name attribute.
+          group_funcs_by_service: false
+          # Enable prom_compat if you want to use the project as a Prometheus datasource in Grafana.
+          prom_compat: true
+
+        # Other projects can be used to monitor your applications.
+        # To monitor micro-services or multiple related services, use a single project.
+        - id: 2
+          name: Emporium
+          token: {{ randAlphaNum 16 }}
+          pinned_attrs:
+            - service_name
+            - host_name
+            - deployment_environment
+          prom_compat: true
