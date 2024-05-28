@@ -2,19 +2,31 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ .Release.Name }}-crd-manager
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+    helm.sh/hook: "pre-upgrade"
+    helm.sh/hook-weight: "10"  
+    helm.sh/hook-delete-policy: "before-hook-creation"
 rules:
 - apiGroups: ["apiextensions.k8s.io"]
   resources: ["customresourcedefinitions"]
   verbs: ["create", "get", "update", "patch"]
-annotations:
-  "helm.sh/hook": "pre-upgrade"
-  "helm.sh/hook-weight": "10"  
-  "helm.sh/hook-delete-policy": "before-hook-creation"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ .Release.Name }}-crd-manager-binding
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+    helm.sh/hook: "pre-upgrade"
+    helm.sh/hook-weight: "10"  
+    helm.sh/hook-delete-policy: "before-hook-creation"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -23,20 +35,20 @@ subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-gha-runner-scale-set-controller
   namespace: {{ .Release.Namespace }}
-annotations:
-  "helm.sh/hook": "pre-upgrade"
-  "helm.sh/hook-weight": "10"  
-  "helm.sh/hook-delete-policy": "before-hook-creation"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ .Release.Name }}-gha-runner-deployment-scaler
   namespace: {{ .Release.Namespace }}
-annotations:
-  "helm.sh/hook": "pre-upgrade"
-  "helm.sh/hook-weight": "5"  
-  "helm.sh/hook-delete-policy": "before-hook-creation"
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+    helm.sh/hook: "pre-upgrade"
+    helm.sh/hook-weight: "5"  
+    helm.sh/hook-delete-policy: "before-hook-creation"
 rules:
 - apiGroups: ["apps"]
   resources: ["deployments", "deployments/scale"]
@@ -47,10 +59,14 @@ kind: RoleBinding
 metadata:
   name: {{ .Release.Name }}-gha-runner-deployment-scaler-binding
   namespace: {{ .Release.Namespace }}
-annotations:
-  "helm.sh/hook": "pre-upgrade"
-  "helm.sh/hook-weight": "5" 
-  "helm.sh/hook-delete-policy": "before-hook-creation"
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+    helm.sh/hook: "pre-upgrade"
+    helm.sh/hook-weight: "5" 
+    helm.sh/hook-delete-policy: "before-hook-creation"
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-gha-runner-scale-set-controller
@@ -66,10 +82,13 @@ metadata:
   name: {{ .Release.Name }}-gha-runner-pre-upgrade-job
   labels:
     app.kubernetes.io/component: pre-upgrade-job
+    app.kubernetes.io/managed-by: "Helm"
   annotations:
-    "helm.sh/hook": "pre-upgrade"
-    "helm.sh/hook-weight": "0"
-    "helm.sh/hook-delete-policy": before-hook-creation
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+    helm.sh/hook: "pre-upgrade"
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
   template:
     metadata:
@@ -84,9 +103,9 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.1/charts/gha-runner-scale-set-controller/crds/actions.github.com_autoscalinglisteners.yaml --server-side --force-conflicts
-              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.1/charts/gha-runner-scale-set-controller/crds/actions.github.com_autoscalingrunnersets.yaml --server-side --force-conflicts
-              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.1/charts/gha-runner-scale-set-controller/crds/actions.github.com_ephemeralrunners.yaml --server-side --force-conflicts
-              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.1/charts/gha-runner-scale-set-controller/crds/actions.github.com_ephemeralrunnersets.yaml --server-side --force-conflicts
+              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.2/charts/gha-runner-scale-set-controller/crds/actions.github.com_autoscalinglisteners.yaml --server-side --force-conflicts
+              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.2/charts/gha-runner-scale-set-controller/crds/actions.github.com_autoscalingrunnersets.yaml --server-side --force-conflicts
+              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.2/charts/gha-runner-scale-set-controller/crds/actions.github.com_ephemeralrunners.yaml --server-side --force-conflicts
+              kubectl apply -f https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.9.2/charts/gha-runner-scale-set-controller/crds/actions.github.com_ephemeralrunnersets.yaml --server-side --force-conflicts
               
               kubectl scale deployment/{{ .Release.Name }}-gha-rs-controller --replicas 0 -n {{ .Release.Namespace }} 
