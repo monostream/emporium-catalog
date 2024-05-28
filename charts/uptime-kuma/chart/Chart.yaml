@@ -10,8 +10,10 @@ sources:
   - https://github.com/louislam/uptime-kuma
 keywords:
   - Monitoring
+  - Uptime
   - Performance
   - DevOps
 annotations:
   displayName: Uptime Kuma
   licenses: MIT
+  category: Monitoring

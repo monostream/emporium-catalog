@@ -24,3 +24,13 @@ dependencies:
   - name: postgresql
     version: 12.12.10
     repository: https://charts.bitnami.com/bitnami
+annotations:
+  displayName: Uptrace
+  licenses: AGPL-3.0
+  category: Monitoring
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_1.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_2.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_3.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_4.png
+  oidcRedirectPaths: /api/v1/sso/keycloak/callback
