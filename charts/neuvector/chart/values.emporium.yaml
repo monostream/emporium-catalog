@@ -36,14 +36,14 @@ neuvector:
             - "email"
           group_mapped_roles:
             - group: "authentik Admins"
-              role: "fedAdmin"
+              role: "admin"
               domains:
                 - "*"
-        # userinitcfg.yaml:
-        #   users:
-        #     - Fullname: admin
-        #       Password: 
-        #       Role: admin   
+          userinitcfg.yaml:
+            users:
+              - Fullname: admin
+                Password: {{ randAlphaNum 16 | b64enc | quote }}
+                Role: admin   
 
     pvc:
       enabled: true

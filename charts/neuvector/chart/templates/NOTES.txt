@@ -1,7 +1,4 @@
-To access Neuvector, use the following details:
+Access the Neuvector dashboard: https://{{ .Values.neuvector.manager.ingress.host }}
 
-Username: admin
-Password: admin
-URL: https://{{ .Values.neuvector.manager.ingress.hosts }}
-
-Make sure to change the admin password!
+You can login with your personal account via oidc or if you need to with the instance admin account.
+The secret can be found in the Namepsace {{ .Release.Namespace }}.
