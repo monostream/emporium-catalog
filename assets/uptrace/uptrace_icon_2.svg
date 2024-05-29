@@ -6,12 +6,12 @@
 </g>
 <defs>
 <radialGradient id="paint0_radial_322_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256) rotate(90) scale(512)">
-<stop stop-color="#B8DCFF"/>
-<stop offset="1" stop-color="#0074E7"/>
+<stop stop-color="#E5F2FF"/>
+<stop offset="1" stop-color="#384D61"/>
 </radialGradient>
 <linearGradient id="paint1_linear_322_5" x1="256" y1="0" x2="256" y2="512" gradientUnits="userSpaceOnUse">
-<stop stop-color="#50A8FF"/>
-<stop offset="1" stop-color="#002B56"/>
+<stop stop-color="#E9F4FF"/>
+<stop offset="1" stop-color="#283644"/>
 </linearGradient>
 <linearGradient id="paint2_linear_322_5" x1="255.5" y1="62.3887" x2="255.5" y2="449.611" gradientUnits="userSpaceOnUse">
 <stop stop-color="#188CFF"/>
