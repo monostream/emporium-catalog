@@ -1,3 +1,6 @@
+# Updates Wednesday, 29-May-2024 17:03:52 UTC
+- supabase from 5.1.1 to 5.2.0
+
 # Updates Wednesday, 22-May-2024 08:02:22 UTC
 - supabase from 5.1.0 to 5.1.1
 
