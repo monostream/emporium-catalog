@@ -1,3 +1,6 @@
+# Updates Thursday, 30-May-2024 17:02:50 UTC
+- pyroscope from 1.5.1 to 1.6.0
+
 # Updates Wednesday, 29-May-2024 08:01:34 UTC
 - loki from 6.6.1 to 6.6.2
 
