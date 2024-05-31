@@ -1,3 +1,6 @@
+# Updates Thursday, 30-May-2024 17:05:54 UTC
+- forgejo from 6.1.0 to 6.1.1
+
 # Updates Monday, 27-May-2024 17:03:38 UTC
 - forgejo from 6.0.8 to 6.1.0
 
