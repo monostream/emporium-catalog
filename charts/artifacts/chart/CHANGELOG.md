@@ -1,3 +1,6 @@
+# Updates Wednesday, 29-May-2024 17:03:03 UTC
+- postgresql from 15.4.2 to 15.5.1
+
 # Updates Tuesday, 28-May-2024 17:02:29 UTC
 - artifacts from 0.0.18 to 0.0.20
 - postgresql from 15.4.1 to 15.4.2
