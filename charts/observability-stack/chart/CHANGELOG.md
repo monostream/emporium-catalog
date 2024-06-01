@@ -1,3 +1,7 @@
+# Updates Saturday, 01-Jun-2024 08:02:13 UTC
+- tempo from 1.8.0 to 1.9.0
+- kube-prometheus-stack from 59.0.0 to 59.1.0
+
 # Updates Thursday, 30-May-2024 17:02:50 UTC
 - pyroscope from 1.5.1 to 1.6.0
 
