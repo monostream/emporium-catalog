@@ -12,6 +12,16 @@ uptrace:
   postgresql:
     enabled: false
 
+
+  ## @userSupplied ClickHouseDiskSize
+  ## @label ClickHouse Disk Size
+  ## @type byteSize
+  ## @description Size for ClickHouse database disk. Default is 100Gi.
+  ## @optional
+  clickhouse:
+    persistence:
+      size: {{ default "100Gi" .Emporium.UserSupplied.ClickHouseDiskSize }}
+
   ingress:
     className: "nginx"
     annotations:
