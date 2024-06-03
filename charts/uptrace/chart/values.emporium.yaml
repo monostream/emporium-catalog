@@ -63,7 +63,7 @@ uptrace:
         oidc:
           - id: emporium
             display_name: Emporium
-            issuer_url: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+            issuer_url: "{{ .Emporium.Integrations.OIDC.Issuer }}"
             client_id: "{{ .Emporium.Integrations.OIDC.ClientID }}"
             client_secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
             scopes:

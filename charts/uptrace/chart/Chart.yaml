@@ -2,7 +2,7 @@ apiVersion: v2
 name: uptrace
 description: Open Source Observability with Traces, Metrics, and Logs
 type: application
-version: 0.0.6
+version: 0.0.7
 appVersion: "1.7.4"
 home: https://uptrace.dev/
 icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/uptrace/uptrace_icon_2.svg
@@ -30,4 +30,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_2.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_3.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_4.png
-  oidcRedirectPaths: /api/v1/sso/keycloak/callback
+  oidcRedirectPaths: /internal/v1/sso/emporium/callback
