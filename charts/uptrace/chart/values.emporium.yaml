@@ -32,7 +32,7 @@ uptrace:
   uptrace:
     config:
       site:
-        addr: {{ .Emporium.Integrations.DNS.Hostname }}
+        addr: https://{{ .Emporium.Integrations.DNS.Hostname }}
       pg:
         # predictable because of postgresql.fullnameOverride
         addr: uptrace-postgresql:5432
