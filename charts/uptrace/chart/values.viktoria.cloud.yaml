@@ -1,0 +1,66 @@
+postgresql:
+  auth:
+    database: uptrace
+    password: UNRQ2gQK2A1j5gV3
+    username: uptrace
+  fullnameOverride: uptrace-postgresql
+uptrace:
+  ingress:
+    enabled: true
+    annotations:
+      emporium.build/app-name: uptrace
+      emporium.build/auth-client-id: hOGM5ZXVpWumdtyaEN5tUCGPw12iaK3hockYRzty
+      emporium.build/auth-client-issuer: https://authentik.viktoria.cloud/application/o/observability-uptrace/
+      kubernetes.io/tls-acme: 'true'
+    className: nginx
+    hosts:
+    - host: telemetry.viktoria.cloud
+      paths:
+      - path: "/"
+        pathType: Prefix
+    tls:
+    - hosts:
+      - telemetry.viktoria.cloud
+      secretName: uptrace-tls
+  otelcol:
+    enabled: false
+  postgresql:
+    enabled: false
+  uptrace:
+    config:
+      auth:
+        oidc:
+        - claim: preferred_username
+          client_id: hOGM5ZXVpWumdtyaEN5tUCGPw12iaK3hockYRzty
+          client_secret: vUCaFYLP4MyPohoXW8chPHyZ9lL9yH6awhaGvtZSC647hPxYdjk4WPkcpqeXI3zWaJMxrEjV6lj4Bo3OnRrK2ylmqGrScY4w7TNocg6AMGFDqPsCMFavXfNOZTcXj8NP
+          display_name: Emporium
+          id: emporium
+          issuer_url: https://authentik.viktoria.cloud/application/o/observability-uptrace/.well-known/openid-configuration
+          scopes:
+          - profile
+      pg:
+        addr: uptrace-postgresql:5432
+        database: uptrace
+        password: UNRQ2gQK2A1j5gV3
+        user: uptrace
+      projects:
+      - group_by_env: false
+        group_funcs_by_service: false
+        id: 1
+        name: Uptrace
+        pinned_attrs:
+        - service_name
+        - host_name
+        - deployment_environment
+        prom_compat: true
+        token: h8AVLNipKP3Qmnoo
+      - id: 2
+        name: Emporium
+        pinned_attrs:
+        - service_name
+        - host_name
+        - deployment_environment
+        prom_compat: true
+        token: jqXkhq46kdg1jgp5
+      site:
+        addr: telemetry.viktoria.cloud
