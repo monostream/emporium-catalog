@@ -15,9 +15,6 @@ keywords:
   - Metrics
   - Alerting
 dependencies:
-  - name: opentelemetry-operator
-    version: 0.60.0
-    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   - name: uptrace
     version: 1.7.4
     repository: https://charts.uptrace.dev

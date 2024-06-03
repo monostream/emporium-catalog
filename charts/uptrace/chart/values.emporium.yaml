@@ -1,8 +1,3 @@
-opentelemetry-operator:
-  manager:
-    collectorImage:
-      repository: otel/opentelemetry-collector-k8s
-
 {{ $postgresqlPassword := randAlphaNum 16 }}
 postgresql:
   fullnameOverride: "uptrace-postgresql"
