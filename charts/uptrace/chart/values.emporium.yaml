@@ -1,9 +1,8 @@
-{{ $postgresqlPassword := randAlphaNum 16 }}
 postgresql:
   fullnameOverride: "uptrace-postgresql"
   auth:
     database: "uptrace"
-    password: {{ $postgresqlPassword }}
+    existingSecret: "uptrace-postgresql"
     username: "uptrace"
 
 uptrace:
@@ -30,6 +29,27 @@ uptrace:
       hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}
   uptrace:
+    env:
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: uptrace-postgresql
+          key: password
+    - name: UPTRACE_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ include "chart.fullname" . }}
+          key: secretKey
+    - name: UPTRACE_TOKEN_PROJECT1
+      valueFrom:
+        secretKeyRef:
+          name: {{ include "chart.fullname" . }}
+          key: project1
+    - name: UPTRACE_TOKEN_PROJECT2
+      valueFrom:
+        secretKeyRef:
+          name: {{ include "chart.fullname" . }}
+          key: project2
     config:
       site:
         addr: https://{{ .Emporium.Integrations.DNS.Hostname }}
@@ -37,7 +57,7 @@ uptrace:
         # predictable because of postgresql.fullnameOverride
         addr: uptrace-postgresql:5432
         user: uptrace
-        password: {{ $postgresqlPassword }}
+        password: "${POSTGRES_PASSWORD}"
         database: uptrace
       auth:
         oidc:
@@ -49,13 +69,12 @@ uptrace:
             scopes:
               - profile
             claim: preferred_username
-
       projects:
         # Conventionally, the first project is used to monitor Uptrace itself.
         - id: 1
           name: Uptrace
           # Token grants write access to the project. Keep a secret.
-          token: {{ randAlphaNum 16 }}
+          token: "${UPTRACE_TOKEN_PROJECT1}"
           pinned_attrs:
             - service_name
             - host_name
@@ -71,9 +90,10 @@ uptrace:
         # To monitor micro-services or multiple related services, use a single project.
         - id: 2
           name: Emporium
-          token: {{ randAlphaNum 16 }}
+          token: "${UPTRACE_TOKEN_PROJECT2}"
           pinned_attrs:
             - service_name
             - host_name
             - deployment_environment
           prom_compat: true
+      secret_key: "${UPTRACE_SECRET_KEY}"
