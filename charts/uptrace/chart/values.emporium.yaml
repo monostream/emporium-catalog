@@ -112,3 +112,6 @@ uptrace:
             - deployment_environment
           prom_compat: true
       secret_key: "${UPTRACE_SECRET_KEY}"
+      uptrace_go:
+        dsn: http://${UPTRACE_TOKEN_PROJECT1}@uptrace:14318?grpc=14317
+        tls:

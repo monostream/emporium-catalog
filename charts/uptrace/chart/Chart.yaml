@@ -2,7 +2,7 @@ apiVersion: v2
 name: uptrace
 description: Open Source Observability with Traces, Metrics, and Logs
 type: application
-version: 0.0.9
+version: 0.0.10
 appVersion: "1.7.4"
 home: https://uptrace.dev/
 icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/uptrace/uptrace_icon_2.svg
