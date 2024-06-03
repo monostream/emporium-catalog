@@ -79,6 +79,11 @@ uptrace:
             scopes:
               - profile
             claim: preferred_username
+        users:
+        - email: emporium@localhost
+          name: Anonymous
+          notify_by_email: true
+          password: "${UPTRACE_ADMIN_PASSWORD}"
       projects:
         # Conventionally, the first project is used to monitor Uptrace itself.
         - id: 1
