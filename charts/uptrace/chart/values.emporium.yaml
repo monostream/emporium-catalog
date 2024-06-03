@@ -38,17 +38,17 @@ uptrace:
     - name: UPTRACE_SECRET_KEY
       valueFrom:
         secretKeyRef:
-          name: {{ include "chart.fullname" . }}
+          name: uptrace
           key: secretKey
     - name: UPTRACE_TOKEN_PROJECT1
       valueFrom:
         secretKeyRef:
-          name: {{ include "chart.fullname" . }}
+          name: uptrace
           key: project1
     - name: UPTRACE_TOKEN_PROJECT2
       valueFrom:
         secretKeyRef:
-          name: {{ include "chart.fullname" . }}
+          name: uptrace
           key: project2
     config:
       site:
