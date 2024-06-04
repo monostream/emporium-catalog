@@ -1,3 +1,6 @@
+# Updates Tuesday, 04-Jun-2024 17:02:08 UTC
+- kubernetes-dashboard from 7.4.0 to 7.5.0
+
 # Updates Wednesday, 08-May-2024 13:13:49 UTC
 - kubernetes-dashboard from 7.3.2 to 7.4.0
 
