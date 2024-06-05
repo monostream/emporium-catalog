@@ -1,4 +1,4 @@
-# PASTEPASS baby
+# PastePass
 
 PastePass lets you share secrets with others. The pasted content is encrypted with AES and can only be viewed once. After the paste is viewed, it is deleted from the server.
 
