@@ -1,0 +1,17 @@
+apiVersion: v2
+name: pastepass
+description: paste your deepest secrets to share it only once
+type: application
+version: 0.1.0
+appVersion: "0.1.1"
+
+home: https://github.com/v1k45/pastepass/tree/master
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/pastebin/icon.png
+sources:
+  - https://github.com/v1k45/pastepass/tree/master
+keywords:
+  - Tools
+annotations:
+  displayName: pastepass
+  category: Utilities
+  licenses: MIT license

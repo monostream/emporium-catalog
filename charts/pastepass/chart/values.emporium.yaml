@@ -1,0 +1,44 @@
+## @userSupplied AppName
+## @label AppName
+## @type string
+## @description Add a fancy name to your pastepass
+## @optional
+
+## @userSupplied WorkdirSize
+## @label Size used for the database
+## @type byteSize
+## @description Size for working directory. Default is 10Gi.
+## @optional
+
+## @userSupplied StorageClass
+## @label StorageClass
+## @type storageClass
+## @description Storage class used for the workdir
+## @optional
+storage:
+  workdir:
+    enabled: true
+    storageClass: {{ .Emporium.UserSupplied.StorageClass }}
+    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Workspace.Name }}"
+    accessMode: ReadWriteOnce
+    size: {{ default "40Gi" .Emporium.UserSupplied.WorkdirSize }}
+
+app:
+  name: {{ .Emporium.UserSupplied.AppName }}
+
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
