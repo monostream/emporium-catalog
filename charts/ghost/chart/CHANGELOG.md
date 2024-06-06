@@ -1,3 +1,9 @@
+# Updates Thursday, 06-Jun-2024 08:02:10 UTC
+- ghost from 21.1.2 to 21.1.3
+
+# Updates Wednesday, 05-Jun-2024 17:02:23 UTC
+- ghost from 21.1.1 to 21.1.2
+
 # Updates Saturday, 01-Jun-2024 08:01:40 UTC
 - ghost from 21.1.0 to 21.1.1
 
