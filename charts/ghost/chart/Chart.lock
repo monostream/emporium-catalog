@@ -1,6 +1,6 @@
 dependencies:
 - name: ghost
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 21.1.2
-digest: sha256:257d6fafb26240134abfc0af4ed4ce68eb40fa3172dce912ad88ea630674664d
-generated: "2024-06-05T17:02:22.122796933Z"
+  version: 21.1.3
+digest: sha256:953bf7ce8a35d2667a984e6b531c8faa41767ce9ad0f23ac22539419e8509395
+generated: "2024-06-06T08:02:09.620300966Z"
