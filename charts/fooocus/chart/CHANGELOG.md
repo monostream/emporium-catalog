@@ -1,3 +1,6 @@
+# Updates Friday, 07-Jun-2024 08:01:55 UTC
+- ashleykza/fooocus from 2.4.2 to 2.4.3
+
 # Updates Thursday, 06-Jun-2024 08:02:31 UTC
 - ashleykza/fooocus from 2.4.1 to 2.4.2
 
