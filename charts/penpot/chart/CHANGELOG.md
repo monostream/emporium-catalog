@@ -1,3 +1,8 @@
+# Updates Thursday, 06-Jun-2024 17:02:30 UTC
+- penpotapp/frontend from 2.0.1 to 2.0.3
+- penpotapp/backend from 2.0.1 to 2.0.3
+- penpotapp/exporter from 2.0.1 to 2.0.3
+
 # Updates Tuesday, 16-Apr-2024 08:04:15 UTC
 - penpotapp/frontend from 2.0.0 to 2.0.1
 - penpotapp/exporter from 2.0.0 to 2.0.1
