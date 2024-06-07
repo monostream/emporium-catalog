@@ -2,11 +2,11 @@ apiVersion: v2
 name: gitea
 description: Gitea is a community managed lightweight code hosting solution written in Go. It is published under the MIT license.
 type: application
-version: 0.0.19
-appVersion: "1.21.11"
+version: 0.0.20
+appVersion: "1.22.0"
 dependencies:
   - name: gitea
-    version: 10.1.4
+    version: 10.2.0
     repository: https://dl.gitea.io/charts/
 home: https://gitea.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitea/gitea_icon_2.svg
