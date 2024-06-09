@@ -1,3 +1,6 @@
+# Updates Sunday, 09-Jun-2024 17:02:04 UTC
+- kube-prometheus-stack from 60.0.1 to 60.0.2
+
 # Updates Saturday, 08-Jun-2024 08:01:36 UTC
 - promtail from 6.15.5 to 6.16.0
 
