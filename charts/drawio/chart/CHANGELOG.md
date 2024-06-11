@@ -1,3 +1,6 @@
+# Updates Friday, 07-Jun-2024 17:02:57 UTC
+- jgraph/drawio from 24.5.1 to 24.5.2
+
 # Updates Friday, 07-Jun-2024 08:01:47 UTC
 - jgraph/drawio from 24.4.15 to 24.5.1
 
