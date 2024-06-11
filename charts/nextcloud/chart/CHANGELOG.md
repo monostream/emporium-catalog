@@ -1,3 +1,6 @@
+# Updates Sunday, 09-Jun-2024 08:01:46 UTC
+- nextcloud from 4.6.10 to 5.0.0
+
 # Updates Sunday, 02-Jun-2024 17:01:49 UTC
 - nextcloud from 4.6.9 to 4.6.10
 
