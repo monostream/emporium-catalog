@@ -22,7 +22,7 @@ keywords:
   - DLP
 annotations:
   displayName: NeuVector
-  category: Security Tools
+  category: Monitoring
   licenses: Apache-2.0
   oidcRedirectPaths: /openId_auth
   gallery: |-
