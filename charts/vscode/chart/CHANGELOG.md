@@ -1,3 +1,13 @@
+# 0.1.24
+
+Published on 13 June 2024
+
+- Helm CLI from v3.15.1 to v3.15.2
+- Docker Buildx from v0.14.1 to v0.15.0
+- Kubernetes CLI from v1.30.1 to v1.30.2
+- Code Server from v4.89.1 to v4.90.1
+- vscode from 4.22.1 to 4.89.1
+
 # Updates Thursday, 06-Jun-2024 08:03:47 UTC
 - Docker CLI from v26.1.3 to v26.1.4
 - docker from 26.1.3 to 26.1.4
