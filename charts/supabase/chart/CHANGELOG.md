@@ -1,3 +1,9 @@
+# 1.0.43
+
+Published on 18 June 2024
+
+- supabase from 5.2.3 to 5.2.5
+
 # Updates Friday, 07-Jun-2024 08:03:07 UTC
 - supabase from 5.2.0 to 5.2.3
 
