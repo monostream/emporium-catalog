@@ -1,3 +1,15 @@
+# 0.0.109
+
+Published on 17 June 2024
+
+- tempo from 1.9.0 to 1.10.0
+
+# 0.0.108
+
+Published on 17 June 2024
+
+- kube-prometheus-stack from 60.1.0 to 60.2.0
+
 # Updates Thursday, 13-Jun-2024 07:44:15 UTC
 - kube-prometheus-stack from 60.0.2 to 60.1.0
 
