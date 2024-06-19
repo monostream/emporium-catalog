@@ -15,7 +15,7 @@
     "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.90.1",
+    "currentTag": "v4.90.2",
     "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
@@ -31,7 +31,7 @@
     "provider": "github-tags",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
-    "currentTag": "v0.15.0",
+    "currentTag": "v0.15.1",
     "allowPrerelease": false,
     "envVar": "DOCKER_BUILDX_VERSION"
   },
