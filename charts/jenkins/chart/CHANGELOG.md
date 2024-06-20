@@ -1,3 +1,9 @@
+# 0.1.23
+
+Published on 19 June 2024
+
+- devcloud-jenkins from 2.452.1 to 2.452.2
+
 # Updates Thursday, 06-Jun-2024 08:02:39 UTC
 - docker from 26.1.3 to 26.1.4
 
