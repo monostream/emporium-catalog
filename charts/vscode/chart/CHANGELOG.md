@@ -4,6 +4,7 @@ Published on 19 June 2024
 
 - Docker Buildx from v0.15.0 to v0.15.1
 - Code Server from v4.90.1 to v4.90.2
+- vscode from 4.90.1 to 4.90.2
 
 # 0.1.24
 
