@@ -1,3 +1,9 @@
+# 0.0.111
+
+Published on 21 June 2024
+
+- pyroscope from 1.6.0 to 1.6.1
+
 # 0.0.110
 
 Published on 21 June 2024
