@@ -1,3 +1,10 @@
+# 0.0.112
+
+Published on 24 June 2024
+
+- loki from 6.6.3 to 6.6.4
+- promtail from 6.16.0 to 6.16.1
+
 # 0.0.111
 
 Published on 21 June 2024
