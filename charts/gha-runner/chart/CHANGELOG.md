@@ -1,3 +1,10 @@
+# 0.0.15
+
+Published on 25 June 2024
+
+- gha-runner-scale-set from 0.9.2 to 0.9.3
+- gha-runner-scale-set-controller from 0.9.2 to 0.9.3
+
 # Updates Monday, 20-May-2024 17:02:40 UTC
 - gha-runner-scale-set from 0.9.1 to 0.9.2
 - gha-runner-scale-set-controller from 0.9.1 to 0.9.2
