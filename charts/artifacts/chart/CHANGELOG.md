@@ -1,3 +1,9 @@
+# 0.0.80
+
+Published on 25 June 2024
+
+- postgresql from 15.5.9 to 15.5.10
+
 # 0.0.79
 
 Published on 20 June 2024
