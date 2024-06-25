@@ -1,3 +1,10 @@
+# 0.0.113
+
+Published on 25 June 2024
+
+- promtail from 6.16.1 to 6.16.2
+- kube-prometheus-stack from 60.3.0 to 60.4.0
+
 # 0.0.112
 
 Published on 24 June 2024
