@@ -1,3 +1,9 @@
+# 
+
+Published on 25 June 2024
+
+- Docker CLI from v26.1.4 to v27.0.1
+
 # 0.1.26
 
 Published on 25 June 2024
