@@ -1,3 +1,9 @@
+# 0.1.26
+
+Published on 25 June 2024
+
+- vscode from 4.90.2 to 4.90.3
+
 # 
 
 Published on 22 June 2024
