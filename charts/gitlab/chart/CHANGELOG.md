@@ -1,3 +1,9 @@
+# 0.2.24
+
+Published on 26 June 2024
+
+- gitlab from 8.1.0 to 8.1.1
+
 # 0.2.23
 
 Published on 20 June 2024
