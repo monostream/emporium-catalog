@@ -1,3 +1,9 @@
+# 0.1.59
+
+Published on 28 June 2024
+
+- drawio from 24.6.3 to 24.6.4
+
 # 0.1.58
 
 Published on 26 June 2024
