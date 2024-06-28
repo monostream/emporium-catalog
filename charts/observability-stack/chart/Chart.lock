@@ -1,7 +1,7 @@
 dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
-  version: 60.4.0
+  version: 60.5.0
 - name: loki
   repository: https://grafana.github.io/helm-charts
   version: 6.6.4
@@ -14,5 +14,5 @@ dependencies:
 - name: pyroscope
   repository: https://grafana.github.io/helm-charts
   version: 1.6.1
-digest: sha256:3fb9d812007ff7dd23ceb5050e91dad106776ec6bbfab86c01a43a7df98232a7
-generated: "2024-06-25T17:09:03.992499966Z"
+digest: sha256:89f076c2d1e088f08a31c3601cee1fb827c1235c3a4f1be5e77444b0212bdaab
+generated: "2024-06-28T08:10:03.167628331Z"
