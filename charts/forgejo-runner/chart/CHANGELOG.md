@@ -1,3 +1,21 @@
+# 0.0.29
+
+Published on 2 July 2024
+
+- docker from 27.0.2 to 27.0.3
+
+# 0.0.28
+
+Published on 27 June 2024
+
+- docker from 27.0.1 to 27.0.2
+
+# 0.0.27
+
+Published on 26 June 2024
+
+- docker from 26.1.4 to 27.0.1
+
 # Updates Thursday, 13-Jun-2024 07:43:54 UTC
 - bitnami/kubectl from 1.30.1 to 1.30.2
 
