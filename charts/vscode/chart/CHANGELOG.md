@@ -1,3 +1,28 @@
+# 0.1.29
+
+Published on 2 July 2024
+
+- docker from 27.0.2 to 27.0.3
+
+# 
+
+Published on 1 July 2024
+
+- Docker CLI from v27.0.2 to v27.0.3
+
+# 0.1.28
+
+Published on 27 June 2024
+
+- Docker CLI from v27.0.1 to v27.0.2
+- docker from 27.0.1 to 27.0.2
+
+# 0.1.27
+
+Published on 26 June 2024
+
+- docker from 26.1.4 to 27.0.1
+
 # 
 
 Published on 25 June 2024
