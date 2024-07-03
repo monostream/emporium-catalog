@@ -1,16 +1,12 @@
 apiVersion: v2
-
 name: wiki
 description: Make documentation a joy to write using Wiki.js's beautiful and intuitive interface
-
-version: 0.0.9
-appVersion: 2.5.299
-
+version: 0.0.10
+appVersion: latest
 dependencies:
   - name: wiki
-    version: 2.2.20
+    version: 2.2.21
     repository: https://charts.js.wiki
-
 home: https://js.wiki/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_icon_2.svg
 sources:
