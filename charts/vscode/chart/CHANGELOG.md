@@ -2,6 +2,12 @@
 
 Published on 10 July 2024
 
+- vscode from 4.90.3 to 4.91.0
+
+# 0.1.30
+
+Published on 10 July 2024
+
 - Code Server from v4.90.3 to v4.91.0
 
 # 0.1.29
