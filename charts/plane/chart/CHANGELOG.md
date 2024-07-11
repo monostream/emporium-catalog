@@ -1,3 +1,11 @@
+# 0.1.28
+
+Published on 5 July 2024
+
+- plane-backend from v0.21-dev to v0.22-dev
+- plane-space from v0.21-dev to v0.22-dev
+- plane-frontend from v0.21-dev to v0.22-dev
+
 # Updates Monday, 03-Jun-2024 17:02:23 UTC
 - makeplane/plane-backend from v0.20-dev to v0.21-dev
 - makeplane/plane-space from v0.20-dev to v0.21-dev
