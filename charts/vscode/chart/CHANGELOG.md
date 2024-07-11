@@ -1,3 +1,15 @@
+# 0.1.31
+
+Published on 11 July 2024
+
+- Helm CLI from v3.15.2 to v3.15.3
+
+# 0.1.30
+
+Published on 10 July 2024
+
+- vscode from 4.90.3 to 4.91.0
+
 # 0.1.30
 
 Published on 10 July 2024
