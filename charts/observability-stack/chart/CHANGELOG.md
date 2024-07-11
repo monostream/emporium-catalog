@@ -1,3 +1,28 @@
+# 0.0.121
+
+Published on 10 July 2024
+
+- tempo from 1.10.0 to 1.10.1
+
+# 0.0.120
+
+Published on 9 July 2024
+
+- kube-prometheus-stack from 61.2.0 to 61.3.0
+
+# 0.0.119
+
+Published on 4 July 2024
+
+- loki from 6.6.4 to 6.6.5
+- promtail from 6.16.2 to 6.16.3
+
+# 0.0.118
+
+Published on 3 July 2024
+
+- kube-prometheus-stack from 61.1.1 to 61.2.0
+
 # 0.0.117
 
 Published on 1 July 2024
