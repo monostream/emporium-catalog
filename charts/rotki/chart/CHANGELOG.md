@@ -1,3 +1,9 @@
+# 0.1.8
+
+Published on 11 July 2024
+
+- rotki from v1.33.1 to v1.34.0
+
 # Updates Wednesday, 29-May-2024 17:02:36 UTC
 - rotki/rotki from v1.33.0 to v1.33.1
 
