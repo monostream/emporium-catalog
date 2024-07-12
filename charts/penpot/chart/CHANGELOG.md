@@ -1,3 +1,11 @@
+# 1.0.46
+
+Published on 11 July 2024
+
+- exporter from 2.0.3 to 2.1.0
+- frontend from 2.0.3 to 2.1.0
+- backend from 2.0.3 to 2.1.0
+
 # Updates Thursday, 06-Jun-2024 17:02:30 UTC
 - penpotapp/frontend from 2.0.1 to 2.0.3
 - penpotapp/backend from 2.0.1 to 2.0.3
