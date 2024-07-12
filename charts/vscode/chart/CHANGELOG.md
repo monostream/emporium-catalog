@@ -1,3 +1,9 @@
+# 
+
+Published on 12 July 2024
+
+- Docker Buildx from v0.15.1 to v0.16.0
+
 # 0.1.31
 
 Published on 11 July 2024
