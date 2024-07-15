@@ -1,3 +1,9 @@
+# 0.0.124
+
+Published on 15 July 2024
+
+- promtail from 6.16.3 to 6.16.4
+
 # 0.0.123
 
 Published on 12 July 2024
