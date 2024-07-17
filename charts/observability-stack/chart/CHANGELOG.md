@@ -1,3 +1,9 @@
+# 0.0.126
+
+Published on 17 July 2024
+
+- loki from 6.7.0 to 6.7.1
+
 # 0.0.125
 
 Published on 16 July 2024
