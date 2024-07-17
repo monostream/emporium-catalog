@@ -1,3 +1,9 @@
+# 0.1.12
+
+Published on 17 July 2024
+
+- fooocus from 2.4.3 to 2.5.0
+
 # Updates Friday, 07-Jun-2024 08:01:55 UTC
 - ashleykza/fooocus from 2.4.2 to 2.4.3
 
