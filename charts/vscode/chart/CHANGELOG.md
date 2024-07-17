@@ -1,3 +1,9 @@
+# 
+
+Published on 17 July 2024
+
+- Kubernetes CLI from v1.30.2 to v1.30.3
+
 # 0.1.32
 
 Published on 12 July 2024
