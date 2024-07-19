@@ -1,5 +1,11 @@
 # 
 
+Published on 19 July 2024
+
+- Docker Buildx from v0.16.0 to v0.16.1
+
+# 
+
 Published on 18 July 2024
 
 - Code Server from v4.91.0 to v4.91.1
