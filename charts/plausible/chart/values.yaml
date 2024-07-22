@@ -10,12 +10,14 @@ plausible-analytics:
     existingSecret: plausible
 
   postgresql:
+    fullNameOverride: plausible-postgresql
     auth:
       existingSecret: plausible
       secretKeys:
         adminPasswordKey: "DATABASE_PASSWORD"
 
   clickhouse:
+    fullNameOverride: plausible-clickhouse
     auth:
       existingSecret: plausible
       existingSecretKey: "CLICKHOUSE_PASSWORD"
