@@ -6,7 +6,7 @@ plausible-analytics:
     pathType: Prefix
     annotations:
       {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 4 }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
     hosts:
