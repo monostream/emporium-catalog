@@ -1,5 +1,11 @@
 # 
 
+Published on 22 July 2024
+
+- Docker CLI from v27.0.3 to v27.1.0
+
+# 
+
 Published on 19 July 2024
 
 - Docker Buildx from v0.16.0 to v0.16.1
