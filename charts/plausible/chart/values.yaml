@@ -1,0 +1,21 @@
+nameOverride: ""
+
+plausible-analytics:
+  baseURL: ""
+  disableRegistration: true
+  logFailedLoginAttempts: true
+
+  secret:
+    create: false
+    existingSecret: plausible
+
+  postgresql:
+    auth:
+      existingSecret: plausible
+      secretKeys:
+        adminPasswordKey: "DATABASE_PASSWORD"
+
+  clickhouse:
+    auth:
+      existingSecret: plausible
+      existingSecretKey: "CLICKHOUSE_PASSWORD"

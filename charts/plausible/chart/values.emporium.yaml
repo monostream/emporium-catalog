@@ -1,0 +1,18 @@
+plausible-analytics:
+  baseURL: {{ printf "https://%s" .Emporium.Integrations.DNS.Hostname }}
+
+  ingress:
+    enabled: true
+    pathType: Prefix
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 4 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+    hosts:
+      - {{ .Emporium.Integrations.DNS.Hostname }}
+    path: /
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}

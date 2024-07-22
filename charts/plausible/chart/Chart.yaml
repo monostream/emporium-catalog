@@ -1,0 +1,23 @@
+apiVersion: v2
+name: plausible
+description: Easy to use and privacy-friendly Google Analytics alternative
+type: application
+version: 0.0.1
+appVersion: "2.1.1"
+home: https://plausible.io/
+icon: https://raw.githubusercontent.com/plausible/docs/master/static/img/plausible-analytics-icon-top.png
+sources:
+  - https://github.com/plausible/analytics
+  - https://github.com/IMIO/helm-plausible-analytics
+keywords:
+  - Analytics
+dependencies:
+  - name: plausible-analytics
+    version: 0.3.0
+    repository: https://imio.github.io/helm-charts
+annotations:
+  displayName: Plausible
+  category: Analytics
+  licenses: AGPL-3.0
+  gallery: |
+    https://camo.githubusercontent.com/db0cadcd2aef644e580cedb02bc0e773b192a33d5c2a69b5680f65137e2ce03c/68747470733a2f2f706c61757369626c652e696f2f646f63732f696d672f706c61757369626c652d616e616c79746963732e706e67
