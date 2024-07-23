@@ -2,7 +2,7 @@ apiVersion: v2
 name: plausible
 description: Easy to use and privacy-friendly Google Analytics alternative
 type: application
-version: 0.0.3
+version: 0.0.4
 appVersion: "2.1.1"
 home: https://plausible.io/
 icon: https://raw.githubusercontent.com/plausible/docs/master/static/img/plausible-analytics-icon-top.png
