@@ -1,3 +1,9 @@
+# 0.0.22
+
+Published on 21 July 2024
+
+- gitea from 10.3.0 to 10.4.0
+
 # 0.0.21
 
 Published on 7 July 2024
