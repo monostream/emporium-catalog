@@ -15,9 +15,17 @@ plausible:
       existingSecret: plausible
       secretKeys:
         adminPasswordKey: "DATABASE_PASSWORD"
+    primary:
+      persistence:
+        enabled: true
+        size: 10Gi
+
 
   clickhouse:
     fullNameOverride: plausible-clickhouse
     auth:
       existingSecret: plausible
       existingSecretKey: "CLICKHOUSE_PASSWORD"
+    persistence:
+      enabled: true
+      size: 10Gi
