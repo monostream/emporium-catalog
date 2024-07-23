@@ -1,6 +1,6 @@
 nameOverride: ""
 
-plausible-analytics:
+plausible:
   baseURL: ""
   disableRegistration: true
   logFailedLoginAttempts: true

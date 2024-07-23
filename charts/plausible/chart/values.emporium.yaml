@@ -1,4 +1,4 @@
-plausible-analytics:
+plausible:
   baseURL: {{ printf "https://%s" .Emporium.Integrations.DNS.Hostname }}
 
   ingress:
