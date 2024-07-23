@@ -16,3 +16,16 @@ plausible-analytics:
       - secretName: {{ .Emporium.Name }}-tls
         hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}
+
+  mailer:
+    enabled: true
+    email: {{ .Emporium.Integrations.SMTP.From }}
+    adapter: "Bamboo.SMTPAdapter"
+    smtp:
+      host: {{ .Emporium.Integrations.SMTP.Host }}
+      port: {{ .Emporium.Integrations.SMTP.Port }}
+      auth: true
+      username: {{ .Emporium.Integrations.SMTP.Username }}
+      password: {{ .Emporium.Integrations.SMTP.Password }}
+      ssl: true
+      retries: 5
