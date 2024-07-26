@@ -1,3 +1,22 @@
+# 
+
+Published on 25 July 2024
+
+- Docker Buildx from v0.16.1 to v0.16.2
+
+# 0.1.33
+
+Published on 24 July 2024
+
+- Docker CLI from v27.1.0 to v27.1.1
+- docker from 27.1.0 to 27.1.1
+
+# 0.1.32
+
+Published on 23 July 2024
+
+- vscode from 4.91.0 to 4.91.1
+
 # 0.1.31
 
 Published on 23 July 2024
