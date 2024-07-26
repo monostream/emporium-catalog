@@ -1,3 +1,21 @@
+# 0.0.91
+
+Published on 25 July 2024
+
+- postgresql from 15.5.19 to 15.5.20
+
+# 0.0.90
+
+Published on 24 July 2024
+
+- postgresql from 15.5.18 to 15.5.19
+
+# 0.0.89
+
+Published on 23 July 2024
+
+- postgresql from 15.5.17 to 15.5.18
+
 # 0.0.88
 
 Published on 18 July 2024
