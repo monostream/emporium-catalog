@@ -34,6 +34,8 @@
 ## @description Enable anonymous read access for repositories set to public. Default is false.
 ## @optional
 
+
+
 {{- if .Emporium.UserSupplied.PostgresqlPassword }}
 global:
   postgresql:
@@ -93,4 +95,7 @@ postgresql:
       {{- if .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
       storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
       {{- end }}
-  {{- end }}
+{{- end }}
+
+telemetry:
+  enabled: false
