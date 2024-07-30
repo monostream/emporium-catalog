@@ -1,3 +1,9 @@
+# 0.1.14
+
+Published on 28 July 2024
+
+- fooocus from 2.5.1 to 2.5.2
+
 # 0.1.13
 
 Published on 25 July 2024
