@@ -1,3 +1,9 @@
+# 0.0.38
+
+Published on 31 July 2024
+
+- forgejo from 7.0.4 to 8.1.0
+
 # 0.0.37
 
 Published on 31 July 2024
