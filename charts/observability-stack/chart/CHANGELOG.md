@@ -1,3 +1,10 @@
+# 0.0.136
+
+Published on 5 August 2024
+
+- loki from 6.7.3 to 6.7.4
+- kube-prometheus-stack from 61.7.0 to 61.7.1
+
 # 0.0.135
 
 Published on 2 August 2024
