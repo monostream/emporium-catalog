@@ -1,3 +1,15 @@
+# 1.0.71
+
+Published on 3 August 2024
+
+- ghost from 21.1.26 to 21.1.27
+
+# 1.0.70
+
+Published on 31 July 2024
+
+- ghost from 21.1.25 to 21.1.26
+
 # 1.0.69
 
 Published on 27 July 2024
