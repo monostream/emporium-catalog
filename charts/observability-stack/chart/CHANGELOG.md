@@ -1,3 +1,28 @@
+# 0.0.136
+
+Published on 5 August 2024
+
+- loki from 6.7.3 to 6.7.4
+- kube-prometheus-stack from 61.7.0 to 61.7.1
+
+# 0.0.135
+
+Published on 2 August 2024
+
+- kube-prometheus-stack from 61.6.1 to 61.7.0
+
+# 0.0.134
+
+Published on 1 August 2024
+
+- pyroscope from 1.6.1 to 1.7.1
+
+# 0.0.133
+
+Published on 1 August 2024
+
+- kube-prometheus-stack from 61.6.0 to 61.6.1
+
 # 0.0.132
 
 Published on 29 July 2024
