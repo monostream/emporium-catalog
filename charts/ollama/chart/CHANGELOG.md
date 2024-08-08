@@ -1,3 +1,9 @@
+# 0.1.48
+
+Published on 8 August 2024
+
+- ollama from 0.51.0 to 0.52.0
+
 # 0.1.47
 
 Published on 5 August 2024
