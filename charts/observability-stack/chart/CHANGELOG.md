@@ -1,3 +1,39 @@
+# 0.0.142
+
+Published on 11 August 2024
+
+- kube-prometheus-stack from 61.7.2 to 61.8.0
+
+# 0.0.141
+
+Published on 9 August 2024
+
+- loki from 6.9.0 to 6.10.0
+
+# 0.0.140
+
+Published on 8 August 2024
+
+- kube-prometheus-stack from 61.7.1 to 61.7.2
+
+# 0.0.139
+
+Published on 8 August 2024
+
+- tempo from 1.10.1 to 1.10.2
+
+# 0.0.138
+
+Published on 7 August 2024
+
+- loki from 6.8.0 to 6.9.0
+
+# 0.0.137
+
+Published on 6 August 2024
+
+- loki from 6.7.4 to 6.8.0
+
 # 0.0.136
 
 Published on 5 August 2024
