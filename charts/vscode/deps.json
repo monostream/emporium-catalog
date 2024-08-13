@@ -23,7 +23,7 @@
     "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v27.1.1",
+    "currentTag": "v27.1.2",
     "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },
@@ -39,7 +39,7 @@
     "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.30.3",
+    "currentTag": "v1.31.0",
     "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },

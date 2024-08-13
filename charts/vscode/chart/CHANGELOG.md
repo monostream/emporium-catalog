@@ -1,5 +1,12 @@
 # 
 
+Published on 13 August 2024
+
+- Kubernetes CLI from v1.30.3 to v1.31.0
+- Docker CLI from v27.1.1 to v27.1.2
+
+# 
+
 Published on 25 July 2024
 
 - Docker Buildx from v0.16.1 to v0.16.2
