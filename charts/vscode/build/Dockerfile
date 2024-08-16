@@ -13,7 +13,7 @@ RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVE
    && rm /usr/bin/code-server
 
 # Docker CLI
-ENV DOCKER_CLIENT_VERSION="27.1.1"
+ENV DOCKER_CLIENT_VERSION="27.1.2"
 RUN curl -fsSL -o - https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
 
 # Docker Buildx Plugin
@@ -24,11 +24,11 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/d
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
-ENV KUBECTL_VERSION="v1.30.3"
+ENV KUBECTL_VERSION="v1.31.0"
 RUN curl -fsSL "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
-ENV HELM_VERSION="v3.15.3"
+ENV HELM_VERSION="v3.15.4"
 RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-amd64/helm
 
 # Java
