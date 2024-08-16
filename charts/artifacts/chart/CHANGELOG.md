@@ -1,3 +1,9 @@
+# 0.0.94
+
+Published on 15 August 2024
+
+- artifacts from 0.0.22 to 0.0.24
+
 # 0.0.93
 
 Published on 9 August 2024
