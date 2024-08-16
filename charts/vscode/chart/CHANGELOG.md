@@ -1,23 +1,23 @@
-# 
+# 0.1.37
 
 Published on 14 August 2024
 
 - Helm CLI from v3.15.3 to v3.15.4
 
-# 0.1.34
+# 0.1.36
 
 Published on 14 August 2024
 
 - docker from 27.1.1 to 27.1.2
 
-# 
+# 0.1.35
 
 Published on 13 August 2024
 
 - Kubernetes CLI from v1.30.3 to v1.31.0
 - Docker CLI from v27.1.1 to v27.1.2
 
-# 
+# 0.1.34
 
 Published on 25 July 2024
 
