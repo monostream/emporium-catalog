@@ -30,7 +30,7 @@ dind:
     registry: docker.io
     repository: library/docker
     pullPolicy: IfNotPresent
-    tag: "27.1.1"
+    tag: "27.1.2"
   resources:
     requests:
       cpu: 1
@@ -40,7 +40,7 @@ kubectl:
     registry: docker.io
     repository: bitnami/kubectl
     pullPolicy: IfNotPresent
-    tag: "1.30.3"
+    tag: "1.31.0"
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
