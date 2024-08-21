@@ -1,3 +1,9 @@
+# 0.1.38
+
+Published on 20 August 2024
+
+- Code Server from v4.91.1 to v4.92.2
+
 # 0.1.37
 
 Published on 14 August 2024
