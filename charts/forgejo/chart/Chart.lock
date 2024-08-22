@@ -1,6 +1,6 @@
 dependencies:
 - name: forgejo
   repository: oci://codeberg.org/forgejo-contrib
-  version: 8.1.2
-digest: sha256:469e82dd0f4bbc564b79af0c9080bf8fb960bcc7827041ca62ec13c6b2da931b
-generated: "2024-08-12T08:02:41.452640688Z"
+  version: 8.2.0
+digest: sha256:12225f6ae52b4e045def41745b4a448e51ee6f69a6638a39dc7ff90ed03cc150
+generated: "2024-08-22T17:06:03.452957831Z"
