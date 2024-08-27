@@ -10,9 +10,9 @@ dependencies:
   version: 1.10.3
 - name: promtail
   repository: https://grafana.github.io/helm-charts
-  version: 6.16.4
+  version: 6.16.5
 - name: pyroscope
   repository: https://grafana.github.io/helm-charts
   version: 1.7.1
-digest: sha256:f77c65df10f1c2f04cba3f7ca93cc971bf851fa4f41910ff61e11b7b534a7404
-generated: "2024-08-23T17:04:51.954831932Z"
+digest: sha256:d0e824af92c00a80584b405e687da6f6ce7a81b2dab0cbd5227ee70834d70198
+generated: "2024-08-27T08:02:49.696684171Z"

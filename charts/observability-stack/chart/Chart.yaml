@@ -1,7 +1,7 @@
 apiVersion: v2
 name: observability-stack
 description: An all-in-one observability stack for Kubernetes, integrating Grafana, Prometheus, Loki, Tempo, Promtail, and Pyroscope.
-version: 0.0.147
+version: 0.0.148
 appVersion: v0.76.0
 dependencies:
   - name: kube-prometheus-stack
@@ -15,7 +15,7 @@ dependencies:
     version: 1.10.3
     repository: https://grafana.github.io/helm-charts
   - name: promtail
-    version: 6.16.4
+    version: 6.16.5
     repository: https://grafana.github.io/helm-charts
   - name: pyroscope
     version: 1.7.1
