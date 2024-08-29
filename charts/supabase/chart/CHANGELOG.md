@@ -1,3 +1,9 @@
+# 1.0.52
+
+Published on 27 August 2024
+
+- supabase from 5.3.4 to 5.3.5
+
 # 1.0.51
 
 Published on 14 August 2024
