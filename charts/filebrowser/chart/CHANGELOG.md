@@ -1,3 +1,9 @@
+# 0.1.19
+
+Published on 30 August 2024
+
+- filebrowser from v2.30.0 to v2.31.0
+
 # Updates Sunday, 19-May-2024 17:02:15 UTC
 - filebrowser/filebrowser from v2.29.0 to v2.30.0
 
