@@ -2,8 +2,8 @@ apiVersion: v2
 name: penpot
 description: The Open-Source design and prototyping platform
 type: application
-version: 1.0.49
-appVersion: 2.1.3
+version: 1.0.50
+appVersion: 2.1.4
 dependencies:
   - condition: global.postgresqlEnabled
     name: postgresql
