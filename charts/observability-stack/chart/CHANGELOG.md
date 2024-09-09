@@ -1,3 +1,46 @@
+# 0.0.156
+
+Published on 8 September 2024
+
+- kube-prometheus-stack from 62.5.1 to 62.6.0
+
+# 0.0.155
+
+Published on 7 September 2024
+
+- kube-prometheus-stack from 62.5.0 to 62.5.1
+
+# 0.0.154
+
+Published on 7 September 2024
+
+- kube-prometheus-stack from 62.4.0 to 62.5.0
+
+# 0.0.153
+
+Published on 5 September 2024
+
+- kube-prometheus-stack from 62.3.1 to 62.4.0
+
+# 0.0.152
+
+Published on 3 September 2024
+
+- loki from 6.11.0 to 6.12.0
+
+# 0.0.151
+
+Published on 2 September 2024
+
+- loki from 6.10.2 to 6.11.0
+
+# 0.0.150
+
+Published on 29 August 2024
+
+- loki from 6.10.1 to 6.10.2
+- kube-prometheus-stack from 62.3.0 to 62.3.1
+
 # 0.0.149
 
 Published on 28 August 2024
