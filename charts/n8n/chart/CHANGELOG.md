@@ -1,3 +1,9 @@
+# 0.1.22
+
+Published on 10 September 2024
+
+- n8n from 0.25.0 to 0.25.1
+
 # 0.1.21
 
 Published on 23 August 2024
