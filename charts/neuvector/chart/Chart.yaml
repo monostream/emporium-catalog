@@ -1,11 +1,11 @@
 apiVersion: v2
 name: neuvector
 description: OpenSource Container Security Platform
-version: 0.0.8
+version: 0.0.9
 appVersion: 5.3.4
 dependencies:
   - name: core
-    version: 2.7.8
+    version: 2.7.9
     repository: https://neuvector.github.io/neuvector-helm/
     alias: neuvector
 home: https://www.suse.com/neuvector/
