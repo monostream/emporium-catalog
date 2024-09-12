@@ -39,7 +39,7 @@
     "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.31.0",
+    "currentTag": "v1.31.1",
     "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.15.4",
+    "currentTag": "v3.16.0",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
