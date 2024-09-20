@@ -1,3 +1,40 @@
+# 
+
+Published on 13 September 2024
+
+- Docker Buildx from v0.17.0 to v0.17.1
+
+# 
+
+Published on 12 September 2024
+
+- Helm CLI from v3.16.0 to v3.16.1
+
+# 
+
+Published on 12 September 2024
+
+- Helm CLI from v3.15.4 to v3.16.0
+- Kubernetes CLI from v1.31.0 to v1.31.1
+
+# 
+
+Published on 10 September 2024
+
+- Docker Buildx from v0.16.2 to v0.17.0
+
+# 0.1.40
+
+Published on 10 September 2024
+
+- docker from 27.2.0 to 27.2.1
+
+# 
+
+Published on 9 September 2024
+
+- Docker CLI from v27.2.0 to v27.2.1
+
 # 0.1.39
 
 Published on 29 August 2024

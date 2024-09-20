@@ -23,7 +23,7 @@
     "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v27.2.0",
+    "currentTag": "v27.2.1",
     "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },
@@ -31,7 +31,7 @@
     "provider": "github-tags",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
-    "currentTag": "v0.16.2",
+    "currentTag": "v0.17.1",
     "allowPrerelease": false,
     "envVar": "DOCKER_BUILDX_VERSION"
   },
@@ -39,7 +39,7 @@
     "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.31.0",
+    "currentTag": "v1.31.1",
     "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.15.4",
+    "currentTag": "v3.16.1",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
