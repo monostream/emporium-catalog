@@ -52,13 +52,10 @@ podLabels: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext: 
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 999
 
 service:
   type: ClusterIP
