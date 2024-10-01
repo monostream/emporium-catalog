@@ -1,3 +1,9 @@
+# 0.1.12
+
+Published on 1 October 2024
+
+- rotki from v1.34.3 to v1.35.0
+
 # 0.1.11
 
 Published on 20 August 2024
