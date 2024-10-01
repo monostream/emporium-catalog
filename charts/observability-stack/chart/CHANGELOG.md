@@ -1,3 +1,11 @@
+# 0.0.158
+
+Published on 1 October 2024
+
+- promtail from 6.16.5 to 6.16.6
+- loki from 6.12.0 to 6.16.0
+- kube-prometheus-stack from 62.7.0 to 63.1.0
+
 # 0.0.157
 
 Published on 13 September 2024
