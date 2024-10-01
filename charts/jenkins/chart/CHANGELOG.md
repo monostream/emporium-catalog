@@ -1,3 +1,9 @@
+# 0.1.33
+
+Published on 1 October 2024
+
+- docker from 27.2.1 to 27.3.1
+
 # 0.1.32
 
 Published on 10 September 2024
