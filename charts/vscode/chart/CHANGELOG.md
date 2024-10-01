@@ -1,3 +1,11 @@
+# 0.1.41
+
+Published on 1 October 2024
+
+- Docker CLI from v27.2.1 to v27.3.1
+- Code Server from v4.92.2 to v4.93.1
+- docker from 27.2.1 to 27.3.1
+
 # 
 
 Published on 13 September 2024
