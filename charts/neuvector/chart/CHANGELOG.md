@@ -1,3 +1,9 @@
+# 0.0.11
+
+Published on 3 October 2024
+
+- core from 2.8.0 to 2.8.1
+
 # 0.0.10
 
 Published on 1 October 2024
