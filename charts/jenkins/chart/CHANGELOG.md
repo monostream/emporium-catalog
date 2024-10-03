@@ -1,3 +1,9 @@
+# 0.1.34
+
+Published on 2 October 2024
+
+- devcloud-jenkins from 2.462.1 to 2.462.2
+
 # 0.1.33
 
 Published on 1 October 2024
