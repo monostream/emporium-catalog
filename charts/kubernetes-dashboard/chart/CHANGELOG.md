@@ -1,3 +1,9 @@
+# 0.0.22
+
+Published on 4 October 2024
+
+- kubernetes-dashboard from 7.6.1 to 7.7.0
+
 # 0.0.21
 
 Published on 13 September 2024
