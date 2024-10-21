@@ -1,3 +1,39 @@
+# 0.0.166
+
+Published on 18 October 2024
+
+- pyroscope from 1.7.1 to 1.9.1
+
+# 0.0.165
+
+Published on 17 October 2024
+
+- kube-prometheus-stack from 65.2.0 to 65.3.1
+
+# 0.0.164
+
+Published on 17 October 2024
+
+- loki from 6.16.0 to 6.18.0
+
+# 0.0.163
+
+Published on 12 October 2024
+
+- kube-prometheus-stack from 65.1.1 to 65.2.0
+
+# 0.0.162
+
+Published on 8 October 2024
+
+- kube-prometheus-stack from 65.1.0 to 65.1.1
+
+# 0.0.161
+
+Published on 7 October 2024
+
+- kube-prometheus-stack from 65.0.0 to 65.1.0
+
 # 0.0.160
 
 Published on 3 October 2024
