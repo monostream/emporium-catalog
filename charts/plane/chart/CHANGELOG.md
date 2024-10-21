@@ -1,3 +1,19 @@
+# 0.1.30
+
+Published on 10 October 2024
+
+- plane-frontend from v0.23.0 to v0.23.1
+- plane-space from v0.23.0 to v0.23.1
+- plane-backend from v0.23.0 to v0.23.1
+
+# 0.1.29
+
+Published on 7 October 2024
+
+- plane-backend from v0.22-dev to v0.23.0
+- plane-frontend from v0.22-dev to v0.23.0
+- plane-space from v0.22-dev to v0.23.0
+
 # 0.1.28
 
 Published on 5 July 2024
