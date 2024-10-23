@@ -1,3 +1,9 @@
+# 0.1.19
+
+Published on 23 October 2024
+
+- cyberchef from 10.19.2 to 10.19.4
+
 # 0.1.18
 
 Published on 15 August 2024
