@@ -1,3 +1,45 @@
+# 1.0.88
+
+Published on 2 November 2024
+
+- ghost from 21.1.46 to 21.1.47
+
+# 1.0.87
+
+Published on 31 October 2024
+
+- ghost from 21.1.45 to 21.1.46
+
+# 1.0.86
+
+Published on 28 October 2024
+
+- ghost from 21.1.44 to 21.1.45
+
+# 1.0.85
+
+Published on 28 October 2024
+
+- ghost from 21.1.43 to 21.1.44
+
+# 1.0.84
+
+Published on 24 October 2024
+
+- ghost from 21.1.42 to 21.1.43
+
+# 1.0.83
+
+Published on 23 October 2024
+
+- ghost from 21.1.41 to 21.1.42
+
+# 1.0.82
+
+Published on 23 October 2024
+
+- ghost from 21.1.40 to 21.1.41
+
 # 1.0.81
 
 Published on 19 October 2024
