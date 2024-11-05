@@ -1,3 +1,9 @@
+# 0.0.47
+
+Published on 5 November 2024
+
+- forgejo from 10.0.1 to 10.0.2
+
 # 0.0.46
 
 Published on 28 October 2024
