@@ -1,0 +1,13 @@
+[
+  {
+    "provider": "chart",
+    "name": "vaultwarden",
+    "repo": "./chart",
+    "allowPrerelease": true,
+    "imageTagPaths": [
+      "image.tag"
+    ],
+    "appVersionMapping": "value:image.tag",
+    "changelogPath": "./chart"
+  }
+]
