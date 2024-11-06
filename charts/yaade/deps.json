@@ -1,7 +1,7 @@
 [
   {
     "provider": "chart",
-    "name": "it-tools",
+    "name": "yaade",
     "repo": "./chart",
     "allowPrerelease": true,
     "imageTagPaths": [
