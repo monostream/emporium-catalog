@@ -1,0 +1,18 @@
+apiVersion: v2
+name: yaade
+description: useful tools for devs with great UX.
+type: application
+version: 0.1.4
+appVersion: "2024.5.13-a0bc346"
+home: https://github.com/EsperoTech/yaade
+icon: 
+sources:
+  - https://github.com/EsperoTech/yaade
+  - https://docs.yaade.io/
+keywords:
+  - Utilities
+annotations:
+  displayName: yaade
+  licenses: MIT
+  category: Utilities
+  gallery: ""
