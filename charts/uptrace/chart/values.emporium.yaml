@@ -4,6 +4,15 @@ postgresql:
     database: "uptrace"
     existingSecret: "uptrace-postgresql"
     username: "uptrace"
+  primary:
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
 
 uptrace:
   otelcol:

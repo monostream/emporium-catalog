@@ -1,9 +1,9 @@
 dependencies:
 - name: uptrace
   repository: https://charts.uptrace.dev
-  version: 1.7.4
+  version: 1.7.7
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 12.12.10
-digest: sha256:79790d9e02559b82da49c018c0b12dcd16fdde230aa26256246bd39da28d950a
-generated: "2024-06-03T11:29:50.639492+02:00"
+digest: sha256:dff26be4c7cddb3a55da533cbc290f3b756d7910b369ada7453e25bc7630d6c4
+generated: "2024-11-06T11:29:36.770949+01:00"
