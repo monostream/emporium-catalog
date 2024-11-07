@@ -1,5 +1,6 @@
 app:
   domain: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
+  signupsAllowed: true
   smtp:
     host: {{ .Emporium.Integrations.SMTP.Host }}
     port: {{ .Emporium.Integrations.SMTP.Port | quote }}

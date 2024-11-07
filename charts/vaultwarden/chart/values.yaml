@@ -16,6 +16,7 @@ fullnameOverride: ""
 
 app:
   domain: "https://localhost"
+  signupsAllowed: true
   smtp:
     host:
     port:

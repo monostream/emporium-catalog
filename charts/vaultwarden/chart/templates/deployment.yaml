@@ -41,6 +41,8 @@ spec:
           env:
           - name: DOMAIN
             value: "{{ .Values.app.domain }}"
+          - name: SIGNUPS_ALLOWED
+            value: "{{ .Values.app.domain }}"
           - name: SMTP_HOST
             value: "{{ .Values.app.smtp.host }}"
           - name: SMTP_PORT
