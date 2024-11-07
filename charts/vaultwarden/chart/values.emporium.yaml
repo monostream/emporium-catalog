@@ -1,5 +1,12 @@
 app:
   domain: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
+  smtp:
+    host: {{ .Emporium.Integrations.SMTP.Host }}
+    port: {{ .Emporium.Integrations.SMTP.Port | quote }}
+    from: {{ .Emporium.Integrations.SMTP.From | quote }}
+    fromName: "Vaultwarden"
+    username: {{ .Emporium.Integrations.SMTP.Username | quote }}
+    password: {{ .Emporium.Integrations.SMTP.Password | quote }}
 
 storage:
   data:

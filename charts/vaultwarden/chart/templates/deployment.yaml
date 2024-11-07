@@ -41,6 +41,18 @@ spec:
           env:
           - name: DOMAIN
             value: "{{ .Values.app.domain }}"
+          - name: SMTP_HOST
+            value: "{{ .Values.app.smtp.host }}"
+          - name: SMTP_PORT
+            value: "{{ .Values.app.smtp.port }}"
+          - name: SMTP_FROM
+            value: "{{ .Values.app.smtp.from }}"
+          - name: SMTP_FROM_NAME
+            value: "{{ .Values.app.smtp.fromName }}"
+          - name: SMTP_USERNAME
+            value: "{{ .Values.app.smtp.username }}"
+          - name: SMTP_PASSWORD
+            value: "{{ .Values.app.smtp.password }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

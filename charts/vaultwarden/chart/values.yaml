@@ -16,6 +16,14 @@ fullnameOverride: ""
 
 app:
   domain: "https://localhost"
+  smtp:
+    host:
+    port:
+    from:
+    fromName:
+    username:
+    password:
+    
 
 storage:
   data:
