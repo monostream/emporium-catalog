@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: SELF_HOSTED
+            value: "true"
+          - name: RAILS_FORCE_SSL
+            value: "false"
+          - name: RAILS_ASSUME_SSL
+            value: "false"
+          - name: GOOD_JOB_EXECUTION_MODE
+            value: "async"
+          - name: SECRET_KEY_BASE
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-keybase
+                key: SECRET_KEY_BASE
+          - name: DB_HOST
+            value: {{ .Values.postgresql.auth.host }}
+          - name: POSTGRES_DB
+            value: {{ .Values.postgresql.auth.database }}
+          - name: POSTGRES_USER
+            value: {{ .Values.postgresql.auth.username }}
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgresql
+                key: postgres-password
+          - name: SMTP_ADDRESS
+            value: "{{ .Values.app.smtp.host }}"
+          - name: SMTP_PORT
+            value: "{{ .Values.app.smtp.port }}"
+          - name: EMAIL_SENDER
+            value: "{{ .Values.app.smtp.from }}"
+          - name: SMTP_FROM_NAME
+            value: "{{ .Values.app.smtp.fromName }}"
+          - name: SMTP_USERNAME
+            value: "{{ .Values.app.smtp.username }}"
+          - name: SMTP_PASSWORD
+            value: "{{ .Values.app.smtp.password }}"
+          - name: SYNTH_API_KEY
+            value: "{{ .Values.app.synthApiKey }}"
+          - name: APP_DOMAIN
+            value: "{{ .Values.app.domain }}"
+
+          - name: STRIPE_PUBLISHABLE_KEY
+            value: "{{ .Values.app.publishableKey }}"
+          - name: STRIPE_SECRET_KEY
+            value: "{{ .Values.app.secretKey }}"
+          - name: STRIPE_WEBHOOK_SECRET
+            value: "{{ .Values.app.webhookSecret }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      volumes:
+      - name: data
+        {{- if and .Values.storage.data.enabled .Values.storage.data.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.storage.data.existingClaim }}
+        {{- else if .Values.storage.data.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-data
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
