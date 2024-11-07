@@ -1,3 +1,9 @@
+# 0.0.114
+
+Published on 7 November 2024
+
+- postgresql from 16.1.1 to 16.1.2
+
 # 0.0.113
 
 Published on 4 November 2024
