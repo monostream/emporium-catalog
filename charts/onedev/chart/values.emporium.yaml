@@ -1,0 +1,61 @@
+## @userSupplied Username
+## @label Admin username
+## @type string
+## @description Admin Username
+
+## @userSupplied Password
+## @label Admin password
+## @type string
+## @description Admin password
+
+## @userSupplied StorageSize
+## @label Storage Size
+## @type byteSize
+## @description Size of the storage volume for OneDev. Default is 20Gi.
+## @optional
+
+## @userSupplied PersistenceStorageClass
+## @label Volume StorageClass
+## @type storageClass
+## @description The StorageClass to use for the OneDev volume. If not provided, default storage class is used.
+## @optional
+
+onedev:
+  onedev:
+    initSettings:
+      user: {{ .Emporium.UserSupplied.Username }}
+      password: {{ .Emporium.UserSupplied.Password }}
+      email: 'onedev@{{ .Emporium.Integrations.DNS.Hostname }}'
+
+  persistence:
+    {{- if .Emporium.UserSupplied.PersistenceStorageClass }}
+    storageClassName: {{ .Emporium.UserSupplied.PersistenceStorageClass }}
+    {{- end }}
+    size: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
+
+  ingress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 6 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
+      nginx.ingress.kubernetes.io/proxy-body-size: '0'
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
+      nginx.ingress.kubernetes.io/service-upstream: 'true'
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+      nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+      nginx.ingress.kubernetes.io/session-cookie-name: session-sticky
+    hosts:
+      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: {{ .Emporium.Name }}-tls
+        hosts:
+          - {{ .Emporium.Integrations.DNS.Hostname }}
