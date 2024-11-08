@@ -39,7 +39,7 @@ postgresql:
   auth:
     host: "postgresql-documenso"
     database: "documentsoku"
-    username: "postgres"
+    username: "postgresql"
     port: 5432
     password: ""
     existingSecret: "postgresql"
