@@ -1,0 +1,11 @@
+[
+  {
+    "provider": "chart",
+    "name": "onedev",
+    "repo": "./chart",
+    "range": ">=11.x.x",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:onedev",
+    "changelogPath": "./chart"
+  }
+]
