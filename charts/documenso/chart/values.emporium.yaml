@@ -4,7 +4,7 @@ app:
     host: {{ .Emporium.Integrations.SMTP.Host }}
     port: {{ .Emporium.Integrations.SMTP.Port | quote }}
     from: {{ .Emporium.Integrations.SMTP.From | quote }}
-    fromName: "Maybe-Finance"
+    fromName: "Docuemntso"
     username: {{ .Emporium.Integrations.SMTP.Username | quote }}
     password: {{ .Emporium.Integrations.SMTP.Password | quote }}
   oidc:
