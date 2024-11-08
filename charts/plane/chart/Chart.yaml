@@ -27,7 +27,7 @@ dependencies:
     version: 12.x.x
 annotations:
   displayName: Plane
-  category: Project Management
+  category: Productivity
   licenses: AGPL-3.0
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_1.png

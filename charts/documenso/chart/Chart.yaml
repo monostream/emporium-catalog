@@ -1,0 +1,21 @@
+apiVersion: v2
+name: documenso
+description: The OS for your personal finances
+type: application
+version: 0.1.1
+appVersion: "v1.7.0"
+home: https://documenso.com/
+icon: https://github.com/documenso/documenso/blob/main/apps/marketing/public/android-chrome-192x192.png?raw=true
+sources:
+  - https://github.com/documenso/documenso
+keywords:
+  - Finance
+annotations:
+  displayName: documenso
+  licenses: AGPL-3.0 license
+  category: Productivity
+  gallery: "https://github-production-user-asset-6210df.s3.amazonaws.com/13398220/312843205-d96ed533-6f34-4a97-be9b-442bdb189c69.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241107%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241107T162958Z&X-Amz-Expires=300&X-Amz-Signature=fead83bbf73f175b89060245c1ade06b61747eb2463bf254c35d3c2330fa13d8&X-Amz-SignedHeaders=host"
+dependencies:
+  - name: postgresql
+    version: 16.x.x
+    repository: https://charts.bitnami.com/bitnami

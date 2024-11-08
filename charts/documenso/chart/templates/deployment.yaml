@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: PORT
+            value: "3000"
+          - name: NEXTAUTH_URL
+            value: {{ .Values.app.domain }}
+          - name: NEXTAUTH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-nextauth-secret
+                key: NEXTAUTH_SECRET
+          - name: NEXT_PRIVATE_DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-db-url
+                key: url
+          - name: NEXT_PRIVATE_DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-db-url
+                key: url
+          - name: NEXT_PRIVATE_SMTP_HOST
+            value: "{{ .Values.app.smtp.host }}"
+          - name: NEXT_PRIVATE_SMTP_PORT
+            value: "{{ .Values.app.smtp.port }}"
+          - name: NEXT_PRIVATE_SMTP_FROM_ADDRESS
+            value: "{{ .Values.app.smtp.from }}"
+          - name: NEXT_PRIVATE_SMTP_FROM_NAME
+            value: "{{ .Values.app.smtp.fromName }}"
+          - name: NEXT_PRIVATE_SMTP_USERNAME
+            value: "{{ .Values.app.smtp.username }}"
+          - name: NEXT_PRIVATE_SMTP_PASSWORD
+            value: "{{ .Values.app.smtp.password }}"
+
+          - name: NEXT_PRIVATE_OIDC_WELL_KNOWN
+            value: "{{ .Values.app.publishableKey }}"
+          - name: NEXT_PRIVATE_OIDC_CLIENT_ID
+            value: "{{ .Values.app.secretKey }}"
+          - name: NEXT_PRIVATE_OIDC_CLIENT_SECRET
+            value: "{{ .Values.app.webhookSecret }}"
+
+          - name: NEXT_PRIVATE_ENCRYPTION_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-encryption-key
+                key: NEXT_PRIVATE_ENCRYPTION_KEY
+
+          - name: NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-encryption-key-secondary
+                key: NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY
+            
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      volumes:
+      - name: data
+        {{- if and .Values.storage.data.enabled .Values.storage.data.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.storage.data.existingClaim }}
+        {{- else if .Values.storage.data.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-data
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

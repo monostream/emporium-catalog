@@ -1,0 +1,36 @@
+app:
+  domain: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
+  smtp:
+    host: {{ .Emporium.Integrations.SMTP.Host }}
+    port: {{ .Emporium.Integrations.SMTP.Port | quote }}
+    from: {{ .Emporium.Integrations.SMTP.From | quote }}
+    fromName: "Maybe-Finance"
+    username: {{ .Emporium.Integrations.SMTP.Username | quote }}
+    password: {{ .Emporium.Integrations.SMTP.Password | quote }}
+  oidc:
+    wellknownUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+    clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+    clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+
+storage:
+  data:
+    enabled: true
+    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"
+
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+    emporium.build/auth-skip-paths: '/api/*,/#/*'
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
