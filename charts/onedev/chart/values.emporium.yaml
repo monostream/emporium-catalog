@@ -50,11 +50,7 @@ onedev:
       nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
       nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
       nginx.ingress.kubernetes.io/session-cookie-name: session-sticky
-    hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
-        paths:
-          - path: /
-            pathType: Prefix
+    host: {{ .Emporium.Integrations.DNS.Hostname }}
     tls:
       enabled: true
       secretName: {{ .Emporium.Name }}-tls
