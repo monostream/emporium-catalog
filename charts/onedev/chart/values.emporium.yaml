@@ -56,6 +56,5 @@ onedev:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
+      enabled: true
+      secretName: {{ .Emporium.Name }}-tls
