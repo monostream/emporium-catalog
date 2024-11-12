@@ -1,3 +1,22 @@
+# 0.0.180
+
+Published on 12 November 2024
+
+- tempo from 1.13.0 to 1.14.0
+
+# 0.0.179
+
+Published on 10 November 2024
+
+- kube-prometheus-stack from 66.0.0 to 66.1.0
+
+# 0.0.178
+
+Published on 9 November 2024
+
+- tempo from 1.12.0 to 1.13.0
+- kube-prometheus-stack from 65.8.1 to 66.0.0
+
 # 0.0.177
 
 Published on 7 November 2024
