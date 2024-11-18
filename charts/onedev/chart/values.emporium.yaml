@@ -39,7 +39,7 @@ onedev:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
-      kubernetes.io/tls-acme: "true"
+      kubernetes.io/tls-acme: "true"  
       emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
       nginx.ingress.kubernetes.io/proxy-body-size: '0'
       nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
