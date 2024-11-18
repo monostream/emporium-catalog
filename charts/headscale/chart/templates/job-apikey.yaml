@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "chart.fullname" . }}-post-install
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "1"
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "chart.fullname" . }}-job-sa
+      containers:
+        - name: post-install
+          image: bitnami/kubectl
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              # Wait for the deployment to be ready
+              kubectl rollout status deployment/{{ include "chart.fullname" . }}
+
+              SECRET_NAME="{{ include "chart.fullname" . }}-root-api-key"
+
+              # Check if ROOT_API_KEY is set
+              ROOT_API_KEY=$(kubectl get secret $SECRET_NAME -o jsonpath="{.data.ROOT_API_KEY}" || echo "")
+
+              if [ -z "$ROOT_API_KEY" ]; then
+                echo "ROOT_API_KEY is not set. Generating new API key."
+
+                # Get the pod name
+                POD_NAME=$(kubectl get pods -l app.kubernetes.io/name={{ include "chart.name" . }} -o jsonpath="{.items[0].metadata.name}")
+
+                # Exec into the pod and run the command
+                API_KEY=$(kubectl exec $POD_NAME -c {{ .Chart.Name }} -- headscale apikeys create --expiration 30000d | tail -n1 | tr -d '\r')
+
+                echo "Generated API_KEY: $API_KEY"
+
+                # Update the secret
+                kubectl patch secret $SECRET_NAME -p "{\"data\": {\"ROOT_API_KEY\": \"$(echo -n $API_KEY | base64)\"}}"
+
+                # Restart the deployment
+                kubectl rollout restart deployment/{{ include "chart.fullname" . }}
+
+              else
+                echo "ROOT_API_KEY is already set."
+              fi
+      restartPolicy: OnFailure

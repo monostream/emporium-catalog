@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init-socket-permissions
+          image: busybox
+          command: ['sh', '-c']
+          args:
+            - |
+              mkdir -p /var/run/headscale
+              chmod 0770 /var/run/headscale
+          volumeMounts:
+            - name: headscale-socket
+              mountPath: /var/run/headscale
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          args: ["serve"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - name: config
+              mountPath: /etc/headscale
+            - name: headscale-socket
+              mountPath: /var/run/headscale
+        - name: {{ .Chart.Name }}-web
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          env:
+          - name: HEADSCALE_URL
+            value: 'http://{{ include "chart.fullname" . }}:{{ .Values.service.port }}'
+          - name: OIDC_CLIENT_ID
+            value: '{{ .Values.oidc.clientId }}'
+          - name: OIDC_CLIENT_SECRET
+            value: '{{ .Values.oidc.clientSecret }}'
+          - name: OIDC_ISSUER
+            value: '{{ .Values.oidc.issuerUrl }}'
+          - name: COOKIE_SECURE
+            value: 'false'
+          - name: DISABLE_API_KEY_LOGIN
+            value: 'true'
+          - name: HEADSCALE_INTEGRATION
+            value: 'kubernetes'
+          - name: DEBUG
+            value: 'true'
+          - name: ROOT_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-root-api-key
+                key: ROOT_API_KEY            
+          - name: COOKIE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-root-api-key
+                key: COOKIE_SECRET
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          ports:
+            - name: web
+              containerPort: {{ .Values.web.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - name: config
+              mountPath: /etc/headscale
+      volumes:
+      - name: headscale-socket
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: {{ template "chart.fullname" . }}
+      - name: data
+        {{- if and .Values.storage.data.enabled .Values.storage.data.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.storage.data.existingClaim }}
+        {{- else if .Values.storage.data.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "chart.fullname" . }}-data
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

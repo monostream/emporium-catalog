@@ -1,0 +1,18 @@
+apiVersion: v2
+name: headscale
+description:
+type: application
+version: 0.1.19
+appVersion: "v0.23"
+home: https://headscale.net/
+icon: https://github.com/juanfont/headscale/blob/main/docs/logo/headscale3-dots.png?raw=true
+sources:
+  - https://github.com/juanfont/headscale
+keywords:
+  - Utilities
+annotations:
+  displayName: headscale
+  licenses: BSD-3-Clause license
+  category: Utilities
+  gallery: ""
+  oidcRedirectPaths: /oidc/callback, admin/oidc/callback,

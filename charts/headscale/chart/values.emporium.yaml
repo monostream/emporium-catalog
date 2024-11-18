@@ -1,0 +1,47 @@
+app:
+  domain: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
+  zone: "https://{{ .Emporium.Integrations.DNS.Zone }}"
+
+oidc:
+  issuerUrl: "{{ .Emporium.Integrations.OIDC.Issuer }}"
+  clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+  clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+
+storage:
+  data:
+    enabled: true
+    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"
+
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+    emporium.build/disable-glass: "true"
+    emporium.build/auth-skip-paths: '*'
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: |
+      Upgrade $http_upgrade
+      Connection $connection_upgrade
+      Host $server_name
+      X-Real-IP $remote_addr
+      X-Forwarded-For $proxy_add_x_forwarded_for
+      X-Forwarded-Proto $scheme
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-redirect-from: "http://"
+    nginx.ingress.kubernetes.io/proxy-redirect-to: "https://"
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "15552000"
+    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
