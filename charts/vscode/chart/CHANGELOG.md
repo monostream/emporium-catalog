@@ -1,5 +1,23 @@
 # 
 
+Published on 18 November 2024
+
+- Code Server from v4.95.2 to v4.95.3
+
+# 
+
+Published on 14 November 2024
+
+- Helm CLI from v3.16.2 to v3.16.3
+
+# 
+
+Published on 13 November 2024
+
+- Code Server from v4.95.1 to v4.95.2
+
+# 
+
 Published on 7 November 2024
 
 - Code Server from v4.93.1 to v4.95.1
