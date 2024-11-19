@@ -1,3 +1,9 @@
+# 0.1.8
+
+Published on 19 November 2024
+
+- documenso from v1.8.0-rc.3 to v1.8.0-rc.4
+
 # 0.1.7
 
 Published on 16 November 2024
