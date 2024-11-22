@@ -39,7 +39,7 @@
     "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.31.2",
+    "currentTag": "v1.31.3",
     "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },
