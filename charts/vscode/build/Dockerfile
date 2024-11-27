@@ -25,7 +25,7 @@ RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/
 
 # Kubernetes CLI
 ENV KUBECTL_VERSION="v1.31.3"
-RUN curl -fsSL "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
+RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
 ENV HELM_VERSION="v3.16.3"
