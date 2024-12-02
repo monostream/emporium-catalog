@@ -1,3 +1,9 @@
+# 0.1.43
+
+Published on 2 December 2024
+
+- docker from 27.3.1 to 27.4.0-rc.2-dind-rootless
+
 # 
 
 Published on 28 November 2024

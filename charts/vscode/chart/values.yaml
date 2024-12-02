@@ -38,4 +38,4 @@ affinity: {}
 docker:
   repository: docker
   pullPolicy: Always
-  tag: 27.3.1
+  tag: 27.4.0-rc.2-dind-rootless
