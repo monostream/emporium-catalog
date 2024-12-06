@@ -30,7 +30,7 @@ dind:
     registry: docker.io
     repository: library/docker
     pullPolicy: IfNotPresent
-    tag: "27.3.1"
+    tag: "27.4.0-rc.2-dind-rootless"
   resources:
     requests:
       cpu: 1
