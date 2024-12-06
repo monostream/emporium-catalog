@@ -1,3 +1,15 @@
+# 0.1.37
+
+Published on 2 December 2024
+
+- docker from 27.3.1 to 27.4.0-rc.2-dind-rootless
+
+# 0.1.36
+
+Published on 29 November 2024
+
+- devcloud-jenkins from 2.462.3 to 2.479.2
+
 # 0.1.35
 
 Published on 9 October 2024
