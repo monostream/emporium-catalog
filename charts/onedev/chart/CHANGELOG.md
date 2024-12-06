@@ -1,3 +1,27 @@
+# 0.0.11
+
+Published on 5 December 2024
+
+- onedev from 11.6.2 to 11.6.3
+
+# 0.0.10
+
+Published on 2 December 2024
+
+- onedev from 11.6.1 to 11.6.2
+
+# 0.0.9
+
+Published on 1 December 2024
+
+- onedev from 11.6.0 to 11.6.1
+
+# 0.0.8
+
+Published on 30 November 2024
+
+- onedev from 11.5.3 to 11.6.0
+
 # 0.0.7
 
 Published on 21 November 2024
