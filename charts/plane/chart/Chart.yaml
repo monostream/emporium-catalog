@@ -2,8 +2,8 @@ apiVersion: v2
 name: plane
 description: Project management tool from the future
 type: application
-version: 0.1.30
-appVersion: v0.23.1
+version: 0.1.31
+appVersion: v0.24.0
 home: https://plane.so/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
 sources:
