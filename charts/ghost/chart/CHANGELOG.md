@@ -1,3 +1,15 @@
+# 1.0.98
+
+Published on 4 December 2024
+
+- ghost from 22.0.7 to 22.0.8
+
+# 1.0.97
+
+Published on 30 November 2024
+
+- ghost from 22.0.6 to 22.0.7
+
 # 1.0.96
 
 Published on 29 November 2024
