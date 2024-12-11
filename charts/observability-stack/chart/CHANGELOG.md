@@ -1,3 +1,9 @@
+# 0.0.192
+
+Published on 11 December 2024
+
+- loki from 6.23.0 to 6.24.0-weekly.232
+
 # 0.0.191
 
 Published on 10 December 2024
