@@ -1,3 +1,21 @@
+# 0.0.193
+
+Published on 12 December 2024
+
+- kube-prometheus-stack from 66.3.1 to 66.4.0
+
+# 0.0.192
+
+Published on 11 December 2024
+
+- loki from 6.23.0 to 6.24.0-weekly.232
+
+# 0.0.191
+
+Published on 10 December 2024
+
+- tempo from 1.14.0 to 1.15.0
+
 # 0.0.190
 
 Published on 6 December 2024
