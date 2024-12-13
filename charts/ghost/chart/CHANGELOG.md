@@ -1,3 +1,27 @@
+# 1.0.102
+
+Published on 12 December 2024
+
+- ghost from 22.1.0 to 22.1.1
+
+# 1.0.101
+
+Published on 11 December 2024
+
+- ghost from 22.0.10 to 22.1.0
+
+# 1.0.100
+
+Published on 9 December 2024
+
+- ghost from 22.0.9 to 22.0.10
+
+# 1.0.99
+
+Published on 7 December 2024
+
+- ghost from 22.0.8 to 22.0.9
+
 # 1.0.98
 
 Published on 4 December 2024
