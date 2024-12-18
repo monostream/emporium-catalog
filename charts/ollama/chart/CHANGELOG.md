@@ -1,3 +1,9 @@
+# 0.1.67
+
+Published on 18 December 2024
+
+- ollama from 1.1.1 to 1.1.2
+
 # 0.1.66
 
 Published on 17 December 2024
