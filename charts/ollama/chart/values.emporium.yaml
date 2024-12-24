@@ -22,21 +22,3 @@ ollama:
   persistentVolume:
     enabled: true
     size: {{ .Emporium.UserSupplied.StorageSize }}
-
-ollama-webui:
-  ingress:
-    enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-    hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls:
-      - secretName: {{ .Emporium.Name }}-webui-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}

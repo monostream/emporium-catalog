@@ -1,3 +1,9 @@
+# 0.1.68
+
+Published on 24 December 2024
+
+- Removed ollama-webui to make the chart a standalone Ollama instance
+
 # 0.1.67
 
 Published on 18 December 2024
