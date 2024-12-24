@@ -1,3 +1,58 @@
+# 0.0.202
+
+Published on 19 December 2024
+
+- kube-prometheus-stack from 67.3.1 to 67.4.0
+
+# 0.0.201
+
+Published on 19 December 2024
+
+- kube-prometheus-stack from 67.3.0 to 67.3.1
+
+# 0.0.200
+
+Published on 18 December 2024
+
+- kube-prometheus-stack from 67.2.0 to 67.3.0
+
+# 0.0.199
+
+Published on 17 December 2024
+
+- tempo from 1.15.0 to 1.16.0
+- kube-prometheus-stack from 67.1.0 to 67.2.0
+
+# 0.0.198
+
+Published on 16 December 2024
+
+- kube-prometheus-stack from 67.0.0 to 67.1.0
+
+# 0.0.197
+
+Published on 16 December 2024
+
+- kube-prometheus-stack from 66.7.0 to 67.0.0
+
+# 0.0.196
+
+Published on 15 December 2024
+
+- kube-prometheus-stack from 66.6.0 to 66.7.0
+
+# 0.0.195
+
+Published on 14 December 2024
+
+- kube-prometheus-stack from 66.5.0 to 66.6.0
+
+# 0.0.194
+
+Published on 13 December 2024
+
+- kube-prometheus-stack from 66.4.0 to 66.5.0
+
 # 0.0.193
 
 Published on 12 December 2024
