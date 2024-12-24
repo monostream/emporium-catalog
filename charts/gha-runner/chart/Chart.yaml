@@ -1,14 +1,14 @@
 apiVersion: v2
 name: gha-runner
 description: GitHub Actions Runner orchestrates and scales self-hosted runners for GitHub Actions
-version: 0.0.15
-appVersion: 0.9.3
+version: 0.0.17
+appVersion: 0.10.1
 dependencies:
   - name: gha-runner-scale-set-controller
-    version: 0.9.3
+    version: 0.10.1
     repository: oci://ghcr.io/actions/actions-runner-controller-charts
   - name: gha-runner-scale-set
-    version: 0.9.3
+    version: 0.10.1
     repository: oci://ghcr.io/actions/actions-runner-controller-charts
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gha-runner/gha-runner_icon_2.svg
 sources:
