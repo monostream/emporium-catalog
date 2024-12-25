@@ -1,7 +1,7 @@
 apiVersion: v2
 name: forgejo-runner
 description: Forgejo Actions Runner orchestrates and scales self-hosted runners for Gittea Actions
-version: 0.0.44
+version: 0.0.45
 appVersion: 3.3.0
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/forgejo/forgejo_icon_3.svg
 sources:
