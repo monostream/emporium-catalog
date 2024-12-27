@@ -1,3 +1,9 @@
+# 0.0.69
+
+Published on 27 December 2024
+
+- nextcloud from 6.5.1 to 6.5.2
+
 # 0.0.68
 
 Published on 20 December 2024
