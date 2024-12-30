@@ -1,3 +1,9 @@
+# 0.0.45
+
+Published on 25 December 2024
+
+- docker from 27.4.1-dind-alpine3.21 to 27.5.0-rc.1-dind-rootless
+
 # 0.0.44
 
 Published on 19 December 2024
