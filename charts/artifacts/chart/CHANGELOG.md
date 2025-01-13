@@ -1,3 +1,9 @@
+# 0.0.126
+
+Published on 13 January 2025
+
+- postgresql from 16.3.5 to 16.4.1
+
 # 0.0.125
 
 Published on 3 January 2025
