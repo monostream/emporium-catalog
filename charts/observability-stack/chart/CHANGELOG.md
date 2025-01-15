@@ -1,3 +1,10 @@
+# 0.0.212
+
+Published on 15 January 2025
+
+- pyroscope from 1.11.0 to 1.12.0
+- tempo from 1.17.0 to 1.18.0
+
 # 0.0.211
 
 Published on 14 January 2025
