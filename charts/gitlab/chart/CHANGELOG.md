@@ -1,3 +1,9 @@
+# 0.2.45
+
+Published on 16 January 2025
+
+- gitlab from 8.7.4 to 8.8.0
+
 # 0.2.44
 
 Published on 15 January 2025
