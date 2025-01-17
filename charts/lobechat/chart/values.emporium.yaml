@@ -1,0 +1,25 @@
+app:
+  url: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
+  oidc:
+    wellknownUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+    clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+    clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+
+
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+    emporium.build/auth-skip-paths: '/api/*,/#/*'
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
