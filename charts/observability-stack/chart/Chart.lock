@@ -7,12 +7,12 @@ dependencies:
   version: 6.25.0
 - name: tempo
   repository: https://grafana.github.io/helm-charts
-  version: 1.18.0
+  version: 1.18.1
 - name: promtail
   repository: https://grafana.github.io/helm-charts
   version: 6.16.6
 - name: pyroscope
   repository: https://grafana.github.io/helm-charts
   version: 1.12.0
-digest: sha256:967964176b67a2e17a646ef6622e5f8aa953a3eb16b05a0cf0e184be61a54cad
-generated: "2025-01-18T08:02:08.065531117Z"
+digest: sha256:2b245ce174e61cd36b5a83867962c0ddc09919023a727a5af7c774db8e08e80a
+generated: "2025-01-18T17:02:46.812482317Z"
