@@ -77,17 +77,6 @@ Reuse existing secret value or use a provided default.
 {{- end -}}
 
 {{/*
-Define a helper to get the PostgreSQL service host
-*/}}
-{{- define "chart.postgresqlServiceHost" -}}
-{{- if .Values.postgresql.fullnameOverride }}
-{{- .Values.postgresql.fullnameOverride }}
-{{- else }}
-{{ include "chart.fullname" . }}-postgresql
-{{- end }}
-{{- end -}}
-
-{{/*
 Return the environment variables DB_PASSWORD and DB_URI
 */}}
 {{- define "chart.database.env" -}}
@@ -101,7 +90,7 @@ Return the environment variables DB_PASSWORD and DB_URI
   value: {{ .Values.postgresql.auth.password | quote }}
   {{- end }}
 - name: DATABASE_URL
-  value: postgresql://{{ .Values.postgresql.auth.username }}:$(DB_PASSWORD)@{{ .chart.postgresqlServiceHost }}:{{ .Values.postgresql.auth.port }}/{{ .Values.postgresql.auth.database }}
+  value: postgresql://{{ .Values.postgresql.auth.username }}:$(DB_PASSWORD)@{{ .Release.Name }}-postgresql:{{ .Values.postgresql.auth.port }}/{{ .Values.postgresql.auth.database }}
 {{- end -}}
 
 {{/*

@@ -35,7 +35,6 @@ postgresql:
     tag: "pg16"
 
   auth:
-    host: "lobe-postgresql"
     database: "lobe"
     username: "postgres"
     port: 5432
