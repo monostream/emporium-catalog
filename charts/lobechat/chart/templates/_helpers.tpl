@@ -77,6 +77,17 @@ Reuse existing secret value or use a provided default.
 {{- end -}}
 
 {{/*
+Define a helper to get the PostgreSQL service host
+*/}}
+{{- define "chart.postgresqlServiceHost" -}}
+{{- if .Values.postgresql.fullnameOverride }}
+{{- .Values.postgresql.fullnameOverride }}
+{{- else }}
+{{ include "chart.fullname" . }}-postgresql
+{{- end }}
+{{- end -}}
+
+{{/*
 Return the environment variables DB_PASSWORD and DB_URI
 */}}
 {{- define "chart.database.env" -}}
@@ -90,7 +101,7 @@ Return the environment variables DB_PASSWORD and DB_URI
   value: {{ .Values.postgresql.auth.password | quote }}
   {{- end }}
 - name: DATABASE_URL
-  value: postgresql://{{ .Values.postgresql.auth.username }}:$(DB_PASSWORD)@{{ .Values.postgresql.auth.host }}:{{ .Values.postgresql.auth.port }}/{{ .Values.postgresql.auth.database }}
+  value: postgresql://{{ .Values.postgresql.auth.username }}:$(DB_PASSWORD)@{{ .chart.postgresqlServiceHost }}:{{ .Values.postgresql.auth.port }}/{{ .Values.postgresql.auth.database }}
 {{- end -}}
 
 {{/*
@@ -108,11 +119,11 @@ Return the environment variables for S3
       name: {{ .Values.minio.auth.existingSecret }}
       key: root-password
 - name: S3_ENDPOINT
-  value: "http://{{ include "chart.fullname" . }}-minio:9001"
+  value: "https://{{ .Values.minio.apiIngress.hostname }}"
 - name: S3_BUCKET
   value: "{{ .Values.s3.bucket }}"
 - name: S3_PUBLIC_DOMAIN
-  value: "http://{{ include "chart.fullname" . }}-minio:9001"
+  value: "https://{{ .Values.minio.apiIngress.hostname }}"
 - name: S3_ENABLE_PATH_STYLE
   value: "1"
 {{- end -}}
@@ -134,5 +145,5 @@ Return the environment variables for app
 - name: AUTH_AUTHENTIK_SECRET
   value: "{{ .Values.app.oidc.clientSecret }}"
 - name: AUTH_AUTHENTIK_ISSUER
-  value: "{{ .Values.app.oidc.wellknownUrl }}"
+  value: "{{ .Values.app.oidc.issuer }}"
 {{- end -}}

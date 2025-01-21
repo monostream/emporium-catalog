@@ -17,9 +17,9 @@ fullnameOverride: ""
 app:
   url: ""
   oidc:
-    wellknownUrl:
-    clientId:
-    clientSecret:
+    wellknownUrl: ""
+    clientId: ""
+    clientSecret: ""
 
 s3:
   bucket: "lobe"
@@ -40,7 +40,7 @@ postgresql:
     username: "postgres"
     port: 5432
     password: ""
-    existingSecret: "postgresql"
+    existingSecret: ""
   containerSecurityContext:
     enabled: true
     runAsUser: 1001
@@ -76,7 +76,7 @@ postgresql:
 minio:
   defaultBuckets: lobe
   auth:
-    existingSecret: "lobe-lobechat-minio"
+    existingSecret: ""
   deploymentUpdate:
     type: Recreate
   replicas: 1

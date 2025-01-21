@@ -1,7 +1,7 @@
 app:
   url: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
   oidc:
-    wellknownUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+    issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
     clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
     clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
 
@@ -14,6 +14,7 @@ ingress:
     {{- end }}
     kubernetes.io/tls-acme: "true"
     emporium.build/auth-skip-paths: '/api/*,/#/*'
+    nginx.ingress.kubernetes.io/proxy-body-size: 16m
   hosts:
     - host: {{ .Emporium.Integrations.DNS.Hostname }}
       paths:
@@ -23,3 +24,28 @@ ingress:
     - secretName: {{ .Emporium.Name }}-tls
       hosts:
         - {{ .Emporium.Integrations.DNS.Hostname }}
+
+postgresql:
+  fullnameOverride: "{{ .Emporium.Name }}-postgresql"
+  auth:
+    existingSecret: "{{ .Emporium.Name }}-postgresql"
+
+
+minio:
+  fullnameOverride: "{{ .Emporium.Name }}-minio"
+  auth:
+    existingSecret: "{{ .Emporium.Name }}-minio"
+
+  apiIngress:
+    enabled: true
+
+    hostname: "minio-{{ .Emporium.Integrations.DNS.Hostname }}"
+
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 16m
+
+    extraTls:
+      - hosts:
+          - "minio-{{ .Emporium.Integrations.DNS.Hostname }}"
+        secretName: "{{ .Emporium.Name }}-minio-tls"
