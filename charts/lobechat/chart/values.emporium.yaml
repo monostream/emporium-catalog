@@ -27,12 +27,14 @@ ingress:
 
 postgresql:
   fullnameOverride: "{{ .Emporium.Name }}-postgresql"
+
   auth:
-    existingSecret: "{{ .Emporium.Name }}-postgresql"
+    existingSecret: "{{ .Emporium.Name }}-postgresql"
 
 
 minio:
   fullnameOverride: "{{ .Emporium.Name }}-minio"
+
   auth:
     existingSecret: "{{ .Emporium.Name }}-minio"
 
