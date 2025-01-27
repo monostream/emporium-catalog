@@ -5,31 +5,31 @@
 ## @optional
 
 open-webui:
-  open-webui:
-    extraEnvVars:
-      - name: OPENAI_API_KEY
-        value: {{- if .Emporium.UserSupplied.OpenaiApiKey }}
-      - name: OAUTH_CLIENT_ID
-        value: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-      - name: OAUTH_CLIENT_SECRET
-        value: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-      - name: OPENID_PROVIDER_URL
-        value: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-      - name: OAUTH_PROVIDER_NAME
-        value: "Authentik"
-      - name: OAUTH_SCOPES
-        value: "openid email profile"
+  extraEnvVars:
+    - name: OPENAI_API_KEY
+      value: "{{- if .Emporium.UserSupplied.OpenaiApiKey }}"
+    - name: OAUTH_CLIENT_ID
+      value: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+    - name: OAUTH_CLIENT_SECRET
+      value: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+    - name: OPENID_PROVIDER_URL
+      value: "{{ .Emporium.Integrations.OIDC.Issuer }}"
+    - name: OAUTH_PROVIDER_NAME
+      value: "Authentik"
+    - name: OAUTH_SCOPES
+      value: "openid email profile"
 
-    ingress:
-      enabled: true
-      annotations:
-        {{- if .Emporium.Annotations }}
-        {{- toYaml .Emporium.Annotations | nindent 4 }}
-        {{- end }}
-        kubernetes.io/tls-acme: "true"
-        nginx.ingress.kubernetes.io/proxy-body-size: 16m
-      host: {{ .Emporium.Integrations.DNS.Hostname }}
-      tls: true
-    persistence:
-      enabled: true
-      existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"
+  ingress:
+    enabled: true
+    annotations:
+      {{- if .Emporium.Annotations }}
+      {{- toYaml .Emporium.Annotations | nindent 4 }}
+      {{- end }}
+      kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: 16m
+    host: "{{ .Emporium.Integrations.DNS.Hostname }}"
+    tls: true
+    
+  persistence:
+    enabled: true
+    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"

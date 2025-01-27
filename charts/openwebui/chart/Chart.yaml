@@ -2,7 +2,7 @@ apiVersion: v2
 name: open-webui
 description:  Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.
 type: application
-version: 0.0.1
+version: 0.0.2
 appVersion: "5.4.0"
 home: https://openwebui.com/
 icon: ""
