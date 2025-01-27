@@ -1,0 +1,22 @@
+apiVersion: v2
+name: open-webui
+description:  Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.
+type: application
+version: 0.0.1
+appVersion: "5.4.0"
+home: https://openwebui.com/
+icon: ""
+sources:
+  - https://github.com/open-webui/open-webui
+keywords:
+  - AI
+annotations:
+  displayName: Open WebUI
+  licenses: BSD-3-Clause license
+  category: AI
+  #gallery: ""
+  oidcRedirectPaths: /oauth/oidc/callback
+dependencies:
+  - name: open-webui
+    version: 5.x.x
+    repository: https://helm.openwebui.com/
