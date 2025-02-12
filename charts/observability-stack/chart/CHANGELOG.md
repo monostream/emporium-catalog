@@ -1,3 +1,9 @@
+# 0.0.231
+
+Published on 12 February 2025
+
+- kube-prometheus-stack from 69.2.2 to 69.2.3
+
 # 0.0.230
 
 Published on 11 February 2025
