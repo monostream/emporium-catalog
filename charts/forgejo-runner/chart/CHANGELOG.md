@@ -1,3 +1,9 @@
+# 0.0.49
+
+Published on 13 February 2025
+
+- kubectl from 1.32.1 to 1.32.2
+
 # 0.0.48
 
 Published on 12 February 2025
