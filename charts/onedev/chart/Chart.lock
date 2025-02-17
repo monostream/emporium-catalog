@@ -1,6 +1,6 @@
 dependencies:
 - name: onedev
   repository: https://dl.cloudsmith.io/public/onedev/onedev/helm/charts
-  version: 11.6.14
-digest: sha256:05518b5ec580fc3289a38039ef610e92d980963379f863bdb4184a69028da18b
-generated: "2025-02-15T08:02:05.999683453Z"
+  version: 11.6.15
+digest: sha256:40acbb8c546c06b52dcdc679058f1e53cb1830c540ddf510dad2568abe4644fa
+generated: "2025-02-17T08:02:45.18384219Z"
