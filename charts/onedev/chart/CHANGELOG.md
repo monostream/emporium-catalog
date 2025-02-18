@@ -1,3 +1,9 @@
+# 0.0.24
+
+Published on 18 February 2025
+
+- onedev from 11.6.15 to 11.6.16
+
 # 0.0.23
 
 Published on 17 February 2025
