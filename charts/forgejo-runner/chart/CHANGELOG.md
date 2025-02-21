@@ -1,3 +1,9 @@
+# 0.0.50
+
+Published on 21 February 2025
+
+- docker from 28.0.0-rc.1-dind-rootless to 28.0.0
+
 # 0.0.49
 
 Published on 13 February 2025
