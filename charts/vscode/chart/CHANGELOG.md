@@ -1,3 +1,14 @@
+# 0.1.48
+
+Published on 23 February 2025
+
+- Docker Buildx from v0.19.1 to v0.21.1
+- Kubernetes CLI from v1.31.3 to v1.32.2
+- Helm CLI from v3.16.3 to v3.17.1
+- Docker CLI from v27.3.1 to v28.0.0
+- Code Server from v4.95.3 to v4.97.2
+- docker from 28.0.0-rc.1-dind-rootless to 28.0.0
+
 # 0.1.47
 
 Published on 11 February 2025
