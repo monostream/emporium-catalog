@@ -1,3 +1,11 @@
+# 0.0.232
+
+Published on 23 February 2025
+
+- loki from 6.25.1 to 6.27.0
+- kube-prometheus-stack from 69.2.3 to 69.4.1
+- tempo from 1.18.1 to 1.18.2
+
 # 0.0.231
 
 Published on 12 February 2025
