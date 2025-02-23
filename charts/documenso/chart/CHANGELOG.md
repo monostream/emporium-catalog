@@ -1,3 +1,9 @@
+# 0.1.12
+
+Published on 23 February 2025
+
+- documenso from v1.8.1-rc.2 to v1.8.1
+
 # 0.1.11
 
 Published on 29 November 2024
