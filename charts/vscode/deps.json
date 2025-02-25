@@ -15,7 +15,7 @@
     "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.95.3",
+    "currentTag": "v4.97.2",
     "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
@@ -23,7 +23,7 @@
     "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v27.3.1",
+    "currentTag": "v28.0.0",
     "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },
@@ -31,7 +31,7 @@
     "provider": "github-tags",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
-    "currentTag": "v0.19.1",
+    "currentTag": "v0.21.1",
     "allowPrerelease": false,
     "envVar": "DOCKER_BUILDX_VERSION"
   },
@@ -39,7 +39,7 @@
     "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.31.3",
+    "currentTag": "v1.32.2",
     "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.16.3",
+    "currentTag": "v3.17.1",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
