@@ -1,3 +1,9 @@
+# 0.1.49
+
+Published on 26 February 2025
+
+- vscode from 4.95.3 to 4.97.2
+
 # 0.1.48
 
 Published on 23 February 2025
