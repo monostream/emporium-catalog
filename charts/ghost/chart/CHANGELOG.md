@@ -1,3 +1,9 @@
+# 1.0.107
+
+Published on 26 February 2025
+
+- ghost from 22.1.15 to 22.1.16
+
 # 1.0.106
 
 Published on 23 February 2025
