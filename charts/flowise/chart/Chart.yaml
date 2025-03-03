@@ -2,8 +2,8 @@ apiVersion: v2
 name: flowise
 description: low-code tool to build customized LLM orchestration flow & AI agents
 type: application
-version: 0.1.6
-appVersion: "2.2.5"
+version: 0.1.7
+appVersion: "2.2.6"
 home: https://flowiseai.com/
 icon: https://github.com/FlowiseAI/Flowise/blob/main/assets/FloWiseAI_dark.png?raw=true
 sources:
