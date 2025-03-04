@@ -1,3 +1,9 @@
+# 
+
+Published on 4 March 2025
+
+- Docker Buildx from v0.21.1 to v0.21.2
+
 # 0.1.50
 
 Published on 27 February 2025
