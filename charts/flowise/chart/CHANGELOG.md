@@ -1,3 +1,9 @@
+# 0.1.8
+
+Published on 6 March 2025
+
+- flowise from 2.2.6 to 2.2.7
+
 # 0.1.7
 
 Published on 28 February 2025
