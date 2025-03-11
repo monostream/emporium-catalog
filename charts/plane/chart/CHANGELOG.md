@@ -1,3 +1,11 @@
+# 0.1.35
+
+Published on 11 March 2025
+
+- plane-frontend from v0.25.1 to v0.25.2
+- plane-backend from v0.25.1 to v0.25.2
+- plane-space from v0.25.1 to v0.25.2
+
 # 0.1.34
 
 Published on 5 March 2025
