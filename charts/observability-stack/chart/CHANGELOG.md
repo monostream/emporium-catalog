@@ -1,3 +1,45 @@
+# 0.0.242
+
+Published on 11 March 2025
+
+- loki from 6.27.0 to 6.28.0
+
+# 0.0.241
+
+Published on 9 March 2025
+
+- kube-prometheus-stack from 69.8.1 to 69.8.2
+
+# 0.0.240
+
+Published on 9 March 2025
+
+- kube-prometheus-stack from 69.8.0 to 69.8.1
+
+# 0.0.239
+
+Published on 7 March 2025
+
+- tempo from 1.18.2 to 1.18.3
+
+# 0.0.238
+
+Published on 7 March 2025
+
+- kube-prometheus-stack from 69.7.4 to 69.8.0
+
+# 0.0.237
+
+Published on 6 March 2025
+
+- kube-prometheus-stack from 69.7.3 to 69.7.4
+
+# 0.0.236
+
+Published on 5 March 2025
+
+- kube-prometheus-stack from 69.7.2 to 69.7.3
+
 # 0.0.235
 
 Published on 4 March 2025
