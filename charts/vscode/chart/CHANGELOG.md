@@ -1,5 +1,11 @@
 # 
 
+Published on 12 March 2025
+
+- Kubernetes CLI from v1.32.2 to v1.32.3
+
+# 
+
 Published on 11 March 2025
 
 - Code Server from v4.97.2 to v4.98.0

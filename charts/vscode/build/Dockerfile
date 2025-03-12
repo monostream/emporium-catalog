@@ -24,7 +24,7 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/d
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
-ENV KUBECTL_VERSION="v1.32.2"
+ENV KUBECTL_VERSION="v1.32.3"
 RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
