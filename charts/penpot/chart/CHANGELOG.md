@@ -1,3 +1,11 @@
+# 1.0.60
+
+Published on 11 March 2025
+
+- exporter from 2.5.1 to 2.5.2
+- frontend from 2.5.1 to 2.5.2
+- backend from 2.5.1 to 2.5.2
+
 # 1.0.59
 
 Published on 4 March 2025
