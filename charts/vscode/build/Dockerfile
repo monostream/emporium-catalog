@@ -114,13 +114,12 @@ RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-ser
    --install-extension "golang.go" \
    --install-extension "ms-python.python" \
    --install-extension "saoudrizwan.claude-dev" \
+   --install-extension "muhammad-sammy.csharp" \
+   --install-extension "mhutchie.git-graph" \
    --force \
    && ITEM_URL="https://open-vsx.org/vscode/item" SERVICE_URL="https://open-vsx.org/vscode/gallery" /usr/lib/code-server/bin/code-server \
    --disable-telemetry \
    --disable-update-check \
-   --install-extension "muhammad-sammy.csharp" \
-   --install-extension "github.copilot" \
-   --install-extension "mhutchie.git-graph" \
    --force \
    && mv workspace /usr/share/codespace/ \
    && rm -r .local/share/code-server/CachedExtensionVSIXs \
