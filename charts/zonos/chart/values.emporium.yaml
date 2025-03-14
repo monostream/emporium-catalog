@@ -1,0 +1,31 @@
+## @userSupplied RuntimeClassName
+## @label Runtime class name
+## @type string
+## @description Name of the Runtime class which is capable of running GPU enabled workload
+
+runtimeClassName: {{ .Emporium.UserSupplied.RuntimeClassName }}
+
+## @userSupplied StorageSize
+## @label StorageSize
+## @type byteSize
+## @description The size of the storage volume.
+persistence:
+  enabled: false
+  size: {{ .Emporium.UserSupplied.StorageSize }}
+
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}

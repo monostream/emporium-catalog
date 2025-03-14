@@ -1,0 +1,18 @@
+apiVersion: v2
+type: application
+name: zonos
+description: leading open-weight text-to-speech model 
+version: 0.1.0
+appVersion: 0.1.0
+home: https://github.com/Zyphra/Zonos
+icon: https://github.com/Zyphra/Zonos/blob/main/assets/ZonosHeader.png?raw=true
+sources:
+  - https://github.com/Zyphra/Zonos
+keywords:
+  - AI
+  - Image Generation
+  - Stable Diffusion
+annotations:
+  displayName: Zonos
+  category: AI
+  licenses: GPL-3.0 license

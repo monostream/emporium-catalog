@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fooocus.fullname" . }}
+  labels:
+    {{- include "fooocus.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "fooocus.selectorLabels" . | nindent 4 }}

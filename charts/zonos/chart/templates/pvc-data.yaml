@@ -1,0 +1,28 @@
+{{- if and .Values.storage.data.enabled (not .Values.storage.data.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "fooocus.fullname" . }}-data
+{{- with .Values.storage.data.annotations  }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+  labels:
+    {{- include "fooocus.labels" . | nindent 4 }}
+{{- if .Values.storage.data.labels }}
+{{ toYaml .Values.data.labels | indent 4 }}
+{{- end }}
+spec:
+  accessModes:
+    - {{ .Values.storage.data.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.data.size | quote }}
+{{- if .Values.storage.data.storageClass }}
+{{- if (eq "-" .Values.storage.data.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.storage.data.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
