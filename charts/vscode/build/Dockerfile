@@ -116,6 +116,7 @@ RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-ser
    --disable-telemetry \
    --disable-update-check \
    --install-extension "muhammad-sammy.csharp" \
+   --install-extension "github.copilot" \
    --force \
    && mv workspace /usr/share/codespace/ \
    && rm -r .local/share/code-server/CachedExtensionVSIXs \
