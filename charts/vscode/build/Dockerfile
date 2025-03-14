@@ -110,6 +110,7 @@ RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-ser
    --install-extension "vscjava.vscode-java-debug" \
    --install-extension "golang.go" \
    --install-extension "ms-python.python" \
+   --install-extension "saoudrizwan.claude-dev" \
    --force \
    && ITEM_URL="https://open-vsx.org/vscode/item" SERVICE_URL="https://open-vsx.org/vscode/gallery" /usr/lib/code-server/bin/code-server \
    --disable-telemetry \
