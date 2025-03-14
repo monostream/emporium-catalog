@@ -46,6 +46,9 @@ RUN apt-get update && apt-get install -y ca-certificates curl gnupg \
    && apt-get update && apt-get install nodejs -y \
    && rm -rf /var/lib/apt/lists/*
 
+# Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
 # Python
 RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    python3 \
@@ -117,6 +120,7 @@ RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-ser
    --disable-update-check \
    --install-extension "muhammad-sammy.csharp" \
    --install-extension "github.copilot" \
+   --install-extension "mhutchie.git-graph" \
    --force \
    && mv workspace /usr/share/codespace/ \
    && rm -r .local/share/code-server/CachedExtensionVSIXs \
