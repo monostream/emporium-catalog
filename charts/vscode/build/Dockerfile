@@ -1,35 +1,43 @@
 FROM buildpack-deps:jammy
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+# Architecture detection
+ARG TARGETARCH
 
 # Code Server
 ENV CODE_SERVER_VERSION="4.98.0"
-RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb \
+RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
    && apt-get update -qq && apt-get install -qq -y --no-install-recommends \
-   ./code-server_${CODE_SERVER_VERSION}_amd64.deb \
+   ./code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
    && rm -rf /var/lib/apt/lists/* \
-   && rm code-server_${CODE_SERVER_VERSION}_amd64.deb \
+   && rm code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
    && rm /usr/bin/code-server
 
 # Docker CLI
 ENV DOCKER_CLIENT_VERSION="28.0.1"
-RUN curl -fsSL -o - https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      DOCKER_ARCH="aarch64"; \
+    else \
+      DOCKER_ARCH="x86_64"; \
+    fi \
+    && curl -fsSL -o - https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
 
 # Docker Buildx Plugin
 ENV DOCKER_BUILDX_VERSION="v0.21.2"
-RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/docker/buildx/releases/download/${DOCKER_BUILDX_VERSION}/buildx-${DOCKER_BUILDX_VERSION}.linux-amd64" -o /usr/libexec/docker/cli-plugins/docker-buildx && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/docker/buildx/releases/download/${DOCKER_BUILDX_VERSION}/buildx-${DOCKER_BUILDX_VERSION}.linux-${TARGETARCH}" -o /usr/libexec/docker/cli-plugins/docker-buildx && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
 # Docker-in-Docker daemon socket
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
 ENV KUBECTL_VERSION="v1.32.3"
-RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
+RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
 ENV HELM_VERSION="v3.17.1"
-RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-amd64/helm
+RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-${TARGETARCH}/helm
 
 # Java
 RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends \
@@ -49,14 +57,17 @@ RUN apt-get update && apt-get install -y ca-certificates curl gnupg \
 # Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
-# Python
+# Python with uv package installer
 RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    python3 \
    python3-pip \
+   curl \
+   && curl -LsSf https://astral.sh/uv/install.sh | sh \
+   && ln -s /root/.cargo/bin/uv /usr/local/bin/uv \
    && rm -rf /var/lib/apt/lists/*
 
 # Go
-RUN curl -fsSL "https://dl.google.com/go/$(curl --silent -L https://golang.org/VERSION?m=text | grep -m 1 go).linux-amd64.tar.gz" | tar -C /usr/local -xzf -
+RUN curl -fsSL "https://dl.google.com/go/$(curl --silent -L https://golang.org/VERSION?m=text | grep -m 1 go).linux-${TARGETARCH}.tar.gz" | tar -C /usr/local -xzf -
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # .NET
@@ -67,11 +78,24 @@ RUN curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/de
    && apt-get install -y dotnet-sdk-7.0 \
    && rm -rf /var/lib/apt/lists/*
 
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
- && sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
- && apt-get update\
- && apt --fix-broken install \
- && apt-get install google-chrome-stable -y
+# Google Chrome installation with architecture detection
+RUN apt-get update && apt-get install -y ca-certificates curl gnupg wget && \
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        # For arm64, we need to specify the architecture in the sources list
+        echo "deb [arch=arm64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
+        apt-get update && \
+        # If Google Chrome install fails on arm64, fall back to Chromium
+        (apt-get install -y google-chrome-stable || \
+        (apt-get install -y chromium-browser && ln -s /usr/bin/chromium-browser /usr/bin/google-chrome)); \
+    else \
+        # For amd64, use standard installation
+        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
+        apt-get update && \
+        apt --fix-broken install && \
+        apt-get install -y google-chrome-stable; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
 
 # Delete any existing user and group with ID 1000
 RUN deluser --remove-home $(getent passwd 1000 | cut -d: -f1) || true \
@@ -99,7 +123,8 @@ WORKDIR ${HOME}
 COPY --chown=codespace:codespace share/User .local/share/code-server/User
 COPY --chown=codespace:codespace share/workspace workspace
 
-RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-server/bin/code-server \
+# Install extensions from Open VSX Registry
+RUN ITEM_URL="https://open-vsx.org/vscode/item" SERVICE_URL="https://open-vsx.org/vscode/gallery" /usr/lib/code-server/bin/code-server \
    --disable-telemetry \
    --disable-update-check \
    --install-extension "redhat.vscode-xml" \
@@ -113,13 +138,9 @@ RUN ITEM_URL="" SERVICE_URL="https://extensions.coder.com/api" /usr/lib/code-ser
    --install-extension "vscjava.vscode-java-debug" \
    --install-extension "golang.go" \
    --install-extension "ms-python.python" \
-   --install-extension "saoudrizwan.claude-dev" \
-   --install-extension "mhutchie.git-graph" \
-   --force \
-   && ITEM_URL="https://open-vsx.org/vscode/item" SERVICE_URL="https://open-vsx.org/vscode/gallery" /usr/lib/code-server/bin/code-server \
-   --disable-telemetry \
-   --disable-update-check \
+   --install-extension "ms-python.debugpy" \
    --install-extension "muhammad-sammy.csharp" \
+   --install-extension "saoudrizwan.claude-dev" \
    --force \
    && mv workspace /usr/share/codespace/ \
    && rm -r .local/share/code-server/CachedExtensionVSIXs \
