@@ -1,3 +1,10 @@
+# 0.1.52
+
+Published on 17 March 2025
+
+- Docker Buildx from v0.21.2 to v0.21.3
+- vscode from 4.98.0 to 4.98.2
+
 # 
 
 Published on 15 March 2025
