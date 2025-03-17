@@ -1,3 +1,9 @@
+# 0.1.44
+
+Published on 17 March 2025
+
+- lobe-chat-database from 1.71.3 to 1.71.5
+
 # 0.1.43
 
 Published on 16 March 2025
