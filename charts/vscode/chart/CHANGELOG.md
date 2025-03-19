@@ -1,5 +1,11 @@
 # 
 
+Published on 19 March 2025
+
+- Docker CLI from v28.0.1 to v28.0.2
+
+# 
+
 Published on 18 March 2025
 
 - Docker Buildx from v0.21.3 to v0.22.0
