@@ -1,3 +1,9 @@
+# 0.0.248
+
+Published on 24 March 2025
+
+- pyroscope from 1.12.0 to 1.13.0
+
 # 0.0.247
 
 Published on 22 March 2025
