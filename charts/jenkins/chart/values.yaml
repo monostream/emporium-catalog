@@ -111,7 +111,7 @@ agent:
   docker:
     repository: docker
     pullPolicy: Always
-    tag: 28.0.2
+    tag: 28.0.4
     persistence:
       # storageClass: "-"
       accessMode: ReadWriteOnce
