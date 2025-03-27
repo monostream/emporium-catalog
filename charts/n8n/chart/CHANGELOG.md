@@ -1,3 +1,9 @@
+# 0.1.28
+
+Published on 27 March 2025
+
+- n8n from 1.0.4 to 1.0.5
+
 # 0.1.27
 
 Published on 4 March 2025
