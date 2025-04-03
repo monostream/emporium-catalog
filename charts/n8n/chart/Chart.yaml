@@ -1,11 +1,11 @@
 apiVersion: v2
 name: n8n
 description: A powerful workflow automation tool.
-version: 0.1.27
-appVersion: 1.81.4
+version: 0.1.29
+appVersion: 1.85.1
 dependencies:
   - name: n8n
-    version: 1.0.4
+    version: 1.0.6
     repository: oci://8gears.container-registry.com/library
 home: https://n8n.io/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/n8n/n8n_icon_2.svg
