@@ -1,3 +1,141 @@
+# 0.1.67
+
+Published on 3 April 2025
+
+- lobe-chat-database from 1.77.9 to 1.77.10
+
+# 0.1.66
+
+Published on 3 April 2025
+
+- lobe-chat-database from 1.77.6 to 1.77.9
+
+# 0.1.65
+
+Published on 1 April 2025
+
+- lobe-chat-database from 1.77.4 to 1.77.6
+
+# 0.1.64
+
+Published on 31 March 2025
+
+- lobe-chat-database from 1.77.3 to 1.77.4
+
+# 0.1.63
+
+Published on 29 March 2025
+
+- lobe-chat-database from 1.76.1 to 1.77.3
+
+# 0.1.62
+
+Published on 29 March 2025
+
+- lobe-chat-database from 1.76.0 to 1.76.1
+
+# 0.1.61
+
+Published on 28 March 2025
+
+- lobe-chat-database from 1.75.5 to 1.76.0
+
+# 0.1.60
+
+Published on 28 March 2025
+
+- lobe-chat-database from 1.75.4 to 1.75.5
+
+# 0.1.59
+
+Published on 27 March 2025
+
+- lobe-chat-database from 1.75.3 to 1.75.4
+
+# 0.1.58
+
+Published on 26 March 2025
+
+- lobe-chat-database from 1.75.2 to 1.75.3
+
+# 0.1.57
+
+Published on 26 March 2025
+
+- lobe-chat-database from 1.74.11 to 1.75.2
+
+# 0.1.56
+
+Published on 25 March 2025
+
+- lobe-chat-database from 1.74.10 to 1.74.11
+
+# 0.1.55
+
+Published on 25 March 2025
+
+- lobe-chat-database from 1.74.8 to 1.74.10
+
+# 0.1.54
+
+Published on 24 March 2025
+
+- lobe-chat-database from 1.74.6 to 1.74.8
+
+# 0.1.53
+
+Published on 24 March 2025
+
+- lobe-chat-database from 1.74.5 to 1.74.6
+
+# 0.1.52
+
+Published on 23 March 2025
+
+- lobe-chat-database from 1.74.4 to 1.74.5
+
+# 0.1.51
+
+Published on 23 March 2025
+
+- lobe-chat-database from 1.74.2 to 1.74.4
+
+# 0.1.50
+
+Published on 22 March 2025
+
+- lobe-chat-database from 1.74.1 to 1.74.2
+
+# 0.1.49
+
+Published on 22 March 2025
+
+- lobe-chat-database from 1.74.0 to 1.74.1
+
+# 0.1.48
+
+Published on 21 March 2025
+
+- lobe-chat-database from 1.73.0 to 1.74.0
+
+# 0.1.47
+
+Published on 20 March 2025
+
+- lobe-chat-database from 1.72.1 to 1.73.0
+
+# 0.1.46
+
+Published on 19 March 2025
+
+- lobe-chat-database from 1.72.0 to 1.72.1
+
+# 0.1.45
+
+Published on 18 March 2025
+
+- lobe-chat-database from 1.71.5 to 1.72.0
+
 # 0.1.44
 
 Published on 17 March 2025
