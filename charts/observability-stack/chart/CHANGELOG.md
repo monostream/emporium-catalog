@@ -1,3 +1,69 @@
+# 0.0.255
+
+Published on 3 April 2025
+
+- tempo from 1.19.0 to 1.20.0
+
+# 0.0.254
+
+Published on 2 April 2025
+
+- kube-prometheus-stack from 70.4.0 to 70.4.1
+
+# 0.0.253
+
+Published on 1 April 2025
+
+- kube-prometheus-stack from 70.3.0 to 70.4.0
+
+# 0.0.252
+
+Published on 27 March 2025
+
+- pyroscope from 1.13.0 to 1.13.1
+
+# 0.0.251
+
+Published on 27 March 2025
+
+- loki from 6.28.0 to 6.29.0
+
+# 0.0.250
+
+Published on 25 March 2025
+
+- tempo from 1.18.3 to 1.19.0
+
+# 0.0.249
+
+Published on 25 March 2025
+
+- kube-prometheus-stack from 70.2.1 to 70.3.0
+
+# 0.0.248
+
+Published on 24 March 2025
+
+- pyroscope from 1.12.0 to 1.13.0
+
+# 0.0.247
+
+Published on 22 March 2025
+
+- kube-prometheus-stack from 70.2.0 to 70.2.1
+
+# 0.0.246
+
+Published on 21 March 2025
+
+- kube-prometheus-stack from 70.1.1 to 70.2.0
+
+# 0.0.245
+
+Published on 19 March 2025
+
+- kube-prometheus-stack from 70.0.2 to 70.1.1
+
 # 0.0.244
 
 Published on 16 March 2025
