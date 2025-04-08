@@ -1,3 +1,9 @@
+# 0.0.12
+
+Published on 8 April 2025
+
+- wiki from 2.2.22 to 2.2.23
+
 # 0.0.11
 
 Published on 23 November 2024
