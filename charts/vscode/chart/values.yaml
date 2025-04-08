@@ -38,4 +38,4 @@ affinity: {}
 docker:
   repository: docker
   pullPolicy: Always
-  tag: 28.0.1
+  tag: 28.0.4
