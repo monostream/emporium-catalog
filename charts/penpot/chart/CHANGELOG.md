@@ -1,3 +1,10 @@
+# 1.0.63
+
+Published on 9 April 2025
+
+- frontend from 2.5.4 to 2.6.0
+- backend from 2.5.4 to 2.6.0
+
 # 1.0.62
 
 Published on 20 March 2025
