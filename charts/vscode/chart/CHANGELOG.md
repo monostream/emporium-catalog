@@ -1,5 +1,11 @@
 # 
 
+Published on 15 April 2025
+
+- Docker Buildx from v0.22.0 to v0.23.0
+
+# 
+
 Published on 12 April 2025
 
 - Code Server from v4.99.1 to v4.99.2
