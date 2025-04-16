@@ -1,3 +1,10 @@
+# 0.0.257
+
+Published on 16 April 2025
+
+- tempo from 1.20.0 to 1.21.0
+- kube-prometheus-stack from 70.4.2 to 70.5.0
+
 # 0.0.256
 
 Published on 7 April 2025
