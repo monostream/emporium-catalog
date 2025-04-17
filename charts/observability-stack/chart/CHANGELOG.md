@@ -1,3 +1,9 @@
+# 0.0.262
+
+Published on 17 April 2025
+
+- ditch pyroscope
+
 # 0.0.261
 
 Published on 17 April 2025

@@ -1,1 +1,1 @@
-Equip your Kubernetes environment with a suite of best-in-class integrations for visualization (Grafana), monitoring (Prometheus), logging (Loki), tracing (Tempo), log shipping (Alloy), and an intuitive user interface (Kubernetes Dashboard). 
+Equip your Kubernetes environment with a suite of best-in-class integrations for visualization (Grafana), monitoring (Prometheus), logging (Loki), tracing (Tempo) and log shipping (Alloy). 

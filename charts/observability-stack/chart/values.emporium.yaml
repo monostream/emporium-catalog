@@ -273,16 +273,6 @@ tempo:
     size: {{ default "5Gi" .Emporium.UserSupplied.TempoStorageSize }}
   retention: {{ default "7d" .Emporium.UserSupplied.TempoRetention }}
 
-pyroscope:
-  alloy:
-    nameOverride: alloy-pyroscope
-    enabled: true
-    controller:
-      type: "statefulset"
-      replicas: 1
-      clustering:
-        enabled: false
-
 alloy:
   controller:
     type: daemonset
