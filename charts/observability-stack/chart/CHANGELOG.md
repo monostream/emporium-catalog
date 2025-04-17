@@ -1,3 +1,9 @@
+# 0.0.260
+
+Published on 17 April 2025
+
+- fix grafana values
+
 # 0.0.259
 
 Published on 17 April 2025
