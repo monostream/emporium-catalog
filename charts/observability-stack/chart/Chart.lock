@@ -1,7 +1,7 @@
 dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
-  version: 70.6.0
+  version: 70.7.0
 - name: loki
   repository: https://grafana.github.io/helm-charts
   version: 6.29.0
@@ -10,6 +10,6 @@ dependencies:
   version: 1.21.0
 - name: alloy
   repository: https://grafana.github.io/helm-charts
-  version: 0.12.6
-digest: sha256:4b60acce9721eb03fa75a151d46e5ecf6e23819e0c88a8816303992d16cb64ff
-generated: "2025-04-17T14:53:51.155004175+02:00"
+  version: 1.0.1
+digest: sha256:49e99851612eea8b8b28881ead28d70d30ed470bd548de0e6495ddd086287e9b
+generated: "2025-04-17T17:05:05.572587437Z"
