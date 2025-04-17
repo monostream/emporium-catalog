@@ -1,6 +1,6 @@
 prometheus: {}
 loki: {}
 tempo: {}
-promtail: {}
+alloy: {}
 pyroscope: {}
 dashboard: {}
