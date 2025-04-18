@@ -16,7 +16,7 @@ RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVE
    && rm /usr/bin/code-server
 
 # Docker CLI
-ENV DOCKER_CLIENT_VERSION="28.1.0"
+ENV DOCKER_CLIENT_VERSION="28.1.1"
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
       DOCKER_ARCH="aarch64"; \
     else \
