@@ -1,3 +1,10 @@
+# 0.1.57
+
+Published on 18 April 2025
+
+- Code Server from v4.99.2 to v4.99.3
+- docker from 28.0.4 to 28.1.0
+
 # 
 
 Published on 17 April 2025
