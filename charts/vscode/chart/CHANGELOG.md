@@ -1,3 +1,28 @@
+# 0.1.58
+
+Published on 19 April 2025
+
+- docker from 28.1.0 to 28.1.1
+
+# 
+
+Published on 18 April 2025
+
+- Docker CLI from v28.1.0 to v28.1.1
+
+# 0.1.57
+
+Published on 18 April 2025
+
+- Code Server from v4.99.2 to v4.99.3
+- docker from 28.0.4 to 28.1.0
+
+# 
+
+Published on 17 April 2025
+
+- Docker CLI from v28.0.4 to v28.1.0
+
 # 0.1.56
 
 Published on 16 April 2025

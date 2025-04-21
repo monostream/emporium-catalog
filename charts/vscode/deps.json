@@ -15,7 +15,7 @@
     "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.99.2",
+    "currentTag": "v4.99.3",
     "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
@@ -23,7 +23,7 @@
     "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v28.0.4",
+    "currentTag": "v28.1.1",
     "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },
