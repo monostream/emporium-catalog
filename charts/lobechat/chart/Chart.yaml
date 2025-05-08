@@ -2,8 +2,8 @@ apiVersion: v2
 name: lobechat
 description: Lobe Chat - an open-source, modern-design AI chat framework.
 type: application
-version: 0.1.87
-appVersion: "1.84.22"
+version: 0.1.88
+appVersion: "1.84.23"
 home: https://lobehub.com/
 icon: ""
 sources:
