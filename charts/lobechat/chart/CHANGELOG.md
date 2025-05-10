@@ -1,3 +1,9 @@
+# 0.1.91
+
+Published on 10 May 2025
+
+- lobe-chat-database from 1.84.27 to 1.85.2
+
 # 0.1.90
 
 Published on 9 May 2025
