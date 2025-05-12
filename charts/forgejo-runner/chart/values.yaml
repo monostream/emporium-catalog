@@ -40,7 +40,7 @@ kubectl:
     registry: docker.io
     repository: bitnami/kubectl
     pullPolicy: IfNotPresent
-    tag: "1.32.4"
+    tag: "1.33.0"
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
