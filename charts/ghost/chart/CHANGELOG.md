@@ -1,3 +1,9 @@
+# 1.0.126
+
+Published on 17 May 2025
+
+- ghost from 22.2.16 to 23.0.3
+
 # 1.0.125
 
 Published on 7 May 2025
