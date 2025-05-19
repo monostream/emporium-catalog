@@ -7,7 +7,7 @@ ENV LC_ALL=C.UTF-8
 ARG TARGETARCH
 
 # Code Server
-ENV CODE_SERVER_VERSION="4.100.0"
+ENV CODE_SERVER_VERSION="4.100.2"
 RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
    && apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    ./code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
@@ -32,7 +32,7 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/d
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
-ENV KUBECTL_VERSION="v1.33.0"
+ENV KUBECTL_VERSION="v1.33.1"
 RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
