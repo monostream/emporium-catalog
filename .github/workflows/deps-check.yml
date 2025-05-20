@@ -6,9 +6,7 @@ on:
     - cron: '0 17 * * *'
   workflow_dispatch:
 
-env:
-  # Exposed automatically by GH secrets → container env
-  OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
+
 
 jobs:
   check-updates:
@@ -16,7 +14,8 @@ jobs:
     container:
       image: emporium.docker.pkg.emporium.rocks/emporium-build:latest
       options: --user root
-      
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}  
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -55,11 +54,10 @@ jobs:
           DEPS_UPDATE_OUTPUT=$(emp chart updates --file "${DEPS_FILE}" --apply)
           echo "${DEPS_UPDATE_OUTPUT}" > "deps-update-${CHART_NAME}.txt"
 
-          if git status --porcelain | grep -qE "^( M|A )"; then
+          if git status --porcelain | grep -qE '^( M|A )'; then
             echo "Changes found for ${CHART_NAME}"
 
-            grep -E '->' "deps-update-${CHART_NAME}.txt" | \
-            while read -r LINE ; do
+            grep -E '->' "deps-update-${CHART_NAME}.txt" | while read -r LINE; do
               DEP_NAME=$(echo "${LINE}" | awk '{print $1}')
               NEW_VER=$(echo "${LINE}" | sed -E 's/.*->[[:space:]]*//')
 
@@ -69,19 +67,20 @@ jobs:
                 -H "Authorization: Bearer ${OPENAI_API_KEY}" \
                 -H "Content-Type: application/json" \
                 -d @- <<EOF | jq -r '.choices[0].message.content'
-{
-  "model": "gpt-4o-search-preview",
-  "tools": [ { "type": "web_search_preview" } ],
-  "messages": [
-    { "role": "system",
-      "content": "You are an expert DevOps assistant. \
-Provide a concise markdown summary of the official release notes. \
-Use bullet points, highlight breaking changes with an ':warning:' emoji, \
-maximum 8 bullets." },
-    { "role": "user",
-      "content": "Official release notes for ${DEP_NAME} ${NEW_VER}" }
-  ]
-}
+                {
+                  "model": "gpt-4o-search-preview",
+                  "tools": [ { "type": "web_search_preview" } ],
+                  "messages": [
+                    {
+                      "role": "system",
+                      "content": "You are an expert DevOps assistant. Provide a concise markdown summary of the official release notes. Use bullet points, highlight breaking changes with an ':warning:' emoji, maximum 8 bullets."
+                    },
+                    {
+                      "role": "user",
+                      "content": "Official release notes for ${DEP_NAME} ${NEW_VER}"
+                    }
+                  ]
+                }
 EOF
               )
 
@@ -97,20 +96,18 @@ EOF
             done
 
             git add .
-            git reset -- deps-update-*.txt   # keep artefact out of commit
-
+            git reset -- deps-update-*.txt
             git commit -m "Update dependencies for ${CHART_NAME} + changelog"
-            git push   -u origin ${BRANCH_NAME}
+            git push -u origin "${BRANCH_NAME}"
 
             sleep 5
-            if ! gh pr list --head ${BRANCH_NAME} --base main --json number --jq '.[].number' | grep -q .; then
+            if ! gh pr list --head "${BRANCH_NAME}" --base main --json number --jq '.[].number' | grep -q .; then
               PR_TITLE="Update dependencies for ${CHART_NAME}"
-              PR_BODY=$(printf "This PR updates the dependencies and appends a curated changelog.\\n\\n<details><summary>Dependency updates</summary>\\n\\n%s\\n</details>" "$(cat deps-update-${CHART_NAME}.txt)")
-              gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main --head ${BRANCH_NAME}
+              PR_BODY=$(printf 'This PR updates the dependencies and appends a curated changelog.\n\n<details><summary>Dependency updates</summary>\n\n%s\n</details>' "$(cat deps-update-${CHART_NAME}.txt)")
+              gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main --head "${BRANCH_NAME}"
             else
               echo "PR already exists – pushed new commit with changelog."
             fi
-
           else
             echo "No changes for ${CHART_NAME}"
           fi
