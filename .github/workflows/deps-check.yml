@@ -81,7 +81,7 @@ jobs:
                     }
                   ]
                 }
-EOF
+            EOF
               )
 
               # Escape back-ticks so we don’t break markdown fences
