@@ -6,17 +6,20 @@ on:
     - cron: '0 17 * * *'
   workflow_dispatch:
 
+env:
+  # Exposed automatically by GH secrets → container env
+  OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
+
 jobs:
   check-updates:
     runs-on: ubuntu-latest
-    container: 
+    container:
       image: emporium.docker.pkg.emporium.rocks/emporium-build:latest
       options: --user root
       
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-           
     - name: Setup Git
       run: |
         chown -R $(id -u):$(id -g) $PWD
@@ -35,11 +38,11 @@ jobs:
           CHART_PATH=$(dirname "${DEPS_FILE}")
           CHART_NAME=$(basename $CHART_PATH)
           BRANCH_NAME="update/${CHART_NAME}"
-        
+
           git checkout main
           git pull origin main
 
-          if git rev-parse --verify origin/${BRANCH_NAME} > /dev/null 2>&1; then
+          if git rev-parse --verify origin/${BRANCH_NAME} >/dev/null 2>&1; then
             echo "Branch ${BRANCH_NAME} already exists, checking it out."
             git checkout ${BRANCH_NAME}
             git pull origin ${BRANCH_NAME}
@@ -47,42 +50,68 @@ jobs:
             echo "Creating new branch ${BRANCH_NAME}."
             git checkout -b ${BRANCH_NAME}
           fi
-        
+
           echo "Checking updates for ${CHART_NAME}"
-          
-          echo "Saving output to deps-update-${CHART_NAME}.txt"
           DEPS_UPDATE_OUTPUT=$(emp chart updates --file "${DEPS_FILE}" --apply)
           echo "${DEPS_UPDATE_OUTPUT}" > "deps-update-${CHART_NAME}.txt"
-        
-        
-          if git status --porcelain | grep -q "deps-update-${CHART_NAME}.txt"; then
-            echo "Changes found for ${CHART_NAME}"
-            git add .
-            git reset -- deps-update-*.txt
-            
-            if git diff --cached --quiet; then
-              echo "No staged changes to commit."
-              continue
-            else
-              git commit -m "Update dependencies for ${CHART_NAME}"
-            fi
 
-            git push origin ${BRANCH_NAME}
+          if git status --porcelain | grep -qE "^( M|A )"; then
+            echo "Changes found for ${CHART_NAME}"
+
+            grep -E '->' "deps-update-${CHART_NAME}.txt" | \
+            while read -r LINE ; do
+              DEP_NAME=$(echo "${LINE}" | awk '{print $1}')
+              NEW_VER=$(echo "${LINE}" | sed -E 's/.*->[[:space:]]*//')
+
+              echo "🔎  Fetching release notes for ${DEP_NAME} ${NEW_VER}"
+
+              SUMMARY=$(curl -s https://api.openai.com/v1/responses \
+                -H "Authorization: Bearer ${OPENAI_API_KEY}" \
+                -H "Content-Type: application/json" \
+                -d @- <<EOF | jq -r '.choices[0].message.content'
+{
+  "model": "gpt-4o-search-preview",
+  "tools": [ { "type": "web_search_preview" } ],
+  "messages": [
+    { "role": "system",
+      "content": "You are an expert DevOps assistant. \
+Provide a concise markdown summary of the official release notes. \
+Use bullet points, highlight breaking changes with an ':warning:' emoji, \
+maximum 8 bullets." },
+    { "role": "user",
+      "content": "Official release notes for ${DEP_NAME} ${NEW_VER}" }
+  ]
+}
+EOF
+              )
+
+              # Escape back-ticks so we don’t break markdown fences
+              SUMMARY_ESCAPED=$(echo "${SUMMARY}" | sed 's/`/\\`/g')
+
+              {
+                echo "## ${DEP_NAME} ${NEW_VER} – $(date +%Y-%m-%d)"
+                echo
+                echo "${SUMMARY_ESCAPED}"
+                echo
+              } >> CHANGELOG.md
+            done
+
+            git add .
+            git reset -- deps-update-*.txt   # keep artefact out of commit
+
+            git commit -m "Update dependencies for ${CHART_NAME} + changelog"
+            git push   -u origin ${BRANCH_NAME}
 
             sleep 5
-
-            PR_EXISTS=$(gh pr list --head $BRANCH_NAME --base main --json number --jq ".[] | select(.number != null)")
-
-            if [ -z "$PR_EXISTS" ]; then
-              PR_TITLE="Update dependencies for $BRANCH_NAME"
-              PR_BODY=$(printf "This PR updates the dependencies for %s.\n\nDependency Updates:\n%s" "$BRANCH_NAME" "$DEPS_UPDATE_OUTPUT")
-    
-              gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head $BRANCH_NAME
+            if ! gh pr list --head ${BRANCH_NAME} --base main --json number --jq '.[].number' | grep -q .; then
+              PR_TITLE="Update dependencies for ${CHART_NAME}"
+              PR_BODY=$(printf "This PR updates the dependencies and appends a curated changelog.\\n\\n<details><summary>Dependency updates</summary>\\n\\n%s\\n</details>" "$(cat deps-update-${CHART_NAME}.txt)")
+              gh pr create --title "${PR_TITLE}" --body "${PR_BODY}" --base main --head ${BRANCH_NAME}
+            else
+              echo "PR already exists – pushed new commit with changelog."
             fi
 
           else
             echo "No changes for ${CHART_NAME}"
           fi
         done
-      id: changes
-
