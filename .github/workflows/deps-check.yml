@@ -66,23 +66,19 @@ jobs:
               SUMMARY=$(curl -s https://api.openai.com/v1/responses \
                 -H "Authorization: Bearer ${OPENAI_API_KEY}" \
                 -H "Content-Type: application/json" \
-                -d @- <<EOF | jq -r '.choices[0].message.content'
-                {
-                  "model": "gpt-4o-search-preview",
-                  "tools": [ { "type": "web_search_preview" } ],
-                  "messages": [
-                    {
-                      "role": "system",
-                      "content": "You are an expert DevOps assistant. Provide a concise markdown summary of the official release notes. Use bullet points, highlight breaking changes with an ':warning:' emoji, maximum 8 bullets."
-                    },
-                    {
-                      "role": "user",
-                      "content": "Official release notes for ${DEP_NAME} ${NEW_VER}"
-                    }
-                  ]
-                }
-            EOF
-              )
+                -d "$(jq -n \
+                       --arg dep  "$DEP_NAME" \
+                       --arg ver  "$NEW_VER" \
+                       --arg sys  "You are an expert DevOps assistant. Provide a concise markdown summary of the official release notes. Use bullet points, highlight breaking changes with an ':warning:' emoji, maximum 8 bullets." \
+                       '{
+                         model: "gpt-4o-search-preview",
+                         tools: [ {type: "web_search_preview"} ],
+                         messages: [
+                           {role: "system", content: $sys},
+                           {role: "user",   content: ("Official release notes for "+$dep+" "+$ver)}
+                         ]
+                       }')" \
+              | jq -r '.choices[0].message.content')
 
               # Escape back-ticks so we don’t break markdown fences
               SUMMARY_ESCAPED=$(echo "${SUMMARY}" | sed 's/`/\\`/g')
