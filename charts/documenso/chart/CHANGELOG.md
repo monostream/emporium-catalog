@@ -1,3 +1,9 @@
+# 0.1.15
+
+Published on 21 May 2025
+
+- documenso from v1.11.0 to v1.11.1
+
 # 0.1.14
 
 Published on 19 May 2025
