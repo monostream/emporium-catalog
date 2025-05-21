@@ -1,3 +1,9 @@
+# 0.2.59
+
+Published on 21 May 2025
+
+- gitlab from 9.0.0 to 9.0.1
+
 # 0.2.58
 
 Published on 17 May 2025
