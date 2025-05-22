@@ -93,7 +93,7 @@ gitlab:
     install: true
     runners:
       privileged: true
-
+      
+  installCertmanager: false
   certmanager:
-    install: false
     installCRDs: false
