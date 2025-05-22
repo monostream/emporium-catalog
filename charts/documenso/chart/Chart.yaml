@@ -2,8 +2,8 @@ apiVersion: v2
 name: documenso
 description: The OS for your personal finances
 type: application
-version: 0.1.14
-appVersion: "v1.11.0"
+version: 0.1.15
+appVersion: "v1.11.1"
 home: https://documenso.com/
 icon: https://github.com/documenso/documenso/blob/main/apps/marketing/public/android-chrome-192x192.png?raw=true
 sources:
