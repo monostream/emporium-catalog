@@ -1,5 +1,18 @@
 # 
 
+Published on 21 May 2025
+
+- Docker Buildx from v0.23.0 to v0.24.0
+
+# 0.1.62
+
+Published on 20 May 2025
+
+- Helm CLI from v3.17.3 to v3.18.0
+- vscode from 4.100.0 to 4.100.2
+
+# 
+
 Published on 16 May 2025
 
 - Kubernetes CLI from v1.33.0 to v1.33.1

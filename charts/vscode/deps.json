@@ -31,7 +31,7 @@
     "provider": "github-tags",
     "name": "Docker Buildx",
     "repo": "docker/buildx",
-    "currentTag": "v0.23.0",
+    "currentTag": "v0.24.0",
     "allowPrerelease": false,
     "envVar": "DOCKER_BUILDX_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.17.3",
+    "currentTag": "v3.18.0",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
