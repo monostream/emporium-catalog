@@ -1,6 +1,6 @@
 dependencies:
 - name: forgejo
   repository: oci://codeberg.org/forgejo-contrib
-  version: 12.5.0
-digest: sha256:703765aeea07b8ba15c2a6bfa6c56cd19dc2b9d4f3f7260090a721b78602a1be
-generated: "2025-05-12T17:05:08.629111006Z"
+  version: 12.5.1
+digest: sha256:984e7de74022692655a533156a021dffb624eb0fe87fee1f433504180b8942dc
+generated: "2025-05-23T17:08:05.590747006Z"
