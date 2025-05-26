@@ -1,3 +1,11 @@
+# 1.0.67
+
+Published on 26 May 2025
+
+- exporter from 2.7.0 to 2.7.1
+- frontend from 2.7.0 to 2.7.1
+- backend from 2.7.0 to 2.7.1
+
 # 1.0.66
 
 Published on 26 May 2025
