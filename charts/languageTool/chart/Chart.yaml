@@ -2,8 +2,8 @@ apiVersion: v2
 name: languagetool
 description: polish your writing and grammar in various languages
 type: application
-version: 0.1.12
-appVersion: "6.6"
+version: 0.1.13
+appVersion: "6.6-dockerupdate-1"
 home: https://languagetool.org/
 icon: https://languagetool.org/images/logo_white.svg
 sources:
