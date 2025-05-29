@@ -1,5 +1,12 @@
 # 
 
+Published on 29 May 2025
+
+- Helm CLI from v3.18.0 to v3.18.1
+- Docker CLI from v28.1.1 to v28.2.1
+
+# 
+
 Published on 21 May 2025
 
 - Docker Buildx from v0.23.0 to v0.24.0

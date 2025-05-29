@@ -23,7 +23,7 @@
     "provider": "github-tags",
     "name": "Docker CLI",
     "repo": "docker/cli",
-    "currentTag": "v28.1.1",
+    "currentTag": "v28.2.1",
     "allowPrerelease": false,
     "envVar": "DOCKER_CLIENT_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.18.0",
+    "currentTag": "v3.18.1",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
