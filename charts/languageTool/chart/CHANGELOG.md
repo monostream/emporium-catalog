@@ -1,3 +1,9 @@
+# 0.1.14
+
+Published on 28 May 2025
+
+- languagetool from 6.6-dockerupdate-1 to 6.6
+
 # 0.1.12
 
 Published on 17 May 2025
