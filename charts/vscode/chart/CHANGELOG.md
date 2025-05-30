@@ -1,3 +1,9 @@
+# 
+
+Published on 30 May 2025
+
+- Docker CLI from v28.2.1 to v28.2.2
+
 # 0.1.63
 
 Published on 30 May 2025
