@@ -1,3 +1,9 @@
+# 0.1.48
+
+Published on 30 May 2025
+
+- docker from 28.1.1 to 28.2.1
+
 # 0.1.47
 
 Published on 19 April 2025
