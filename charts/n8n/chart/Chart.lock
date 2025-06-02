@@ -1,6 +1,6 @@
 dependencies:
 - name: n8n
   repository: oci://8gears.container-registry.com/library
-  version: 1.0.6
-digest: sha256:ad9b4dd7aec1da49fedaeda63d78cfd6323e24781e952df8798e4b4a52b2b357
-generated: "2025-03-31T17:06:08.792788557Z"
+  version: 1.0.7
+digest: sha256:61b0456d7a23c074b71ac938ce2cf0243659fe9b6268a562c550035c5e54a9ef
+generated: "2025-06-02T17:13:39.788005507Z"
