@@ -1,3 +1,9 @@
+# 
+
+Published on 2 June 2025
+
+- Helm CLI from v3.18.1 to v3.18.2
+
 # 0.1.64
 
 Published on 31 May 2025
