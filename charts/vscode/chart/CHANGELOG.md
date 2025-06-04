@@ -1,5 +1,11 @@
 # 
 
+Published on 4 June 2025
+
+- Code Server from v4.100.2 to v4.100.3
+
+# 
+
 Published on 2 June 2025
 
 - Helm CLI from v3.18.1 to v3.18.2
