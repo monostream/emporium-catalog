@@ -15,7 +15,7 @@
     "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.100.2",
+    "currentTag": "v4.100.3",
     "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.18.1",
+    "currentTag": "v3.18.2",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
