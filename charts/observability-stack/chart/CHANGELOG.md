@@ -1,3 +1,71 @@
+# 0.0.287
+
+Published on 15 June 2025
+
+- kube-prometheus-stack from 74.0.0 to 74.2.1
+
+# 0.0.286
+
+Published on 13 June 2025
+
+- kube-prometheus-stack from 73.2.3 to 74.0.0
+
+# 0.0.285
+
+Published on 12 June 2025
+
+- tempo from 1.23.0 to 1.23.1
+- kube-prometheus-stack from 73.2.2 to 73.2.3
+
+# 0.0.284
+
+Published on 12 June 2025
+
+- kube-prometheus-stack from 73.2.0 to 73.2.2
+
+# 0.0.283
+
+Published on 11 June 2025
+
+- tempo from 1.21.1 to 1.23.0
+
+# 0.0.282
+
+Published on 6 June 2025
+
+- kube-prometheus-stack from 73.1.0 to 73.2.0
+
+# 0.0.281
+
+Published on 5 June 2025
+
+- alloy from 1.1.0 to 1.1.1
+
+# 0.0.280
+
+Published on 4 June 2025
+
+- kube-prometheus-stack from 73.0.0 to 73.1.0
+
+# 0.0.279
+
+Published on 4 June 2025
+
+- kube-prometheus-stack from 72.9.1 to 73.0.0
+
+# 0.0.278
+
+Published on 2 June 2025
+
+- alloy from 1.0.3 to 1.1.0
+- kube-prometheus-stack from 72.9.0 to 72.9.1
+
+# 0.0.277
+
+Published on 1 June 2025
+
+- kube-prometheus-stack from 72.7.0 to 72.9.0
+
 # 0.0.276
 
 Published on 30 May 2025
