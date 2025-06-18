@@ -1,3 +1,9 @@
+# 0.0.29
+
+Published on 16 June 2025
+
+- gitea from 12.0.0 to 12.1.0
+
 # 0.0.28
 
 Published on 17 May 2025
