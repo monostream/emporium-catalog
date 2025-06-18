@@ -25,7 +25,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     && curl -fsSL -o - https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
 
 # Docker Buildx Plugin
-ENV DOCKER_BUILDX_VERSION="v0.24.0"
+ENV DOCKER_BUILDX_VERSION="v0.25.0"
 RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/docker/buildx/releases/download/${DOCKER_BUILDX_VERSION}/buildx-${DOCKER_BUILDX_VERSION}.linux-${TARGETARCH}" -o /usr/libexec/docker/cli-plugins/docker-buildx && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
 # Docker-in-Docker daemon socket
