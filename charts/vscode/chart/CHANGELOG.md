@@ -1,5 +1,11 @@
 # 
 
+Published on 19 June 2025
+
+- Kubernetes CLI from v1.33.1 to v1.33.2
+
+# 
+
 Published on 18 June 2025
 
 - Docker Buildx from v0.24.0 to v0.25.0
