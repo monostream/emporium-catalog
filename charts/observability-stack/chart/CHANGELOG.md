@@ -1,3 +1,21 @@
+# 0.0.294
+
+Published on 20 June 2025
+
+- kube-prometheus-stack from 75.3.5 to 75.3.6
+
+# 0.0.293
+
+Published on 19 June 2025
+
+- kube-prometheus-stack from 75.3.0 to 75.3.5
+
+# 0.0.292
+
+Published on 18 June 2025
+
+- kube-prometheus-stack from 75.2.1 to 75.3.0
+
 # 0.0.291
 
 Published on 18 June 2025
