@@ -1,5 +1,11 @@
 # 
 
+Published on 21 June 2025
+
+- Code Server from v4.100.3 to v4.101.1
+
+# 
+
 Published on 19 June 2025
 
 - Kubernetes CLI from v1.33.1 to v1.33.2
