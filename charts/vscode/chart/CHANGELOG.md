@@ -1,5 +1,11 @@
 # 
 
+Published on 25 June 2025
+
+- Docker CLI from v28.2.2 to v28.3.0
+
+# 
+
 Published on 21 June 2025
 
 - Code Server from v4.100.3 to v4.101.1
