@@ -1,3 +1,10 @@
+# 0.1.66
+
+Published on 26 June 2025
+
+- Code Server from v4.101.1 to v4.101.2
+- docker from 28.2.2 to 28.3.0
+
 # 
 
 Published on 25 June 2025
