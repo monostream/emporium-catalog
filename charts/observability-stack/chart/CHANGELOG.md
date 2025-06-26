@@ -1,3 +1,9 @@
+# 0.0.298
+
+Published on 26 June 2025
+
+- tempo from 1.23.1 to 1.23.2
+
 # 0.0.297
 
 Published on 25 June 2025
