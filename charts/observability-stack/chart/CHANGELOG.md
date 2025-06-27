@@ -1,3 +1,10 @@
+# 0.0.299
+
+Published on 27 June 2025
+
+- alloy from 1.1.1 to 1.1.2
+- kube-prometheus-stack from 75.6.0 to 75.6.1
+
 # 0.0.298
 
 Published on 26 June 2025
