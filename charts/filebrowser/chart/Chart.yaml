@@ -2,8 +2,8 @@ apiVersion: v2
 type: application
 name: filebrowser
 description: A Helm chart for Kubernetes
-version: 0.1.37
-appVersion: "v2.36.2"
+version: 0.1.38
+appVersion: "v2.36.3"
 home: https://filebrowser.org/
 icon: https://www.gitbook.com/cdn-cgi/image/width=36,dpr=2,height=36,fit=contain,format=auto/https%3A%2F%2F3149836655-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fspaces%252F-M8KDxOujDoPpJyJJ5_i%252Favatar-1590579241040.png%3Fgeneration%3D1590579241552005%26alt%3Dmedia
 sources:
