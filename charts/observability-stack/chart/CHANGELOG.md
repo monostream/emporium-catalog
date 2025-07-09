@@ -1,3 +1,9 @@
+# 0.0.304
+
+Published on 9 July 2025
+
+- loki from 6.30.1 to 6.31.0
+
 # 0.0.303
 
 Published on 6 July 2025
