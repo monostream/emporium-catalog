@@ -1,3 +1,21 @@
+# 0.0.64
+
+Published on 10 July 2025
+
+- kubectl from 1.33.1 to 1.33.2
+
+# 0.0.63
+
+Published on 4 July 2025
+
+- docker from 28.3.0 to 28.3.1
+
+# 0.0.62
+
+Published on 26 June 2025
+
+- docker from 28.2.2 to 28.3.0
+
 # 0.0.61
 
 Published on 1 June 2025
