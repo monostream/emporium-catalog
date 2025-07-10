@@ -1,3 +1,45 @@
+# 1.0.143
+
+Published on 5 July 2025
+
+- ghost from 23.0.23 to 23.0.25
+
+# 1.0.142
+
+Published on 3 July 2025
+
+- ghost from 23.0.21 to 23.0.23
+
+# 1.0.141
+
+Published on 2 July 2025
+
+- ghost from 23.0.19 to 23.0.21
+
+# 1.0.140
+
+Published on 26 June 2025
+
+- ghost from 23.0.18 to 23.0.19
+
+# 1.0.139
+
+Published on 25 June 2025
+
+- ghost from 23.0.17 to 23.0.18
+
+# 1.0.138
+
+Published on 24 June 2025
+
+- ghost from 23.0.16 to 23.0.17
+
+# 1.0.137
+
+Published on 21 June 2025
+
+- ghost from 23.0.15 to 23.0.16
+
 # 1.0.136
 
 Published on 19 June 2025
