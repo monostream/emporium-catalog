@@ -29,6 +29,7 @@ wastebin:
     WASTEBIN_THEME: {{ default "gruvbox" .Emporium.UserSupplied.Theme | quote }}
     WASTEBIN_MAX_BODY_SIZE: "16777216"  # 16MB instead of default 1MB
     WASTEBIN_ADDRESS: "0.0.0.0:8088"
+    WASTEBIN_BASE_URL: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
 
   service:
     type: ClusterIP

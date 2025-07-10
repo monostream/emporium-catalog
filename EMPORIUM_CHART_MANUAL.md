@@ -406,6 +406,24 @@ securityContext:
       - ALL
 ```
 
+### 7. Application Limits and Ingress Annotations
+Always match application limits with corresponding ingress annotations:
+
+```yaml
+# Application configuration
+app:
+  env:
+    MAX_BODY_SIZE: "16777216"  # 16MB
+
+# Ingress configuration
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "16m"  # Match the app limit
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+```
+
 ---
 
 ## Best Practices
@@ -424,6 +442,7 @@ securityContext:
 - **Always configure security context to match the container's user**
 - Use non-root users and drop unnecessary capabilities
 - Set appropriate filesystem permissions with fsGroup
+- **Match application limits with ingress annotations** (e.g., body size limits)
 
 ### 3. Configuration Management
 - Use the `@optional` annotation for non-essential fields
