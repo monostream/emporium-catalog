@@ -1,3 +1,75 @@
+# 0.1.150
+
+Published on 10 July 2025
+
+- lobe-chat-database from 1.96.20 to 1.97.3
+
+# 0.1.149
+
+Published on 8 July 2025
+
+- lobe-chat-database from 1.96.19 to 1.96.20
+
+# 0.1.148
+
+Published on 7 July 2025
+
+- lobe-chat-database from 1.96.17 to 1.96.19
+
+# 0.1.147
+
+Published on 4 July 2025
+
+- lobe-chat-database from 1.96.16 to 1.96.17
+
+# 0.1.146
+
+Published on 3 July 2025
+
+- lobe-chat-database from 1.96.15 to 1.96.16
+
+# 0.1.145
+
+Published on 2 July 2025
+
+- lobe-chat-database from 1.96.13 to 1.96.15
+
+# 0.1.144
+
+Published on 1 July 2025
+
+- lobe-chat-database from 1.96.11 to 1.96.13
+
+# 0.1.143
+
+Published on 28 June 2025
+
+- lobe-chat-database from 1.96.9 to 1.96.11
+
+# 0.1.142
+
+Published on 23 June 2025
+
+- lobe-chat-database from 1.96.7 to 1.96.9
+
+# 0.1.141
+
+Published on 23 June 2025
+
+- lobe-chat-database from 1.96.5 to 1.96.7
+
+# 0.1.140
+
+Published on 22 June 2025
+
+- lobe-chat-database from 1.96.0 to 1.96.5
+
+# 0.1.139
+
+Published on 21 June 2025
+
+- lobe-chat-database from 1.94.17 to 1.96.0
+
 # 0.1.138
 
 Published on 20 June 2025
