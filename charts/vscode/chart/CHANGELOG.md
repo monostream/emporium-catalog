@@ -1,5 +1,11 @@
 # 
 
+Published on 10 July 2025
+
+- Docker CLI from v28.3.1 to v28.3.2
+
+# 
+
 Published on 9 July 2025
 
 - Helm CLI from v3.18.3 to v3.18.4
