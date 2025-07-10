@@ -1,0 +1,26 @@
+apiVersion: v2
+name: wastebin
+description: A minimal pastebin with a design shamelessly copied from bin. Fast, lightweight, and secure paste sharing.
+version: 0.1.0
+appVersion: "3.2.0"
+type: application
+home: https://github.com/matze/wastebin
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/wastebin/wastebin_icon_2.svg
+sources:
+  - https://github.com/matze/wastebin
+keywords:
+  - Utilities
+  - Development
+  - Pastebin
+  - Text Sharing
+maintainers:
+  - name: Matze
+    url: https://github.com/matze
+
+annotations:
+  displayName: "Wastebin"
+  category: "Utilities"
+  licenses: "MIT"
+  gallery: |
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/wastebin/wastebin_gallery_1.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/wastebin/wastebin_gallery_2.png 

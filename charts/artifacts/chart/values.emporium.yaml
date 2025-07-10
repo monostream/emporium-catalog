@@ -80,6 +80,8 @@ artifacts:
   storage:
     filesystem:
       path: /data
+  telemetry:
+    enabled: false
 
 {{- if .Emporium.UserSupplied.PostgresqlPassword }}
 postgresql:
@@ -97,5 +99,3 @@ postgresql:
       {{- end }}
 {{- end }}
 
-telemetry:
-  enabled: false

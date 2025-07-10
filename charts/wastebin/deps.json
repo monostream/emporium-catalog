@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "chart",
+    "name": "wastebin",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:wastebin",
+    "changelogPath": "./chart"
+  }
+] 

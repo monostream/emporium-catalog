@@ -1,0 +1,90 @@
+## @userSupplied Title
+## @label Wastebin Title
+## @type string
+## @description The title displayed on the wastebin homepage
+## @optional
+
+## @userSupplied Theme
+## @label Theme
+## @type string ["ayu", "base16ocean", "catppuccin", "coldark", "gruvbox", "monokai", "onehalf", "solarized"]
+## @description The syntax highlighting theme to use
+## @optional
+
+## @userSupplied StorageSize
+## @label Storage Size
+## @type byteSize
+## @description Size of the storage volume for the SQLite database
+## @optional
+
+wastebin:
+  image:
+    repository: quxfoo/wastebin
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  # Environment variables
+  env:
+    WASTEBIN_DATABASE_PATH: "/data/state.db"
+    WASTEBIN_TITLE: {{ default "Wastebin" .Emporium.UserSupplied.Title | quote }}
+    WASTEBIN_THEME: {{ default "gruvbox" .Emporium.UserSupplied.Theme | quote }}
+    WASTEBIN_MAX_BODY_SIZE: "16777216"  # 16MB instead of default 1MB
+    WASTEBIN_ADDRESS: "0.0.0.0:8088"
+
+  service:
+    type: ClusterIP
+    port: 8088
+
+  # Resources
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Security Context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  capabilities:
+    drop:
+      - ALL
+
+# Storage configuration
+persistence:
+  enabled: true
+  size: {{ default "1Gi" .Emporium.UserSupplied.StorageSize }}
+  accessMode: ReadWriteOnce
+  storageClass: ""
+
+# Ingress configuration
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "16m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }} 

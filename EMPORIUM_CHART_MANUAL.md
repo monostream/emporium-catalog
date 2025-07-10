@@ -31,6 +31,7 @@ charts/
 │   ├── chart/
 │   │   ├── Chart.yaml
 │   │   ├── values.yaml
+│   │   ├── values.emporium.yaml
 │   │   ├── README.md
 │   │   └── templates/
 │   │       ├── deployment.yaml
@@ -38,7 +39,6 @@ charts/
 │   │       ├── ingress.yaml
 │   │       ├── NOTES.txt
 │   │       └── _helpers.tpl
-│   ├── values.emporium.yaml
 │   └── deps.json
 └── assets/
     └── [chart-name]/
@@ -61,7 +61,7 @@ The main chart metadata file containing:
 - Emporium-specific annotations
 
 #### 2. `values.emporium.yaml`
-The Emporium-specific values file that defines:
+The Emporium-specific values file (located in the `chart/` directory) that defines:
 - User-supplied variables with documentation
 - Integration configurations
 - Emporium template variables
@@ -81,7 +81,15 @@ Dependency management file for chart lifecycle:
 ]
 ```
 
-#### 4. Assets
+#### 4. `README.md`
+Simple, app-store-style documentation (located in the `chart/` directory) that should:
+- Focus on features and benefits
+- Use emojis and bullet points for readability
+- Include "Perfect For" use cases
+- Be concise and marketing-focused (not technical documentation)
+- Highlight key features that users care about
+
+#### 5. Assets
 Visual assets for the Emporium marketplace:
 - **Icons**: 3 SVG icons (`_icon_1.svg`, `_icon_2.svg`, `_icon_3.svg`)
 - **Gallery**: Screenshots/previews in various formats
@@ -369,6 +377,35 @@ smtp:
   from: {{ .Emporium.Integrations.SMTP.From | quote }}
 ```
 
+### 6. Security Context Configuration
+Always configure security context to match the container's user. Check the Dockerfile for user details:
+
+```dockerfile
+# Example from Dockerfile
+ENV USER=app
+ENV UID=10001
+USER app:app
+```
+
+Configure security context accordingly:
+```yaml
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false  # or true with tmpfs volumes
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  capabilities:
+    drop:
+      - ALL
+```
+
 ---
 
 ## Best Practices
@@ -384,6 +421,9 @@ smtp:
 - Use appropriate authentication skip paths
 - Implement proper OIDC integration when applicable
 - Use TLS/SSL certificates automatically
+- **Always configure security context to match the container's user**
+- Use non-root users and drop unnecessary capabilities
+- Set appropriate filesystem permissions with fsGroup
 
 ### 3. Configuration Management
 - Use the `@optional` annotation for non-essential fields
