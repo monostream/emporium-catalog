@@ -1,3 +1,9 @@
+# 0.1.83
+
+Published on 11 July 2025
+
+- drawio from 28.0.1 to 28.0.3
+
 # 0.1.82
 
 Published on 11 July 2025
