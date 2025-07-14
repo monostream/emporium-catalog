@@ -1,6 +1,6 @@
 dependencies:
 - name: core
   repository: https://neuvector.github.io/neuvector-helm/
-  version: 2.8.6
-digest: sha256:04efdd5e21c8a5a6a7c59bcc251cd333439338bae795bbef03339d916a2ca328
-generated: "2025-05-17T08:08:34.901236651Z"
+  version: 2.8.7
+digest: sha256:adb67d168b441e82efc5a604bd27037d3fee5d7a9423f2cb952ea467ff28a1bc
+generated: "2025-07-10T17:08:54.198786344Z"
