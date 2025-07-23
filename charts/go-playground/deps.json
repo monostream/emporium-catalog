@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "chart",
+    "name": "go-playground",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:go-playground",
+    "changelogPath": "./chart"
+  }
+] 
