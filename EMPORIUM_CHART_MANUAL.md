@@ -61,10 +61,12 @@ The main chart metadata file containing:
 - Emporium-specific annotations
 
 #### 2. `values.emporium.yaml`
-The Emporium-specific values file (located in the `chart/` directory) that defines:
-- User-supplied variables with documentation
-- Integration configurations
-- Emporium template variables
+The **lean** Emporium-specific values file (located in the `chart/` directory) that should **only** contain:
+- User-supplied variables with documentation (using @userSupplied annotations)
+- Emporium integration configurations (DNS, OIDC, SMTP, Storage)
+- Values that **differ** from those in `values.yaml`
+
+**Important**: `values.yaml` serves as the base configuration. Do **NOT** duplicate values that are identical between `values.yaml` and `values.emporium.yaml`. Only include Emporium-specific overrides and integrations.
 
 #### 3. `deps.json`
 Dependency management file for chart lifecycle:
@@ -450,13 +452,23 @@ ingress:
 - Use proper data types for user inputs
 - Document all configuration options
 
-### 4. Template Structure
+### 4. Lean values.emporium.yaml (NEW)
+- **Keep values.emporium.yaml minimal** - only include Emporium-specific configurations
+- **Do NOT duplicate** values that are identical in `values.yaml` and `values.emporium.yaml`
+- **Only include**:
+  - User-supplied variables with `@userSupplied` annotations
+  - Emporium integrations (DNS, OIDC, SMTP, Storage templates)
+  - Values that differ from `values.yaml` defaults
+  - Emporium-specific overrides (like ingress with auth-skip-paths)
+- Remember: `values.yaml` serves as the base, `values.emporium.yaml` adds/overrides
+
+### 5. Template Structure
 - Keep templates clean and readable
 - Use consistent indentation (typically 2 spaces)
 - Use conditional blocks for optional features
 - Comment complex template logic
 
-### 5. Dependencies
+### 6. Dependencies
 - Keep dependencies minimal and necessary
 - Use stable dependency versions
 - Document any external dependencies
@@ -465,6 +477,63 @@ ingress:
 ---
 
 ## Examples
+
+### Lean values.emporium.yaml Example
+
+#### ❌ Incorrect (Too Verbose)
+```yaml
+# BAD: Duplicates everything from values.yaml
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: myapp/image
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Only these are actually needed for Emporium!
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+```
+
+#### ✅ Correct (Lean Approach)
+```yaml
+# GOOD: Only Emporium-specific configurations
+ingress:
+  enabled: true
+  annotations:
+    {{- if .Emporium.Annotations }}
+    {{- toYaml .Emporium.Annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/tls-acme: "true"
+    # Emporium-specific annotation
+    emporium.build/auth-skip-paths: "/*"
+  hosts:
+    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Name }}-tls
+      hosts:
+        - {{ .Emporium.Integrations.DNS.Hostname }}
+```
 
 ### Simple Static Website
 ```yaml
