@@ -15,7 +15,7 @@
     "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.102.1",
+    "currentTag": "v4.102.2",
     "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
