@@ -1,3 +1,11 @@
+# 0.0.305
+
+Published on 30 July 2025
+
+- alloy from 1.1.2 to 1.2.0
+- loki from 6.31.0 to 6.34.0
+- kube-prometheus-stack from 75.9.0 to 75.15.1
+
 # 0.0.304
 
 Published on 9 July 2025
