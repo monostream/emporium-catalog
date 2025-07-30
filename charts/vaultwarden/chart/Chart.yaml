@@ -2,8 +2,8 @@ apiVersion: v2
 name: vaultwarden
 description: Lightweight, self-hosted vault for secure password management—privacy, control, and peace of mind at your fingertips.
 type: application
-version: 0.1.14
-appVersion: "1.34.2"
+version: 0.1.15
+appVersion: "1.34.3"
 home: https://github.com/dani-garcia/vaultwarden
 icon: https://github.com/dani-garcia/vaultwarden/blob/main/resources/vaultwarden-icon-white.svg?raw=true
 sources:
