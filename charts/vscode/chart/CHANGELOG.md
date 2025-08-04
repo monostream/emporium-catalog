@@ -1,3 +1,9 @@
+# 0.1.72
+
+Published on 4 August 2025
+
+- vscode from 4.102.1 to 4.102.3
+
 # 
 
 Published on 31 July 2025
