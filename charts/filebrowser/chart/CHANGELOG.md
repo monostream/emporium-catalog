@@ -1,3 +1,9 @@
+# 0.1.41
+
+Published on 11 August 2025
+
+- filebrowser from v2.42.0 to v2.42.3
+
 # 0.1.40
 
 Published on 30 July 2025
