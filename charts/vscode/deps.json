@@ -15,7 +15,7 @@
     "provider": "github-tags",
     "name": "Code Server",
     "repo": "cdr/code-server",
-    "currentTag": "v4.102.3",
+    "currentTag": "v4.103.0",
     "allowPrerelease": false,
     "envVar": "CODE_SERVER_VERSION"
   },
@@ -39,7 +39,7 @@
     "provider": "github-tags",
     "name": "Kubernetes CLI",
     "repo": "kubernetes/kubernetes",
-    "currentTag": "v1.33.3",
+    "currentTag": "v1.33.4",
     "allowPrerelease": false,
     "envVar": "KUBECTL_VERSION"
   },
@@ -47,7 +47,7 @@
     "provider": "github-tags",
     "name": "Helm CLI",
     "repo": "helm/helm",
-    "currentTag": "v3.18.4",
+    "currentTag": "v3.18.5",
     "allowPrerelease": false,
     "envVar": "HELM_VERSION"
   }
