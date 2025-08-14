@@ -7,7 +7,7 @@ ENV LC_ALL=C.UTF-8
 ARG TARGETARCH
 
 # Code Server
-ENV CODE_SERVER_VERSION="4.102.3"
+ENV CODE_SERVER_VERSION="4.103.0"
 RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
    && apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    ./code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
@@ -32,11 +32,11 @@ RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/d
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
-ENV KUBECTL_VERSION="v1.33.3"
+ENV KUBECTL_VERSION="v1.33.4"
 RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
-ENV HELM_VERSION="v3.18.4"
+ENV HELM_VERSION="v3.18.5"
 RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-${TARGETARCH}/helm
 
 # Java
