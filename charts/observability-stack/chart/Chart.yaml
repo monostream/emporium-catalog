@@ -1,11 +1,11 @@
 apiVersion: v2
 name: observability-stack
 description: An all-in-one observability stack for Kubernetes, integrating Grafana, Prometheus, Loki, Tempo and Alloy.
-version: 0.0.311
+version: 0.0.312
 appVersion: v0.84.1
 dependencies:
   - name: kube-prometheus-stack
-    version: 76.4.0
+    version: 76.4.1
     repository: https://prometheus-community.github.io/helm-charts
     alias: prometheus
   - name: loki
