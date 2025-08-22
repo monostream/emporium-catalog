@@ -1,3 +1,9 @@
+# 0.0.64
+
+Published on 22 August 2025
+
+- forgejo from 13.0.1 to 14.0.0
+
 # 0.0.63
 
 Published on 30 July 2025
