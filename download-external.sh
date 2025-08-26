@@ -8,7 +8,7 @@ set -o noglob
 
 # add repos
 helm repo add codechem https://charts.codechem.com
-helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add bitnami oci://bitnamicharts.docker.pkg.emporium.rocks
 helm repo add requarks https://charts.js.wiki
 helm repo add gitlab https://charts.gitlab.io
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts

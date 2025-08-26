@@ -2,7 +2,7 @@ apiVersion: v2
 name: documenso
 description: The OS for your personal finances
 type: application
-version: 0.1.16
+version: 0.1.17
 appVersion: "v1.12.1"
 home: https://documenso.com/
 icon: https://github.com/documenso/documenso/blob/main/apps/marketing/public/android-chrome-192x192.png?raw=true
@@ -18,4 +18,4 @@ annotations:
 dependencies:
   - name: postgresql
     version: 16.x.x
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://bitnamicharts.docker.pkg.emporium.rocks

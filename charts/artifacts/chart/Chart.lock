@@ -3,7 +3,7 @@ dependencies:
   repository: https://monostream.helm.pkg.emporium.rocks
   version: 0.0.36
 - name: postgresql
-  repository: https://charts.bitnami.com/bitnami
+  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
   version: 16.7.26
 digest: sha256:6dc218b15f05929ad5c3325041aff3555fdea6d4ceb05f929e010a114d19097e
 generated: "2025-08-15T08:08:28.170059939Z"

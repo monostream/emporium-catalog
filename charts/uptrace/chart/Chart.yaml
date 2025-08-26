@@ -2,7 +2,7 @@ apiVersion: v2
 name: uptrace
 description: Open Source Observability with Traces, Metrics, and Logs
 type: application
-version: 0.0.11
+version: 0.0.12
 appVersion: "1.7.7"
 home: https://uptrace.dev/
 icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/uptrace/uptrace_icon_2.svg
@@ -20,7 +20,7 @@ dependencies:
     repository: https://charts.uptrace.dev
   - name: postgresql
     version: 12.12.10
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://bitnamicharts.docker.pkg.emporium.rocks
 annotations:
   displayName: Uptrace
   licenses: AGPL-3.0

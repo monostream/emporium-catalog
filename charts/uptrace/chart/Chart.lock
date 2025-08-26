@@ -3,7 +3,7 @@ dependencies:
   repository: https://charts.uptrace.dev
   version: 1.7.7
 - name: postgresql
-  repository: https://charts.bitnami.com/bitnami
+  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
   version: 12.12.10
 digest: sha256:dff26be4c7cddb3a55da533cbc290f3b756d7910b369ada7453e25bc7630d6c4
 generated: "2024-11-06T11:29:36.770949+01:00"

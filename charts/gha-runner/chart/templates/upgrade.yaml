@@ -99,7 +99,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: pre-upgrade
-          image: bitnami/kubectl:latest
+          image: bitnami.docker.pkg.emporium.rocks/bitnami/kubectl:1.33.4-debian-12-r0
           command: ["/bin/sh", "-c"]
           args:
             - |

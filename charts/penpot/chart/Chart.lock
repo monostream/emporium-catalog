@@ -1,9 +1,9 @@
 dependencies:
 - name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 12.12.10
+  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
+  version: 16.7.26
 - name: redis
-  repository: https://charts.bitnami.com/bitnami
-  version: 17.17.1
-digest: sha256:3459cd5d5413d8bd592d54dd6358d972d253169c7abfcfbfb0819ac4d99658f8
-generated: "2023-12-22T15:23:10.6398+01:00"
+  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
+  version: 20.12.0
+digest: sha256:a0e37d24c1eac7f2ae71c9020b19c49a40c1e0316a20e9b25864687bce011ba9
+generated: "2025-08-26T19:45:05.261381+02:00"
