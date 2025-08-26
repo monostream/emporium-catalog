@@ -2,11 +2,11 @@ apiVersion: v2
 name: nextcloud
 description: A safe home for all your data – community-driven, free & open source.
 type: application
-version: 0.0.79
-appVersion: "31.0.7"
+version: 0.0.81
+appVersion: "31.0.8"
 dependencies:
   - name: nextcloud
-    version: 7.0.0
+    version: 7.0.2
     repository: https://nextcloud.github.io/helm/
 home: https://nextcloud.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/nextcloud_icon_2.svg
