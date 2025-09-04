@@ -1,3 +1,13 @@
+# 1.0.72
+
+Published on 4 September 2025
+
+- backend from 2.8.1 to 2.9.0
+- exporter from 2.8.1 to 2.9.0
+- frontend from 2.8.1 to 2.9.0
+- redis from 20.12.0 to 22.0.7
+- postgresql from 16.7.26 to 16.7.27
+
 # 1.0.70
 
 Published on 11 August 2025
