@@ -1,3 +1,11 @@
+# 0.1.43
+
+Published on 4 September 2025
+
+- minio from 15.0.2 to 17.0.21
+- redis from 20.12.0 to 22.0.7
+- postgresql from 16.7.26 to 16.7.27
+
 # 0.1.41
 
 Published on 11 August 2025

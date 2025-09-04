@@ -2,7 +2,7 @@ apiVersion: v2
 name: plane
 description: Project management tool from the future
 type: application
-version: 0.1.42
+version: 0.1.43
 appVersion: v0.28.0
 home: https://plane.so/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
@@ -17,14 +17,14 @@ keywords:
   - Collaboration
 dependencies:
   - name: postgresql
-    version: 16.7.26
+    version: 16.7.27
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
   - name: redis
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-    version: 20.12.0
+    version: 22.0.7
   - name: minio
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-    version: 15.0.2
+    version: 17.0.21
 annotations:
   displayName: Plane
   category: Productivity
