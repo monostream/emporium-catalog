@@ -1,3 +1,9 @@
+# 0.0.86
+
+Published on 4 October 2025
+
+- nextcloud from 8.2.0 to 8.3.0
+
 # 0.0.85
 
 Published on 3 October 2025
