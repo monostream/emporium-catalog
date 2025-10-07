@@ -1,6 +1,6 @@
 dependencies:
 - name: forgejo
   repository: oci://codeberg.org/forgejo-contrib
-  version: 14.0.3
-digest: sha256:aaeed481bdc2dcec26257b92ad481bff4db1d109eda1096a45ca140038dd3997
-generated: "2025-09-25T08:19:36.167203884Z"
+  version: 14.0.4
+digest: sha256:35018106d5ebaa9819b3b59274fa9badfddfd21cc8ad524c91d1ec119e7f4834
+generated: "2025-10-07T17:15:28.699509688Z"
