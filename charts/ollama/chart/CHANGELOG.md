@@ -1,3 +1,9 @@
+# 0.1.95
+
+Published on 16 October 2025
+
+- ollama from 1.31.0 to 1.32.0
+
 # 0.1.94
 
 Published on 4 October 2025
