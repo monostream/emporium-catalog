@@ -7,7 +7,7 @@ ENV LC_ALL=C.UTF-8
 ARG TARGETARCH
 
 # Code Server
-ENV CODE_SERVER_VERSION="4.103.1"
+ENV CODE_SERVER_VERSION="4.105.0"
 RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
    && apt-get update -qq && apt-get install -qq -y --no-install-recommends \
    ./code-server_${CODE_SERVER_VERSION}_${TARGETARCH}.deb \
@@ -16,7 +16,7 @@ RUN curl -fOL https://github.com/cdr/code-server/releases/download/v${CODE_SERVE
    && rm /usr/bin/code-server
 
 # Docker CLI
-ENV DOCKER_CLIENT_VERSION="28.3.3"
+ENV DOCKER_CLIENT_VERSION="28.5.1"
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
       DOCKER_ARCH="aarch64"; \
     else \
@@ -25,18 +25,18 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     && curl -fsSL -o - https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-${DOCKER_CLIENT_VERSION}.tgz | tar -zxf - --strip=1 -C /usr/local/bin/ docker/docker
 
 # Docker Buildx Plugin
-ENV DOCKER_BUILDX_VERSION="v0.27.0"
+ENV DOCKER_BUILDX_VERSION="v0.29.1"
 RUN mkdir -p /usr/libexec/docker/cli-plugins && curl -fsSL "https://github.com/docker/buildx/releases/download/${DOCKER_BUILDX_VERSION}/buildx-${DOCKER_BUILDX_VERSION}.linux-${TARGETARCH}" -o /usr/libexec/docker/cli-plugins/docker-buildx && chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
 # Docker-in-Docker daemon socket
 RUN mkdir -p /var/run/dind && touch /var/run/dind/docker.sock && ln -s /var/run/dind/docker.sock /run/docker.sock
 
 # Kubernetes CLI
-ENV KUBECTL_VERSION="v1.33.4"
+ENV KUBECTL_VERSION="v1.34.1"
 RUN curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
 # Helm CLI
-ENV HELM_VERSION="v3.18.6"
+ENV HELM_VERSION="v3.19.0"
 RUN curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" | tar -zxf - --strip=1 -C /usr/local/bin/ linux-${TARGETARCH}/helm
 
 # Java
