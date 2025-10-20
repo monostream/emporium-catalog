@@ -1,3 +1,10 @@
+# 0.0.21
+
+Published on 20 October 2025
+
+- gha-runner-scale-set from 0.12.1 to 0.13.0
+- gha-runner-scale-set-controller from 0.12.1 to 0.13.0
+
 # 0.0.20
 
 Published on 27 June 2025
