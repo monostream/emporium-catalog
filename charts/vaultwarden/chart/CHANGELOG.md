@@ -1,3 +1,9 @@
+# 0.1.16
+
+Published on 28 December 2025
+
+- server from 1.34.3 to 1.35.0
+
 # 0.1.15
 
 Published on 30 July 2025
