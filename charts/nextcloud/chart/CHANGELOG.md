@@ -1,3 +1,9 @@
+# 0.0.99
+
+Published on 20 January 2026
+
+- nextcloud from 8.8.1 to 8.8.2
+
 # 0.0.98
 
 Published on 15 January 2026
