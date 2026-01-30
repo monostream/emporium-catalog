@@ -1,3 +1,9 @@
+# 0.1.103
+
+Published on 30 January 2026
+
+- ollama from 1.39.0 to 1.40.0
+
 # 0.1.102
 
 Published on 26 January 2026
