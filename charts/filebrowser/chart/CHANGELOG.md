@@ -1,3 +1,9 @@
+# 0.1.64
+
+Published on 1 February 2026
+
+- filebrowser from v2.56.0 to v2.57.0
+
 # 0.1.63
 
 Published on 24 January 2026
