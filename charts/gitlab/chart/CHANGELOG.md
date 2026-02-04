@@ -1,3 +1,9 @@
+# 0.2.83
+
+Published on 4 February 2026
+
+- gitlab from 9.8.2 to 9.8.3
+
 # 0.2.82
 
 Published on 21 January 2026
