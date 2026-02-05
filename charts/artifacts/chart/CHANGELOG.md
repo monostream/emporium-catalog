@@ -1,3 +1,9 @@
+# 0.0.167
+
+Published on 5 February 2026
+
+- artifacts from 0.0.36 to 0.0.44
+
 # 0.0.166
 
 Published on 25 September 2025
