@@ -10,7 +10,7 @@ on:
 
 jobs:
   check-updates:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted-linux-x64
     container:
       image: emporium.docker.pkg.emporium.rocks/emporium-build:latest
       options: --user root
