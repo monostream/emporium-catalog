@@ -1,3 +1,69 @@
+# 0.0.75
+
+Published on 29 January 2026
+
+- forgejo from 16.0.1 to 16.0.2
+
+# 0.0.74
+
+Published on 18 January 2026
+
+- forgejo from 16.0.0 to 16.0.1
+
+# 0.0.73
+
+Published on 16 January 2026
+
+- forgejo from 15.1.0 to 16.0.0
+
+# 0.0.72
+
+Published on 13 January 2026
+
+- forgejo from 15.0.4 to 15.1.0
+
+# 0.0.71
+
+Published on 9 January 2026
+
+- forgejo from 15.0.3 to 15.0.4
+
+# 0.0.70
+
+Published on 21 November 2025
+
+- forgejo from 15.0.2 to 15.0.3
+
+# 0.0.69
+
+Published on 27 October 2025
+
+- forgejo from 15.0.1 to 15.0.2
+
+# 0.0.68
+
+Published on 20 October 2025
+
+- forgejo from 15.0.0 to 15.0.1
+
+# 0.0.67
+
+Published on 16 October 2025
+
+- forgejo from 14.0.4 to 15.0.0
+
+# 0.0.66
+
+Published on 7 October 2025
+
+- forgejo from 14.0.3 to 14.0.4
+
+# 0.0.65
+
+Published on 25 September 2025
+
+- forgejo from 14.0.0 to 14.0.3
+
 # 0.0.64
 
 Published on 22 August 2025
