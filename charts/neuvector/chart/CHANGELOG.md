@@ -1,3 +1,21 @@
+# 0.0.20
+
+Published on 13 December 2025
+
+- core from 2.8.9 to 2.8.10
+
+# 0.0.19
+
+Published on 21 October 2025
+
+- core from 2.8.8 to 2.8.9
+
+# 0.0.18
+
+Published on 25 September 2025
+
+- core from 2.8.7 to 2.8.8
+
 # 0.0.17
 
 Published on 10 July 2025
