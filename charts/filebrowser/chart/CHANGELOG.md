@@ -1,3 +1,135 @@
+# 0.1.65
+
+Published on 8 February 2026
+
+- filebrowser from v2.57.0 to v2.57.1
+
+# 0.1.64
+
+Published on 1 February 2026
+
+- filebrowser from v2.56.0 to v2.57.0
+
+# 0.1.63
+
+Published on 24 January 2026
+
+- filebrowser from v2.55.0 to v2.56.0
+
+# 0.1.62
+
+Published on 18 January 2026
+
+- filebrowser from v2.54.0 to v2.55.0
+
+# 0.1.61
+
+Published on 10 January 2026
+
+- filebrowser from v2.53.1 to v2.54.0
+
+# 0.1.60
+
+Published on 3 January 2026
+
+- filebrowser from v2.53.0 to v2.53.1
+
+# 0.1.59
+
+Published on 29 December 2025
+
+- filebrowser from v2.52.0 to v2.53.0
+
+# 0.1.58
+
+Published on 13 December 2025
+
+- filebrowser from v2.51.2 to v2.52.0
+
+# 0.1.57
+
+Published on 7 December 2025
+
+- filebrowser from v2.51.0 to v2.51.2
+
+# 0.1.56
+
+Published on 6 December 2025
+
+- filebrowser from v2.50.0 to v2.51.0
+
+# 0.1.55
+
+Published on 30 November 2025
+
+- filebrowser from v2.49.0 to v2.50.0
+
+# 0.1.54
+
+Published on 22 November 2025
+
+- filebrowser from v2.48.2 to v2.49.0
+
+# 0.1.53
+
+Published on 18 November 2025
+
+- filebrowser from v2.48.1 to v2.48.2
+
+# 0.1.52
+
+Published on 17 November 2025
+
+- filebrowser from v2.47.0 to v2.48.1
+
+# 0.1.51
+
+Published on 16 November 2025
+
+- filebrowser from v2.46.1 to v2.47.0
+
+# 0.1.50
+
+Published on 15 November 2025
+
+- filebrowser from v2.45.3 to v2.46.1
+
+# 0.1.49
+
+Published on 13 November 2025
+
+- filebrowser from v2.45.1 to v2.45.3
+
+# 0.1.48
+
+Published on 11 November 2025
+
+- filebrowser from v2.45.0 to v2.45.1
+
+# 0.1.47
+
+Published on 1 November 2025
+
+- filebrowser from v2.44.2 to v2.45.0
+
+# 0.1.46
+
+Published on 22 October 2025
+
+- filebrowser from v2.44.1 to v2.44.2
+
+# 0.1.45
+
+Published on 21 October 2025
+
+- filebrowser from v2.44.0 to v2.44.1
+
+# 0.1.44
+
+Published on 25 September 2025
+
+- filebrowser from v2.43.0 to v2.44.0
+
 # 0.1.43
 
 Published on 13 September 2025

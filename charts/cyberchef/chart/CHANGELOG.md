@@ -1,3 +1,15 @@
+# 0.1.21
+
+Published on 6 February 2026
+
+- cyberchef from 10.20 to 10.21
+
+# 0.1.20
+
+Published on 28 January 2026
+
+- cyberchef from 10.19.4 to 10.20
+
 # 0.1.19
 
 Published on 23 October 2024

@@ -1,3 +1,93 @@
+# 0.2.83
+
+Published on 4 February 2026
+
+- gitlab from 9.8.2 to 9.8.3
+
+# 0.2.82
+
+Published on 21 January 2026
+
+- gitlab from 9.8.1 to 9.8.2
+
+# 0.2.81
+
+Published on 19 January 2026
+
+- gitlab from 9.8.0 to 9.8.1
+
+# 0.2.80
+
+Published on 15 January 2026
+
+- gitlab from 9.7.1 to 9.8.0
+
+# 0.2.79
+
+Published on 8 January 2026
+
+- gitlab from 9.7.0 to 9.7.1
+
+# 0.2.78
+
+Published on 18 December 2025
+
+- gitlab from 9.6.2 to 9.7.0
+
+# 0.2.77
+
+Published on 10 December 2025
+
+- gitlab from 9.6.1 to 9.6.2
+
+# 0.2.76
+
+Published on 26 November 2025
+
+- gitlab from 9.6.0 to 9.6.1
+
+# 0.2.75
+
+Published on 20 November 2025
+
+- gitlab from 9.5.2 to 9.6.0
+
+# 0.2.74
+
+Published on 13 November 2025
+
+- gitlab from 9.5.1 to 9.5.2
+
+# 0.2.73
+
+Published on 22 October 2025
+
+- gitlab from 9.5.0 to 9.5.1
+
+# 0.2.72
+
+Published on 16 October 2025
+
+- gitlab from 9.4.2 to 9.5.0
+
+# 0.2.71
+
+Published on 8 October 2025
+
+- gitlab from 9.4.1 to 9.4.2
+
+# 0.2.70
+
+Published on 26 September 2025
+
+- gitlab from 9.4.0 to 9.4.1
+
+# 0.2.69
+
+Published on 25 September 2025
+
+- gitlab from 9.3.0 to 9.4.0
+
 # 0.2.68
 
 Published on 22 August 2025
