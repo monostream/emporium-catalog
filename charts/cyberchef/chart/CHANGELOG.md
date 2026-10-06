@@ -1,3 +1,7 @@
+# 0.1.23
+
+- Fix CyberChef 11 HTTP container/probe port 8080 while preserving Service port80 and ingress/auth configuration.
+
 # 0.1.22
 
 Published on 6 October 2026
