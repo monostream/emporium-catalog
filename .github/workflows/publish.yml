@@ -4,14 +4,15 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - update/**
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   release:
-    runs-on: self-hosted-linux-x64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -32,7 +33,7 @@ jobs:
 
       - name: Install cm-push plugin
         run: |
-          helm plugin install https://github.com/chartmuseum/helm-push.git
+          helm plugin install https://github.com/chartmuseum/helm-push.git --version v0.10.4
 
       - name: Add helm repos
         env:
