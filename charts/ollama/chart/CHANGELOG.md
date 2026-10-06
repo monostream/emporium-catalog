@@ -1,3 +1,75 @@
+# 0.1.104
+
+Published on 4 February 2026
+
+- ollama from 1.40.0 to 1.41.0
+
+# 0.1.103
+
+Published on 30 January 2026
+
+- ollama from 1.39.0 to 1.40.0
+
+# 0.1.102
+
+Published on 26 January 2026
+
+- ollama from 1.38.0 to 1.39.0
+
+# 0.1.101
+
+Published on 20 January 2026
+
+- ollama from 1.37.0 to 1.38.0
+
+# 0.1.100
+
+Published on 8 January 2026
+
+- ollama from 1.36.0 to 1.37.0
+
+# 0.1.99
+
+Published on 14 December 2025
+
+- ollama from 1.35.0 to 1.36.0
+
+# 0.1.98
+
+Published on 21 November 2025
+
+- ollama from 1.34.0 to 1.35.0
+
+# 0.1.97
+
+Published on 9 November 2025
+
+- ollama from 1.33.0 to 1.34.0
+
+# 0.1.96
+
+Published on 4 November 2025
+
+- ollama from 1.32.0 to 1.33.0
+
+# 0.1.95
+
+Published on 16 October 2025
+
+- ollama from 1.31.0 to 1.32.0
+
+# 0.1.94
+
+Published on 4 October 2025
+
+- ollama from 1.30.0 to 1.31.0
+
+# 0.1.93
+
+Published on 25 September 2025
+
+- ollama from 1.27.0 to 1.30.0
+
 # 0.1.92
 
 Published on 17 August 2025
