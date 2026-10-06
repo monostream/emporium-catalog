@@ -27,7 +27,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4.0.0
         with:
-          version: 'latest'
+          version: 'v3.19.0'
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install cm-push plugin
@@ -35,8 +35,11 @@ jobs:
           helm plugin install https://github.com/chartmuseum/helm-push.git
 
       - name: Add helm repos
+        env:
+          HELM_REPO: ${{ vars.HELM_REPO }}
+          HELM_USER: ${{ vars.HELM_USER }}
+          HELM_PASSWORD: ${{ secrets.HELM_PASSWORD }}
         run: |
-          helm repo add bitnami oci://bitnamicharts.docker.pkg.emporium.rocks
           helm repo add gitea-charts https://dl.gitea.io/charts
           helm repo add requarks https://charts.js.wiki
           helm repo add gitlab https://charts.gitlab.io
