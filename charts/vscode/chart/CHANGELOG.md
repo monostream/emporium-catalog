@@ -1,3 +1,8 @@
+# 0.1.73 update validation (2026-10-06)
+
+- Refresh Code Server to latest stable 4.140.0 and align chart image tag.
+- Validate on GitHub-hosted Linux without publishing PR images.
+
 # 0.1.73
 
 Published on 20 October 2025
