@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "chart",
+    "name": "uptrace",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:uptrace",
+    "changelogPath": "./chart"
+  }
+]

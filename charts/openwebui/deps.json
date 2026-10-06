@@ -3,11 +3,9 @@
     "provider": "chart",
     "name": "open-webui",
     "repo": "./chart",
-    "allowPrerelease": true,
-    "imageTagPaths": [
-      "image.tag"
-    ],
-    "appVersionMapping": "value:image.tag",
+    "allowPrerelease": false,
+    "imageTagPaths": [],
+    "appVersionMapping": "dependency:open-webui",
     "changelogPath": "./chart"
   }
 ]

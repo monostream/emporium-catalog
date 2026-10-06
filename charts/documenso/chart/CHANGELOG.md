@@ -1,3 +1,10 @@
+# 0.1.19
+
+Published on 7 October 2026
+
+- documenso from v1.12.1 to v2.19.0
+- postgresql from 16.7.26 to 16.7.27
+
 # 0.1.16
 
 Published on 3 July 2025

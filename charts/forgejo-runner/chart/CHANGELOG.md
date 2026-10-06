@@ -1,3 +1,9 @@
+# 0.0.69
+
+Published on 7 October 2026
+
+- docker from 28.5.1 to 29.8.2
+
 # 0.0.68
 
 Published on 17 October 2025
