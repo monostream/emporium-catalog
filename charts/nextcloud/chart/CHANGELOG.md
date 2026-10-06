@@ -1,3 +1,117 @@
+# 0.0.100
+
+Published on 21 January 2026
+
+- nextcloud from 8.8.2 to 8.9.0
+
+# 0.0.99
+
+Published on 20 January 2026
+
+- nextcloud from 8.8.1 to 8.8.2
+
+# 0.0.98
+
+Published on 15 January 2026
+
+- nextcloud from 8.7.0 to 8.8.1
+
+# 0.0.97
+
+Published on 13 December 2025
+
+- nextcloud from 8.6.1 to 8.7.0
+
+# 0.0.96
+
+Published on 13 December 2025
+
+- nextcloud from 8.6.0 to 8.6.1
+
+# 0.0.95
+
+Published on 26 November 2025
+
+- nextcloud from 8.5.10 to 8.6.0
+
+# 0.0.94
+
+Published on 23 November 2025
+
+- nextcloud from 8.5.9 to 8.5.10
+
+# 0.0.93
+
+Published on 22 November 2025
+
+- nextcloud from 8.5.3 to 8.5.9
+
+# 0.0.92
+
+Published on 21 November 2025
+
+- nextcloud from 8.5.2 to 8.5.3
+
+# 0.0.91
+
+Published on 5 November 2025
+
+- nextcloud from 8.5.1 to 8.5.2
+
+# 0.0.90
+
+Published on 25 October 2025
+
+- nextcloud from 8.5.0 to 8.5.1
+
+# 0.0.89
+
+Published on 23 October 2025
+
+- nextcloud from 8.4.1 to 8.5.0
+
+# 0.0.88
+
+Published on 10 October 2025
+
+- nextcloud from 8.4.0 to 8.4.1
+
+# 0.0.87
+
+Published on 7 October 2025
+
+- nextcloud from 8.3.0 to 8.4.0
+
+# 0.0.86
+
+Published on 4 October 2025
+
+- nextcloud from 8.2.0 to 8.3.0
+
+# 0.0.85
+
+Published on 3 October 2025
+
+- nextcloud from 8.0.3 to 8.2.0
+
+# 0.0.84
+
+Published on 30 September 2025
+
+- nextcloud from 8.0.2 to 8.0.3
+
+# 0.0.83
+
+Published on 26 September 2025
+
+- nextcloud from 8.0.1 to 8.0.2
+
+# 0.0.82
+
+Published on 25 September 2025
+
+- nextcloud from 7.0.2 to 8.0.1
+
 # 0.0.81
 
 Published on 16 August 2025
