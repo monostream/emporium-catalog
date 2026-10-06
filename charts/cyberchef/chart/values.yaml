@@ -96,3 +96,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# CyberChef 11 serves HTTP on 8080; keep the Service and ingress port unchanged.
+containerPort: 8080
