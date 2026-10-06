@@ -41,15 +41,7 @@ jobs:
           HELM_USER: ${{ vars.HELM_USER }}
           HELM_PASSWORD: ${{ secrets.HELM_PASSWORD }}
         run: |
-          helm repo add gitea-charts https://dl.gitea.io/charts
-          helm repo add requarks https://charts.js.wiki
-          helm repo add gitlab https://charts.gitlab.io
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
           helm repo add emporium-apps ${{ vars.HELM_REPO }} --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
-          helm repo add nextcloud https://nextcloud.github.io/helm/
-          helm repo add minio https://charts.min.io/
 
       - name: Run cm-push
         run: |
