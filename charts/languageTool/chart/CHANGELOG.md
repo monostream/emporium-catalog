@@ -1,3 +1,9 @@
+# 0.1.15
+
+Published on 6 October 2026
+
+- languagetool from 6.6 to 6.8
+
 # 0.1.14
 
 Published on 28 May 2025
