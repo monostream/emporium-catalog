@@ -1,3 +1,11 @@
+# 0.1.165
+
+Published on 7 October 2026
+
+- lobe-chat-database from 1.114.6 to 1.143.3
+- minio from 14.10.5 to 17.0.21
+- postgresql from 16.7.26 to 16.7.27
+
 # 0.1.162
 
 Published on 23 August 2025

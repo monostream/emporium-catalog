@@ -1,9 +1,9 @@
 dependencies:
 - name: postgresql
   repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 16.7.26
+  version: 16.7.27
 - name: minio
   repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 14.10.5
-digest: sha256:923f4ad0af30449832e3bddf54fc55da3d3efb9e2637b4ab9c070b1ba71943f7
-generated: "2025-08-26T19:39:33.844562+02:00"
+  version: 17.0.21
+digest: sha256:019a16e4b43cf6514c8811553a48ca73a69525b0b9c8ac062c9cc1423778c527
+generated: "2026-10-07T00:05:22.539403+02:00"

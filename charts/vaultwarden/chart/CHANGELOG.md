@@ -1,3 +1,9 @@
+# 0.1.19
+
+Published on 7 October 2026
+
+- server from 1.35.2 to 1.37.4
+
 # 0.1.18
 
 Published on 10 January 2026

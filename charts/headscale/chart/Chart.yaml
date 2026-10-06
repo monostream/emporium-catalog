@@ -2,8 +2,8 @@ apiVersion: v2
 name: headscale
 description:
 type: application
-version: 0.1.19
-appVersion: "v0.23"
+version: 0.1.20
+appVersion: "v0.29.4"
 home: https://headscale.net/
 icon: https://github.com/juanfont/headscale/blob/main/docs/logo/headscale3-dots.png?raw=true
 sources:

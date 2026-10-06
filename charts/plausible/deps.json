@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "chart",
+    "name": "plausible",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "appVersionMapping": "dependency:plausible-analytics",
+    "changelogPath": "./chart"
+  }
+]

@@ -2,8 +2,8 @@ apiVersion: v2
 name: lobechat
 description: Lobe Chat - an open-source, modern-design AI chat framework.
 type: application
-version: 0.1.163
-appVersion: "1.114.6"
+version: 0.1.165
+appVersion: "1.143.3"
 home: https://lobehub.com/
 icon: ""
 sources:
@@ -18,8 +18,8 @@ annotations:
   oidcRedirectPaths: /api/auth
 dependencies:
   - name: postgresql
-    version: 16.x.x
+    version: 16.7.27
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
   - name: minio
-    version: 14.x.x
+    version: 17.0.21
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks

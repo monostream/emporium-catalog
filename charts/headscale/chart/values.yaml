@@ -3,32 +3,28 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 oidc:
   issuerUrl:
   clientId:
   clientSecret:
-
 web:
   image:
     repository: ghcr.io/tale/headplane
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "0.3.5"
+    tag: "0.7.1"
   service:
     type: ClusterIP
     port: 3000
-
 app:
   image:
     repository: headscale/headscale
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.23-debug"
+    tag: "v0.29.4"
   domain: ""
   zone:
   config: |
@@ -116,8 +112,6 @@ app:
       client_id: {{ .Values.oidc.clientId }}
       client_secret: {{ .Values.oidc.clientSecret }}
       scope: ["openid", "profile", "email", "custom"]
-
-
 storage:
   data:
     enabled: true
@@ -125,8 +119,6 @@ storage:
     existingClaim: ""
     accessMode: ReadWriteOnce
     size: 1Gi
-
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -137,26 +129,22 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
 podAnnotations: {}
 podLabels: {}
-
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext:
-  # capabilities:
-  #   drop:
-  #   - ALL
-  #readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 100
-  # allowPrivilegeEscalation: false
-
+# capabilities:
+#   drop:
+#   - ALL
+#readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 100
+# allowPrivilegeEscalation: false
 service:
   type: ClusterIP
   port: 8080
-
 ingress:
   enabled: false
   className: ""
@@ -185,18 +173,17 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
 
 autoscaling:
   enabled: false
@@ -204,7 +191,6 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo
@@ -219,7 +205,5 @@ volumeMounts: []
 #   readOnly: true
 
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}

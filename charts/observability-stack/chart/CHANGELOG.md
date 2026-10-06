@@ -1,3 +1,12 @@
+# 0.0.327
+
+Published on 7 October 2026
+
+- loki from 6.43.0 to 7.3.0
+- alloy from 1.3.1 to 1.13.0
+- tempo from 1.23.3 to 1.24.4
+- kube-prometheus-stack from 78.3.2 to 92.0.0
+
 # 0.0.326
 
 Published on 20 October 2025

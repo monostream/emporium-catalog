@@ -1,3 +1,9 @@
+# 0.0.23
+
+Published on 7 October 2026
+
+- uptime-kuma from 2.0.1 to 2.5.5
+
 # 0.0.22
 
 Published on 20 October 2025

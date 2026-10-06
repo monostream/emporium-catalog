@@ -1,3 +1,13 @@
+# 0.1.74
+
+Published on 7 October 2026
+
+- Helm CLI from v3.19.0 to v4.3.0
+- Docker CLI from v28.5.1 to v29.8.2
+- Docker Buildx from v0.29.1 to v0.37.2
+- Kubernetes CLI from v1.34.1 to v1.37.1
+- docker from 28.3.3 to 29.8.2
+
 # 0.1.73 update validation (2026-10-06)
 
 - Refresh Code Server to latest stable 4.140.0 and align chart image tag.

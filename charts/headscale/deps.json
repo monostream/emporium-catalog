@@ -3,11 +3,12 @@
     "provider": "chart",
     "name": "headscale",
     "repo": "./chart",
-    "allowPrerelease": true,
+    "allowPrerelease": false,
     "imageTagPaths": [
-      "image.tag"
+      "app.image.tag",
+      "web.image.tag"
     ],
-    "appVersionMapping": "value:image.tag",
+    "appVersionMapping": "value:app.image.tag",
     "changelogPath": "./chart"
   }
 ]
