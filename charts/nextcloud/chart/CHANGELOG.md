@@ -1,3 +1,10 @@
+# 0.1.0
+
+Published on 19 October 2026
+
+- New installs use PostgreSQL from Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17); credentials come from the CloudNativePG app secret. Requires Emporium v0.5.0.
+- The bundled Bitnami postgresql subchart is disabled. It was never used: the internal SQLite database stayed enabled, so existing installs ran on SQLite. They keep using it, because Nextcloud reads the database type from its persisted config.php.
+
 # 0.0.101
 
 Published on 7 October 2026
