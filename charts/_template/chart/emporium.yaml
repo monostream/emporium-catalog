@@ -1,0 +1,32 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+
+inputs:
+  LogLevel:
+    label: Log level
+    description: Verbosity of the application log.
+    type: enum
+    options: [debug, info, warn, error]
+    default: info
+    path: config.logLevel
+
+components:
+  app:
+    label: Application
+    resources: resources
+    replicas: { path: replicaCount, min: 1, max: 3 }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Evaluation and small teams
+    values: profiles/small.yaml
