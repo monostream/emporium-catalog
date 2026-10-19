@@ -217,7 +217,7 @@ Charts must be ingress-controller agnostic. Emporium keeps using plain `Ingress`
 
 - Never hard-code an ingress class. Expose `ingress.className` (or the sub-chart's equivalent) with an empty default so the cluster default `IngressClass` is used. Do not set `kubernetes.io/ingress.class` or `ingressClassName: nginx`.
 - Use only `PathPrefix`-style routing (`pathType: Prefix`) and the annotation subset below.
-- Do not rely on controller-specific snippets. Configure headers, HSTS, forwarded-header trust, cookies and similar behaviour in the application itself. WebSockets work natively and need no annotation.
+- Do not rely on controller-specific snippets. Configure headers, HSTS, forwarded-header trust, cookies and similar behaviour in the application itself. WebSockets work natively and need no annotation (custom upgrade protocols, such as Headscale's `tailscale-control-protocol`, must be allowed by the gateway).
 
 Supported annotations:
 ```yaml
