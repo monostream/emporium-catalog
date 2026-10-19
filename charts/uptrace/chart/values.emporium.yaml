@@ -70,6 +70,12 @@ uptrace:
         user: {{ .Emporium.Integrations.Postgres.Username | quote }}
         password: "${POSTGRES_PASSWORD}"
         database: {{ .Emporium.Integrations.Postgres.Database | quote }}
+        # Without a tls block Uptrace connects in plain text. CloudNativePG
+        # serves TLS with its own CA, but the uptrace subchart cannot mount
+        # extra volumes, so tls.ca_file cannot point at the CA secret; skip
+        # verification and keep the connection encrypted (sslmode require).
+        tls:
+          insecure_skip_verify: true
       auth:
         oidc:
           - id: emporium
