@@ -164,6 +164,22 @@ features this chart uses; the names follow the upstream defaults.
       - key: {{ default "connection" .key | quote }}
         path: objectstorage/object_store
 {{- end }}
+{{- with dig "smtp" dict $g }}
+{{- if and .enabled (ne "none" (.authentication | default "none")) }}
+- secret:
+    name: {{ required "global.smtp.password.secret is required" (dig "password" "secret" "" .) | quote }}
+    items:
+      - key: {{ dig "password" "key" "" . | default "password" | quote }}
+        path: smtp/smtp-password
+{{- with dig "user_name_secret" "secret" "" . }}
+- secret:
+    name: {{ . | quote }}
+    items:
+      - key: {{ dig "user_name_secret" "key" "" $g.smtp | default "username" | quote }}
+        path: smtp/smtp-username
+{{- end }}
+{{- end }}
+{{- end }}
 {{- range dig "appConfig" "omniauth" "providers" list $g }}
 {{- if hasKey . "secret" }}
 - secret:
