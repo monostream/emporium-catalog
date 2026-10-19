@@ -91,6 +91,14 @@ global:
     configureCertmanager: false
     # "none" omits ingressClassName so the cluster default IngressClass is used
     class: none
+    ## Every ingress names its own TLS secret (issued through the
+    ## kubernetes.io/tls-acme annotation). A non-empty tls map tells upstream
+    ## that TLS is handled; left empty, every pod mounts the CA of a
+    ## self-signed wildcard certificate (<release>-wildcard-tls-ca) that
+    ## nothing creates, and the pods hang in Init. Extra CAs go into
+    ## global.certificates.customCAs.
+    tls:
+      enabled: true
 
   appConfig:
     omniauth:
