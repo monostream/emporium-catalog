@@ -8,19 +8,7 @@
 ## @type string
 ## @description Admin password
 
-## @userSupplied EnableHA
-## @label Enable High Availability
-## @type boolean
-## @description Installs a highly available version of the chart
-## @optional
-
 forgejo:
-  redis-cluster:
-    enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
-  postgresql:
-    enabled: {{ not (.Emporium.UserSupplied.EnableHA | default false) }}
-  postgresql-ha:
-    enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
 
   persistence:
     enabled: true
@@ -54,8 +42,8 @@ forgejo:
   gitea:
     admin:
       existingSecret:
-      username: {{ .Emporium.UserSupplied.Username }}
-      password: {{ .Emporium.UserSupplied.Password }}
+      username: {{ .Emporium.UserSupplied.Username | quote }}
+      password: {{ .Emporium.UserSupplied.Password | quote }}
       email: 'forgejo@{{ .Emporium.Integrations.DNS.Hostname }}'
     oauth:
       - name: 'emporium'
@@ -67,20 +55,30 @@ forgejo:
         groupClaimName: "groups"
         adminGroup: "authentik Admins"
 
+    additionalConfigFromEnvs:
+      - name: FORGEJO__DATABASE__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+            key: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+
     config:
       database:
         DB_TYPE: postgres
+        HOST: "{{ .Emporium.Integrations.Postgres.Host }}:{{ .Emporium.Integrations.Postgres.Port }}"
+        NAME: {{ .Emporium.Integrations.Postgres.Database | quote }}
+        USER: {{ .Emporium.Integrations.Postgres.Username | quote }}
       session:
         PROVIDER: db
       cache:
-        ADAPTER: {{ ternary "redis-cluster" "memory" (.Emporium.UserSupplied.EnableHA | default false)  }}
+        ADAPTER: memory
       queue:
-        TYPE: {{ ternary "redis" "level" (.Emporium.UserSupplied.EnableHA | default false) }}
+        TYPE: level
       indexer:
         ISSUE_INDEXER_TYPE: bleve
         REPO_INDEXER_ENABLED: true
       actions:
-        ENABELD: 'true'
+        ENABLED: 'true'
       api:
         ENABLE_SWAGGER: 'false'
       service:
