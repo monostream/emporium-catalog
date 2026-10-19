@@ -5,6 +5,7 @@ Published on 19 October 2026
 - Merge the duplicate auth keys in values.emporium.yaml: the auth image override and the SMTP settings were dropped before
 - SMTP settings (including the username instead of the sender address as SMTP user) are passed to auth through a <release>-smtp Secret
 - Auth image supabase/gotrue v2.159.1, the version the subchart was built for (was v2.70.0, never applied)
+- Auth runs its migrations from /usr/local/etc/auth/migrations, where the official image ships them (the subchart default points at the Bitnami image layout)
 - DatabaseSize sets supabase.postgresql.primary.persistence.size (the old path had no effect)
 
 # 1.0.53

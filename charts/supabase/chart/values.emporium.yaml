@@ -17,6 +17,13 @@ supabase:
     image:
       repository: supabase/gotrue
       tag: v2.159.1
+    # The subchart's default ConfigMap points GOTRUE_DB_MIGRATIONS_PATH at the
+    # Bitnami image layout (/opt/bitnami/gotrue/); the official image ships its
+    # migrations in /usr/local/etc/auth/migrations. Container env takes
+    # precedence over envFrom, so this override wins.
+    extraEnvVars:
+      - name: GOTRUE_DB_MIGRATIONS_PATH
+        value: /usr/local/etc/auth/migrations
     # GOTRUE_SMTP_* settings come from the Secret templates/secret-smtp.yaml
     # creates (the subchart only mounts auth.extraConfig with an existing ConfigMap).
     extraEnvVarsSecret: {{ printf "%s-smtp" .Emporium.Name | quote }}
