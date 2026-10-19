@@ -1,0 +1,39 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  SignupsAllowed:
+    label: Allow sign-ups
+    description: Let anyone who can reach the page create an account.
+    type: boolean
+    default: true
+    path: app.signupsAllowed
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Bitwarden clients and the web vault talk to these APIs with their own tokens.
+    skipPaths: [/api/*, /identity/*]
+    bind:
+      IngressClassName: ingress.className
+  mail:
+    type: smtp
+    required: false
+  data:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: storage.data.existingClaim
+
+components:
+  app:
+    label: Vaultwarden
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database on a ReadWriteOnce volume" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Families and small teams
+    values: profiles/small.yaml
