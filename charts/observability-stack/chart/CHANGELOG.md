@@ -1,3 +1,10 @@
+# 0.0.329
+
+Published on 19 October 2026
+
+- Default install (Prometheus disabled) renders again: control-plane ServiceMonitors, kubelet, kube-state-metrics, Alertmanager and default rules now follow PrometheusEnabled
+- Loki storage size description states the real default (50Gi)
+
 # 0.0.327
 
 Published on 7 October 2026

@@ -16,8 +16,7 @@ porter:
 
     hosts:
       - host: {{ .Emporium.Integrations.DNS.Hostname }}
-        paths:
-          - /
+        path: /
 
     tls:
       - secretName: porter-cert-tls

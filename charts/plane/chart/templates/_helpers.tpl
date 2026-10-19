@@ -86,19 +86,27 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 API environment variables
 */}}
 {{- define "plane.api.envVars" -}}
+- name: PGHOST
+  value: {{ required "database.host is required" .Values.database.host | quote }}
+- name: PGPORT
+  value: {{ .Values.database.port | toString | quote }}
+- name: PGDATABASE
+  value: {{ .Values.database.name | quote }}
 - name: PGUSER
-  value: postgres
+  valueFrom:
+    secretKeyRef:
+      name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
+      key: {{ .Values.database.usernameKey }}
 - name: PGPASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ .Release.Name }}-postgresql
-      key: postgres-password
-- name: PGHOST
-  value: {{ include "plane.fullname" . }}-postgres
-- name: PGDATABASE
-  value: {{ .Values.postgresql.auth.database }}
+      name: {{ .Values.database.existingSecret }}
+      key: {{ .Values.database.passwordKey }}
 - name: DATABASE_URL
-  value: postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "plane.fullname" . }}-postgresql/{{ .Values.postgresql.auth.database }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.database.existingSecret }}
+      key: {{ .Values.database.uriKey }}
 - name: REDIS_HOST
   value: {{ include "plane.fullname" . }}-redis-master
 - name: REDIS_PORT

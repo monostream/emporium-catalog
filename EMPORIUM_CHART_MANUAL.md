@@ -100,7 +100,7 @@ Visual assets for the Emporium marketplace:
 
 ## Emporium Integrations
 
-Emporium provides four main integrations that charts can use:
+Emporium provides five main integrations that charts can use:
 
 ### 1. DNS Integration
 ```yaml
@@ -135,6 +135,174 @@ Emporium provides four main integrations that charts can use:
 # Storage Claims
 {{ .Emporium.Integrations.Storage.Claims.Data.Name }}
 ```
+
+### 5. Postgres Integration (native, CloudNativePG)
+
+Charts that need PostgreSQL do not bundle it (no Bitnami `postgresql` subchart,
+no own StatefulSet). They declare the database in `Chart.yaml`, and Emporium
+creates a [CloudNativePG](https://cloudnative-pg.io) `Cluster` named
+`<release>-postgres` in the app namespace. Emporium waits until the cluster is
+ready before it runs `helm install`. Requires Emporium v0.5.0 or later and the
+CloudNativePG operator (1.26 or later) in the cluster. Set
+`emporiumVersion: v0.5.0` in the annotations of charts that use it.
+
+#### Declaring the database (`Chart.yaml`)
+
+```yaml
+annotations:
+  emporiumVersion: v0.5.0
+  emporium.build/postgres: |
+    database: myapp          # default "app"; lower case [a-z_][a-z0-9_]{0,62}, not postgres/template0/template1
+    owner: myapp             # role the app connects as; default "app"; same rules, not postgres/streaming_replica/pg_*/cnpg_*
+    version: "17"            # major version: 14, 15, 16, 17 or 18 (default 18); quote it
+    extensions: [pg_trgm]    # created by a superuser in the database; uuid-ossp style names work
+    storage: 8Gi             # default volume size per instance (default 8Gi); users can change it at install, grow-only later
+    instances: 1             # 1..5, default 1
+    parameters:              # optional postgresql.conf settings (strings)
+      max_connections: "200"
+    resources:               # optional, per instance; replaces the default as a whole
+      requests: {cpu: 250m, memory: 512Mi}
+      limits: {memory: 1Gi}
+```
+
+- Unknown keys are rejected, so typos fail early.
+- The app (release) name may have at most 41 characters, because the cluster and its services derive their names from it.
+- Default resources (without `resources:`): requests 100m CPU / 256Mi memory, limit 1Gi memory.
+  `shared_buffers` must stay below the memory limit.
+- Parameters CloudNativePG or Emporium control are rejected: `listen_addresses`, `port`, `ssl*`,
+  `archive_*`, `recovery_*`, `wal_level`, `shared_preload_libraries`, `log_*` file settings and similar.
+- Images: `ghcr.io/cloudnative-pg/postgresql:<version>-standard-trixie` (contrib modules plus
+  pgvector, pgaudit, pg_failover_slots). Custom images are not supported yet.
+- Only list extensions the app really needs. Trusted extensions (`pgcrypto`, `pg_trgm`, `citext`,
+  `uuid-ossp`, `btree_gist`, ...) could be created by the owner too, but declaring them makes the
+  requirement visible and works for untrusted ones as well.
+- On update, Emporium grows storage, changes instances, resources and parameters, and adds
+  extensions. It never changes database, owner or major version, and never drops extensions.
+- On uninstall the cluster and its data are deleted together with the app.
+
+#### Template variables (`values.emporium.yaml`)
+
+```yaml
+{{ .Emporium.Integrations.Postgres.ClusterName }}   # <release>-postgres
+{{ .Emporium.Integrations.Postgres.Host }}          # <release>-postgres-rw.<namespace>.svc (read-write service)
+{{ .Emporium.Integrations.Postgres.Port }}          # 5432 (an integer: use | quote for env values)
+{{ .Emporium.Integrations.Postgres.Database }}      # the annotation's database
+{{ .Emporium.Integrations.Postgres.Username }}      # the annotation's owner
+{{ .Emporium.Integrations.Postgres.SecretName }}    # <release>-postgres-app, the CloudNativePG app secret
+{{ .Emporium.Integrations.Postgres.UsernameKey }}   # "username"
+{{ .Emporium.Integrations.Postgres.PasswordKey }}   # "password"
+{{ .Emporium.Integrations.Postgres.URIKey }}        # "uri"
+{{ .Emporium.Integrations.Postgres.JDBCURIKey }}    # "jdbc-uri"
+{{ .Emporium.Integrations.Postgres.SSLMode }}       # "require" (the server always offers TLS)
+{{ .Emporium.Integrations.Postgres.CASecretName }}  # <release>-postgres-ca, key ca.crt (for sslmode verify-full)
+```
+
+Using any of these without the `emporium.build/postgres` annotation fails the install.
+The password is never available as a value. Reference the secret instead, with
+`secretKeyRef`, an `existingSecret` option of the chart, or an `envFrom`.
+
+The app secret (type `kubernetes.io/basic-auth`) contains:
+
+| Key | Value |
+|---|---|
+| `username`, `user` | owner role |
+| `password` | owner password |
+| `dbname` | database |
+| `host` | `<release>-postgres-rw` (bare service name) |
+| `port` | `5432` |
+| `uri` | `postgresql://<user>:<password>@<release>-postgres-rw.<namespace>:5432/<db>` (no query string, no sslmode) |
+| `jdbc-uri` | `jdbc:postgresql://<release>-postgres-rw.<namespace>:5432/<db>?password=...&user=...` |
+| `fqdn-uri`, `fqdn-jdbc-uri` | the same with `<service>.<namespace>.svc.<cluster-domain>` |
+| `pgpass` | a `.pgpass` line |
+
+#### Wiring the app
+
+Pick the form the app (or the upstream chart) accepts, in this order of preference:
+
+1. **Separate host/port/user + password from a secret** (most upstream charts):
+
+   ```yaml
+   externalDatabase:
+     host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+     port: {{ .Emporium.Integrations.Postgres.Port }}
+     database: {{ .Emporium.Integrations.Postgres.Database | quote }}
+     user: {{ .Emporium.Integrations.Postgres.Username | quote }}
+     existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+     existingSecretPasswordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+   postgresql:
+     enabled: false   # switch the bundled database off
+   ```
+
+2. **A full connection URI from a secret key** (`DATABASE_URL` style). In your own templates:
+
+   ```yaml
+   env:
+     - name: DATABASE_URL
+       valueFrom:
+         secretKeyRef:
+           name: {{ .Values.database.existingSecret }}   # values.emporium.yaml: SecretName
+           key: {{ .Values.database.uriKey }}            # values.emporium.yaml: URIKey
+   ```
+
+3. **Password through an environment variable the app expands** (Gitea/Forgejo `app.ini`,
+   Uptrace `${POSTGRES_PASSWORD}` in its config):
+
+   ```yaml
+   gitea:
+     additionalConfigFromEnvs:
+       - name: GITEA__database__PASSWD
+         valueFrom:
+           secretKeyRef:
+             name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+             key: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+   ```
+
+4. **Last resort: the chart needs the value in a Secret it builds itself** (a different key name,
+   a `postgres://` scheme or extra query parameters). Read the app secret with `lookup` in a chart
+   template (see `charts/plausible/chart/templates/secret.yaml`). Emporium creates the app secret
+   before `helm install`. `helm template` renders an empty password, and a changed password only
+   reaches the app on the next upgrade.
+
+For your own templates, use the same values block in every chart, so the chart also works
+outside Emporium with any external PostgreSQL:
+
+```yaml
+# values.yaml
+database:
+  host: ""
+  port: 5432
+  name: myapp
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
+  uriKey: uri
+```
+
+```yaml
+# values.emporium.yaml
+database:
+  host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+  port: {{ .Emporium.Integrations.Postgres.Port }}
+  name: {{ .Emporium.Integrations.Postgres.Database | quote }}
+  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+  usernameKey: {{ .Emporium.Integrations.Postgres.UsernameKey | quote }}
+  passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+  uriKey: {{ .Emporium.Integrations.Postgres.URIKey | quote }}
+```
+
+Rules:
+- Never put a database password in `values.emporium.yaml` or ask the user for one (`@userSupplied`).
+- Remove the bundled database (subchart dependency, `Chart.lock` entry and vendored `.tgz`),
+  or disable it if it is a nested dependency of an upstream chart.
+- Moving an existing chart to the integration gives existing installs a new, empty database.
+  Say so in the CHANGELOG and bump the minor version.
+- TLS: the server always offers TLS with its own CA. libpq-style clients (`sslmode=prefer`, the
+  default) encrypt automatically. Set `sslmode`/`SSL_MODE` to `SSLMode` where the app has the option.
+  `verify-full` needs the CA from `CASecretName`.
+
+Examples in this repository: documenso (URI), maybe-finance, penpot, plane (host + secret keys + URI),
+artifacts (URI via `existingSecret`), nextcloud, wiki (upstream `externalDatabase`/`externalPostgresql`),
+gitea, forgejo (password via env), uptrace (env in config), plausible (`lookup`).
 
 ---
 
@@ -277,6 +445,11 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/chart-name/chart-name_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/chart-name/chart-name_gallery_2.png
   oidcRedirectPaths: "/auth/callback"  # For OIDC apps
+  emporiumVersion: v0.5.0              # Minimum Emporium version (shown in the catalog)
+  emporium.build/postgres: |           # PostgreSQL provided by Emporium, see "Postgres Integration"
+    database: myapp
+    owner: myapp
+    version: "17"
 ```
 
 ### Categories
@@ -362,14 +535,15 @@ ingress:
 ```
 
 ### 2. Application with Database
+Declare `emporium.build/postgres` in `Chart.yaml` and reference the CloudNativePG app secret
+(see [Postgres Integration](#5-postgres-integration-native-cloudnativepg)):
 ```yaml
-global:
-  postgresqlEnabled: true
-
-postgresql:
-  fullnameOverride: "{{ .Emporium.Name }}-postgresql"
-  auth:
-    existingSecret: "{{ .Emporium.Name }}-postgresql"
+database:
+  host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+  port: {{ .Emporium.Integrations.Postgres.Port }}
+  name: {{ .Emporium.Integrations.Postgres.Database | quote }}
+  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+  passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
 ```
 
 ### 3. Application with Storage

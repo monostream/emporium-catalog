@@ -53,16 +53,21 @@ spec:
                 name: {{ include "chart.fullname" . }}-keybase
                 key: SECRET_KEY_BASE
           - name: DB_HOST
-            value: {{ .Values.postgresql.auth.host }}
+            value: {{ required "database.host is required" .Values.database.host | quote }}
+          - name: DB_PORT
+            value: {{ .Values.database.port | toString | quote }}
           - name: POSTGRES_DB
-            value: {{ .Values.postgresql.auth.database }}
+            value: {{ .Values.database.name | quote }}
           - name: POSTGRES_USER
-            value: {{ .Values.postgresql.auth.username }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
+                key: {{ .Values.database.usernameKey }}
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: postgresql
-                key: postgres-password
+                name: {{ .Values.database.existingSecret }}
+                key: {{ .Values.database.passwordKey }}
           - name: SMTP_ADDRESS
             value: "{{ .Values.app.smtp.host }}"
           - name: SMTP_PORT

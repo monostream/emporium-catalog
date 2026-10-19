@@ -17,12 +17,6 @@
 ## @optional
 
 wastebin:
-  image:
-    repository: quxfoo/wastebin
-    tag: latest
-    pullPolicy: IfNotPresent
-
-  # Environment variables
   env:
     WASTEBIN_DATABASE_PATH: "/data/state.db"
     WASTEBIN_TITLE: {{ default "Wastebin" .Emporium.UserSupplied.Title | quote }}
@@ -31,42 +25,18 @@ wastebin:
     WASTEBIN_ADDRESS: "0.0.0.0:8088"
     WASTEBIN_BASE_URL: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
 
-  service:
-    type: ClusterIP
-    port: 8088
-
-  # Resources
-  resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
-# Security Context
-podSecurityContext:
-  runAsNonRoot: true
-  runAsUser: 10001
-  runAsGroup: 10001
-  fsGroup: 10001
-
-securityContext:
-  allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: false
-  runAsNonRoot: true
-  runAsUser: 10001
-  runAsGroup: 10001
-  capabilities:
-    drop:
-      - ALL
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 # Storage configuration
 persistence:
   enabled: true
-  size: {{ default "1Gi" .Emporium.UserSupplied.StorageSize }}
-  accessMode: ReadWriteOnce
-  storageClass: ""
+  size: {{ default "1Gi" .Emporium.UserSupplied.StorageSize | quote }}
 
 # Ingress configuration
 ingress:
@@ -88,4 +58,4 @@ ingress:
   tls:
     - secretName: {{ .Emporium.Name }}-tls
       hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }} 
+        - {{ .Emporium.Integrations.DNS.Hostname }}

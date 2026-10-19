@@ -40,3 +40,4 @@ docker:
   repository: docker
   pullPolicy: Always
   tag: 29.8.2
+  resources: {}

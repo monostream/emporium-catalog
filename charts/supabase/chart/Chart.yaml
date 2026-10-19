@@ -2,7 +2,7 @@ apiVersion: v2
 name: supabase
 description: Firebase alternative for building secure and performant Postgres backends with minimal configuration.
 type: application
-version: 1.0.54
+version: 1.0.55
 appVersion: 1.24.7
 dependencies:
   - name: supabase

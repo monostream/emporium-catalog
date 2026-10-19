@@ -1,3 +1,10 @@
+# 1.1.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17) instead of the bundled Bitnami postgresql subchart; the Postgres Password field is gone and credentials come from the CloudNativePG app secret. Requires Emporium v0.5.0. Existing data in the bundled database is not migrated.
+- SMTP username and password are no longer swapped in penpot-secret
+
 # 1.0.73
 
 Published on 7 October 2026

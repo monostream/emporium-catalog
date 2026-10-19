@@ -1,21 +1,10 @@
-postgresql:
-  fullnameOverride: "uptrace-postgresql"
-  auth:
-    database: "uptrace"
-    existingSecret: "uptrace-postgresql"
-    username: "uptrace"
-  primary:
-    podSecurityContext:
-      enabled: true
-      fsGroup: 1001
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 1001
-      runAsNonRoot: true
-      allowPrivilegeEscalation: false
-
 uptrace:
   otelcol:
+    enabled: false
+
+  # The daemonset is an OpenTelemetryCollector resource and needs the
+  # OpenTelemetry operator, which Emporium does not install.
+  otelcolDaemonset:
     enabled: false
 
   postgresql:
@@ -51,8 +40,13 @@ uptrace:
     - name: POSTGRES_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: uptrace-postgresql
-          key: password
+          name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+          key: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+    - name: UPTRACE_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: uptrace
+          key: adminPassword
     - name: UPTRACE_SECRET_KEY
       valueFrom:
         secretKeyRef:
@@ -72,11 +66,16 @@ uptrace:
       site:
         addr: https://{{ .Emporium.Integrations.DNS.Hostname }}
       pg:
-        # predictable because of postgresql.fullnameOverride
-        addr: uptrace-postgresql:5432
-        user: uptrace
+        addr: "{{ .Emporium.Integrations.Postgres.Host }}:{{ .Emporium.Integrations.Postgres.Port }}"
+        user: {{ .Emporium.Integrations.Postgres.Username | quote }}
         password: "${POSTGRES_PASSWORD}"
-        database: uptrace
+        database: {{ .Emporium.Integrations.Postgres.Database | quote }}
+        # Without a tls block Uptrace connects in plain text. CloudNativePG
+        # serves TLS with its own CA, but the uptrace subchart cannot mount
+        # extra volumes, so tls.ca_file cannot point at the CA secret; skip
+        # verification and keep the connection encrypted (sslmode require).
+        tls:
+          insecure_skip_verify: true
       auth:
         oidc:
           - id: emporium
