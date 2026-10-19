@@ -1,3 +1,11 @@
+database:
+  host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+  port: {{ .Emporium.Integrations.Postgres.Port }}
+  name: {{ .Emporium.Integrations.Postgres.Database | quote }}
+  username: {{ .Emporium.Integrations.Postgres.Username | quote }}
+  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+  passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+
 plausible:
   baseURL: {{ printf "https://%s" .Emporium.Integrations.DNS.Hostname }}
 

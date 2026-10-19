@@ -2,7 +2,7 @@ apiVersion: v2
 name: plausible
 description: Easy to use and privacy-friendly Google Analytics alternative
 type: application
-version: 0.0.10
+version: 0.1.0
 appVersion: "3.0.1"
 home: https://plausible.io/
 icon: https://raw.githubusercontent.com/plausible/docs/master/static/img/plausible-analytics-icon-top.png
@@ -23,3 +23,10 @@ annotations:
   licenses: AGPL-3.0
   gallery: |
     https://camo.githubusercontent.com/db0cadcd2aef644e580cedb02bc0e773b192a33d5c2a69b5680f65137e2ce03c/68747470733a2f2f706c61757369626c652e696f2f646f63732f696d672f706c61757369626c652d616e616c79746963732e706e67
+  emporiumVersion: v0.5.0
+  emporium.build/postgres: |
+    database: plausible
+    owner: plausible
+    version: "17"
+    extensions: [citext]
+    storage: 8Gi
