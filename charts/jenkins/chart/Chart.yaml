@@ -2,7 +2,7 @@ apiVersion: v2
 type: application
 name: jenkins
 description: the most popular and flexible CI/CD system in the world!
-version: 0.1.54
+version: 0.1.55
 appVersion: "2.479.2"
 home: https://www.jenkins.io/
 icon: https://www.jenkins.io/images/logos/cute/cute.svg
@@ -19,7 +19,7 @@ annotations:
   licenses: MIT
   oidcRedirectPaths: /securityRealm/finishLogin
   gallery: |-
-    https://www.jenkins.io/doc/book/resources/blueocean/dashboard/overview.png
-    https://www.jenkins.io/images/using/manage.png
-    https://www.jenkins.io/doc/book/resources/blueocean/intro/blueocean-plugins-filtered.png
-    https://www.jenkins.io/doc/book/resources/blueocean/pipeline-run-details/overview.png
+    assets/screenshot-1.png
+    assets/screenshot-2.png
+    assets/screenshot-3.png
+    assets/screenshot-4.png

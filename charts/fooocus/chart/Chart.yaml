@@ -2,7 +2,7 @@ apiVersion: v2
 type: application
 name: fooocus
 description: The Most Advanced Image Generation AI.
-version: 0.1.16
+version: 0.1.17
 appVersion: 2.5.3
 home: https://github.com/lllyasviel/Fooocus
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/fooocus/fooocus_icon_2.svg
@@ -19,5 +19,5 @@ annotations:
   category: AI
   licenses: GPL-3.0 license
   gallery: |-
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/fooocus/fooocus_gallery_1.jpg
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/fooocus/fooocus_gallery_2.jpg
+    assets/screenshot-1.jpg
+    assets/screenshot-2.jpg

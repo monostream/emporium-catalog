@@ -1,7 +1,7 @@
 apiVersion: v2
 name: observability-stack
 description: An all-in-one observability stack for Kubernetes, integrating Grafana, Prometheus, Loki, Tempo and Alloy.
-version: 0.0.328
+version: 0.0.329
 appVersion: v0.94.1
 dependencies:
   - name: kube-prometheus-stack
@@ -38,8 +38,8 @@ annotations:
   category: Monitoring
   licenses: Apache-2.0
   gallery: |-
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_1.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_2.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_3.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_4.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_5.png
+    assets/screenshot-1.png
+    assets/screenshot-2.png
+    assets/screenshot-3.png
+    assets/screenshot-4.png
+    assets/screenshot-5.png
