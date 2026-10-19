@@ -9,6 +9,7 @@ dependencies:
     repository: https://kubernetes.github.io/dashboard/
     alias: dashboard
 home: https://github.com/kubernetes/dashboard
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/kubernetes-dashboard/kubernetes-dashboard_icon_2.svg
 sources:
   - https://github.com/kubernetes/dashboard
 keywords:

@@ -5,6 +5,7 @@ type: application
 version: 0.1.26
 appVersion: "v1.44.1"
 home: https://rotki.com/
+icon: https://raw.githubusercontent.com/rotki/rotki/develop/frontend/app/public/assets/images/rotkehlchen_no_text.png # Rotki logo from GitHub
 sources:
   - https://github.com/rotki/rotki
 maintainers:

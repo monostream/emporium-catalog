@@ -5,6 +5,7 @@ type: application
 version: 0.1.20
 appVersion: "1.37.4"
 home: https://github.com/dani-garcia/vaultwarden
+icon: https://github.com/dani-garcia/vaultwarden/blob/main/resources/vaultwarden-icon-white.svg?raw=true
 sources:
   - https://github.com/dani-garcia/vaultwarden
 keywords:

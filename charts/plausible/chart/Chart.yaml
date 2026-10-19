@@ -5,6 +5,7 @@ type: application
 version: 0.0.10
 appVersion: "3.0.1"
 home: https://plausible.io/
+icon: https://raw.githubusercontent.com/plausible/docs/master/static/img/plausible-analytics-icon-top.png
 sources:
   - https://github.com/plausible/analytics
   - https://github.com/IMIO/helm-plausible-analytics

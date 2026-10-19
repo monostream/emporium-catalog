@@ -9,6 +9,7 @@ dependencies:
     version: 9.4.0
     repository: https://nextcloud.github.io/helm/
 home: https://nextcloud.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextcloud/nextcloud_icon_2.svg
 annotations:
   icon: assets/icon.svg
   displayName: Nextcloud

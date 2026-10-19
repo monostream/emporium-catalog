@@ -5,6 +5,7 @@ type: application
 version: 0.1.5
 appVersion: "0.6.0"
 home: https://maybe.co/
+icon: https://github.com/maybe-finance/maybe/blob/154a1a971b996713cfae3f62db9e7bc69da433f5/app/assets/images/logo-squircle.svg?raw=true
 sources:
   - https://github.com/maybe-finance/maybe/
 keywords:

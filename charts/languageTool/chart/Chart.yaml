@@ -5,6 +5,7 @@ type: application
 version: 0.1.16
 appVersion: "6.8"
 home: https://languagetool.org/
+icon: https://languagetool.org/images/logo_white.svg
 sources:
   - https://github.com/languagetool-org/languagetool
   - https://github.com/Erikvl87/docker-languagetool

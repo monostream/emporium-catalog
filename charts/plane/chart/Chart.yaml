@@ -5,6 +5,7 @@ type: application
 version: 0.1.49
 appVersion: v1.4.2
 home: https://plane.so/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
 sources:
   - https://github.com/makeplane/plane
 maintainers:

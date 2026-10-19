@@ -18,6 +18,7 @@ dependencies:
     version: 1.13.0
     repository: https://grafana.github.io/helm-charts
 home: https://grafana.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_icon_2.svg
 sources:
   - https://github.com/grafana/grafana
   - https://github.com/grafana/loki

@@ -5,6 +5,7 @@ type: application
 version: 0.0.14
 appVersion: "2.0.2"
 home: https://uptrace.dev/
+icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/uptrace/uptrace_icon_2.svg
 sources:
   - https://github.com/uptrace/helm-charts/
 keywords:

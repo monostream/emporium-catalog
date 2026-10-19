@@ -9,6 +9,7 @@ dependencies:
     version: 17.2.0
     repository: oci://codeberg.org/forgejo-contrib
 home: https://forgejo.org/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/forgejo/forgejo_icon_3.svg
 sources:
   - https://forgejo.com/forgejo/helm-chart
 keywords:

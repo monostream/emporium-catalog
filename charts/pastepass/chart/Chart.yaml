@@ -6,6 +6,7 @@ version: 0.1.5
 appVersion: "0.1.1"
 
 home: https://github.com/v1k45/pastepass/tree/master
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/pastepass/icon.png
 sources:
   - https://github.com/v1k45/pastepass/tree/master
 keywords:

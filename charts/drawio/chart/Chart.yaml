@@ -5,6 +5,7 @@ type: application
 version: 0.1.88
 appVersion: "32.2.0"
 home: https://www.drawio.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_icon_2.svg
 sources:
   - https://github.com/jgraph/drawio
   - https://github.com/jgraph/docker-drawio

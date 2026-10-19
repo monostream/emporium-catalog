@@ -9,6 +9,7 @@ dependencies:
     repository: https://neuvector.github.io/neuvector-helm/
     alias: neuvector
 home: https://www.suse.com/neuvector/
+icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_icon_2.svg
 sources:
   - https://github.com/neuvector/neuvector
 keywords:

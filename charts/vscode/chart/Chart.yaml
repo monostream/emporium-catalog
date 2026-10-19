@@ -5,6 +5,7 @@ description: Visual Studio Code in your Browser - A comprehensive DevOps tool wi
 version: 0.1.75
 appVersion: "4.140.0"
 home: https://coder.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/vscode/vscode_icon_2.svg
 sources:
   - https://github.com/cdr/code-server
   - https://github.com/microsoft/vscode

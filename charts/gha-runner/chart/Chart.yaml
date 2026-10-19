@@ -10,6 +10,7 @@ dependencies:
   - name: gha-runner-scale-set
     version: 0.15.0
     repository: oci://ghcr.io/actions/actions-runner-controller-charts
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gha-runner/gha-runner_icon_2.svg
 sources:
   - https://github.com/actions/actions-runner-controller
 keywords:

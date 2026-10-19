@@ -5,6 +5,7 @@ type: application
 version: 0.0.24
 appVersion: "2.5.5"
 home: https://uptime.kuma.pet/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptime-kuma/uptime-kuma_icon_2.svg
 sources:
   - https://github.com/louislam/uptime-kuma
 keywords:

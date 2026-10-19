@@ -5,6 +5,7 @@ type: application
 version: 0.1.18
 appVersion: "3.1.4"
 home: https://flowiseai.com/
+icon: https://github.com/FlowiseAI/Flowise/blob/main/assets/FloWiseAI_dark.png?raw=true
 sources:
   - https://github.com/FlowiseAI/Flowise
 keywords:

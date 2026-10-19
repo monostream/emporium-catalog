@@ -8,6 +8,7 @@ dependencies:
     version: 25.0.4
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
 home: https://ghost.org/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.svg
 sources:
   - https://github.com/TryGhost/Ghost
 maintainers:

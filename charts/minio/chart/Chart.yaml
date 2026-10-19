@@ -9,6 +9,7 @@ dependencies:
     version: 5.4.0
     repository: https://charts.min.io/
 home: https://min.io/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/minio/minio_icon_3.svg
 sources:
   - https://github.com/minio/minio/
 keywords:

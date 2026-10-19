@@ -8,6 +8,7 @@ version: 0.1.21
 appVersion: "0.1.1"
 
 home: https://www.chatbotui.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_icon_2.svg
 sources:
   - https://github.com/mckaywrigley/chatbot-ui
 keywords:

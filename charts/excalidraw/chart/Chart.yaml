@@ -7,6 +7,7 @@ version: 0.1.14
 appVersion: latest
 
 home: https://excalidraw.com
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/excalidraw/excalidraw_icon_2.svg
 sources:
   - https://github.com/excalidraw/excalidraw
 

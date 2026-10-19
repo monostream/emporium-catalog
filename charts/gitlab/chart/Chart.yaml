@@ -5,6 +5,7 @@ type: application
 version: 0.2.85
 appVersion: "v19.4.1"
 home: https://gitlab.com/
+icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.svg
 sources:
   - https://docs.gitlab.com/charts/installation/
 keywords:
