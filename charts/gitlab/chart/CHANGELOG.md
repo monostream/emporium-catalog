@@ -6,7 +6,7 @@ Published on 19 October 2026
 - Sign-in through Emporium's identity provider (Logto); members of the emporium-admin role become GitLab administrators automatically
 - PostgreSQL from Emporium's CloudNativePG integration (PostgreSQL 18) instead of the removed bundled PostgreSQL
 - Valkey replaces the removed bundled Redis, RustFS replaces the removed bundled MinIO; buckets are created automatically
-- The bundled GitLab Runner is registered automatically with a runner authentication token
+- The bundled GitLab Runner is registered automatically with a runner authentication token; its CI jobs run unprivileged unless the new Privileged CI Jobs setting is on
 - Breaking: data of 0.2.x installations is not migrated
 
 # 0.2.86

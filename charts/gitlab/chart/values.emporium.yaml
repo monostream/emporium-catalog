@@ -10,6 +10,12 @@
 ## @description Size of the object storage volume (RustFS) for artifacts, uploads, LFS, packages, container images, backups and the runner cache. Default is 20Gi.
 ## @optional
 
+## @userSupplied PrivilegedRunner
+## @label Privileged CI Jobs
+## @type boolean
+## @description Run CI jobs of the bundled instance runner in privileged containers, e.g. for Docker-in-Docker builds. Every project can use this runner, so this gives all of them root access to the cluster's nodes. Default is false.
+## @optional
+
 emporium:
   oidc:
     issuer: {{ .Emporium.Integrations.OIDC.Issuer | quote }}
@@ -93,6 +99,7 @@ gitlab:
 
   gitlab-runner:
     runners:
+      privileged: {{ eq (toString .Emporium.UserSupplied.PrivilegedRunner) "true" }}
       cache:
         secretName: {{ .Emporium.Name }}-runner-cache
 

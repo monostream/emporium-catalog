@@ -11,9 +11,6 @@ emporium:
     clientSecret: ""
     redirectUri: ""
     label: Emporium
-    ## Users with this Logto role become GitLab administrators when they sign
-    ## in; users without it lose administrator rights on their next sign-in.
-    adminRole: emporium-admin
 
   ## Creates an instance runner in GitLab and hands its token to the bundled
   ## GitLab Runner (registration tokens are deprecated).
@@ -22,6 +19,13 @@ emporium:
     description: emporium
     ## How long the setup Job waits for GitLab to come up
     activeDeadlineSeconds: 7200
+    ## Resources of the container that runs `gitlab-rails runner`
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1Gi
+      limits:
+        memory: 2Gi
 
   ## Buckets created in RustFS. They must match the buckets configured below.
   objectStorage:
@@ -49,12 +53,27 @@ emporium:
     kubectl:
       repository: registry.gitlab.com/gitlab-org/build/cng/kubectl
       tag: ""
+    ## Images of the runner setup Job, the same as the toolbox uses. The
+    ## toolbox repository gets the edition appended (-ce or -ee); the tags
+    ## default to the chart's appVersion.
+    gitlabBase:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-base
+      tag: ""
+    toolbox:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox
+      tag: ""
     awsCli:
       repository: docker.io/amazon/aws-cli
       tag: "2.38.2"
 
 global:
   edition: ce
+
+  emporium:
+    ## Users with this Logto role become GitLab administrators when they sign
+    ## in; users without it lose administrator rights on their next sign-in.
+    ## Global so that the webservice pods can roll when it changes.
+    adminRole: emporium-admin
 
   hosts:
     https: true
@@ -124,13 +143,15 @@ gitlab:
       ingress:
         tls:
           secretName: gitlab-webservice-tls
-      ## Maps the Logto admin role to GitLab's admin flag on sign-in
+      ## Maps the Logto admin role to GitLab's admin flag on sign-in. The
+      ## volume is named after the initializer's checksum, so a change rolls
+      ## the pods (a subPath mount never sees ConfigMap updates).
       extraVolumes: |
-        - name: emporium-rails
+        - name: emporium-rails-{{ include "gitlab.emporium.adminSyncChecksum" . }}
           configMap:
             name: {{ .Release.Name }}-emporium-rails
       extraVolumeMounts: |
-        - name: emporium-rails
+        - name: emporium-rails-{{ include "gitlab.emporium.adminSyncChecksum" . }}
           mountPath: /srv/gitlab/config/initializers/zz_emporium_admin_sync.rb
           subPath: emporium_admin_sync.rb
           readOnly: true
@@ -149,11 +170,16 @@ gitlab:
   gitlab-runner:
     install: true
     runners:
+      ## Privileged job containers (e.g. Docker-in-Docker) give every job
+      ## root on the node. The instance runner takes untagged jobs from every
+      ## project, so this stays off unless the installation trusts all of them.
+      ## Not an upstream key; read by the config template below.
+      privileged: false
       config: |
         [[runners]]
           [runners.kubernetes]
             image = "ubuntu:24.04"
-            privileged = true
+            privileged = {{ eq (toString .Values.runners.privileged) "true" }}
           [runners.cache]
             Type = "s3"
             Path = "gitlab-runner"
@@ -195,3 +221,6 @@ valkey:
   dataStorage:
     enabled: true
     requestedSize: 2Gi
+  ## The data volume is ReadWriteOnce, so the old pod has to stop before the
+  ## new one can mount it
+  deploymentStrategy: Recreate

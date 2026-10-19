@@ -1,13 +1,16 @@
 {{- /*
 GitLab deprecated runner registration tokens. This Job creates an instance
-runner with `gitlab-rails runner` in the toolbox pod once GitLab is up, writes
-its authentication token (glrt-...) into the Secret the bundled GitLab Runner
-reads and restarts the runner. Idempotent: an existing runner is reused.
+runner with `gitlab-rails runner` once GitLab is up, writes its authentication
+token (glrt-...) into the Secret the bundled GitLab Runner reads and rolls the
+runner. It runs Rails itself with the toolbox image, configuration and secrets
+(like the upstream migrations Job), so it needs no access to other pods.
+Idempotent: an existing runner is reused, and the runner Deployment carries
+the token's checksum, so a retry finishes a roll that failed before.
 A new Job runs for every Helm revision; installs do not wait for it.
 */ -}}
-{{- if and .Values.emporium.runnerSetup.enabled (index .Values.gitlab "gitlab-runner" "install") -}}
+{{- if and .Values.emporium.runnerSetup.enabled (index .Values.gitlab "gitlab-runner" "install") (dig "gitlab" "toolbox" "enabled" true .Values.gitlab) -}}
 {{- $name := include "gitlab.emporium.name" (list . "runner-setup") -}}
-{{- $toolbox := printf "%s-toolbox" .Release.Name -}}
+{{- $toolboxConfig := printf "%s-toolbox" .Release.Name -}}
 {{- $runnerDeployment := printf "%s-gitlab-runner" .Release.Name -}}
 {{- $runnerSecret := default (printf "%s-gitlab-runner-secret" .Release.Name) (dig "runner" "registrationToken" "secret" "" .Values.global) -}}
 apiVersion: v1
@@ -25,25 +28,13 @@ metadata:
   labels:
     {{- include "chart.labels" . | nindent 4 }}
 rules:
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    resourceNames: [{{ $runnerDeployment | quote }}]
-    verbs: ["patch"]
-  - apiGroups: ["apps"]
-    resources: ["replicasets"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list"]
-  - apiGroups: [""]
-    resources: ["pods/exec"]
-    verbs: ["create"]
   - apiGroups: [""]
     resources: ["secrets"]
     resourceNames: [{{ $runnerSecret | quote }}]
+    verbs: ["get", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: [{{ $runnerDeployment | quote }}]
     verbs: ["get", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -69,8 +60,10 @@ metadata:
     {{- include "chart.labels" . | nindent 4 }}
 data:
   ensure-runner.rb: |
-    # Prints the authentication token of the instance runner of the bundled
-    # GitLab Runner, creating the runner first if it does not exist.
+    # Writes the authentication token of the instance runner of the bundled
+    # GitLab Runner and its SHA-256 to the files named by the environment,
+    # creating the runner first if it does not exist. The token never goes
+    # to the log.
     description = {{ .Values.emporium.runnerSetup.description | toJson }}
 
     runner = Ci::Runner.instance_type.find_by(description: description)
@@ -90,44 +83,45 @@ data:
       raise "creating the runner failed: #{Array(result.message).join(', ')}" unless result.success?
 
       runner = result.payload[:runner]
+      puts "created instance runner #{runner.id}"
     end
 
-    puts "EMPORIUM_RUNNER_TOKEN=#{runner.token}"
-  setup.sh: |
+    File.write(ENV.fetch('TOKEN_FILE'), runner.token, perm: 0o600)
+    File.write(ENV.fetch('CHECKSUM_FILE'), Digest::SHA256.hexdigest(runner.token), perm: 0o600)
+    puts "runner token of instance runner #{runner.id} written"
+  ensure-runner.sh: |
     set -euo pipefail
 
-    echo "waiting for deployment/${TOOLBOX}"
-    until kubectl rollout status "deployment/${TOOLBOX}" --timeout=10m; do
-      sleep 10
-    done
-
-    token=""
+    # Fails until the database is migrated and the root user exists
     for attempt in $(seq 1 240); do
-      if output=$(kubectl exec "deployment/${TOOLBOX}" -c toolbox -- gitlab-rails runner "$(cat /scripts/ensure-runner.rb)" 2> /tmp/error); then
-        token=$(printf '%s\n' "${output}" | sed -n 's/^EMPORIUM_RUNNER_TOKEN=//p' | tail -n 1)
-        [ -n "${token}" ] && break
+      if gitlab-rails runner /scripts/ensure-runner.rb && [ -s "${TOKEN_FILE}" ] && [ -s "${CHECKSUM_FILE}" ]; then
+        exit 0
       fi
       echo "GitLab is not ready yet (attempt ${attempt}), retrying in 30s"
-      tail -n 3 /tmp/error || true
       sleep 30
     done
 
-    if [ -z "${token}" ]; then
-      echo "could not get a runner token from GitLab"
-      exit 1
-    fi
+    echo "could not get a runner token from GitLab"
+    exit 1
+  store-token.sh: |
+    set -euo pipefail
+
+    token=$(cat "${TOKEN_FILE}")
+    checksum=$(cat "${CHECKSUM_FILE}")
 
     current=$(kubectl get secret "${RUNNER_SECRET}" -o jsonpath='{.data.runner-token}' | base64 -d)
     if [ "${current}" = "${token}" ]; then
-      echo "runner token is up to date"
-      exit 0
+      echo "secret/${RUNNER_SECRET} holds the runner token"
+    else
+      kubectl patch secret "${RUNNER_SECRET}" --type merge \
+        --patch "{\"data\":{\"runner-token\":\"$(printf '%s' "${token}" | base64 -w 0)\"}}"
+      echo "stored the runner token in secret/${RUNNER_SECRET}"
     fi
 
-    kubectl patch secret "${RUNNER_SECRET}" --type merge \
-      --patch "{\"data\":{\"runner-token\":\"$(printf '%s' "${token}" | base64 -w 0)\"}}"
-    echo "stored the runner token in secret/${RUNNER_SECRET}"
-
-    kubectl rollout restart "deployment/${RUNNER_DEPLOYMENT}"
+    # Rolls the runner only while its pods were started with another token.
+    # Done after the Secret, so a retry after a failure here still rolls.
+    kubectl patch "deployment/${RUNNER_DEPLOYMENT}" --type merge \
+      --patch "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"emporium.build/runner-token-checksum\":\"${checksum}\"}}}}}"
 ---
 apiVersion: batch/v1
 kind: Job
@@ -148,26 +142,89 @@ spec:
     spec:
       restartPolicy: OnFailure
       serviceAccountName: {{ $name }}
-      automountServiceAccountToken: true
+      # Only the kubectl container gets the API token, see the kube-api volume
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65534
-        runAsGroup: 65534
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        # Same as the toolbox: copies the secrets to /etc/gitlab
+        - name: configure
+          image: {{ include "gitlab.emporium.gitlabBaseImage" . | quote }}
+          command: ["sh", "/config/configure"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+          volumeMounts:
+            - name: toolbox-config
+              mountPath: /config
+              readOnly: true
+            - name: init-toolbox-secrets
+              mountPath: /init-config
+              readOnly: true
+            - name: toolbox-secrets
+              mountPath: /init-secrets
+        - name: ensure-runner
+          image: {{ include "gitlab.emporium.toolboxImage" . | quote }}
+          # args, not command: the image's entrypoint renders the configuration
+          args: ["/bin/bash", "/scripts/ensure-runner.sh"]
+          env:
+            - name: CONFIG_TEMPLATE_DIRECTORY
+              value: /var/opt/gitlab/templates
+            - name: CONFIG_DIRECTORY
+              value: /srv/gitlab/config
+            - name: TOKEN_FILE
+              value: /handoff/runner-token
+            - name: CHECKSUM_FILE
+              value: /handoff/runner-token.sha256
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.emporium.runnerSetup.resources | nindent 12 }}
+          volumeMounts:
+            - name: toolbox-config
+              mountPath: /var/opt/gitlab/templates
+            - name: toolbox-config
+              mountPath: /srv/gitlab/config/initializers/smtp_settings.rb
+              subPath: smtp_settings.rb
+            - name: toolbox-secrets
+              mountPath: /etc/gitlab
+              readOnly: true
+            - name: toolbox-secrets
+              mountPath: /srv/gitlab/config/secrets.yml
+              subPath: rails-secrets/secrets.yml
+            - name: rails-tmp
+              mountPath: /srv/gitlab/tmp
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: handoff
+              mountPath: /handoff
       containers:
-        - name: runner-setup
+        - name: store-token
           image: {{ include "gitlab.emporium.kubectlImage" . | quote }}
-          command: ["/bin/bash", "/scripts/setup.sh"]
+          command: ["/bin/bash", "/scripts/store-token.sh"]
           env:
             - name: HOME
               value: /tmp
-            - name: TOOLBOX
-              value: {{ $toolbox | quote }}
             - name: RUNNER_DEPLOYMENT
               value: {{ $runnerDeployment | quote }}
             - name: RUNNER_SECRET
               value: {{ $runnerSecret | quote }}
+            - name: TOKEN_FILE
+              value: /handoff/runner-token
+            - name: CHECKSUM_FILE
+              value: /handoff/runner-token.sha256
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -182,12 +239,50 @@ spec:
             - name: scripts
               mountPath: /scripts
               readOnly: true
+            - name: handoff
+              mountPath: /handoff
+              readOnly: true
+            - name: kube-api
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
             - name: tmp
               mountPath: /tmp
       volumes:
         - name: scripts
           configMap:
             name: {{ $name }}
+        - name: toolbox-config
+          configMap:
+            name: {{ $toolboxConfig }}
+        - name: init-toolbox-secrets
+          projected:
+            defaultMode: 0400
+            sources:
+              {{- include "gitlab.emporium.toolboxSecrets" . | nindent 14 }}
+        - name: toolbox-secrets
+          emptyDir:
+            medium: Memory
+        - name: handoff
+          emptyDir:
+            medium: Memory
+        - name: rails-tmp
+          emptyDir: {}
         - name: tmp
           emptyDir: {}
+        - name: kube-api
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  expirationSeconds: 3607
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        fieldPath: metadata.namespace
 {{- end }}
