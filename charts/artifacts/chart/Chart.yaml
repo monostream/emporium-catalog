@@ -1,7 +1,7 @@
 apiVersion: v2
 name: artifacts
 description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
-version: 0.0.168
+version: 0.0.169
 appVersion: 0.0.61
 dependencies:
   - name: artifacts
@@ -11,7 +11,7 @@ dependencies:
     version: 16.7.27
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
     condition: global.postgresql.enabled
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.svg
+icon: assets/icon.svg
 sources:
   - https://github.com/monostream/artifacts
 keywords:
@@ -27,7 +27,7 @@ annotations:
   category: Developer Tools
   licenses: Apache-2.0
   gallery: |
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_1.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_2.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_3.png
+    assets/screenshot-1.png
+    assets/screenshot-2.png
+    assets/screenshot-3.png
   oidcRedirectPaths: /auth/callback

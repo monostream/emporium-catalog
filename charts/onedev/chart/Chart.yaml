@@ -2,14 +2,14 @@ apiVersion: v2
 name: onedev
 description: Git Server with CI/CD, Kanban, and Packages. Seamless integration. Unparalleled experience.
 type: application
-version: 0.0.38
+version: 0.0.39
 appVersion: "11.9.0"
 dependencies:
   - name: onedev
     version: 11.9.0
     repository: https://dl.cloudsmith.io/public/onedev/onedev/helm/charts
 home: https://onedev.io/
-icon: https://docs.onedev.io/img/logo.svg
+icon: assets/icon.svg
 sources:
   - https://github.com/theonedev/onedev
 keywords:

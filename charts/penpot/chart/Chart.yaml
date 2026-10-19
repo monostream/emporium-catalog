@@ -2,7 +2,7 @@ apiVersion: v2
 name: penpot
 description: The Open-Source design and prototyping platform
 type: application
-version: 1.0.73
+version: 1.0.74
 appVersion: 2.18.3
 dependencies:
   - condition: global.postgresqlEnabled
@@ -14,7 +14,7 @@ dependencies:
     version: 22.0.7
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
 home: https://penpot.app
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_icon_2.svg
+icon: assets/icon.svg
 sources:
   - https://github.com/penpot/penpot
   - https://github.com/codechem/helm/tree/main/charts/penpot
@@ -30,6 +30,6 @@ annotations:
   licenses: MPL-2.0
   oidcRedirectPaths: /api/auth/oauth/oidc/callback
   gallery: |
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp

@@ -2,10 +2,10 @@ apiVersion: v2
 name: plane
 description: Project management tool from the future
 type: application
-version: 0.1.48
+version: 0.1.49
 appVersion: v1.4.2
 home: https://plane.so/
-icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
+icon: assets/icon.svg
 sources:
   - https://github.com/makeplane/plane
 maintainers:
@@ -30,5 +30,5 @@ annotations:
   category: Productivity
   licenses: AGPL-3.0
   gallery: |
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_1.png
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_2.png
+    assets/screenshot-1.png
+    assets/screenshot-2.png
