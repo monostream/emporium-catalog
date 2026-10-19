@@ -1,3 +1,9 @@
+# 0.1.32
+
+Published on 19 October 2026
+
+- Ingress path is set (the porter chart reads hosts[].path; the paths list was ignored and the rule had an empty path)
+
 # Updates Wednesday, 05-Jun-2024 08:01:40 UTC
 - porter from 0.189.0 to 0.190.0
 
