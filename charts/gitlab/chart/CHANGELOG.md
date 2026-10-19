@@ -1,3 +1,14 @@
+# 0.3.0
+
+Published on 19 October 2026
+
+- gitlab from 10.4.1 to 10.5.0 (GitLab 19.5.0)
+- Sign-in through Emporium's identity provider (Logto); members of the emporium-admin role become GitLab administrators automatically
+- PostgreSQL from Emporium's CloudNativePG integration (PostgreSQL 18) instead of the removed bundled PostgreSQL
+- Valkey replaces the removed bundled Redis, RustFS replaces the removed bundled MinIO; buckets are created automatically
+- The bundled GitLab Runner is registered automatically with a runner authentication token
+- Breaking: data of 0.2.x installations is not migrated
+
 # 0.2.86
 
 Published on 19 October 2026

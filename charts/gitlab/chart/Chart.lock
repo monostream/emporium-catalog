@@ -1,6 +1,12 @@
 dependencies:
 - name: gitlab
   repository: https://charts.gitlab.io/
-  version: 10.4.1
-digest: sha256:c32a5186a31b7c6d4ee5992afa7d837d12d1c4849a583067cda22c61cb2fc70b
-generated: "2026-10-07T00:04:41.466834+02:00"
+  version: 10.5.0
+- name: rustfs
+  repository: https://charts.rustfs.com
+  version: 1.0.3
+- name: valkey
+  repository: https://valkey.io/valkey-helm/
+  version: 0.12.0
+digest: sha256:6ae364a59209ad8be3dc240251fecb6670258be5664e238ce854c13a9ede8a86
+generated: "2026-10-19T21:50:24.872091667Z"

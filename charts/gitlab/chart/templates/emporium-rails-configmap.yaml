@@ -1,0 +1,53 @@
+{{- /*
+Rails initializer mounted into the webservice pods. GitLab CE ignores the OIDC
+admin_groups option (it is a Premium feature), so this maps Emporium's Logto
+admin role to GitLab's admin flag whenever a user signs in with OpenID Connect.
+*/ -}}
+{{- $adminRole := .Values.emporium.oidc.adminRole -}}
+{{- if not (regexMatch "^[A-Za-z0-9_.:-]+$" $adminRole) -}}
+{{- fail "emporium.oidc.adminRole may only contain letters, digits, '_', '.', ':' and '-'" -}}
+{{- end -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gitlab.emporium.name" (list . "emporium-rails") }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  emporium_admin_sync.rb: |
+    # frozen_string_literal: true
+
+    # Installed by the Emporium GitLab chart. On every OpenID Connect sign-in,
+    # users with the Logto role {{ $adminRole }} become GitLab administrators
+    # and everybody else loses administrator rights. The roles come from the
+    # "roles" claim of Logto's userinfo response (scope "roles"). Users who
+    # sign in otherwise (e.g. root with a password) are not touched.
+    module EmporiumAdminSync
+      PROVIDER = 'openid_connect'
+      ADMIN_ROLE = '{{ $adminRole }}'
+
+      def self.sync(user, auth_hash)
+        info = (auth_hash.dig('extra', 'raw_info') || {}).to_h.transform_keys(&:to_s)
+
+        unless info.key?('roles')
+          Gitlab::AppLogger.warn(message: 'Emporium admin sync: no roles claim, admin flag unchanged', user_id: user.id)
+          return
+        end
+
+        admin = Array(info['roles']).map(&:to_s).include?(ADMIN_ROLE)
+        return if user.admin? == admin
+
+        user.update_attribute(:admin, admin)
+        Gitlab::AppLogger.info(message: 'Emporium admin sync: admin flag changed', user_id: user.id, username: user.username, admin: admin)
+      rescue StandardError => e
+        Gitlab::AppLogger.error(message: 'Emporium admin sync failed', user_id: user&.id, error: e.message)
+      end
+    end
+
+    Warden::Manager.after_set_user(except: :fetch) do |user, auth, _opts|
+      auth_hash = auth.env['omniauth.auth']
+
+      if user.is_a?(User) && auth_hash.respond_to?(:dig) && auth_hash['provider'].to_s == EmporiumAdminSync::PROVIDER
+        EmporiumAdminSync.sync(user, auth_hash)
+      end
+    end

@@ -1,0 +1,193 @@
+{{- /*
+GitLab deprecated runner registration tokens. This Job creates an instance
+runner with `gitlab-rails runner` in the toolbox pod once GitLab is up, writes
+its authentication token (glrt-...) into the Secret the bundled GitLab Runner
+reads and restarts the runner. Idempotent: an existing runner is reused.
+A new Job runs for every Helm revision; installs do not wait for it.
+*/ -}}
+{{- if and .Values.emporium.runnerSetup.enabled (index .Values.gitlab "gitlab-runner" "install") -}}
+{{- $name := include "gitlab.emporium.name" (list . "runner-setup") -}}
+{{- $toolbox := printf "%s-toolbox" .Release.Name -}}
+{{- $runnerDeployment := printf "%s-gitlab-runner" .Release.Name -}}
+{{- $runnerSecret := default (printf "%s-gitlab-runner-secret" .Release.Name) (dig "runner" "registrationToken" "secret" "" .Values.global) -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: [{{ $runnerDeployment | quote }}]
+    verbs: ["patch"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ $runnerSecret | quote }}]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  ensure-runner.rb: |
+    # Prints the authentication token of the instance runner of the bundled
+    # GitLab Runner, creating the runner first if it does not exist.
+    description = {{ .Values.emporium.runnerSetup.description | toJson }}
+
+    runner = Ci::Runner.instance_type.find_by(description: description)
+
+    unless runner
+      admin = User.admins.active.order(:id).first || raise('no active GitLab administrator found')
+      create = lambda do
+        Ci::Runners::CreateRunnerService.new(
+          user: admin,
+          params: { runner_type: 'instance_type', description: description, run_untagged: true }
+        ).execute
+      end
+      # Admin Mode (off by default) would otherwise deny the administrator
+      result = Gitlab::SafeRequestStore.ensure_request_store do
+        Gitlab::Auth::CurrentUserMode.bypass_session!(admin.id) { create.call }
+      end
+      raise "creating the runner failed: #{Array(result.message).join(', ')}" unless result.success?
+
+      runner = result.payload[:runner]
+    end
+
+    puts "EMPORIUM_RUNNER_TOKEN=#{runner.token}"
+  setup.sh: |
+    set -euo pipefail
+
+    echo "waiting for deployment/${TOOLBOX}"
+    until kubectl rollout status "deployment/${TOOLBOX}" --timeout=10m; do
+      sleep 10
+    done
+
+    token=""
+    for attempt in $(seq 1 240); do
+      if output=$(kubectl exec "deployment/${TOOLBOX}" -c toolbox -- gitlab-rails runner "$(cat /scripts/ensure-runner.rb)" 2> /tmp/error); then
+        token=$(printf '%s\n' "${output}" | sed -n 's/^EMPORIUM_RUNNER_TOKEN=//p' | tail -n 1)
+        [ -n "${token}" ] && break
+      fi
+      echo "GitLab is not ready yet (attempt ${attempt}), retrying in 30s"
+      tail -n 3 /tmp/error || true
+      sleep 30
+    done
+
+    if [ -z "${token}" ]; then
+      echo "could not get a runner token from GitLab"
+      exit 1
+    fi
+
+    current=$(kubectl get secret "${RUNNER_SECRET}" -o jsonpath='{.data.runner-token}' | base64 -d)
+    if [ "${current}" = "${token}" ]; then
+      echo "runner token is up to date"
+      exit 0
+    fi
+
+    kubectl patch secret "${RUNNER_SECRET}" --type merge \
+      --patch "{\"data\":{\"runner-token\":\"$(printf '%s' "${token}" | base64 -w 0)\"}}"
+    echo "stored the runner token in secret/${RUNNER_SECRET}"
+
+    kubectl rollout restart "deployment/${RUNNER_DEPLOYMENT}"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "gitlab.emporium.name" (list . (printf "runner-setup-%d" .Release.Revision)) }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: runner-setup
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: {{ .Values.emporium.runnerSetup.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: runner-setup
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: {{ $name }}
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: runner-setup
+          image: {{ include "gitlab.emporium.kubectlImage" . | quote }}
+          command: ["/bin/bash", "/scripts/setup.sh"]
+          env:
+            - name: HOME
+              value: /tmp
+            - name: TOOLBOX
+              value: {{ $toolbox | quote }}
+            - name: RUNNER_DEPLOYMENT
+              value: {{ $runnerDeployment | quote }}
+            - name: RUNNER_SECRET
+              value: {{ $runnerSecret | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ $name }}
+        - name: tmp
+          emptyDir: {}
+{{- end }}

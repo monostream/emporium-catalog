@@ -1,100 +1,107 @@
-## The part involving group_attribute and admin_groups definitely seems not to work in the CE edition
-authentik:
-  name: "openid_connect"
-  label: "Emporium"
-  args:
-    name: "openid_connect"
-    scope: ["openid","profile","email","read:org"]
-    response_type: "code"
-    issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-    discovery: true
-    client_auth_method: "query"
-    send_scope_to_token_endpoint: "false"
-    pkce: true
-    client_options:
-      identifier: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-      secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-      redirect_uri: "https://{{ .Emporium.Integrations.DNS.Hostname }}/users/auth/openid_connect/callback"
-      gitlab:
-        groups_attribute: "groups"
-        admin_groups: ["authentik Admins"]
+## @userSupplied RepositoryStorageSize
+## @label Repository Storage Size
+## @type byteSize
+## @description Size of the volume holding the Git repositories (Gitaly). Default is 50Gi.
+## @optional
+
+## @userSupplied ObjectStorageSize
+## @label Object Storage Size
+## @type byteSize
+## @description Size of the object storage volume (RustFS) for artifacts, uploads, LFS, packages, container images, backups and the runner cache. Default is 20Gi.
+## @optional
+
+emporium:
+  oidc:
+    issuer: {{ .Emporium.Integrations.OIDC.Issuer | quote }}
+    clientId: {{ .Emporium.Integrations.OIDC.ClientID | quote }}
+    clientSecret: {{ .Emporium.Integrations.OIDC.ClientSecret | quote }}
+    redirectUri: "https://{{ .Emporium.Integrations.DNS.Hostname }}/users/auth/openid_connect/callback"
 
 global:
-  appConfig:
-    omniauth:
-      allowBypassTwoFactor: []
-      allowSingleSignOn: true
-      autoLinkLdapUser: true
-      autoLinkSamlUser: true
-      autoLinkUser:
-      - openid_connect
-      autoSignInWithProvider: openid_connect
-      blockAutoCreatedUsers: false
-      enabled: true
-      externalProviders: []
-      providers:
-      - key: authentik
-        secret: gitlab-auth
-      syncProfileAttributes:
-      - email
-      syncProfileFromProvider:
-      - openid_connect
-
-  edition: ce
-
   hosts:
-    https: true
     domain: {{ .Emporium.Integrations.DNS.Hostname }}
-
     gitlab:
       name: {{ .Emporium.Integrations.DNS.Hostname }}
 
-    minio:
-      name: minio.{{ .Emporium.Integrations.DNS.Hostname }}
-      https: true
-
   ingress:
-    configureCertmanager: false
-    enabled: true
-    # "none" omits ingressClassName so the cluster default IngressClass is used
-    class: none
+    ## GitLab authenticates these paths itself, so Emporium's proxy lets them
+    ## through: sign-in and the OIDC callback, Git over HTTPS, the API (also
+    ## used by runners), OAuth, the registry token endpoint, health checks and
+    ## static assets. Emporium's own annotations take precedence.
+    {{- $annotations := dict
+      "emporium.build/auth-skip-paths" `/, /favicon.ico, /users/sign_in, /users/auth/*, /-/manifest.json, /-/health, /-/readiness, /-/liveness, /-/kubernetes-agent/*, /api/*, /assets/*, /oauth/*, /.well-known/*, /jwt/auth, /static/*, regex(^(\/([^\/])+){2,}\.git.*$)`
+      "kubernetes.io/tls-acme" "true"
+      "nginx.ingress.kubernetes.io/proxy-body-size" "0"
+      "nginx.ingress.kubernetes.io/proxy-connect-timeout" "15"
+      "nginx.ingress.kubernetes.io/proxy-read-timeout" "600"
+      "nginx.ingress.kubernetes.io/service-upstream" "true"
+    }}
+    {{- range $key, $value := .Emporium.Annotations }}
+    {{- $_ := set $annotations $key $value }}
+    {{- end }}
     annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      emporium.build/auth-skip-paths: '/, /favicon.ico, /users/sign_in, /-/manifest.json, /-/health, /api/*, /assets/*, /oauth/*, /static/*, regex(^(\/([^\/])+){2,}\.git.*$)'
-      kubernetes.io/tls-acme: "true"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-      nginx.ingress.kubernetes.io/service-upstream: "true"
+      {{- toYaml $annotations | nindent 6 }}
+
+  appConfig:
+    omniauth:
+      providers:
+        - secret: {{ .Emporium.Name }}-oidc-provider
+          key: provider
+    object_store:
+      connection:
+        secret: {{ .Emporium.Name }}-object-storage
+        key: connection
+
+  psql:
+    host: {{ .Emporium.Integrations.Postgres.Host }}
+    port: {{ .Emporium.Integrations.Postgres.Port }}
+    database: {{ .Emporium.Integrations.Postgres.Database }}
+    username: {{ .Emporium.Integrations.Postgres.Username }}
+    password:
+      secret: {{ .Emporium.Integrations.Postgres.SecretName }}
+      key: {{ .Emporium.Integrations.Postgres.PasswordKey }}
+
+  redis:
+    host: {{ .Emporium.Name }}-valkey
+    auth:
+      secret: {{ .Emporium.Name }}-valkey-auth
 
 gitlab:
   gitlab:
-    gitlab-shell:
-      enabled: false
+    ## The agent server has its own host and authenticates agents with tokens
     kas:
       ingress:
-        enabled: true
-        tls:
-          secretName: gitlab-kas-tls
-    webservice:
-      enabled: true
-      ingress:
-        tls:
-          secretName: gitlab-webservice-tls
+        annotations:
+          emporium.build/disable-glass: "true"
+    gitaly:
+      persistence:
+        size: {{ default "50Gi" .Emporium.UserSupplied.RepositoryStorageSize | quote }}
+    toolbox:
+      backups:
+        objectStorage:
+          config:
+            secret: {{ .Emporium.Name }}-object-storage
+            key: s3cfg
 
-  nginx-ingress:
-    enabled: false
-
-  prometheus:
-    install: false
+  registry:
+    ## The registry has its own host and authenticates with tokens from GitLab
+    ingress:
+      annotations:
+        emporium.build/disable-glass: "true"
+    storage:
+      secret: {{ .Emporium.Name }}-object-storage
 
   gitlab-runner:
-    install: true
     runners:
-      privileged: true
-      
-  installCertmanager: false
-  certmanager:
-    installCRDs: false
+      cache:
+        secretName: {{ .Emporium.Name }}-runner-cache
+
+rustfs:
+  fullnameOverride: {{ .Emporium.Name }}-rustfs
+  secret:
+    existingSecret: {{ .Emporium.Name }}-rustfs-credentials
+  storageclass:
+    dataStorageSize: {{ default "20Gi" .Emporium.UserSupplied.ObjectStorageSize | quote }}
+
+valkey:
+  fullnameOverride: {{ .Emporium.Name }}-valkey
