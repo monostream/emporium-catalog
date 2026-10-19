@@ -13,7 +13,6 @@ helm repo add requarks https://charts.js.wiki
 helm repo add gitlab https://charts.gitlab.io
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
-helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
 
 helm repo update
 
@@ -27,7 +26,6 @@ charts=(
   "grafana/loki@5.10.0"
   "grafana/tempo@1.3.1"
   "grafana/promtail@6.11.9"
-  "kubernetes-dashboard/kubernetes-dashboard@6.0.8"
 )
 
 for chart in "${charts[@]}"

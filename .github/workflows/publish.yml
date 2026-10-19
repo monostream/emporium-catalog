@@ -43,6 +43,43 @@ jobs:
         run: |
           helm repo add emporium-apps ${{ vars.HELM_REPO }} --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
 
+      - name: Remove deleted charts from the Helm repository
+        env:
+          HELM_REPO: ${{ vars.HELM_REPO }}
+          HELM_USER: ${{ vars.HELM_USER }}
+          HELM_PASSWORD: ${{ secrets.HELM_PASSWORD }}
+        run: |
+          set -euo pipefail
+          base="${HELM_REPO%/}"
+          while IFS= read -r name; do
+              name="${name%%#*}"
+              name="$(echo "$name" | tr -d '[:space:]')"
+              [ -z "$name" ] && continue
+
+              status=$(curl -sS -o versions.json -w '%{http_code}' -u "$HELM_USER:$HELM_PASSWORD" "$base/api/charts/$name")
+              if [ "$status" = "404" ]; then
+                  echo "$name: not in repository, skipping"
+                  continue
+              elif [ "$status" != "200" ]; then
+                  echo "$name: listing versions failed with HTTP $status"
+                  cat versions.json
+                  exit 1
+              fi
+
+              for version in $(jq -r '.[].version' versions.json); do
+                  echo "Deleting $name@$version"
+                  status=$(curl -sS -o delete.out -w '%{http_code}' -X DELETE -u "$HELM_USER:$HELM_PASSWORD" "$base/api/charts/$name/$version")
+                  if [ "$status" = "404" ]; then
+                      echo "$name@$version already gone"
+                  elif [ "$status" -ge 300 ]; then
+                      echo "Deleting $name@$version failed with HTTP $status"
+                      cat delete.out
+                      exit 1
+                  fi
+              done
+          done < removed-charts.txt
+          rm -f versions.json delete.out
+
       - name: Run cm-push
         run: |
           changed_charts=()
