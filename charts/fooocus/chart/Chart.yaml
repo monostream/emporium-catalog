@@ -19,5 +19,5 @@ annotations:
   category: AI
   licenses: GPL-3.0 license
   gallery: |-
-    assets/screenshot-1.jpg
-    assets/screenshot-2.jpg
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/fooocus/fooocus_gallery_1.jpg
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/fooocus/fooocus_gallery_2.jpg

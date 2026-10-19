@@ -27,8 +27,8 @@ annotations:
   licenses: AGPL-3.0
   category: Monitoring
   gallery: |
-    assets/screenshot-1.png
-    assets/screenshot-2.png
-    assets/screenshot-3.png
-    assets/screenshot-4.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_1.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_2.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_3.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_4.png
   oidcRedirectPaths: /internal/v1/sso/emporium/callback

@@ -19,7 +19,7 @@ annotations:
   licenses: MIT
   oidcRedirectPaths: /securityRealm/finishLogin
   gallery: |-
-    assets/screenshot-1.png
-    assets/screenshot-2.png
-    assets/screenshot-3.png
-    assets/screenshot-4.png
+    https://www.jenkins.io/doc/book/resources/blueocean/dashboard/overview.png
+    https://www.jenkins.io/images/using/manage.png
+    https://www.jenkins.io/doc/book/resources/blueocean/intro/blueocean-plugins-filtered.png
+    https://www.jenkins.io/doc/book/resources/blueocean/pipeline-run-details/overview.png

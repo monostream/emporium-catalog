@@ -20,5 +20,5 @@ annotations:
   category: Design
   licenses: Apache-2.0
   gallery: |
-    assets/screenshot-1.webp
-    assets/screenshot-2.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_1.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_2.webp

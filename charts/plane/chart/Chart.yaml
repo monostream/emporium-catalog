@@ -31,5 +31,5 @@ annotations:
   category: Productivity
   licenses: AGPL-3.0
   gallery: |
-    assets/screenshot-1.png
-    assets/screenshot-2.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_1.png
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_2.png

@@ -31,6 +31,6 @@ annotations:
   licenses: MPL-2.0
   oidcRedirectPaths: /api/auth/oauth/oidc/callback
   gallery: |
-    assets/screenshot-1.webp
-    assets/screenshot-2.webp
-    assets/screenshot-3.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_1.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_2.webp
+    https://raw.githubusercontent.com/monostream/test-charts/main/assets/penpot/penpot_gallery_3.webp
