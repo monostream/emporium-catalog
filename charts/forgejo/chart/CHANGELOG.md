@@ -5,6 +5,7 @@ Published on 19 October 2026
 - PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17); the password comes from the CloudNativePG app secret. Forgejo chart 17 no longer bundles PostgreSQL or Redis, so DB_TYPE=postgres had no database and installs could not start. Requires Emporium v0.5.0.
 - Removed the Enable High Availability field: the Redis cluster and postgresql-ha it switched on no longer exist in the Forgejo chart. Cache and queue stay in-process (memory, level).
 - Actions are enabled ([actions] ENABLED; the key was misspelled)
+- Connects to PostgreSQL with SSL_MODE require (CloudNativePG always serves TLS)
 
 # 0.0.76
 
