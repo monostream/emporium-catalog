@@ -16,5 +16,13 @@ wiki:
         hosts:
           - {{ .Emporium.Integrations.DNS.Hostname }}
 
-# https://docs.requarks.io/install/kubernetes
-# kubectl delete pvc/data-wiki-postgresql-0
+  postgresql:
+    enabled: false
+
+  externalPostgresql:
+    host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+    port: {{ .Emporium.Integrations.Postgres.Port }}
+    database: {{ .Emporium.Integrations.Postgres.Database | quote }}
+    username: {{ .Emporium.Integrations.Postgres.Username | quote }}
+    existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+    existingSecretKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
