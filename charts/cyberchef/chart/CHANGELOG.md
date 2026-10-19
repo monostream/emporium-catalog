@@ -1,3 +1,7 @@
+# 0.1.24
+
+- Respect the access policy chosen in Emporium; the chart no longer forces public access. Choose 'Public' in Emporium to keep the previous behaviour.
+
 # 0.1.23
 
 - Fix CyberChef 11 HTTP container/probe port 8080 while preserving Service port80 and ingress/auth configuration.

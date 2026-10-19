@@ -1,7 +1,7 @@
 apiVersion: v2
 name: go-playground
 description: Better Go Playground powered by React and Monaco editor - a modern web-based IDE for Go programming
-version: 0.1.4
+version: 0.1.5
 appVersion: "2.5.7"
 type: application
 home: https://goplay.tools/

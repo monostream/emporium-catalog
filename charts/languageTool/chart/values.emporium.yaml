@@ -5,7 +5,6 @@ ingress:
     {{- toYaml .Emporium.Annotations | nindent 4 }}
     {{- end }}
     kubernetes.io/tls-acme: "true"
-    emporium.build/auth-skip-paths: '/*'
   hosts:
     - host: {{ .Emporium.Integrations.DNS.Hostname }}
       paths:
