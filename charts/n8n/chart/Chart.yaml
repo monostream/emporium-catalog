@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
 description: A powerful workflow automation tool.
-version: 0.1.36
+version: 0.1.37
 appVersion: 2.36.8
 dependencies:
   - name: n8n
