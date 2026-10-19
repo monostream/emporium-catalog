@@ -1,3 +1,10 @@
+# 0.1.56
+
+Published on 19 October 2026
+
+- Agent and Docker-in-Docker containers keep their memory requests and limits from values.yaml (blank memory keys in values.emporium.yaml removed them)
+- Docker-in-Docker uses the tag from values.yaml (29.8.2) instead of a stale 23.0.1-dind override
+
 # 0.1.55
 
 Published on 19 October 2026
