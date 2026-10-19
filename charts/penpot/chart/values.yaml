@@ -174,7 +174,6 @@ frontend:
 fullnameOverride: ""
 global:
   imagePullSecrets: []
-  postgresqlEnabled: false
   redisEnabled: false
 nameOverride: ""
 persistence:
@@ -185,11 +184,6 @@ persistence:
   existingClaim: ""
   size: 8Gi
   storageClass: ""
-postgresql:
-  auth:
-    database: penpot
-    password: secretpassword
-    username: example
 redis:
   architecture: standalone
   replica:
