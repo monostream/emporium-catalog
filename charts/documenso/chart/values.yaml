@@ -34,15 +34,12 @@ storage:
     accessMode: ReadWriteOnce
     size: 1Gi
 
-postgresql:
-  fullnameOverride: "postgresql-documenso"
-  auth:
-    host: "postgresql-documenso"
-    database: "documentsoku"
-    username: "postgresql"
-    port: 5432
-    password: ""
-    existingSecret: "postgresql"
+# PostgreSQL database. Emporium provides it with its native Postgres
+# integration (CloudNativePG) and fills these values in values.emporium.yaml.
+database:
+  # Secret holding a postgresql:// connection URI (the CNPG app secret).
+  existingSecret: ""
+  uriKey: uri
 
 serviceAccount:
   # Specifies whether a service account should be created
