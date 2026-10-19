@@ -54,52 +54,22 @@ nextcloud:
         password: pass
 
 
+  internalDatabase:
+    enabled: false
+
   externalDatabase:
     enabled: true
-
-    ## Supported database engines: mysql or postgresql
-    type: postgres
-
-    ## Database host
-    host: nextcloud-postgres-0
-
-    ## Database user
-    user: nextcloud
-
-    ## Database password
-    password: nextcloud
-
-    ## Database name
-    database: nextcloud
-
-    ## Use a existing secret
+    type: postgresql
+    host: "{{ .Emporium.Integrations.Postgres.Host }}:{{ .Emporium.Integrations.Postgres.Port }}"
+    database: {{ .Emporium.Integrations.Postgres.Database | quote }}
     existingSecret:
       enabled: true
-      secretName: nextcloud-postgresql
-      usernameKey: postgres-password
-      passwordKey: password
+      secretName: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+      usernameKey: {{ .Emporium.Integrations.Postgres.UsernameKey | quote }}
+      passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
 
   postgresql:
-    enabled: true
-    global:
-      postgresql:
-        # global.postgresql.auth overrides postgresql.auth
-        auth:
-          username:
-          password:
-          database: nextcloud
-          existingSecret: "nextcloud-postgresql"
-          secretKeys:
-            adminPasswordKey: "password"
-            userPasswordKey: "postgres-password"
-            replicationPasswordKey: ""
-    primary:
-      persistence:
-        enabled: true
-        size: 8Gi
-        # Use an existing Persistent Volume Claim (must be created ahead of time)
-        # existingClaim: ""
-        # storageClass: ""
+    enabled: false
 
   ##
   ## Redis chart configuration

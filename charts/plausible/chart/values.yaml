@@ -1,5 +1,16 @@
 nameOverride: ""
 
+# PostgreSQL database. Emporium provides it with its native Postgres
+# integration (CloudNativePG) and fills these values in values.emporium.yaml.
+database:
+  host: ""
+  port: 5432
+  name: plausible
+  username: plausible
+  # Secret holding the password (the CNPG app secret).
+  existingSecret: ""
+  passwordKey: password
+
 plausible:
   baseURL: ""
   disableRegistration: true
@@ -10,19 +21,10 @@ plausible:
     existingSecret: plausible
 
   postgresql:
-    fullNameOverride: plausible-postgresql
-    auth:
-      existingSecret: plausible
-      secretKeys:
-        adminPasswordKey: "DATABASE_PASSWORD"
-    primary:
-      persistence:
-        enabled: true
-        size: 10Gi
-
+    enabled: false
 
   clickhouse:
-    fullNameOverride: plausible-clickhouse
+    fullnameOverride: plausible-clickhouse
     auth:
       existingSecret: plausible
       existingSecretKey: "CLICKHOUSE_PASSWORD"

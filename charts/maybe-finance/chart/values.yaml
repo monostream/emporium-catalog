@@ -39,14 +39,16 @@ storage:
     accessMode: ReadWriteOnce
     size: 1Gi
 
-postgresql:
-  auth:
-    host: "maybe-postgresql"
-    database: "maybe"
-    username: "postgres"
-    port: 5432
-    password: ""
-    existingSecret: "postgresql"
+# PostgreSQL database. Emporium provides it with its native Postgres
+# integration (CloudNativePG) and fills these values in values.emporium.yaml.
+database:
+  host: ""
+  port: 5432
+  name: maybe
+  # Secret holding the credentials (the CNPG app secret).
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
 
 serviceAccount:
   # Specifies whether a service account should be created

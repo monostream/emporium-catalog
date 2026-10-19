@@ -1,1 +1,11 @@
 supabase: {}
+
+# SMTP settings for Supabase auth (GoTrue). When host is set they are stored in
+# the <release>-smtp Secret; point supabase.auth.extraEnvVarsSecret at it.
+smtp:
+  host: ""
+  port: "587"
+  username: ""
+  password: ""
+  from: ""
+  senderName: Supabase

@@ -1,3 +1,11 @@
+# 0.1.77
+
+Published on 19 October 2026
+
+- Top-level resources apply to the code-server container (they were not wired)
+- docker.resources is declared in values.yaml so the Docker sidecar can be sized
+- Storage size description states the real default (20Gi)
+
 # 0.1.76
 
 Published on 19 October 2026

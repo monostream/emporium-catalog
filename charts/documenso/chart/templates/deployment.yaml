@@ -51,13 +51,13 @@ spec:
           - name: NEXT_PRIVATE_DATABASE_URL
             valueFrom:
               secretKeyRef:
-                name: {{ include "chart.fullname" . }}-db-url
-                key: url
+                name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
+                key: {{ .Values.database.uriKey }}
           - name: NEXT_PRIVATE_DIRECT_DATABASE_URL
             valueFrom:
               secretKeyRef:
-                name: {{ include "chart.fullname" . }}-db-url
-                key: url
+                name: {{ .Values.database.existingSecret }}
+                key: {{ .Values.database.uriKey }}
           - name: NEXT_PRIVATE_SMTP_HOST
             value: "{{ .Values.app.smtp.host }}"
           - name: NEXT_PRIVATE_SMTP_PORT

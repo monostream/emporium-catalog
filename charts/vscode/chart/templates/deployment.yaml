@@ -41,6 +41,10 @@ spec:
             {{- end }}
             - name: dind
               mountPath: /var/run/dind
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           # livenessProbe:
           #   httpGet:
           #     path: /healthz
@@ -72,8 +76,10 @@ spec:
             {{- end }}
             - name: dind
               mountPath: /var/run/dind
+          {{- with .Values.docker.resources }}
           resources:
-            {{- toYaml .Values.docker.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       {{- if .Values.persistence.enabled }}
       initContainers:
         - name: init-volume

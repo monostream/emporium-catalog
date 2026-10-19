@@ -1,3 +1,10 @@
+# 0.1.37
+
+Published on 19 October 2026
+
+- Ingress paths use the object form (path, pathType) that n8n chart 2.x expects; the chart failed to render before
+- Persistence moved to main.persistence (n8n chart 2.x); the StorageSize volume was not created and data lived in an emptyDir
+
 # 0.1.35
 
 Published on 7 October 2026

@@ -10,24 +10,6 @@
 ## @description The StorageClass to use for the Artifacts volume. If not provided, default storage class is used.
 ## @optional
 
-## @userSupplied PostgresqlPersistenceSize
-## @label Postgresql Volume Size
-## @type byteSize
-## @description Size of the local Postgresql volume. Default is 8Gi.
-## @optional
-
-## @userSupplied PostgresqlPersistenceStorageClass
-## @label Postgresql Volume StorageClass
-## @type storageClass
-## @description The StorageClass to use for the Postgresql volume. If not provided, default storage class is used.
-## @optional
-
-## @userSupplied PostgresqlPassword
-## @label Postgresql Password
-## @type string
-## @description The database password to use. If left empty SQLite will be used.
-## @optional
-
 ## @userSupplied EnablePublicRead
 ## @label Enable public read
 ## @type boolean
@@ -35,12 +17,6 @@
 ## @optional
 
 
-
-{{- if .Emporium.UserSupplied.PostgresqlPassword }}
-global:
-  postgresql:
-    enabled: true
-{{- end }}
 artifacts:
   auth:
     oidc:
@@ -52,10 +28,10 @@ artifacts:
   hosts:
     domain: {{ .Emporium.Integrations.DNS.Hostname }}
     https: true
-  {{- if .Emporium.UserSupplied.PostgresqlPassword }}
   database:
-    url: postgresql://postgres:{{ .Emporium.UserSupplied.PostgresqlPassword }}@{{ .Emporium.Name }}-postgresql:5432/artifacts
-  {{- end }}
+    existingSecret:
+      name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+      key: {{ .Emporium.Integrations.Postgres.URIKey | quote }}
   image:
     pullPolicy: Always
     repository: monostream.docker.pkg.emporium.rocks/artifacts
@@ -82,20 +58,3 @@ artifacts:
       path: /data
   telemetry:
     enabled: false
-
-{{- if .Emporium.UserSupplied.PostgresqlPassword }}
-postgresql:
-  auth:
-    database: artifacts
-    postgresPassword: {{ .Emporium.UserSupplied.PostgresqlPassword }}
-  primary:
-    persistence:
-      enabled: true
-      {{- if .Emporium.UserSupplied.PostgresqlPersistenceSize }}
-      size: {{ .Emporium.UserSupplied.PostgresqlPersistenceSize }}
-      {{- end }}
-      {{- if .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
-      storageClass: {{ .Emporium.UserSupplied.PostgresqlPersistenceStorageClass }}
-      {{- end }}
-{{- end }}
-
