@@ -1,0 +1,13 @@
+# Charts removed from the catalog. One Helm chart name per line.
+# On every publish, all versions of these charts are deleted from the Helm repository
+# (ChartMuseum). Safe to keep: already-deleted charts are skipped.
+browserless
+chatbotui
+desktop
+filebrowser
+firefox
+fooocus
+kubernetes-dashboard
+lobechat
+minio
+open-webui
