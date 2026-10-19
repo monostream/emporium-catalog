@@ -35,7 +35,8 @@ jnlp:
     annotations: {}
 ingress:
   enabled: false
-  ingressClassName: "nginx"
+  # Leave empty to use the cluster default IngressClass
+  ingressClassName: ""
   annotations: {}
   # kubernetes.io/tls-acme: "true"
   hosts:

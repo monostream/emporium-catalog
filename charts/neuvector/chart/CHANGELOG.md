@@ -1,3 +1,9 @@
+# 0.0.22
+
+Published on 19 October 2026
+
+- Emporium values no longer hard-code ingressClassName nginx
+
 # 0.0.21
 
 Published on 7 October 2026

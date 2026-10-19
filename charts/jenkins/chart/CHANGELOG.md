@@ -1,3 +1,9 @@
+# 0.1.54
+
+Published on 19 October 2026
+
+- Ingress no longer hard-codes ingressClassName nginx or nginx-only snippet/websocket annotations (controller-agnostic)
+
 # 0.1.53
 
 Published on 7 October 2026

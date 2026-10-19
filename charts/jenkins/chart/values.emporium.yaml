@@ -41,7 +41,6 @@ jnlp:
 
 ingress:
   enabled: true
-  ingressClassName: "nginx"
   annotations:
     {{- if .Emporium.Annotations }}
     {{- toYaml .Emporium.Annotations | nindent 4 }}

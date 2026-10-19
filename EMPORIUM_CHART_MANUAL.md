@@ -211,17 +211,37 @@ emporium.build/auth-skip-paths: 'regex(^(\/([^\/\n])+){2,}\.git.*$)'
 emporium.build/disable-glass: "true"
 ```
 
-### Common Nginx Annotations
+### Ingress Controller Compatibility
+
+Charts must be ingress-controller agnostic. Emporium keeps using plain `Ingress` objects; depending on the cluster they are served by an Ingress controller or converted to Gateway API routes.
+
+- Never hard-code an ingress class. Expose `ingress.className` (or the sub-chart's equivalent) with an empty default so the cluster default `IngressClass` is used. Do not set `kubernetes.io/ingress.class` or `ingressClassName: nginx`.
+- Use only `PathPrefix`-style routing (`pathType: Prefix`) and the annotation subset below.
+- Do not rely on controller-specific snippets. Configure headers, HSTS, forwarded-header trust, cookies and similar behaviour in the application itself. WebSockets work natively and need no annotation.
+
+Supported annotations:
 ```yaml
 # For file uploads
 nginx.ingress.kubernetes.io/proxy-body-size: "16m"
 
-# For Git operations
+# For Git operations / long-running requests
 nginx.ingress.kubernetes.io/proxy-body-size: "0"
 nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
 nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+# HTTPS backends (best effort, depends on the converter)
+nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+
+# Accepted but ignored (harmless)
 nginx.ingress.kubernetes.io/service-upstream: "true"
 ```
+
+Unsupported (silently dropped, do not use):
+- `configuration-snippet`, `server-snippet(s)`, `proxy-set-headers`, `more_set_headers` style snippets
+- `affinity`, `affinity-mode`, `session-cookie-*` (no sticky sessions; run a single replica or use app-level session storage)
+- `hsts`, `hsts-max-age`, `hsts-include-subdomains`, `ssl-protocols`
+- `proxy-redirect-from`, `proxy-redirect-to`, `proxy-http-version`, `proxy-buffering`, `proxy-send-timeout`
+- `nginx.org/websocket-services` (not needed)
 
 ---
 
@@ -423,7 +443,6 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: "16m"  # Match the app limit
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
 ```
 
 ---

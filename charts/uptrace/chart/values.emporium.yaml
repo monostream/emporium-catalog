@@ -32,7 +32,6 @@ uptrace:
       size: {{ default "100Gi" .Emporium.UserSupplied.ClickHouseDiskSize }}
 
   ingress:
-    className: "nginx"
     annotations:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}

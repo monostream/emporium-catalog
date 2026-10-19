@@ -56,7 +56,8 @@ global:
   ingress:
     configureCertmanager: false
     enabled: true
-    class: nginx
+    # "none" omits ingressClassName so the cluster default IngressClass is used
+    class: none
     annotations:
       {{- if .Emporium.Annotations }}
       {{- toYaml .Emporium.Annotations | nindent 6 }}

@@ -1,3 +1,9 @@
+# 0.2.85
+
+Published on 19 October 2026
+
+- Emporium values no longer hard-code global.ingress.class nginx
+
 # 0.2.84
 
 Published on 7 October 2026

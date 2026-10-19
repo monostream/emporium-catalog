@@ -59,7 +59,6 @@ neuvector:
         ingress:
           enabled: true
           host: neuvector-master.tribbles.cloud
-          ingressClassName: "nginx"
           path: "/" 
           annotations:
             {{- if .Emporium.Annotations }}

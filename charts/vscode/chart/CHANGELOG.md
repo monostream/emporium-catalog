@@ -1,3 +1,9 @@
+# 0.1.75
+
+Published on 19 October 2026
+
+- Ingress class defaults to the cluster default (ingressClassName empty)
+
 # 0.1.74
 
 Published on 7 October 2026
