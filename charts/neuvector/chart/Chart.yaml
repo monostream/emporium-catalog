@@ -9,7 +9,6 @@ dependencies:
     repository: https://neuvector.github.io/neuvector-helm/
     alias: neuvector
 home: https://www.suse.com/neuvector/
-icon: assets/icon.svg
 sources:
   - https://github.com/neuvector/neuvector
 keywords:
@@ -21,6 +20,7 @@ keywords:
   - Network Visibility
   - DLP
 annotations:
+  icon: assets/icon.svg
   displayName: NeuVector
   category: Monitoring
   licenses: Apache-2.0

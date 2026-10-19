@@ -9,7 +9,6 @@ dependencies:
     version: 17.2.0
     repository: oci://codeberg.org/forgejo-contrib
 home: https://forgejo.org/
-icon: assets/icon.svg
 sources:
   - https://forgejo.com/forgejo/helm-chart
 keywords:
@@ -19,6 +18,7 @@ keywords:
   - CI/CD
   - Issue Tracking
 annotations:
+  icon: assets/icon.svg
   category: Developer Tools
   displayName: forgejo
   licenses: MIT

@@ -6,12 +6,12 @@ version: 0.1.5
 appVersion: "0.1.1"
 
 home: https://github.com/v1k45/pastepass/tree/master
-icon: assets/icon.png
 sources:
   - https://github.com/v1k45/pastepass/tree/master
 keywords:
   - Tools
 annotations:
+  icon: assets/icon.png
   displayName: PastePass
   category: Utilities
   licenses: MIT license

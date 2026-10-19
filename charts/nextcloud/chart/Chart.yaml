@@ -9,8 +9,8 @@ dependencies:
     version: 9.4.0
     repository: https://nextcloud.github.io/helm/
 home: https://nextcloud.com/
-icon: assets/icon.svg
 annotations:
+  icon: assets/icon.svg
   displayName: Nextcloud
   category: Utilities
   licenses: AGPL-3.0

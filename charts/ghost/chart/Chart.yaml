@@ -8,7 +8,6 @@ dependencies:
     version: 25.0.4
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
 home: https://ghost.org/
-icon: assets/icon.svg
 sources:
   - https://github.com/TryGhost/Ghost
 maintainers:
@@ -22,6 +21,7 @@ keywords:
   - Websites
   - CMS
 annotations:
+  icon: assets/icon.svg
   displayName: Ghost
   category: CMS
   licenses: Apache-2.0

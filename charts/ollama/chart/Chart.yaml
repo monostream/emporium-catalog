@@ -8,13 +8,13 @@ dependencies:
     version: 1.85.0
     repository: https://otwld.github.io/ollama-helm/
 home: https://ollama.ai/
-icon: assets/icon.png
 sources:
   - https://github.com/jmorganca/ollama
 keywords:
   - AI
   - LLM
 annotations:
+  icon: assets/icon.png
   displayName: Ollama
   category: AI
   licenses: MIT license

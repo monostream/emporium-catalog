@@ -5,7 +5,6 @@ type: application
 version: 0.1.88
 appVersion: "32.2.0"
 home: https://www.drawio.com/
-icon: assets/icon.svg
 sources:
   - https://github.com/jgraph/drawio
   - https://github.com/jgraph/docker-drawio
@@ -15,6 +14,7 @@ maintainers:
 keywords:
   - Diagrams
 annotations:
+  icon: assets/icon.svg
   displayName: draw.io
   category: Design
   licenses: Apache-2.0

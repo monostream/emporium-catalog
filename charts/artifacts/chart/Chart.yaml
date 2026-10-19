@@ -11,7 +11,6 @@ dependencies:
     version: 16.7.27
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
     condition: global.postgresql.enabled
-icon: assets/icon.svg
 sources:
   - https://github.com/monostream/artifacts
 keywords:
@@ -23,6 +22,7 @@ keywords:
   - Maven
   - NuGet
 annotations:
+  icon: assets/icon.svg
   displayName: Artifacts
   category: Developer Tools
   licenses: Apache-2.0

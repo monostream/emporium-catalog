@@ -8,7 +8,6 @@ dependencies:
     version: 2.1.1
     repository: oci://8gears.container-registry.com/library
 home: https://n8n.io/
-icon: assets/icon.svg
 sources:
   - https://github.com/n8n-io/n8n
   - https://github.com/8gears/n8n-helm-chart
@@ -23,6 +22,7 @@ keywords:
   - Integrations
 type: application
 annotations:
+  icon: assets/icon.svg
   displayName: n8n
   category: Utilities
   licenses: Sustainable Use License

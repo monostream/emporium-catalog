@@ -5,7 +5,6 @@ type: application
 version: 0.0.14
 appVersion: "2.0.2"
 home: https://uptrace.dev/
-icon: assets/icon.svg
 sources:
   - https://github.com/uptrace/helm-charts/
 keywords:
@@ -22,6 +21,7 @@ dependencies:
     version: 16.7.27
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
 annotations:
+  icon: assets/icon.svg
   displayName: Uptrace
   licenses: AGPL-3.0
   category: Monitoring

@@ -8,7 +8,6 @@ dependencies:
     version: 3.0.0
     repository: https://charts.js.wiki
 home: https://js.wiki/
-icon: assets/icon.svg
 sources:
   - https://github.com/Requarks/wiki
 maintainers:
@@ -28,6 +27,7 @@ keywords:
   - Reference
   - Editor
 annotations:
+  icon: assets/icon.svg
   displayName: Wiki.js
   category: CMS
   licenses: AGPL-3.0

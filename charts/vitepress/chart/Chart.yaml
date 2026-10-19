@@ -7,7 +7,6 @@ version: 0.1.8
 appVersion: "1.1.0"
 
 home: https://vitepress.dev/
-icon: assets/icon.svg
 sources:
   - https://github.com/vuejs/vitepress
   - https://github.com/monostream/emporium-docs/
@@ -25,6 +24,7 @@ keywords:
   - CMS
 
 annotations:
+  icon: assets/icon.svg
   displayName: VitePress
   category: CMS
   licenses: MIT license

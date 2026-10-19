@@ -14,7 +14,6 @@ dependencies:
     version: 22.0.7
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
 home: https://penpot.app
-icon: assets/icon.svg
 sources:
   - https://github.com/penpot/penpot
   - https://github.com/codechem/helm/tree/main/charts/penpot
@@ -25,6 +24,7 @@ keywords:
   - Design
   - Prototype
 annotations:
+  icon: assets/icon.svg
   displayName: Penpot
   category: Design
   licenses: MPL-2.0

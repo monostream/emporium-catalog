@@ -5,13 +5,13 @@ type: application
 version: 0.1.16
 appVersion: "6.8"
 home: https://languagetool.org/
-icon: assets/icon.svg
 sources:
   - https://github.com/languagetool-org/languagetool
   - https://github.com/Erikvl87/docker-languagetool
 keywords:
   - Utilities
 annotations:
+  icon: assets/icon.svg
   displayName: languagetool
   licenses: LGPL-2.1 license
   category: Utilities

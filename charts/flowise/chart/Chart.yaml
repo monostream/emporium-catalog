@@ -5,12 +5,12 @@ type: application
 version: 0.1.18
 appVersion: "3.1.4"
 home: https://flowiseai.com/
-icon: assets/icon.png
 sources:
   - https://github.com/FlowiseAI/Flowise
 keywords:
   - AI
 annotations:
+  icon: assets/icon.png
   displayName: Flowise
   licenses: pache-2.0 license
   category: AI

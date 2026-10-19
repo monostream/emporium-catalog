@@ -5,7 +5,6 @@ description: Visual Studio Code in your Browser - A comprehensive DevOps tool wi
 version: 0.1.75
 appVersion: "4.140.0"
 home: https://coder.com/
-icon: assets/icon.svg
 sources:
   - https://github.com/cdr/code-server
   - https://github.com/microsoft/vscode
@@ -19,6 +18,7 @@ keywords:
   - Development
   - Coding
 annotations:
+  icon: assets/icon.svg
   displayName: VS Code Space
   category: Developer Tools
   licenses: MIT

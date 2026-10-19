@@ -5,7 +5,6 @@ type: application
 version: 0.1.49
 appVersion: v1.4.2
 home: https://plane.so/
-icon: assets/icon.svg
 sources:
   - https://github.com/makeplane/plane
 maintainers:
@@ -26,6 +25,7 @@ dependencies:
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
     version: 17.0.21
 annotations:
+  icon: assets/icon.svg
   displayName: Plane
   category: Productivity
   licenses: AGPL-3.0

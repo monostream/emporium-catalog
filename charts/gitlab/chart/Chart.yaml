@@ -5,7 +5,6 @@ type: application
 version: 0.2.85
 appVersion: "v19.4.1"
 home: https://gitlab.com/
-icon: assets/icon.svg
 sources:
   - https://docs.gitlab.com/charts/installation/
 keywords:
@@ -19,6 +18,7 @@ dependencies:
     version: 10.4.1
     repository: https://charts.gitlab.io/
 annotations:
+  icon: assets/icon.svg
   displayName: GitLab
   licenses: MIT
   category: Developer Tools

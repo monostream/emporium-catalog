@@ -5,7 +5,6 @@ type: application
 version: 0.0.10
 appVersion: "3.0.1"
 home: https://plausible.io/
-icon: assets/icon.png
 sources:
   - https://github.com/plausible/analytics
   - https://github.com/IMIO/helm-plausible-analytics
@@ -17,6 +16,7 @@ dependencies:
     repository: https://imio.github.io/helm-charts
     alias: plausible
 annotations:
+  icon: assets/icon.png
   displayName: Plausible
   category: Analytics
   licenses: AGPL-3.0

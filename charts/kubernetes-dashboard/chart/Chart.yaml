@@ -9,13 +9,13 @@ dependencies:
     repository: https://kubernetes.github.io/dashboard/
     alias: dashboard
 home: https://github.com/kubernetes/dashboard
-icon: assets/icon.svg
 sources:
   - https://github.com/kubernetes/dashboard
 keywords:
   - Kubernetes
   - Dashboard
 annotations:
+  icon: assets/icon.svg
   displayName: Kubernetes Dashboard
   category: Utilities
   licenses: Apache-2.0

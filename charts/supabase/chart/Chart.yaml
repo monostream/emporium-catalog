@@ -9,7 +9,6 @@ dependencies:
     version: 5.3.6
     repository: oci://registry-1.docker.io/bitnamicharts
 home: https://supabase.com/
-icon: assets/icon.svg
 sources:
   - https://github.com/supabase/supabase
 keywords:
@@ -21,6 +20,7 @@ maintainers:
   - name: Supabase
     url: https://github.com/supabase
 annotations:
+  icon: assets/icon.svg
   displayName: Supabase
   category: Developer Tools
   licenses: Apache-2.0

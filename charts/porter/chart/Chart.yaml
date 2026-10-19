@@ -9,12 +9,12 @@ dependencies:
     version: 0.190.0
     repository: https://charts-self-hosted.porter.run
 home: https://www.porter.run/
-icon: assets/icon.svg
 sources:
   - https://github.com/porter-dev/porter
   - https://github.com/porter-dev/porter-charts
 keywords:
   - PaaS
 annotations:
+  icon: assets/icon.svg
   displayName: Porter
   category: Developer Tools

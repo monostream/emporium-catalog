@@ -5,12 +5,12 @@ type: application
 version: 0.1.5
 appVersion: "0.6.0"
 home: https://maybe.co/
-icon: assets/icon.svg
 sources:
   - https://github.com/maybe-finance/maybe/
 keywords:
   - Finance
 annotations:
+  icon: assets/icon.svg
   displayName: maybe
   licenses: AGPL-3.0 license
   category: Finance

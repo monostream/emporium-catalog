@@ -7,7 +7,6 @@ version: 0.1.14
 appVersion: latest
 
 home: https://excalidraw.com
-icon: assets/icon.svg
 sources:
   - https://github.com/excalidraw/excalidraw
 
@@ -16,6 +15,7 @@ keywords:
   - Collaboration
 
 annotations:
+  icon: assets/icon.svg
   displayName: Excalidraw
   category: Design
   licenses: Apache-2.0
