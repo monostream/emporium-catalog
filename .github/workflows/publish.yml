@@ -5,6 +5,14 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Target Helm repository. staging: run from release/0.5 (secrets STAGING_CHARTMUSEUM_USER/PASSWORD). production: run from main or a tag.'
+        type: choice
+        options:
+          - staging
+          - production
+        default: production
 
 permissions:
   contents: read
@@ -35,15 +43,46 @@ jobs:
         run: |
           helm plugin install https://github.com/chartmuseum/helm-push.git --version v0.10.4
 
-      - name: Add helm repos
+      - name: Select target repository
         env:
-          HELM_REPO: ${{ vars.HELM_REPO }}
-          HELM_USER: ${{ vars.HELM_USER }}
-          HELM_PASSWORD: ${{ secrets.HELM_PASSWORD }}
+          TARGET: ${{ github.event.inputs.repo || 'production' }}
+          STAGING_URL: https://charts-staging.emporium-dev.shitlab.meme
+          STAGING_USER: ${{ secrets.STAGING_CHARTMUSEUM_USER }}
+          STAGING_PASSWORD: ${{ secrets.STAGING_CHARTMUSEUM_PASSWORD }}
+          PROD_URL: ${{ vars.HELM_REPO }}
+          PROD_USER: ${{ vars.HELM_USER }}
+          PROD_PASSWORD: ${{ secrets.HELM_PASSWORD }}
         run: |
-          helm repo add emporium-apps ${{ vars.HELM_REPO }} --username ${{ vars.HELM_USER }} --password ${{ secrets.HELM_PASSWORD }}
+          set -euo pipefail
+          case "$TARGET" in
+            staging)
+              if [ "$GITHUB_REF" != "refs/heads/release/0.5" ]; then
+                echo "::error::staging publishes only from release/0.5 (ref: $GITHUB_REF)"; exit 1
+              fi
+              url="$STAGING_URL"; user="$STAGING_USER"; password="$STAGING_PASSWORD"
+              ;;
+            production)
+              if [ "$GITHUB_REF" != "refs/heads/main" ] && [[ "$GITHUB_REF" != refs/tags/* ]]; then
+                echo "::error::production publishes only from main or a tag (ref: $GITHUB_REF)"; exit 1
+              fi
+              url="$PROD_URL"; user="$PROD_USER"; password="$PROD_PASSWORD"
+              ;;
+            *) echo "::error::unknown repo '$TARGET'"; exit 1 ;;
+          esac
+          echo "::add-mask::$password"
+          {
+            echo "HELM_REPO=$url"
+            echo "HELM_USER=$user"
+            echo "HELM_PASSWORD=$password"
+            echo "TARGET=$TARGET"
+          } >> "$GITHUB_ENV"
+
+      - name: Add helm repos
+        run: |
+          helm repo add emporium-apps "$HELM_REPO" --username "$HELM_USER" --password "$HELM_PASSWORD"
 
       - name: Remove deleted charts from the Helm repository
+        if: env.TARGET == 'production'
         env:
           HELM_REPO: ${{ vars.HELM_REPO }}
           HELM_USER: ${{ vars.HELM_USER }}
@@ -85,6 +124,9 @@ jobs:
           changed_charts=()
 
           for dir in charts/*; do
+              if [ "$(basename "$dir")" = "_template" ]; then
+                  continue
+              fi
               if [ -d "$dir" ]; then
                   chart_dir="$dir/chart"
                   # if git diff --quiet HEAD~1 HEAD -- "$chart_dir"; then
