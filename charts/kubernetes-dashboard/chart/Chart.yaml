@@ -1,7 +1,7 @@
 apiVersion: v2
 name: kubernetes-dashboard
 description: General-purpose web UI for Kubernetes clusters
-version: 0.0.33
+version: 0.0.34
 appVersion: 7.1.3
 dependencies:
   - name: kubernetes-dashboard
@@ -16,6 +16,7 @@ keywords:
   - Kubernetes
   - Dashboard
 annotations:
+  icon: assets/icon.svg
   displayName: Kubernetes Dashboard
   category: Utilities
   licenses: Apache-2.0

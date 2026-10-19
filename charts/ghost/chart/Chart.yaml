@@ -1,7 +1,7 @@
 apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
-version: 1.0.150
+version: 1.0.151
 appVersion: 6.0.5
 dependencies:
   - name: ghost
@@ -22,6 +22,7 @@ keywords:
   - Websites
   - CMS
 annotations:
+  icon: assets/icon.svg
   displayName: Ghost
   category: CMS
   licenses: Apache-2.0

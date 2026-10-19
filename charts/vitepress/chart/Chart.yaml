@@ -3,7 +3,7 @@ apiVersion: v2
 name: vitepress
 description: Live-reloading Vite & Vue Powered Static Site Generator
 
-version: 0.1.7
+version: 0.1.8
 appVersion: "1.1.0"
 
 home: https://vitepress.dev/
@@ -25,6 +25,7 @@ keywords:
   - CMS
 
 annotations:
+  icon: assets/icon.svg
   displayName: VitePress
   category: CMS
   licenses: MIT license

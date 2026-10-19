@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
 description: A powerful workflow automation tool.
-version: 0.1.35
+version: 0.1.36
 appVersion: 2.36.8
 dependencies:
   - name: n8n
@@ -23,6 +23,7 @@ keywords:
   - Integrations
 type: application
 annotations:
+  icon: assets/icon.svg
   displayName: n8n
   category: Utilities
   licenses: Sustainable Use License

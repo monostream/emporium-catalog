@@ -1,7 +1,7 @@
 apiVersion: v2
 name: wiki
 description: Make documentation a joy to write using Wiki.js's beautiful and intuitive interface
-version: 0.0.14
+version: 0.0.15
 appVersion: "2"
 dependencies:
   - name: wiki
@@ -28,6 +28,7 @@ keywords:
   - Reference
   - Editor
 annotations:
+  icon: assets/icon.svg
   displayName: Wiki.js
   category: CMS
   licenses: AGPL-3.0

@@ -2,7 +2,7 @@ apiVersion: v2
 name: penpot
 description: The Open-Source design and prototyping platform
 type: application
-version: 1.0.73
+version: 1.0.74
 appVersion: 2.18.3
 dependencies:
   - condition: global.postgresqlEnabled
@@ -25,6 +25,7 @@ keywords:
   - Design
   - Prototype
 annotations:
+  icon: assets/icon.svg
   displayName: Penpot
   category: Design
   licenses: MPL-2.0

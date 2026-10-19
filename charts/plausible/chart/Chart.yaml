@@ -2,7 +2,7 @@ apiVersion: v2
 name: plausible
 description: Easy to use and privacy-friendly Google Analytics alternative
 type: application
-version: 0.0.9
+version: 0.0.10
 appVersion: "3.0.1"
 home: https://plausible.io/
 icon: https://raw.githubusercontent.com/plausible/docs/master/static/img/plausible-analytics-icon-top.png
@@ -17,6 +17,7 @@ dependencies:
     repository: https://imio.github.io/helm-charts
     alias: plausible
 annotations:
+  icon: assets/icon.png
   displayName: Plausible
   category: Analytics
   licenses: AGPL-3.0

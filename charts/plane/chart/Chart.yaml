@@ -2,7 +2,7 @@ apiVersion: v2
 name: plane
 description: Project management tool from the future
 type: application
-version: 0.1.48
+version: 0.1.49
 appVersion: v1.4.2
 home: https://plane.so/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
@@ -26,6 +26,7 @@ dependencies:
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
     version: 17.0.21
 annotations:
+  icon: assets/icon.svg
   displayName: Plane
   category: Productivity
   licenses: AGPL-3.0

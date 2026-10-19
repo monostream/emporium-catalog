@@ -2,7 +2,7 @@ apiVersion: v2
 name: onedev
 description: Git Server with CI/CD, Kanban, and Packages. Seamless integration. Unparalleled experience.
 type: application
-version: 0.0.38
+version: 0.0.39
 appVersion: "11.9.0"
 dependencies:
   - name: onedev
@@ -19,6 +19,7 @@ keywords:
   - CI/CD
   - Issue Tracking
 annotations:
+  icon: assets/icon.svg
   category: Developer Tools
   displayName: onedev
   licenses: MIT

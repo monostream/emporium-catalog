@@ -1,7 +1,7 @@
 apiVersion: v2
 name: neuvector
 description: OpenSource Container Security Platform
-version: 0.0.21
+version: 0.0.22
 appVersion: 5.6.2
 dependencies:
   - name: core
@@ -21,6 +21,7 @@ keywords:
   - Network Visibility
   - DLP
 annotations:
+  icon: assets/icon.svg
   displayName: NeuVector
   category: Monitoring
   licenses: Apache-2.0

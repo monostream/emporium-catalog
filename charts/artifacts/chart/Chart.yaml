@@ -1,7 +1,7 @@
 apiVersion: v2
 name: artifacts
 description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
-version: 0.0.168
+version: 0.0.169
 appVersion: 0.0.61
 dependencies:
   - name: artifacts
@@ -23,6 +23,7 @@ keywords:
   - Maven
   - NuGet
 annotations:
+  icon: assets/icon.svg
   displayName: Artifacts
   category: Developer Tools
   licenses: Apache-2.0
