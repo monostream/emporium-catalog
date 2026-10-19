@@ -36,7 +36,10 @@ forgejo:
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
+      {{- /* Public access: Emporium sets auth-skip-paths to '/*' itself. */}}
+      {{- if not (index .Emporium.Annotations "emporium.build/auth-skip-paths") }}
       emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
+      {{- end }}
       nginx.ingress.kubernetes.io/proxy-body-size: '0'
       nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
       nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
@@ -64,8 +67,11 @@ forgejo:
         secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
         autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
         scopes: "email profile"
-        groupClaimName: "groups"
-        adminGroup: "authentik Admins"
+        # No group-based admin sync: the identity provider sends no admin
+        # group, and syncing would demote (or fail on) the local admin.
+        # Empty values also clear the setting on upgraded installs.
+        groupClaimName: ""
+        adminGroup: ""
 
     config:
       database:
