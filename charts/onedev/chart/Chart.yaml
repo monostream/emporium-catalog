@@ -2,7 +2,7 @@ apiVersion: v2
 name: onedev
 description: Git Server with CI/CD, Kanban, and Packages. Seamless integration. Unparalleled experience.
 type: application
-version: 0.0.39
+version: 0.0.40
 appVersion: "11.9.0"
 dependencies:
   - name: onedev

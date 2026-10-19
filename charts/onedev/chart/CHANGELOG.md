@@ -1,4 +1,4 @@
-# 0.0.39
+# 0.0.40
 
 Published on 19 October 2026
 
