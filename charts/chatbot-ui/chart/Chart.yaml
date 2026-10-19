@@ -4,7 +4,7 @@ name: chatbotui
 description: An open source alternative ChatGPT UI.
 
 type: application
-version: 0.1.21
+version: 0.1.22
 appVersion: "0.1.1"
 
 home: https://www.chatbotui.com/
@@ -24,4 +24,4 @@ annotations:
   category: AI
   licenses: MIT
   gallery: |
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/chatbot-ui/chatbot-ui_gallery_1.jpg
+    assets/screenshot-1.jpg

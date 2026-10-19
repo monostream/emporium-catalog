@@ -1,7 +1,7 @@
 apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
-version: 1.0.151
+version: 1.0.152
 appVersion: 6.0.5
 dependencies:
   - name: ghost
@@ -27,6 +27,6 @@ annotations:
   category: CMS
   licenses: Apache-2.0
   gallery: |
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
-    https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
+    assets/screenshot-1.jpg
+    assets/screenshot-2.jpg
   emporiumVersion: v0.3.0
