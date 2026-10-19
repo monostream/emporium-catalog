@@ -2,6 +2,11 @@ uptrace:
   otelcol:
     enabled: false
 
+  # The daemonset is an OpenTelemetryCollector resource and needs the
+  # OpenTelemetry operator, which Emporium does not install.
+  otelcolDaemonset:
+    enabled: false
+
   postgresql:
     enabled: false
 
