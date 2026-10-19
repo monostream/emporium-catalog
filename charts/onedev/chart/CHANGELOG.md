@@ -1,3 +1,9 @@
+# 0.0.39
+
+Published on 19 October 2026
+
+- Removed nginx-only cookie affinity ingress annotations
+
 # 0.0.38
 
 Published on 3 May 2025

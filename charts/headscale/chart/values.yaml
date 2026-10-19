@@ -148,22 +148,7 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
-    nginx.ingress.kubernetes.io/proxy-set-headers: |
-      Upgrade $http_upgrade
-      Connection $connection_upgrade
-      Host $server_name
-      X-Real-IP $remote_addr
-      X-Forwarded-For $proxy_add_x_forwarded_for
-      X-Forwarded-Proto $scheme
-    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
-    nginx.ingress.kubernetes.io/proxy-buffering: "off"
-    nginx.ingress.kubernetes.io/proxy-redirect-from: "http://"
-    nginx.ingress.kubernetes.io/proxy-redirect-to: "https://"
-    nginx.ingress.kubernetes.io/hsts: "true"
-    nginx.ingress.kubernetes.io/hsts-max-age: "15552000"
-    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
+  annotations: {}
   hosts:
     - host: chart-example.local
       paths:

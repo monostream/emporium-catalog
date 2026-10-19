@@ -1,3 +1,9 @@
+# 0.1.21
+
+Published on 19 October 2026
+
+- Removed nginx-only ingress annotations (proxy headers, HSTS, buffering, redirect, TLS protocols)
+
 # 0.1.20
 
 Published on 7 October 2026

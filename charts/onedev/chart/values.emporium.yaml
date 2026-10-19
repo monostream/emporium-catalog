@@ -45,11 +45,6 @@ onedev:
       nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
       nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
       nginx.ingress.kubernetes.io/service-upstream: 'true'
-      nginx.ingress.kubernetes.io/affinity: cookie
-      nginx.ingress.kubernetes.io/affinity-mode: persistent
-      nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
-      nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
-      nginx.ingress.kubernetes.io/session-cookie-name: session-sticky
     host: {{ .Emporium.Integrations.DNS.Hostname }}
     tls:
       enabled: true

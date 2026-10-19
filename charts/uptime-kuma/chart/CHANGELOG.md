@@ -1,3 +1,9 @@
+# 0.0.24
+
+Published on 19 October 2026
+
+- Removed nginx-only ingress class annotation and server-snippets
+
 # 0.0.23
 
 Published on 7 October 2026
