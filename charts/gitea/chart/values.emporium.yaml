@@ -46,6 +46,7 @@ gitea:
         HOST: "{{ .Emporium.Integrations.Postgres.Host }}:{{ .Emporium.Integrations.Postgres.Port }}"
         NAME: {{ .Emporium.Integrations.Postgres.Database | quote }}
         USER: {{ .Emporium.Integrations.Postgres.Username | quote }}
+        SSL_MODE: {{ .Emporium.Integrations.Postgres.SSLMode | quote }}
       actions:
         ENABLED: 'true'
       api:
