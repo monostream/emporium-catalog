@@ -1,0 +1,73 @@
+name: Lint Charts
+
+on:
+  pull_request:
+    branches: [ "main", "release/0.5" ]
+  push:
+    branches: [ "main", "release/0.5" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # emp is built from the emporium repository at this ref. Pin a tag or commit
+  # and bump it deliberately: lint rules change with Emporium releases.
+  EMPORIUM_REF: release/0.5
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout charts
+        uses: actions/checkout@v4
+
+      - name: Checkout emporium
+        uses: actions/checkout@v4
+        with:
+          repository: monostream/emporium
+          ref: ${{ env.EMPORIUM_REF }}
+          path: .emporium
+          # monostream/emporium is private: a read-only token for it
+          token: ${{ secrets.EMPORIUM_REPO_TOKEN }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: .emporium/go.work
+          cache-dependency-path: .emporium/**/go.sum
+
+      - name: Build emp
+        working-directory: .emporium
+        run: go build -o "$RUNNER_TEMP/emp" ./cli
+
+      - name: Lint charts
+        run: |
+          set -uo pipefail
+          emp="$RUNNER_TEMP/emp"
+
+          if ! "$emp" chart lint --help >/dev/null 2>&1; then
+              echo "::warning::emp at ${EMPORIUM_REF} has no 'chart lint' command yet; skipping"
+              exit 0
+          fi
+
+          failed=()
+
+          for chart in charts/*/chart; do
+              echo "::group::$chart"
+              if ! "$emp" chart lint "$chart"; then
+                  failed+=("$chart")
+              fi
+              echo "::endgroup::"
+          done
+
+          if [ "${#failed[@]}" -gt 0 ]; then
+              printf '::error::lint failed for %s\n' "${failed[@]}"
+              exit 1
+          fi
