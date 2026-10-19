@@ -64,10 +64,34 @@ spec:
             value: /data/.flowise/logs
           - name: BLOB_STORAGE_PATH
             value: /data/.flowise/storage
-          - name: FLOWISE_USERNAME
-            value: "{{ .Values.app.username }}"
-          - name: FLOWISE_PASSWORD
-            value: "{{ .Values.app.password }}"
+          {{- with .Values.app.existingSecret }}
+          {{- range list "JWT_AUTH_TOKEN_SECRET" "JWT_REFRESH_TOKEN_SECRET" "EXPRESS_SESSION_SECRET" "TOKEN_HASH_SECRET" }}
+          - name: {{ . }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.app.existingSecret | quote }}
+                key: {{ . }}
+          {{- end }}
+          {{- end }}
+          {{- with .Values.database }}
+          {{- if .host }}
+          - name: DATABASE_TYPE
+            value: postgres
+          - name: DATABASE_HOST
+            value: {{ .host | quote }}
+          - name: DATABASE_PORT
+            value: {{ .port | quote }}
+          - name: DATABASE_NAME
+            value: {{ .name | quote }}
+          - name: DATABASE_USER
+            value: {{ .user | quote }}
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ required "database.existingSecret is required with database.host" .existingSecret | quote }}
+                key: {{ .passwordKey | quote }}
+          {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
