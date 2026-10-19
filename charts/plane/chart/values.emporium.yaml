@@ -19,3 +19,12 @@ smtp:
   password: {{ .Emporium.Integrations.SMTP.Password | quote }}
   port: {{ .Emporium.Integrations.SMTP.Port | quote }}
   from: {{ .Emporium.Integrations.SMTP.From | quote }}
+
+database:
+  host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+  port: {{ .Emporium.Integrations.Postgres.Port }}
+  name: {{ .Emporium.Integrations.Postgres.Database | quote }}
+  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+  usernameKey: {{ .Emporium.Integrations.Postgres.UsernameKey | quote }}
+  passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+  uriKey: {{ .Emporium.Integrations.Postgres.URIKey | quote }}

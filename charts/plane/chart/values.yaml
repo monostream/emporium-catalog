@@ -45,9 +45,17 @@ ingress:
   tls:
     secretName: plane-tls
     host:
-postgresql:
-  auth:
-    database: plane
+# PostgreSQL database. Emporium provides it with its native Postgres
+# integration (CloudNativePG) and fills these values in values.emporium.yaml.
+database:
+  host: ""
+  port: 5432
+  name: plane
+  # Secret holding the credentials and a postgresql:// URI (the CNPG app secret).
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
+  uriKey: uri
 redis:
   architecture: standalone
   replica:
