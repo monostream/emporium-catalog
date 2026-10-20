@@ -12,7 +12,8 @@ n8n:
       DB_POSTGRESDB_USER: {{ .Username | quote }}
       # Verified TLS against the CloudNativePG CA (Host is the -rw.<ns>.svc name in the certificate).
       DB_POSTGRESDB_SSL_ENABLED: "true"
-      DB_POSTGRESDB_SSL_CA: /etc/n8n/postgres-ca/ca.crt
+      # _FILE: n8n reads the CA certificate contents from this file.
+      DB_POSTGRESDB_SSL_CA_FILE: /etc/n8n/postgres-ca/ca.crt
       DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "true"
       {{- end }}
     {{- with .Emporium.Integrations.db }}

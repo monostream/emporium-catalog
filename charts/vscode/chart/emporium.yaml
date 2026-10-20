@@ -19,8 +19,9 @@ inputs:
 integrations:
   web:
     type: ingress
-    # code-server runs with --auth none: the Emporium login is the only protection.
-    access: { default: authenticated }
+    # code-server runs with --auth none (and cluster-admin by default): the Emporium login is the
+    # only protection, so only Emporium admins get in by default.
+    access: { default: admins }
     bind:
       IngressClassName: ingress.ingressClassName
   data:

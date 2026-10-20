@@ -32,8 +32,9 @@ perHost mode, `emporium-wildcard-<zone>` in wildcard mode).
 
 ## Secrets
 
-None. code-server runs with `--auth none`; the Emporium login (access default `authenticated`)
-is the only protection, as before. The unused `password` value is gone.
+None. code-server runs with `--auth none`; the Emporium login is the only protection. The
+access default is now `admins` (was `authenticated`): only Emporium admins can open the IDE unless
+the installer picks a wider access level. The unused `password` value is gone.
 
 ## Cluster-scoped objects and privileges
 

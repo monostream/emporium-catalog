@@ -14,6 +14,7 @@ integrations:
       - /form-test/*
       - /form-waiting/*
       - /mcp/*
+      - /mcp-test/*
     bind:
       IngressClassName: n8n.ingress.className
   data:

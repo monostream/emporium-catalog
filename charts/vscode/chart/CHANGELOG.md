@@ -3,6 +3,7 @@
 Published on 20 October 2026
 
 - Requires Emporium v0.5.0 (`emporium.yaml`).
+- Access defaults to Emporium admins (code-server has no login of its own and the workspace is cluster-admin by default).
 - Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
 - Home volume is the `data` storage integration (20Gi default, grow-only); the input "Storage Size" is removed.
 - New input "Cluster admin access" (default on, the previous behaviour); off binds the built-in `admin` role in the app namespace only.

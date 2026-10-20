@@ -12,7 +12,7 @@
 - New optional `db` postgres integration (`required: false`, install toggle, PostgreSQL 17, database
   and owner `n8n`, 5Gi grow-only). Host, port, database and user go into the app ConfigMap; the
   password is read by `secretKeyRef` from the CloudNativePG app Secret.
-- TLS: verified (`DB_POSTGRESDB_SSL_CA` points at the mounted `CASecretName`, `rejectUnauthorized`).
+- TLS: verified (`DB_POSTGRESDB_SSL_CA_FILE` points at the mounted `CASecretName`, `rejectUnauthorized`).
 - The toggle is install-time; there is no SQLite -> PostgreSQL migration in the chart. Existing
   installs keep SQLite unless they are reinstalled with the toggle on (and then start with an empty
   database; export/import workflows and credentials with the n8n CLI if needed).
@@ -49,7 +49,7 @@ perHost mode, `emporium-wildcard-<zone>` in wildcard mode).
 
 - Access default stays `authenticated`. New skip paths, so external callers reach triggers:
   `/webhook/*`, `/webhook-test/*`, `/webhook-waiting/*`, `/form/*`, `/form-test/*`,
-  `/form-waiting/*`, `/mcp/*`. Protect production webhooks with the trigger node's own
+  `/form-waiting/*`, `/mcp/*`, `/mcp-test/*`. Protect production webhooks with the trigger node's own
   authentication.
 - `WEBHOOK_URL`/`N8N_EDITOR_BASE_URL` use the public hostname (they defaulted to `localhost:5678`).
 - n8n 2.43.8 (image pinned in the chart's values).
