@@ -61,17 +61,19 @@ again with the installed-app blueprint (`docs/blueprints/migrate-installed-app-t
 
 ## Hostnames
 
-- `registry.<host>` -> `<subdomain>-registry.<zone>`; `kas.<host>` -> `<subdomain>-kas.<zone>`
-  (extra hosts `registry`, `kas` of the `web` integration). Update `docker login` commands, CI
-  variables and agent configurations that name the old hosts.
+- `registry.<host>` and `kas.<host>` became the hostnames of the ingress integrations `registry`
+  and `kas` (`disableGlass: true`: Docker `/v2/` and agents authenticate with GitLab tokens, so
+  glass must not sit in front). Choose a subdomain for each at install that differs from the web
+  subdomain (e.g. `<name>-registry`); Emporium does not default it, and the same subdomain as `web`
+  would put two Ingresses on one host. `kas` is reserved in every profile (ingress integrations
+  cannot be switched off); its Ingress exists only with the kas component (medium). Update
+  `docker login` commands, CI variables and agent configurations that name the old hosts.
 
 ## TLS secret
 
 `gitlab-webservice-tls`, `gitlab-registry-tls` and `gitlab-kas-tls` became the integration's
-`TLSSecretName` (wildcard zones: the replicated `emporium-wildcard-<zone>` for all three Ingresses;
-perHost zones: `<TLSSecretName>` for the web host, `<TLSSecretName>-registry` and
-`<TLSSecretName>-kas` for the others, issued per Ingress; those two are not deleted by the
-uninstall).
+`TLSSecretName` of the `web`, `registry` and `kas` integrations (wildcard zones: the replicated
+`emporium-wildcard-<zone>`; perHost zones: one Secret per integration, owned by Emporium).
 
 ## Secrets
 
@@ -91,7 +93,7 @@ uninstall).
   (concurrency 10), no agent server (kas) and no metrics exporter; `medium` runs 2-4 web pods with
   four workers, 1-2 Sidekiq pods, kas and the exporter. 0.3.0 ran the upstream defaults (2-10 web
   pods).
-- The chart sets no `emporium.build/auth-*` annotations; the skip paths are the `web` integration's
+- The chart sets no `emporium.build/auth-*` or `disable-glass` annotations; the skip paths are the `web` integration's
   `skipPaths` (same list; the Git regex is `regex(^(/[^/]+){2,}\.git(/.*)?$)`).
 - Dropped annotations: `kubernetes.io/tls-acme`, `nginx.ingress.kubernetes.io/service-upstream`
   (set by the chart; upstream still adds its own nginx defaults, which other controllers ignore).

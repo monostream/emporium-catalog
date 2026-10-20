@@ -16,7 +16,7 @@ Emporium generates the Redis and object storage credentials. GitLab reads the S3
 
 ## Access
 
-The Emporium access setting (public, authenticated, admins) applies to the GitLab web interface. Git over HTTPS, the API (also used by runners), OAuth, sign-in and the OIDC callback bypass Emporium's proxy because GitLab authenticates them itself. The registry (`<subdomain>-registry.<zone>`) and the agent server (`<subdomain>-kas.<zone>`, medium profile) are not behind Emporium's proxy for the same reason.
+The Emporium access setting (public, authenticated, admins) applies to the GitLab web interface. Git over HTTPS, the API (also used by runners), OAuth, sign-in and the OIDC callback bypass Emporium's proxy because GitLab authenticates them itself. The registry and the agent server (medium profile) have their own hostnames (ingress integrations `registry` and `kas`, subdomains chosen at install) and are not behind Emporium's proxy for the same reason.
 
 ## Break-glass access
 

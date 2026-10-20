@@ -20,9 +20,6 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
-    # <subdomain>-registry.<zone> and <subdomain>-kas.<zone>; both authenticate with
-    # GitLab tokens, so their Ingresses carry emporium.build/disable-glass (values.yaml).
-    hosts: [registry, kas]
     redirectPaths: [/users/auth/openid_connect/callback]
     # GitLab authenticates these itself: the start page and sign-in (redirect to Logto),
     # the OIDC callback, Git over HTTPS, the API (also used by runners), OAuth, the
@@ -44,6 +41,17 @@ integrations:
       - /jwt/auth
       - /static/*
       - regex(^(/[^/]+){2,}\.git(/.*)?$)
+  # The container registry authenticates with GitLab tokens (docker login), so no glass.
+  # Its own hostname: choose a subdomain different from the web one.
+  registry:
+    type: ingress
+    disableGlass: true
+  # The agent server for Kubernetes authenticates agents with tokens, so no glass. Its
+  # Ingress exists only with the kas component (medium profile); the hostname is reserved
+  # in every profile because ingress integrations cannot be switched off.
+  kas:
+    type: ingress
+    disableGlass: true
   sso:
     type: oidc
   mail:

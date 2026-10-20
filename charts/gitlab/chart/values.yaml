@@ -151,9 +151,6 @@ gitlab:
     kas:
       ingress:
         enabled: true
-        ## The agent server authenticates agents with tokens
-        annotations:
-          emporium.build/disable-glass: "true"
 
     gitaly:
       persistence:
@@ -174,10 +171,6 @@ gitlab:
           readOnly: true
 
   registry:
-    ingress:
-      ## The registry authenticates with tokens from GitLab
-      annotations:
-        emporium.build/disable-glass: "true"
     storage:
       key: registry
       ## The object storage is only reachable inside the cluster, so the registry serves

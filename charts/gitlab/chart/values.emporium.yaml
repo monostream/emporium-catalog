@@ -1,11 +1,10 @@
 {{- $web := .Emporium.Integrations.web }}
+{{- $registryWeb := .Emporium.Integrations.registry }}
+{{- $kasWeb := .Emporium.Integrations.kas }}
 {{- $sso := .Emporium.Integrations.sso }}
 {{- $pg := .Emporium.Integrations.postgres }}
 {{- $redis := .Emporium.Integrations.redis }}
 {{- $s3 := .Emporium.Integrations.objects }}
-{{- /* perHost zones issue one certificate per Ingress, so each Ingress needs its own Secret;
-       wildcard zones have one replicated Secret for every host. */}}
-{{- $perHost := eq $web.TLSMode "perHost" }}
 emporium:
   oidc:
     issuer: {{ $sso.Issuer | quote }}
@@ -28,9 +27,9 @@ global:
     gitlab:
       name: {{ $web.Hostname | quote }}
     registry:
-      name: {{ $web.Hosts.registry | quote }}
+      name: {{ $registryWeb.Hostname | quote }}
     kas:
-      name: {{ $web.Hosts.kas | quote }}
+      name: {{ $kasWeb.Hostname | quote }}
 
   ingress:
     class: {{ $web.IngressClassName | default "none" | quote }}
@@ -103,8 +102,11 @@ gitlab:
           secretName: {{ $web.TLSSecretName | quote }}
     kas:
       ingress:
+        # Upstream merges global.ingress.annotations (web) into these; the post-renderer
+        # replaces the Emporium-owned keys with the kas integration's.
+        annotations: {{ $kasWeb.Annotations | toJson }}
         tls:
-          secretName: {{ ternary (printf "%s-kas" $web.TLSSecretName) $web.TLSSecretName $perHost | quote }}
+          secretName: {{ $kasWeb.TLSSecretName | quote }}
     toolbox:
       backups:
         objectStorage:
@@ -114,8 +116,9 @@ gitlab:
 
   registry:
     ingress:
+      annotations: {{ $registryWeb.Annotations | toJson }}
       tls:
-        secretName: {{ ternary (printf "%s-registry" $web.TLSSecretName) $web.TLSSecretName $perHost | quote }}
+        secretName: {{ $registryWeb.TLSSecretName | quote }}
     storage:
       secret: {{ printf "%s-object-storage" .Emporium.Name | quote }}
 
