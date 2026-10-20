@@ -60,7 +60,13 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: {{ template "uptime-kuma.fullname" . }}-pvc
-              mountPath: /app/data 
+              mountPath: /app/data
+      {{- if .Values.persistence.existingClaim }}
+      volumes:
+        - name: {{ template "uptime-kuma.fullname" . }}-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -73,6 +79,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if not .Values.persistence.existingClaim }}
   volumeClaimTemplates:
   - metadata:
       name: {{ template "uptime-kuma.fullname" . }}-pvc
@@ -97,3 +104,4 @@ spec:
       storageClassName: "{{ .Values.persistence.storageClass }}"
       {{- end }}
       {{- end }}
+  {{- end }}

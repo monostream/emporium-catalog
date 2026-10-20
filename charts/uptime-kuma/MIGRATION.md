@@ -1,0 +1,34 @@
+# uptime-kuma 0.0.x -> 0.1.0 (Emporium 0.5)
+
+## Removed and renamed inputs
+
+None (the chart had no inputs).
+
+## Database
+
+Not replaced. Uptime Kuma keeps its SQLite database in `/app/data`.
+
+## Data volumes
+
+- `data` (storage integration, default 10Gi, grow-only), mounted at `/app/data`. 0.0.x used a
+  StatefulSet volumeClaimTemplate (claim `<release>-uptime-kuma-pvc-<release>-uptime-kuma-0`).
+  A StatefulSet's volumeClaimTemplates cannot change in place, so existing installs are moved with
+  the installed-app blueprint (`docs/blueprints/migrate-installed-app-to-v0.5.md`): reinstall with
+  the old claim chosen as existing claim. Without Emporium the chart still uses the template.
+
+## Hostnames
+
+No extra hosts.
+
+## TLS secret
+
+`<release>-tls` became the integration's `TLSSecretName` (zone dependent).
+
+## Secrets
+
+None.
+
+## Behaviour changes
+
+- Skip path `/api/push/*` so push monitors work while the UI stays behind the Emporium login.
+- `kubernetes.io/tls-acme` removed from the default ingress annotations.
