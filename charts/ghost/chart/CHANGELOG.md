@@ -9,7 +9,7 @@ Published on 20 October 2026
 - Removed the "Admin Username", "Admin Password", "Admin Email" and "Blog Title" inputs: the official image has no bootstrap; the owner account and blog title are set in Ghost's setup at `/ghost/` on first visit.
 - Removed the "Storage Size" input: the content volume is the `content` storage integration (8Gi default, grow-only); the MySQL data volume is the `mysql` storage integration (8Gi default, grow-only), so both follow the uninstall keep/delete choice.
 - Optional SMTP through the `mail` integration (staff invites, password resets, newsletters); the password is read from the per-app Secret.
-- Ingress host, TLS secret and ingress class come from the `web` ingress integration. Access defaults to authenticated so nobody else can claim the first-run owner setup; switch access to public after creating the owner account.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration. Access defaults to admins so nobody but an Emporium admin can claim the first-run owner setup; switch access to public after creating the owner account.
 - Default resources for Ghost (100m / 384Mi requested, 1Gi limit) and MySQL (100m / 512Mi requested, 1Gi limit); one `small` profile.
 - License annotation corrected to MIT (Ghost).
 

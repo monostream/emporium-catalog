@@ -8,4 +8,4 @@ Experience Ghost - redefining open-source publishing made stylish, yet functiona
 
 **Perfect for:** personal blogs, paid newsletters, magazines and membership sites that want to own their audience.
 
-Your readers see the blog, sign up as members and receive newsletters; you write in Ghost Admin. Set up the owner account on your first visit to `/ghost/` while the app is still behind your Emporium login, then switch its access to public.
+Your readers see the blog, sign up as members and receive newsletters; you write in Ghost Admin. Set up the owner account on your first visit to `/ghost/` while only Emporium admins can reach the app (the default), then switch its access to public.

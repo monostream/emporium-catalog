@@ -22,10 +22,10 @@ integrations:
   web:
     type: ingress
     # A blog is public, but Ghost's first-run owner setup (/ghost/) can be claimed by whoever
-    # comes first. Start behind the Emporium login, create the owner account, then switch access
-    # to public. (Skip paths cannot express "everything but /ghost/": an entry matching / and deep
+    # comes first. Only Emporium admins reach it by default; create the owner account, then switch
+    # access to public. (Skip paths cannot express "everything but /ghost/": an entry matching / and deep
     # paths is rejected as opening the whole app.)
-    access: { default: authenticated }
+    access: { default: admins }
     bind:
       IngressClassName: ingress.className
   content:

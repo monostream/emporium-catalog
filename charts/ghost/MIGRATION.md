@@ -95,8 +95,8 @@ dependent).
 
 ## Behaviour changes
 
-- Access defaults to authenticated, without skip paths, so a stranger cannot claim the first-run
-  owner setup at `/ghost/`. Create the owner account, then switch the app's access to public to
+- Access defaults to `admins`, without skip paths, so nobody but an Emporium admin can claim the
+  first-run owner setup at `/ghost/`. Create the owner account, then switch the app's access to public to
   publish the blog (Ghost Admin keeps its own login). A skip-path rule for "everything except
   `/ghost/`" is not possible: Emporium rejects skip paths that match `/` and deep paths as opening
   the whole app.
