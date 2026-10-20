@@ -7,15 +7,31 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 oidc:
-  issuerUrl:
-  clientId:
-  clientSecret:
+  issuerUrl: ""
+  clientId: ""
+  # Secret and key holding the OIDC client secret (Emporium: the per-app Secret).
+  existingSecret: ""
+  clientSecretKey: ""
+
+# Secret holding COOKIE_SECRET (32 characters) for the Headplane UI (Emporium: the per-app Secret).
+cookie:
+  existingSecret: ""
+
+job:
+  image: alpine/k8s:1.31.4
+
 web:
   image:
     repository: ghcr.io/tale/headplane
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: "0.7.1"
+  resources:
+    requests:
+      cpu: 20m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
   service:
     type: ClusterIP
     port: 3000
@@ -110,8 +126,8 @@ app:
       only_start_if_oidc_is_available: true
       issuer: {{ .Values.oidc.issuerUrl }}
       client_id: {{ .Values.oidc.clientId }}
-      client_secret: {{ .Values.oidc.clientSecret }}
-      scope: ["openid", "profile", "email", "custom"]
+      # client_secret comes from the HEADSCALE_OIDC_CLIENT_SECRET environment variable.
+      scope: ["openid", "profile", "email"]
 storage:
   data:
     enabled: true
@@ -153,7 +169,7 @@ ingress:
     - host: chart-example.local
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

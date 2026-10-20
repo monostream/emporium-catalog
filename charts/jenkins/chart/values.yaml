@@ -5,13 +5,23 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+# Public URL of Jenkins, e.g. https://jenkins.example.com/
 baseUrl:
 adminUser: admin
+# Secret with the key ADMIN_PASSWORD for the local admin user (created once on first start).
+# Without it the chart stores adminPassword (or a random one) in its own Secret.
+existingSecret: ""
 adminPassword:
+# OpenID Connect login. The client secret is read from oidc.existingSecret / oidc.clientSecretKey.
 oidc: {}
 # clientId: ""
-# clientSecret: ""
 # issuerUrl: ""
+# existingSecret: ""
+# clientSecretKey: ""
+rbac:
+  # true: the Jenkins ServiceAccount is bound to cluster-admin (pipelines deploy anywhere).
+  # false: it gets the built-in "admin" role in its own namespace (enough for the agent swarm).
+  clusterAdmin: true
 
 loop:
   uri: "http://localhost"
@@ -50,28 +60,29 @@ ingress:
   #      - chart-example.local
 persistence:
   enabled: true
+  existingClaim: ""
   # storageClass: "-"
   accessMode: ReadWriteOnce
-  size: 100Gi
+  size: 5Gi
   annotations: {}
 workspace:
   persistence:
     enabled: true
+    existingClaim: ""
     # storageClass: "-"
     accessMode: ReadWriteOnce
-    size: 1000Gi
+    size: 50Gi
     annotations: {}
 initVolume:
   repository: busybox
   pullPolicy: Always
   tag: stable
-resources: {}
-# limits:
-#   cpu: 100m
-#   memory: 128Mi
-# requests:
-#   cpu: 100m
-#   memory: 128Mi
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi
+  limits:
+    memory: 4Gi
 
 extraEnv: []
 nodeSelector: {}
@@ -96,34 +107,32 @@ agent:
   persistence:
     # storageClass: "-"
     accessMode: ReadWriteOnce
-    size: 512Gi
+    size: 50Gi
     annotations: {}
   initVolume:
     repository: busybox
     pullPolicy: Always
     tag: stable
   resources:
-    limits:
-      #cpu: 100m
-      memory: 4Gi
     requests:
-      #cpu: 100m
-      memory: 2Gi
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      memory: 4Gi
   docker:
     repository: docker
     pullPolicy: Always
-    tag: 29.8.2
+    tag: 29.9.1
     persistence:
       # storageClass: "-"
       accessMode: ReadWriteOnce
-      size: 100Gi
+      size: 50Gi
       annotations: {}
     resources:
-      limits:
-        #cpu: 100m
-        memory: 12Gi
       requests:
-        #cpu: 100m
+        cpu: 250m
+        memory: 1Gi
+      limits:
         memory: 8Gi
   nodeSelector: {}
   affinity:

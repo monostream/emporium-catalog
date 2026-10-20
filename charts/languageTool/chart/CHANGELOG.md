@@ -1,3 +1,22 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode. Default access is `authenticated`.
+- No inputs (there were none before).
+- Image tag 6.8 pinned in `values.yaml` with `pullPolicy: IfNotPresent`.
+- `small` profile couples the JVM heap (`Java_Xmx` 512m) with the container memory (768Mi requested, 1536Mi limit, 100m CPU); replicas are editable (1-3).
+- New `env` map for the container (JVM heap, `langtool_*` settings).
+- Runs as the image's languagetool user (UID 100) with a read-only root filesystem and an emptyDir at `/tmp`; the liveness probe waits 20s for the JVM.
+- Rolling updates instead of `Recreate`; the unused autoscaling values are gone.
+
+# 0.1.17
+
+Published on 19 October 2026
+
+- Respect the access policy chosen in Emporium; the chart no longer forces public access. Choose 'Public' in Emporium to keep the previous behaviour.
+
 # 0.1.15
 
 Published on 6 October 2026

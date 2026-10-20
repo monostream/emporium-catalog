@@ -4,7 +4,10 @@
     "name": "go-playground",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:go-playground",
+    "imageTagPaths": [
+      "image.tag"
+    ],
+    "appVersionMapping": "value:image.tag",
     "changelogPath": "./chart"
   }
-] 
+]

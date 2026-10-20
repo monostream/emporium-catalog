@@ -1,3 +1,18 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode. Default access is `authenticated`.
+- No inputs (there were none before).
+- Default resources (10m CPU / 32Mi requested, 128Mi limit) and a `small` profile; replicas are editable (1-3).
+- Runs as UID 101 with a read-only root filesystem, no capabilities and an emptyDir at `/tmp`; `pullPolicy: IfNotPresent` for the pinned 11.5.0 image.
+- Rolling updates instead of `Recreate`; the unused autoscaling values are gone.
+
+# 0.1.24
+
+- Respect the access policy chosen in Emporium; the chart no longer forces public access. Choose 'Public' in Emporium to keep the previous behaviour.
+
 # 0.1.23
 
 - Fix CyberChef 11 HTTP container/probe port 8080 while preserving Service port80 and ingress/auth configuration.

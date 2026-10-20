@@ -1,3 +1,24 @@
+# 0.3.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- documenso from v2.19.0 to v2.21.0
+- PostgreSQL is the `postgres` integration (CloudNativePG, PostgreSQL 17, cluster `<release>-postgres` as in 0.2.0), connected with `sslmode=require`. Coming from 0.1.x: Existing installs start with an empty database; the data in the old bundled Bitnami database is not migrated (see MIGRATION.md).
+- Session and encryption keys are generated once at install into the per-app Secret (`NEXTAUTH_SECRET`, `NEXT_PRIVATE_ENCRYPTION_KEY`, `NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY`) instead of `lookup` helpers.
+- New optional signing certificate inputs (base64 .p12 and passphrase); without a certificate Documenso cannot sign documents.
+- SMTP password and OIDC client secret are read from Secrets by reference instead of plaintext values.
+- Removed the unused data volume (Documenso keeps uploads in the database).
+- Ingress host, TLS secret, annotations and ingress class come from the `web` ingress integration.
+- Default resources (100m CPU / 384Mi requested, 1Gi limit) and health probes on `/api/health` with a startup probe for the migrations.
+
+# 0.2.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17) instead of the bundled Bitnami postgresql subchart. The app reads its connection URI from the CloudNativePG app secret. Requires Emporium v0.5.0. Existing data in the bundled database is not migrated.
+- The secondary encryption key is looked up in its own Secret, so it no longer changes on every upgrade
+
 # 0.1.19
 
 Published on 7 October 2026

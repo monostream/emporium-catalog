@@ -1,8 +1,8 @@
 apiVersion: v2
 name: wiki
 description: Make documentation a joy to write using Wiki.js's beautiful and intuitive interface
-version: 0.0.15
-appVersion: "2"
+version: 0.2.0
+appVersion: "2.5.316"
 dependencies:
   - name: wiki
     version: 3.0.0
@@ -23,7 +23,7 @@ maintainers:
 keywords:
   - Wiki
   - Documentation
-  - Knowledgebase"
+  - Knowledgebase
   - Docs
   - Reference
   - Editor
@@ -34,3 +34,4 @@ annotations:
   licenses: AGPL-3.0
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_gallery_1.webp
+  emporiumVersion: "0.5.0"

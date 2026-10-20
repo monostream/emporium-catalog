@@ -1,21 +1,206 @@
-authentik:
-  name:
-  label:
-  args:
-    name:
-    scope:
-    response_type:
-    issuer:
-    discovery:
-    client_auth_method:
-    send_scope_to_token_endpoint:
-    pkce:
-    client_options:
-      identifier:
-      secret:
-      redirect_uri:
-      gitlab:
-        groups_attribute:
-        admin_groups:
+## Defaults of the Emporium wrapper around the upstream GitLab chart.
+## Settings that depend on the install (hostnames, TLS, the database, Redis,
+## object storage, SMTP and the OIDC client) come from the integrations in
+## emporium.yaml (values.emporium.yaml); sizing comes from the profiles.
 
-gitlab: {}
+## Settings of the wrapper's own templates
+emporium:
+  ## Sign-in through Emporium's identity provider (Logto), set by values.emporium.yaml.
+  ## GitLab reads the OmniAuth provider (with the client secret) from one YAML
+  ## Secret, so the secret is passed as a value.
+  oidc:
+    issuer: ""
+    clientId: ""
+    clientSecret: ""
+    redirectUri: ""
+    label: Emporium
+
+  ## Creates an instance runner in GitLab and hands its token to the bundled
+  ## GitLab Runner (registration tokens are deprecated).
+  runnerSetup:
+    enabled: true
+    description: emporium
+    ## How long the setup Job waits for GitLab to come up
+    activeDeadlineSeconds: 7200
+    ## Resources of the container that runs `gitlab-rails runner`
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1Gi
+      limits:
+        memory: 2Gi
+
+  ## S3 object storage (Emporium's objectStorage integration), set by
+  ## values.emporium.yaml. GitLab, the registry and backups read the connection
+  ## from YAML/INI Secrets this chart renders, so the keys are passed as values.
+  objectStorage:
+    endpoint: ""
+    region: us-east-1
+    accessKey: ""
+    secretKey: ""
+
+  images:
+    ## kubectl image of GitLab's cloud native images; the tag defaults to the
+    ## chart's appVersion
+    kubectl:
+      repository: registry.gitlab.com/gitlab-org/build/cng/kubectl
+      tag: ""
+    ## Images of the runner setup Job, the same as the toolbox uses. The
+    ## toolbox repository gets the edition appended (-ce or -ee); the tags
+    ## default to the chart's appVersion.
+    gitlabBase:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-base
+      tag: ""
+    toolbox:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox
+      tag: ""
+
+global:
+  edition: ce
+
+  emporium:
+    ## Users with this Logto role become GitLab administrators when they sign
+    ## in; users without it lose administrator rights on their next sign-in.
+    ## Global so that the webservice pods can roll when it changes.
+    adminRole: emporium-admin
+
+  hosts:
+    https: true
+
+  ## Emporium exposes apps through Ingress objects; the cluster converts them
+  ## for its own gateway, so the bundled Envoy Gateway stays off.
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureEnvoy: false
+    configureCertmanager: false
+
+  ingress:
+    enabled: true
+    configureCertmanager: false
+    # "none" omits ingressClassName so the cluster default IngressClass is used
+    class: none
+    ## The TLS secret comes from the ingress integration (values.emporium.yaml).
+    ## A non-empty tls map tells upstream that TLS is handled; left empty, every
+    ## pod mounts the CA of a self-signed wildcard certificate
+    ## (<release>-wildcard-tls-ca) that nothing creates, and the pods hang in
+    ## Init. Extra CAs go into global.certificates.customCAs.
+    tls:
+      enabled: true
+      secretName: ""
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+  appConfig:
+    omniauth:
+      enabled: true
+      autoSignInWithProvider: openid_connect
+      allowSingleSignOn: [openid_connect]
+      blockAutoCreatedUsers: false
+      autoLinkUser: [openid_connect]
+      syncProfileFromProvider: [openid_connect]
+      syncProfileAttributes: [email]
+
+    ## All object types share one S3 connection (objectStorage integration)
+    object_store:
+      enabled: true
+      proxy_download: true
+    terraformState:
+      enabled: true
+    ciSecureFiles:
+      enabled: true
+    dependencyProxy:
+      enabled: true
+
+  ## Redis (Valkey) of the redis integration, set by values.emporium.yaml
+  redis:
+    host: ""
+    port: 6379
+    auth:
+      enabled: true
+      secret: ""
+      key: ""
+
+  ## The agent server for Kubernetes (kas); the small profile turns it off.
+  ## Agents connect over WebSocket (wss://) through the normal Ingress; the
+  ## nginx-only gRPC Ingress stays off (it would share the host and, in perHost
+  ## zones, the certificate Secret with the kas Ingress).
+  kas:
+    enabled: true
+    ingress:
+      grpc:
+        enabled: false
+
+gitlab:
+  installCertmanager: false
+  certmanager:
+    installCRDs: false
+
+  nginx-ingress:
+    enabled: false
+
+  prometheus:
+    install: false
+
+  gitlab:
+    gitlab-shell:
+      enabled: false
+
+    kas:
+      ingress:
+        enabled: true
+
+    gitaly:
+      persistence:
+        size: 50Gi
+
+    webservice:
+      ## Maps the Logto admin role to GitLab's admin flag on sign-in. The
+      ## volume is named after the initializer's checksum, so a change rolls
+      ## the pods (a subPath mount never sees ConfigMap updates).
+      extraVolumes: |
+        - name: emporium-rails-{{ include "gitlab.emporium.adminSyncChecksum" . }}
+          configMap:
+            name: {{ .Release.Name }}-emporium-rails
+      extraVolumeMounts: |
+        - name: emporium-rails-{{ include "gitlab.emporium.adminSyncChecksum" . }}
+          mountPath: /srv/gitlab/config/initializers/zz_emporium_admin_sync.rb
+          subPath: emporium_admin_sync.rb
+          readOnly: true
+
+  registry:
+    storage:
+      key: registry
+      ## The object storage is only reachable inside the cluster, so the registry serves
+      ## blobs itself instead of redirecting clients to the object storage.
+      redirect:
+        disable: true
+
+  gitlab-runner:
+    install: true
+    runners:
+      ## Privileged job containers (e.g. Docker-in-Docker) give every job
+      ## root on the node. The instance runner takes untagged jobs from every
+      ## project, so this stays off unless the installation trusts all of them.
+      ## Not an upstream key; read by the config template below.
+      privileged: false
+      ## S3 host:port and region of the runner cache, set by values.emporium.yaml.
+      ## Not upstream keys; read by the config template below.
+      cacheS3Address: ""
+      cacheS3Region: us-east-1
+      config: |
+        [[runners]]
+          [runners.kubernetes]
+            image = "ubuntu:24.04"
+            privileged = {{ eq (toString .Values.runners.privileged) "true" }}
+          [runners.cache]
+            Type = "s3"
+            Path = "gitlab-runner"
+            Shared = true
+            [runners.cache.s3]
+              ServerAddress = {{ .Values.runners.cacheS3Address | quote }}
+              BucketName = "runner-cache"
+              BucketLocation = {{ .Values.runners.cacheS3Region | quote }}
+              Insecure = true

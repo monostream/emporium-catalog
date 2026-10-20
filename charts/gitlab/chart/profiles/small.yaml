@@ -1,0 +1,86 @@
+## Evaluation and small teams: one pod per service, two Puma workers, no
+## agent server (kas) and no metrics exporter.
+global:
+  kas:
+    enabled: false
+
+gitlab:
+  gitlab:
+    webservice:
+      minReplicas: 1
+      maxReplicas: 1
+      ## about 1.25 GB per Puma worker
+      workerProcesses: 2
+      resources:
+        requests:
+          cpu: 300m
+          memory: 2.5Gi
+        limits:
+          memory: 3.5Gi
+      workhorse:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            memory: 512Mi
+    sidekiq:
+      minReplicas: 1
+      maxReplicas: 1
+      concurrency: 10
+      resources:
+        requests:
+          cpu: 300m
+          memory: 1.5Gi
+        limits:
+          memory: 2.5Gi
+    gitaly:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 300Mi
+        limits:
+          memory: 1Gi
+    kas:
+      minReplicas: 1
+      maxReplicas: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+    toolbox:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 350Mi
+        limits:
+          memory: 1Gi
+    gitlab-exporter:
+      enabled: false
+      resources:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+        limits:
+          memory: 256Mi
+
+  registry:
+    hpa:
+      minReplicas: 1
+      maxReplicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 512Mi
+
+  gitlab-runner:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi

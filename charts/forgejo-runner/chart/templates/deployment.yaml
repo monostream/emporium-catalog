@@ -35,6 +35,10 @@ spec:
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [ "/bin/cp", "/etc/runner/.runner", "/data/.runner" ]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.runner.resources | nindent 12 }}
           volumeMounts:
             - name: runner-data
               mountPath: /data
@@ -46,7 +50,8 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/forgejo-runner", "--config", "/data/.runner", "daemon"]
+          # reads .runner from the working directory /data
+          command: ["/bin/forgejo-runner", "daemon"]
           resources:
             {{- toYaml .Values.runner.resources | nindent 12 }}
           env:
@@ -60,7 +65,7 @@ spec:
               mountPath: /data
         - name: dind
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.dind.securityContext | nindent 12 }}
           image: "{{ .Values.dind.image.registry }}/{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}"
           imagePullPolicy: {{ .Values.dind.image.pullPolicy }}
           resources:
@@ -70,8 +75,9 @@ spec:
             - --host=unix:///run/docker/docker.sock
             - --group=$(DOCKER_GROUP_GID)
           env:
+            # group of the runner image's user, so the runner can use the socket
             - name: DOCKER_GROUP_GID
-              value: "0"
+              value: "1000"
           volumeMounts:
             - name: dind-sock
               mountPath: /run/docker

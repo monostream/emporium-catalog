@@ -53,6 +53,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if and .Values.database.host .Values.database.caSecret }}
+          # Flowise takes the database CA only base64-encoded in DATABASE_SSL_KEY_BASE64;
+          # encode the mounted ca.crt at start, then run the image's entrypoint.
+          command:
+            - /bin/sh
+            - -c
+            - >-
+              export DATABASE_SSL_KEY_BASE64="$(node -e 'process.stdout.write(require("fs").readFileSync("/etc/flowise/db-ca/ca.crt").toString("base64"))')"
+              && exec flowise start
+          {{- end }}
           env:
           - name: DATABASE_PATH
             value: /data/.flowise
@@ -64,10 +74,38 @@ spec:
             value: /data/.flowise/logs
           - name: BLOB_STORAGE_PATH
             value: /data/.flowise/storage
-          - name: FLOWISE_USERNAME
-            value: "{{ .Values.app.username }}"
-          - name: FLOWISE_PASSWORD
-            value: "{{ .Values.app.password }}"
+          {{- with .Values.app.existingSecret }}
+          {{- range list "JWT_AUTH_TOKEN_SECRET" "JWT_REFRESH_TOKEN_SECRET" "EXPRESS_SESSION_SECRET" "TOKEN_HASH_SECRET" }}
+          - name: {{ . }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.app.existingSecret | quote }}
+                key: {{ . }}
+          {{- end }}
+          {{- end }}
+          {{- with .Values.database }}
+          {{- if .host }}
+          - name: DATABASE_TYPE
+            value: postgres
+          - name: DATABASE_HOST
+            value: {{ .host | quote }}
+          - name: DATABASE_PORT
+            value: {{ .port | quote }}
+          - name: DATABASE_NAME
+            value: {{ .name | quote }}
+          - name: DATABASE_USER
+            value: {{ .user | quote }}
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ required "database.existingSecret is required with database.host" .existingSecret | quote }}
+                key: {{ .passwordKey | quote }}
+          {{- if .caSecret }}
+          - name: DATABASE_REJECT_UNAUTHORIZED
+            value: "true"
+          {{- end }}
+          {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -85,7 +123,20 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: data
+            {{- if and .Values.database.host .Values.database.caSecret }}
+            - mountPath: /etc/flowise/db-ca
+              name: db-ca
+              readOnly: true
+            {{- end }}
       volumes:
+      {{- if and .Values.database.host .Values.database.caSecret }}
+      - name: db-ca
+        secret:
+          secretName: {{ .Values.database.caSecret | quote }}
+          items:
+            - key: ca.crt
+              path: ca.crt
+      {{- end }}
       - name: data
         {{- if and .Values.storage.data.enabled .Values.storage.data.existingClaim }}
         persistentVolumeClaim:

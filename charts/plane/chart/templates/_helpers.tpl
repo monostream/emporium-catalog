@@ -7,8 +7,6 @@ Expand the name of the chart.
 
 {{/*
 Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
 */}}
 {{- define "plane.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -23,16 +21,10 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
 {{- define "plane.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/*
-Common labels
-*/}}
 {{- define "plane.labels" -}}
 helm.sh/chart: {{ include "plane.chart" . }}
 {{- if .Chart.AppVersion }}
@@ -40,113 +32,161 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
-{{- define "plane.api.labels" -}}
-helm.sh/chart: {{ include "plane.chart" . }}
-{{ include "plane.api.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-{{- define "plane.space.labels" -}}
-helm.sh/chart: {{ include "plane.chart" . }}
-{{ include "plane.space.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-{{- define "plane.web.labels" -}}
-helm.sh/chart: {{ include "plane.chart" . }}
-{{ include "plane.web.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
 
 {{/*
-Selector labels
+Selector labels of one component: include "plane.selectorLabels" (list $ "api")
 */}}
-{{- define "plane.api.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "plane.name" . }}-api
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-{{- define "plane.space.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "plane.name" . }}-space
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-{{- define "plane.web.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "plane.name" . }}-web
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- define "plane.selectorLabels" -}}
+{{- $ := index . 0 -}}
+app.kubernetes.io/name: {{ include "plane.name" $ }}-{{ index . 1 }}
+app.kubernetes.io/instance: {{ $.Release.Name }}
 {{- end }}
 
+{{- define "plane.componentLabels" -}}
+{{ include "plane.labels" (index . 0) }}
+{{ include "plane.selectorLabels" . }}
+{{- end }}
+
+{{- define "plane.image" -}}
+{{- $ := index . 0 -}}
+{{- $img := index . 1 -}}
+{{- printf "%s:%s" $img.repository ($img.tag | default $.Chart.AppVersion) -}}
+{{- end }}
 
 {{/*
-API environment variables
+Pod scheduling and security settings shared by every workload.
+*/}}
+{{- define "plane.podSpecCommon" -}}
+{{- with .Values.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+securityContext:
+  {{- toYaml .Values.podSecurityContext | nindent 2 }}
+{{- with .Values.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.affinity }}
+affinity:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.tolerations }}
+tolerations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{- define "plane.webURL" -}}
+https://{{ required "ingress.host is required" .Values.ingress.host }}
+{{- end }}
+
+{{/*
+Redis URL (cache, Celery broker, live server).
+*/}}
+{{- define "plane.redisEnv" -}}
+- name: REDIS_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ required "redis.existingSecret is required" .Values.redis.existingSecret }}
+      key: {{ .Values.redis.urlKey }}
+{{- end }}
+
+{{/*
+Backend environment (API, worker, beat, migrator).
 */}}
 {{- define "plane.api.envVars" -}}
-- name: PGUSER
-  value: postgres
-- name: PGPASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Release.Name }}-postgresql
-      key: postgres-password
-- name: PGHOST
-  value: {{ include "plane.fullname" . }}-postgres
-- name: PGDATABASE
-  value: {{ .Values.postgresql.auth.database }}
-- name: DATABASE_URL
-  value: postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "plane.fullname" . }}-postgresql/{{ .Values.postgresql.auth.database }}
-- name: REDIS_HOST
-  value: {{ include "plane.fullname" . }}-redis-master
-- name: REDIS_PORT
-  value: "6379"
-- name: REDIS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "plane.fullname" . }}-redis
-      key: redis-password
-- name: REDIS_URL
-  value: "redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)"
+- name: DEBUG
+  value: "0"
 - name: DOCKERIZED
-  value: "1"
-- name: ENABLE_SIGNUP
-  value: "1"
-- name: ENABLE_EMAIL_PASSWORD
   value: "1"
 - name: SECRET_KEY
   valueFrom:
     secretKeyRef:
-      name: {{ include "plane.fullname" . }}
-      key: secret-key
+      name: {{ required "secrets.existingSecret is required" .Values.secrets.existingSecret }}
+      key: SECRET_KEY
+- name: LIVE_SERVER_SECRET_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.secrets.existingSecret }}
+      key: LIVE_SERVER_SECRET_KEY
+- name: PGHOST
+  value: {{ required "database.host is required" .Values.database.host | quote }}
+- name: PGPORT
+  value: {{ .Values.database.port | toString | quote }}
+- name: PGDATABASE
+  value: {{ .Values.database.name | quote }}
+- name: PGUSER
+  valueFrom:
+    secretKeyRef:
+      name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
+      key: {{ .Values.database.usernameKey }}
+- name: PGPASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.database.existingSecret }}
+      key: {{ .Values.database.passwordKey }}
+- name: DATABASE_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.database.existingSecret }}
+      key: {{ .Values.database.uriKey }}
+{{ include "plane.redisEnv" . }}
+# Celery accepts a redis:// broker URL, so Plane needs no RabbitMQ. Its own instance: the
+# API's clear_cache flushes the cache Redis.
+- name: AMQP_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ required "queue.existingSecret is required" .Values.queue.existingSecret }}
+      key: {{ .Values.queue.urlKey }}
 - name: USE_MINIO
-  value: '1'
+  value: "1"
+# Presigned upload/download URLs point at https://<host>/<bucket>.
+- name: MINIO_ENDPOINT_SSL
+  value: "1"
+- name: AWS_S3_ENDPOINT_URL
+  value: {{ required "objectStorage.endpoint is required" .Values.objectStorage.endpoint | quote }}
+- name: AWS_REGION
+  value: {{ .Values.objectStorage.region | quote }}
+- name: AWS_S3_BUCKET_NAME
+  value: {{ .Values.objectStorage.bucket | quote }}
 - name: AWS_ACCESS_KEY_ID
   valueFrom:
     secretKeyRef:
-      name: {{ .Release.Name }}-minio
-      key: root-user
+      name: {{ required "objectStorage.existingSecret is required" .Values.objectStorage.existingSecret }}
+      key: {{ required "objectStorage.accessKeyKey is required" .Values.objectStorage.accessKeyKey }}
 - name: AWS_SECRET_ACCESS_KEY
   valueFrom:
     secretKeyRef:
-      name: {{ .Release.Name }}-minio
-      key: root-password
-- name: AWS_S3_ENDPOINT_URL
-  value: http://{{ .Release.Name }}-minio:9000
+      name: {{ .Values.objectStorage.existingSecret }}
+      key: {{ required "objectStorage.secretKeyKey is required" .Values.objectStorage.secretKeyKey }}
+- name: FILE_SIZE_LIMIT
+  value: {{ .Values.app.fileSizeLimit | int | toString | quote }}
 - name: WEB_URL
-  value: https://{{ .Values.ingress.host }}
+  value: {{ include "plane.webURL" . | quote }}
+- name: CORS_ALLOWED_ORIGINS
+  value: {{ include "plane.webURL" . | quote }}
+- name: ENABLE_SIGNUP
+  value: {{ ternary "1" "0" .Values.app.enableSignup | quote }}
+- name: ENABLE_EMAIL_PASSWORD
+  value: "1"
 {{- if .Values.smtp.enabled }}
 - name: EMAIL_HOST
-  value: {{ .Values.smtp.host }}
+  value: {{ .Values.smtp.host | quote }}
 - name: EMAIL_HOST_USER
   value: {{ .Values.smtp.username | quote }}
 - name: EMAIL_HOST_PASSWORD
-  value: {{ .Values.smtp.password | quote }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ required "smtp.existingSecret is required" .Values.smtp.existingSecret }}
+      key: {{ required "smtp.passwordKey is required" .Values.smtp.passwordKey }}
 - name: EMAIL_PORT
-  value: {{ .Values.smtp.port | quote }}
+  value: {{ .Values.smtp.port | toString | quote }}
 - name: EMAIL_FROM
   value: {{ .Values.smtp.from | quote }}
+- name: EMAIL_USE_TLS
+  value: {{ ternary "0" "1" .Values.smtp.useSSL | quote }}
+- name: EMAIL_USE_SSL
+  value: {{ ternary "1" "0" .Values.smtp.useSSL | quote }}
 {{- end }}
 {{- end }}

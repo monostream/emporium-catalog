@@ -1,34 +1,11 @@
-## @userSupplied GitHubURL
-## @label GitHub URL
-## @type string
-## @description The GitHub url for where you want to configure the runner
-
-## @userSupplied GitHubPAT
-## @label GitHub Personal Access Token
-## @type string
-## @description Personal Access Token for the GitHub API
-
-## @userSupplied RunnerScaleSetName
-## @label Runner scale set name
-## @type string
-## @description Name of the runner scale set to create, used to select the runner via the "runs-on" annotation of a workflow
-
-## @userSupplied MaxRunners
-## @label Maximum runners
-## @type integer
-## @description The max number of runners the autoscaling runner set will scale up to
-## @optional
-
 gha-runner-scale-set-controller:
   serviceAccount:
-    create: true
-    name: {{ .Emporium.Name }}-gha-runner-scale-set-controller
+    name: {{ printf "%s-gha-runner-scale-set-controller" .Emporium.Name | quote }}
+  flags:
+    # Only this install's runner scale set, so several installs do not fight over each other's.
+    watchSingleNamespace: {{ .Emporium.Namespace | quote }}
+
 gha-runner-scale-set:
-  githubConfigUrl: {{ .Emporium.UserSupplied.GitHubURL }}
-  githubConfigSecret:
-    github_token: {{ .Emporium.UserSupplied.GitHubPAT }}
-  runnerScaleSetName: {{ .Emporium.UserSupplied.RunnerScaleSetName }}
-  maxRunners: {{ .Emporium.UserSupplied.MaxRunners }}
   controllerServiceAccount:
-    namespace: {{ .Emporium.Namespace }}
-    name: {{ .Emporium.Name }}-gha-runner-scale-set-controller
+    namespace: {{ .Emporium.Namespace | quote }}
+    name: {{ printf "%s-gha-runner-scale-set-controller" .Emporium.Name | quote }}

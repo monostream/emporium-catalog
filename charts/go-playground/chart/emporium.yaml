@@ -1,0 +1,22 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      IngressClassName: ingress.className
+
+components:
+  app:
+    label: Go Playground
+    resources: resources
+    # Builds run in a per-pod temp directory; pods share no state.
+    replicas: { path: replicaCount, min: 1, max: 3 }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Personal use and small teams
+    values: profiles/small.yaml

@@ -2,12 +2,35 @@ gha-runner-scale-set-controller:
   serviceAccount:
     create: true
     name: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
 
 gha-runner-scale-set:
   githubConfigUrl: ""
-  githubConfigSecret:
-    github_token: ""
-  maxRunners:
+  # Name of a Secret with the key github_token (Emporium: the app's Secret, see emporium.yaml).
+  githubConfigSecret: ""
+  maxRunners: 5
   runnerScaleSetName: ""
   containerMode:
     type: "dind"
+  template:
+    spec:
+      containers:
+        - name: runner
+          image: ghcr.io/actions/actions-runner:latest
+          command: ["/home/runner/run.sh"]
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 4Gi
+
+# Image of the pre-upgrade hook that applies the CRDs of the bundled controller version
+# (Helm installs CRDs but never upgrades them).
+crdUpgrade:
+  image: registry.k8s.io/kubectl:v1.35.9

@@ -1,138 +1,68 @@
+{{- $web := .Emporium.Integrations.web }}
+{{- $db := .Emporium.Integrations.postgres }}
+{{- $redis := .Emporium.Integrations.redis }}
 nextcloud:
   ingress:
     enabled: true
-
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-
-      nginx.ingress.kubernetes.io/proxy-body-size: 5000m
-    hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
-        paths:
-          - path: /
-            pathType: Prefix
-
+    # Nextcloud uploads in chunks, but single files can still be large.
+    {{- $annotations := dict "nginx.ingress.kubernetes.io/proxy-body-size" "5000m" }}
+    {{- range $k, $v := $web.Annotations }}{{ $_ := set $annotations $k $v }}{{ end }}
+    annotations: {{ $annotations | toJson }}
     tls:
-      - secretName: nextcloud-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
-
-  phpClientHttpsFix:
-    enabled: true
-    protocol: https
+      - secretName: {{ $web.TLSSecretName | quote }}
+        hosts: {{ $web.AllHosts | toJson }}
 
   nextcloud:
-    host: {{ .Emporium.Integrations.DNS.Hostname }}
-    username:
-    password:
-    ## Use an existing secret
+    host: {{ $web.Hostname | quote }}
     existingSecret:
       enabled: true
-      secretName: nextcloud-admin-credentials
-      usernameKey: nextcloud-username
-      passwordKey: nextcloud-password
-      tokenKey: nextcloud-token
-      # smtpUsernameKey: smtp-username
-      # smtpPasswordKey: smtp-password
+    extraEnv:
+      - name: OVERWRITECLIURL
+        value: {{ printf "https://%s" $web.Hostname | quote }}
+      # CloudNativePG always serves TLS. libpq reads PGSSLMODE; Nextcloud's own pgsql_ssl setting
+      # is not used because it writes empty sslrootcert/sslcert/... entries into the PDO DSN.
+      - name: PGSSLMODE
+        value: {{ $db.SSLMode | quote }}
+      {{- with .Emporium.Integrations.mail }}
+      {{- $from := regexFind "[^<>[:space:]]+@[^<>[:space:]]+" .From }}
+      - name: SMTP_HOST
+        value: {{ .Host | quote }}
+      - name: SMTP_PORT
+        value: {{ .Port | quote }}
+      # 465 is implicit TLS; on other ports Nextcloud upgrades with STARTTLS when offered.
+      - name: SMTP_SECURE
+        value: {{ if eq (int .Port) 465 }}"ssl"{{ else }}""{{ end }}
+      - name: SMTP_NAME
+        value: {{ .Username | quote }}
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: {{ .SecretName | quote }}
+            key: {{ .PasswordKey | quote }}
+      - name: MAIL_FROM_ADDRESS
+        value: {{ splitList "@" $from | first | quote }}
+      - name: MAIL_DOMAIN
+        value: {{ splitList "@" $from | last | quote }}
+      {{- end }}
 
-    datadir: /var/www/html/data
-    persistence:
-      subPath:
-    mail:
-      enabled: false
-      fromAddress: user
-      domain: {{ .Emporium.Integrations.DNS.Hostname }}
-      smtp:
-        host: domain.com
-        secure: ssl
-        port: 465
-        authtype: LOGIN
-        name: user
-        password: pass
-
-
+  internalDatabase:
+    enabled: false
   externalDatabase:
     enabled: true
-
-    ## Supported database engines: mysql or postgresql
-    type: postgres
-
-    ## Database host
-    host: nextcloud-postgres-0
-
-    ## Database user
-    user: nextcloud
-
-    ## Database password
-    password: nextcloud
-
-    ## Database name
-    database: nextcloud
-
-    ## Use a existing secret
+    type: postgresql
+    host: {{ printf "%s:%v" $db.Host $db.Port | quote }}
+    database: {{ $db.Database | quote }}
     existingSecret:
       enabled: true
-      secretName: nextcloud-postgresql
-      usernameKey: postgres-password
-      passwordKey: password
+      secretName: {{ $db.SecretName | quote }}
+      usernameKey: {{ $db.UsernameKey | quote }}
+      passwordKey: {{ $db.PasswordKey | quote }}
 
-  postgresql:
+  externalRedis:
     enabled: true
-    global:
-      postgresql:
-        # global.postgresql.auth overrides postgresql.auth
-        auth:
-          username:
-          password:
-          database: nextcloud
-          existingSecret: "nextcloud-postgresql"
-          secretKeys:
-            adminPasswordKey: "password"
-            userPasswordKey: "postgres-password"
-            replicationPasswordKey: ""
-    primary:
-      persistence:
-        enabled: true
-        size: 8Gi
-        # Use an existing Persistent Volume Claim (must be created ahead of time)
-        # existingClaim: ""
-        # storageClass: ""
-
-  ##
-  ## Redis chart configuration
-  ## for more options see https://github.com/bitnami/charts/tree/main/bitnami/redis
-  ##
-  redis:
-    enabled: true
-    auth:
+    host: {{ $redis.Host | quote }}
+    port: {{ $redis.Port | quote }}
+    existingSecret:
       enabled: true
-      password:
-      existingSecret: "nextcloud-redis"
-      existingSecretPasswordKey: "redis-password"
-
-
-## @userSupplied StorageSize
-## @label StorageSize
-## @type byteSize
-## @description The size of the storage volume
-  persistence:
-    # Nextcloud Data (/var/www/html)
-    enabled: true
-    annotations: {}
-
-    accessMode: ReadWriteOnce
-    size: "{{ .Emporium.UserSupplied.StorageSize }}"
-
-    ## Use an additional pvc for the data directory rather than a subpath of the default PVC
-    ## Useful to store data on a different storageClass (e.g. on slower disks)
-    nextcloudData:
-      enabled: false
-      subPath:
-      annotations: {}
-      # storageClass: "-"
-      # existingClaim:
-      accessMode: ReadWriteOnce
-      size: 100Gi
+      secretName: {{ $redis.SecretName | quote }}
+      passwordKey: {{ $redis.PasswordKey | quote }}

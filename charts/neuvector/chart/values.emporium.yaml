@@ -1,114 +1,24 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type byteSize
-## @description Size of the storage volume for NeuVector Controller. Default is 20Gi.
-## @optional
-
-## @userSupplied PersistenceStorageClass
-## @label Volume StorageClass
-## @type storageClass
-## @description The StorageClass to use for the Neuvector Controller volume. If not provided, default storage class is used.
-## @optional
-
-## @userSupplied EnableFederation
-## @label Enable federation
-## @type boolean
-## @description Enable federation in order to join and manage multiple clusters. Default is false.
-## @optional
-
 neuvector:
   controller:
-    replicas: 1
     secret:
       enabled: true
       data:
+        # NeuVector reads its OIDC settings from this file only, so the client secret is written
+        # into the chart's neuvector-init Secret (lint: plaintext-secret-output, accepted).
+        # The admin password is not set here: the controller generates one into
+        # neuvector-bootstrap-secret on first start.
         oidcinitcfg.yaml:
           always_reload: true
           enable: true
-          issuer: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-          client_id: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-          client_secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+          issuer: {{ .Emporium.Integrations.oidc.Issuer | quote }}
+          client_id: {{ .Emporium.Integrations.oidc.ClientID | quote }}
+          client_secret: {{ .Emporium.Integrations.oidc.ClientSecret | quote }}
           default_role: reader
-          group_claim: "groups"
-          scopes:
-            - "openid"
-            - "profile"
-            - "email"
-          group_mapped_roles:
-            - group: "authentik Admins"
-              global_role: "admin"
-        userinitcfg.yaml:
-          users:
-            - Fullname: admin
-              Password: {{ randAlphaNum 16 | b64enc | quote }}
-              Role: admin   
-
-    pvc:
-      enabled: true
-      accessModes:
-        - ReadWriteOnce
-      {{- if .Emporium.UserSupplied.PersistenceStorageClass }}
-      storageClass: {{ .Emporium.UserSupplied.PersistenceStorageClass }}
-      {{- end }}
-      capacity: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
-    
-    {{- if .Emporium.UserSupplied.EnableFederation }}
-    federation:
-      mastersvc:
-        type: ClusterIP
-        ingress:
-          enabled: true
-          host: neuvector-master.tribbles.cloud
-          path: "/" 
-          annotations:
-            {{- if .Emporium.Annotations }}
-            {{- toYaml .Emporium.Annotations | nindent 12 }}
-            {{- end }}
-            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-            kubernetes.io/tls-acme: "true"
-          tls: true
-          secretName: neuvector-master-tls
-      managedsvc:
-        type: ClusterIP
-        ingress:
-          enabled: true
-          host: neuvector-managed.tribbles.cloud
-          path: "/" 
-          annotations:
-            {{- if .Emporium.Annotations }}
-            {{- toYaml .Emporium.Annotations | nindent 12 }}
-            {{- end }}
-            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-            kubernetes.io/tls-acme: "true"
-          tls: true
-          secretName: neuvector-managed-tls
-        annotations: {}
-    {{- end }}  
+          scopes: [openid, profile, email]
 
   manager:
-    svc:
-      type: ClusterIP 
     ingress:
       enabled: true
-      host: {{ .Emporium.Integrations.DNS.Hostname }}
-      path: "/"
-      annotations:
-        {{- if .Emporium.Annotations }}
-        {{- toYaml .Emporium.Annotations | nindent 8 }}
-        {{- end }}
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-        kubernetes.io/tls-acme: "true"
+      path: /
+      annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
       tls: true
-      secretName: {{ .Emporium.Name }}-tls
-      
-  cve:
-    scanner:
-      replicas: 1
-    adapter:
-      enabled: false
-      svc:
-        type: ClusterIP 
-  
-  containerd:
-    enabled: true
-    path: /var/run/containerd/containerd.sock

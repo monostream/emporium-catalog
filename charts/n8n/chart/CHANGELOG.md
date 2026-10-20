@@ -1,3 +1,23 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- n8n from 2.36.8 to 2.43.8 (image pinned in the chart; the 8gears chart 2.1.1 is still the latest).
+- Optional PostgreSQL through Emporium's postgres integration (CloudNativePG, PostgreSQL 17, verified TLS against the cluster CA), off by default; without it n8n keeps SQLite on the data volume.
+- Data volume is the `data` storage integration (8Gi default, grow-only); the input "Storage Size" is removed.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
+- Webhook, form and MCP trigger endpoints skip the Emporium login so external systems can call them; the editor stays behind it.
+- `WEBHOOK_URL`, `N8N_EDITOR_BASE_URL`, `N8N_HOST` and `N8N_PROXY_HOPS` are set, so webhook URLs shown in the editor use the public hostname.
+- Default resources (100m CPU / 384Mi requested, 1Gi limit); container drops all capabilities.
+
+# 0.1.37
+
+Published on 19 October 2026
+
+- Ingress paths use the object form (path, pathType) that n8n chart 2.x expects; the chart failed to render before
+- Persistence moved to main.persistence (n8n chart 2.x); the StorageSize volume was not created and data lived in an emptyDir
+
 # 0.1.35
 
 Published on 7 October 2026

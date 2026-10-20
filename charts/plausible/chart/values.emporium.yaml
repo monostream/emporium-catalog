@@ -1,31 +1,24 @@
-plausible:
-  baseURL: {{ printf "https://%s" .Emporium.Integrations.DNS.Hostname }}
+app:
+  baseURL: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
 
-  ingress:
-    enabled: true
-    pathType: Prefix
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-    hosts:
-      - {{ .Emporium.Integrations.DNS.Hostname }}
-    path: /
-    tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
+{{- with .Emporium.Integrations.mail }}
+mailer:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  from: {{ .From | quote }}
+  username: {{ .Username | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}
 
-  mailer:
-    enabled: true
-    email: {{ .Emporium.Integrations.SMTP.From }}
-    adapter: "Bamboo.SMTPAdapter"
-    smtp:
-      host: {{ .Emporium.Integrations.SMTP.Host }}
-      port: {{ .Emporium.Integrations.SMTP.Port }}
-      auth: true
-      username: {{ .Emporium.Integrations.SMTP.Username }}
-      password: {{ .Emporium.Integrations.SMTP.Password }}
-      ssl: true
-      retries: 5
+ingress:
+  enabled: true
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
+  hosts:
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

@@ -1,0 +1,32 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  RuntimeClassName:
+    label: Runtime class name
+    description: RuntimeClass able to run GPU workloads (for example nvidia). Empty uses the cluster default.
+    type: string
+    path: ollama.runtimeClassName
+
+integrations:
+  data:
+    type: storage
+    size: { default: 30Gi, growOnly: true }
+    bind:
+      ClaimName: ollama.persistentVolume.existingClaim
+
+components:
+  app:
+    label: Ollama
+    resources: ollama.resources
+    replicas: { fixed: 1, reason: "Models on a ReadWriteOnce volume" }
+
+profiles:
+  default: gpu
+  gpu:
+    label: GPU
+    description: One NVIDIA GPU; needs a GPU node and its device plugin
+    values: profiles/gpu.yaml
+  cpu:
+    label: CPU only
+    description: Small models (up to about 8B parameters) on CPU, slow
+    values: profiles/cpu.yaml

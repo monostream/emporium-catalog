@@ -8,39 +8,55 @@ image:
   repository: forgejo/runner
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "13.2.0"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 runner:
   config:
-    # -- create a secret by run: forgejo-runner register --no-interactive --token {TOKEN} --name runner --instance https://next.forgejo.org
+    # -- register the runner in a pre-install hook and keep its .runner file in the Secret <fullname>-config
     create: true
-    # -- use existingSecret instatt
+    # -- use an existing Secret with a .runner file instead
     existingSecret: ""
     instance: https://codeberg.org
-    name:
-    token:
+    name: ""
+    # -- Secret and key holding the registration token (Emporium: the app's Secret)
+    tokenSecret: ""
+    tokenKey: token
   resources:
     requests:
       cpu: 50m
       memory: 128Mi
+    limits:
+      memory: 512Mi
 dind:
   image:
     registry: docker.io
     repository: library/docker
     pullPolicy: IfNotPresent
-    tag: "29.8.2"
+    tag: "29.9.1-dind"
   resources:
     requests:
       cpu: 1
       memory: 2Gi
+    limits:
+      memory: 8Gi
+  # dockerd needs privileged mode; the runner container does not
+  securityContext:
+    privileged: true
+# kubectl (no shell) of the registration hook, applies the generated Secret
 kubectl:
   image:
-    registry: docker.io
-    repository: bitnami/kubectl
+    registry: registry.k8s.io
+    repository: kubectl
     pullPolicy: IfNotPresent
-    tag: "1.33.4"
+    tag: "v1.35.9"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -56,14 +72,12 @@ podLabels: {}
 podSecurityContext: {}
 # fsGroup: 2000
 
+# runner container (the image runs as 1000:1000; the Docker socket belongs to group 1000)
 securityContext:
-  privileged: true
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
 autoscaling:
   enabled: false
   minReplicas: 1

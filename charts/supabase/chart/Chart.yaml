@@ -2,16 +2,18 @@ apiVersion: v2
 name: supabase
 description: Firebase alternative for building secure and performant Postgres backends with minimal configuration.
 type: application
-version: 1.0.54
-appVersion: 1.24.7
+version: 2.0.0
+# Supabase has no single release number; this follows the Studio image of the upstream chart.
+appVersion: "2026.08.03"
 dependencies:
   - name: supabase
-    version: 5.3.6
-    repository: oci://registry-1.docker.io/bitnamicharts
+    version: 0.8.0
+    repository: https://supabase-community.github.io/supabase-kubernetes
 home: https://supabase.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_icon_2.svg
 sources:
   - https://github.com/supabase/supabase
+  - https://github.com/supabase-community/supabase-kubernetes
 keywords:
   - Postgres
   - BaaS
@@ -25,6 +27,7 @@ annotations:
   displayName: Supabase
   category: Developer Tools
   licenses: Apache-2.0
+  emporiumVersion: "0.5.0"
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp

@@ -1,21 +1,23 @@
 ingress:
   enabled: true
 
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
+{{- with .Emporium.Integrations.uploads }}
+{{- $s3 := urlParse .Endpoint }}
+objectStorage:
+  bucket: {{ first .Buckets | quote }}
+  # The S3 Service the provider created; the ingress serves presigned URLs at /<bucket>.
+  serviceName: {{ splitList "." $s3.hostname | first | quote }}
+  servicePort: {{ splitList ":" $s3.host | last | atoi }}
+{{- end }}
 
-  host: {{ .Emporium.Integrations.DNS.Hostname }}
-  tls:
-    secretName: plane-tls
-    host: {{ .Emporium.Integrations.DNS.Hostname }}
-
+{{- with .Emporium.Integrations.mail }}
 smtp:
   enabled: true
-  host: {{ .Emporium.Integrations.SMTP.Host }}
-  username: {{ .Emporium.Integrations.SMTP.Username | quote }}
-  password: {{ .Emporium.Integrations.SMTP.Password | quote }}
-  port: {{ .Emporium.Integrations.SMTP.Port | quote }}
-  from: {{ .Emporium.Integrations.SMTP.From | quote }}
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  username: {{ .Username | quote }}
+  from: {{ .From | quote }}
+  useSSL: {{ eq (int .Port) 465 }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}

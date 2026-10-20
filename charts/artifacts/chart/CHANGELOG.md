@@ -1,3 +1,9 @@
+# 0.1.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17) and is always used; the optional bundled Bitnami postgresql subchart and the SQLite fallback are gone. The connection URI comes from the CloudNativePG app secret, so the Postgresql Password, Volume Size and Volume StorageClass fields are removed. Requires Emporium v0.5.0. Existing data (SQLite or bundled PostgreSQL) is not migrated.
+
 # 0.0.168
 
 Published on 7 October 2026

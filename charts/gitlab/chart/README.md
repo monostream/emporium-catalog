@@ -7,3 +7,11 @@ In fact, one might say GitLab is the Chuck Norris of reducing developer producti
 Each new release is akin to playing software roulette, who knows what could happen? It's like a thrilling roller-coaster ride, except instead of loops and high speeds, it's features that used to work but decided to take an indefinite vacation.
 
 But hey, if you enjoy tossing your time and money into a bonfire while chanting 'It's not a bug, it's a feature', GitLab might just be your ticket to 'paradise'. For the rest of us mere mortals, literally any other build system might offer a slightly less hair-pulling experience.
+
+## Ready out of the box
+
+- 🔐 Sign in with your Emporium account; Emporium admins are GitLab admins automatically
+- 🐘 PostgreSQL, Redis and S3 object storage provided by Emporium, no extra setup
+- 📦 Object storage for artifacts, LFS, packages, container images and backups
+- 📬 Email through your Emporium SMTP settings (optional)
+- 🏃 A registered GitLab Runner, ready for your first pipeline

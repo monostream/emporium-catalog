@@ -1,1 +1,59 @@
-gitea: {}
+gitea:
+  strategy:
+    type: Recreate
+
+  image:
+    # Gitea 28 (the chart 12.7.0 default is 1.27.0); the chart appends -rootless.
+    tag: "28.2.0"
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      memory: 1Gi
+
+  initContainers:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+  ingress:
+    className: ""
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+  persistence:
+    claimName: gitea-shared-storage
+
+  deployment:
+    env: []
+
+  gitea:
+    admin:
+      # Emporium points existingSecret at the per-app Secret (keys username, password).
+      existingSecret: ""
+      username: ""
+      passwordMode: keepUpdated
+    oauth: []
+    additionalConfigFromEnvs: []
+
+  # No Bitnami subcharts: Emporium provides PostgreSQL (CloudNativePG) and Redis (Valkey).
+  # Without Emporium the chart falls back to in-process cache, session and queue.
+  postgresql:
+    enabled: false
+  postgresql-ha:
+    enabled: false
+  valkey-cluster:
+    enabled: false
+  valkey:
+    enabled: false
+
+  # Helm test pod (busybox wget); not needed in Emporium.
+  test:
+    enabled: false
