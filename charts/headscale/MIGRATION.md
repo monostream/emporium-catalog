@@ -12,6 +12,11 @@ Not replaced. headscale keeps SQLite (`/data/db.sqlite`) on the data volume.
 
 - `data` (storage integration, default 1Gi, grow-only), mounted at `/data`: SQLite database,
   noise private key, DERP key. Losing it means every node has to re-register: keep it on uninstall.
+  Existing installs are moved with the installed-app blueprint
+  (`docs/blueprints/migrate-installed-app-to-v0.5.md`) by choosing the old claim as existing claim.
+- No Helm-managed claim to protect: under Emporium 0.4 the claim came from the old storage
+  integration (`existingClaim` was always set), so the chart never rendered its own PVC and the
+  upgrade does not delete anything.
 
 ## Hostnames
 
