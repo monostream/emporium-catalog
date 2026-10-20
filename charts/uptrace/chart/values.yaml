@@ -28,6 +28,10 @@ clickhouse:
 # Uptrace itself. The keys keep the layout of the upstream uptrace chart
 # (formerly a dependency, now templates/uptrace-*.yaml in this chart).
 uptrace:
+  # Security contexts of the Uptrace pod and container (upstream hooks).
+  podSecurityContext: {}
+  containerSecurityContext: {}
+
   ingress:
     enabled: true
     className: ""

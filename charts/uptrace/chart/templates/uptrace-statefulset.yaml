@@ -19,8 +19,16 @@ spec:
         {{- include "uptrace.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "chart.fullname" . }}
+      {{- with .Values.uptrace.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: uptrace
+          {{- with .Values.uptrace.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ $u.image.repository }}:{{ $u.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ $u.image.pullPolicy }}
           # Uptrace substitutes ${VAR} into its config file before parsing the
@@ -32,9 +40,10 @@ spec:
           args:
             - |
               if [ -n "${SMTP_PASSWORD:-}" ]; then
+                cr=$(printf '\r')
                 case "$SMTP_PASSWORD" in
                   *"
-              "*) echo "the SMTP password contains a line break, which Uptrace's config cannot hold" >&2; exit 1 ;;
+              "*|*"$cr"*) echo "the SMTP password contains a line break (LF or CR), which Uptrace's config cannot hold" >&2; exit 1 ;;
                 esac
                 SMTP_PASSWORD_YAML="'$(printf '%s' "$SMTP_PASSWORD" | sed "s/'/''/g")'"
                 export SMTP_PASSWORD_YAML
