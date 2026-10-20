@@ -107,9 +107,10 @@ inputs:
     ref: { namePath: supabase.secret.db.secretRef, key: SUPABASE_DB_NAME }
   DbPassword:
     label: Database password
-    description: Password of the postgres and Supabase service roles.
+    description: Password of the postgres and Supabase service roles. Letters, digits and . _ ~ - only (it goes into connection URLs unencoded).
     type: secret
     generate: { length: 32, charset: alnum }
+    pattern: '^[A-Za-z0-9._~-]{16,}$'
     installOnly: true
     section: secrets
     ref: { namePath: supabase.secret.db.secretRef, key: SUPABASE_DB_PASSWORD }

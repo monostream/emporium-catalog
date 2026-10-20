@@ -1,10 +1,21 @@
-{{- $secret := required "supabase.secret.jwt.secretRef names the Secret the keys Job writes" .Values.supabase.secret.jwt.secretRef -}}
+{{- $secret := required "supabase.secret.jwt.secretRef names the Secret the keys Job fills" .Values.supabase.secret.jwt.secretRef -}}
 {{- if ne .Values.supabase.secret.smtp.secretRef $secret }}
-{{- fail "supabase.secret.smtp.secretRef must equal supabase.secret.jwt.secretRef: the keys Job writes both" }}
+{{- fail "supabase.secret.smtp.secretRef must equal supabase.secret.jwt.secretRef: the keys Job fills both" }}
 {{- end }}
 {{- $name := printf "%s-supabase-keys" .Release.Name | trunc 52 | trimSuffix "-" -}}
 {{- $script := .Files.Get "files/keys.py" -}}
-# Owner of the Secret the Job writes: uninstalling the release deletes the Secret.
+# The keys Secret, made by Helm so the Job only needs get/update on it. The
+# manifest carries no data: Helm's patches never touch what the Job wrote, and
+# the Secret is deleted with the release.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keys
+type: Opaque
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -32,15 +43,8 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: [secrets]
-    verbs: [create]
-  - apiGroups: [""]
-    resources: [secrets]
     resourceNames: [{{ $secret | quote }}]
     verbs: [get, update]
-  - apiGroups: [""]
-    resources: [configmaps]
-    resourceNames: [{{ $name | quote }}]
-    verbs: [get]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -58,8 +62,8 @@ subjects:
     namespace: {{ .Release.Namespace }}
 ---
 # A plain Job, not a hook. It runs on every install and upgrade (the name carries
-# the release revision, so Helm replaces the previous one) and only writes when
-# the JWT secret or the SMTP credentials changed.
+# the release revision, so Helm replaces the previous one) and writes only what
+# changed: the API keys once, the SMTP credentials when they differ.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -93,8 +97,6 @@ spec:
           env:
             - name: SECRET_NAME
               value: {{ $secret | quote }}
-            - name: OWNER_CONFIGMAP
-              value: {{ $name | quote }}
             - name: JWT_SECRET
               {{- if .Values.keys.jwtSecret.name }}
               valueFrom:

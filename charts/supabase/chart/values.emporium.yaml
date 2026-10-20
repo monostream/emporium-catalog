@@ -27,7 +27,8 @@ supabase:
     db:
       secretRefKey:
         password: SUPABASE_DB_PASSWORD
-        # Generated passwords are alphanumeric: the URL-encoded form is the same.
+        # The DbPassword input only allows URI-unreserved characters, so the
+        # URL-encoded form is the password itself.
         passwordEncoded: SUPABASE_DB_PASSWORD
         database: SUPABASE_DB_NAME
     realtime:
@@ -61,13 +62,56 @@ supabase:
     # Files go to the object storage.
     storage:
       enabled: false
-  {{- with .Emporium.Integrations.mail }}
   deployment:
     auth:
+      {{- with .Emporium.Integrations.mail }}
       # Restart Auth when the SMTP settings change (it reads them at start).
       podAnnotations:
         emporium.build/smtp-config: {{ list .Host .Port .Username .From .SecretName .PasswordKey | toJson | sha256sum | trunc 16 | quote }}
-  {{- end }}
+      {{- end }}
+      # Auth reads the SMTP user and password from supabase-keys, which the keys Job
+      # fills on every install and upgrade. Wait until the copy matches the smtp
+      # integration, so a restarted Auth never starts with the previous credentials
+      # (a failed init container is recreated and reads the Secret again).
+      extraInitContainers:
+        - name: wait-smtp-keys
+          image: postgres:17.11-alpine3.24
+          command: [/bin/sh, -c]
+          args:
+            - |
+              if [ "$CURRENT_USER" = "$EXPECTED_USER" ] && [ "$CURRENT_PASS" = "$EXPECTED_PASS" ]; then
+                echo "SMTP credentials in supabase-keys are current"
+              else
+                echo "Waiting for the keys Job to copy the SMTP credentials"; sleep 5; exit 1
+              fi
+          env:
+            - name: CURRENT_USER
+              valueFrom:
+                secretKeyRef: { name: supabase-keys, key: smtpUsername, optional: true }
+            - name: CURRENT_PASS
+              valueFrom:
+                secretKeyRef: { name: supabase-keys, key: smtpPassword, optional: true }
+            {{- with .Emporium.Integrations.mail }}
+            - name: EXPECTED_USER
+              value: {{ .Username | quote }}
+            - name: EXPECTED_PASS
+              valueFrom:
+                secretKeyRef: { name: {{ .SecretName | quote }}, key: {{ .PasswordKey | quote }} }
+            {{- else }}
+            - name: EXPECTED_USER
+              value: ""
+            - name: EXPECTED_PASS
+              value: ""
+            {{- end }}
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 32Mi }
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 70
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
   environment:
     auth:
       - name: API_EXTERNAL_URL

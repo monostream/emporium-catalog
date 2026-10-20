@@ -27,11 +27,11 @@ ingress:
 
 # The anon and service_role API keys are JWTs signed with the JWT secret, which a
 # template cannot compute, and upstream reads the SMTP user and password from one
-# Secret. A Job (templates/keys.yaml, not a Helm hook) runs on every install and
-# upgrade and writes the Secret `supabase.secret.jwt.secretRef` with the keys
-# `secret`, `anonKey`, `serviceKey`, `smtpUsername` and `smtpPassword`. The Secret
-# is owned by a ConfigMap of the release, so it goes away on uninstall. The API
-# keys are re-signed only when the JWT secret changes.
+# Secret. Helm creates the Secret `supabase.secret.jwt.secretRef` without data; a
+# Job (templates/keys.yaml, not a Helm hook, get/update on that one Secret only)
+# runs on every install and upgrade and fills `secret`, `anonKey`, `serviceKey`
+# (signed once, never re-signed; a different JWT secret fails the Job) and
+# `smtpUsername`/`smtpPassword` (copied on every run). Auth waits for the copy.
 keys:
   # Secret and key holding the JWT secret (Emporium: the per-app Secret, input
   # JwtSecret). Empty name: upstream's sample `supabase.secret.jwt.secret`

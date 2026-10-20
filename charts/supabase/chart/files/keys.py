@@ -1,11 +1,14 @@
-"""Write the Supabase keys Secret.
+"""Fill the Supabase keys Secret.
 
-The anon and service_role keys are HS256 JWTs signed with the JWT secret. This
-script signs them and writes them, with the JWT secret and the SMTP credentials
-(upstream reads SMTP user and password from one Secret), into SECRET_NAME. The
-Secret is owned by the ConfigMap OWNER_CONFIGMAP (part of the Helm release), so
-uninstalling the release deletes it. The API keys are re-signed only when the
-JWT secret changes, so they stay stable.
+Helm creates SECRET_NAME empty (the manifest has no data, so upgrades never reset
+it); this script only reads and updates that one Secret.
+
+- The anon and service_role keys are HS256 JWTs signed with the JWT secret. They
+  are signed once, when the Secret holds no keys yet, and never re-signed.
+- If the Secret already holds a different JWT secret, the script fails without
+  writing: re-signing would invalidate every client key and session.
+- The SMTP user and password (upstream reads both from one Secret) are copied on
+  every run.
 """
 import base64
 import hashlib
@@ -24,7 +27,6 @@ NS = open(SA + "/namespace").read().strip()
 TOKEN = open(SA + "/token").read().strip()
 CTX = ssl.create_default_context(cafile=SA + "/ca.crt")
 SECRET_NAME = os.environ["SECRET_NAME"]
-OWNER = os.environ["OWNER_CONFIGMAP"]
 JWT_SECRET = os.environ["JWT_SECRET"]
 SMTP = {"smtpUsername": os.environ.get("SMTP_USERNAME", ""), "smtpPassword": os.environ.get("SMTP_PASSWORD", "")}
 TEN_YEARS = 10 * 365 * 24 * 3600
@@ -39,10 +41,8 @@ def call(method, path, body=None):
     })
     try:
         with urllib.request.urlopen(req, context=CTX, timeout=30) as resp:
-            return resp.status, json.load(resp)
+            return json.load(resp)
     except urllib.error.HTTPError as err:
-        if err.code == 404:
-            return 404, None
         sys.exit("{} {}: {} {}".format(method, path, err.code, err.read().decode(errors="replace")[:300]))
 
 
@@ -62,42 +62,29 @@ def main():
     if len(JWT_SECRET) < 32:
         sys.exit("the JWT secret must have at least 32 characters")
     path = "/api/v1/namespaces/{}/secrets/{}".format(NS, SECRET_NAME)
-    status, current = call("GET", path)
-    data, same_jwt = {}, False
-    if status == 200:
-        data = {k: base64.b64decode(v).decode() for k, v in (current.get("data") or {}).items()}
-        same_jwt = bool(hmac.compare_digest(data.get("secret", ""), JWT_SECRET) and data.get("anonKey") and data.get("serviceKey"))
-        if same_jwt and all(hmac.compare_digest(data.get(k, ""), v) for k, v in SMTP.items()):
-            print("Secret {} is up to date".format(SECRET_NAME))
-            return
-    _, owner = call("GET", "/api/v1/namespaces/{}/configmaps/{}".format(NS, OWNER))
-    if owner is None:
-        sys.exit("owner ConfigMap {} not found".format(OWNER))
-    keys = {"secret": JWT_SECRET, "anonKey": data.get("anonKey"), "serviceKey": data.get("serviceKey")}
-    if not same_jwt:
-        now = int(time.time())
-        keys["anonKey"], keys["serviceKey"] = sign("anon", now), sign("service_role", now)
-    body = {
-        "apiVersion": "v1",
-        "kind": "Secret",
-        "type": "Opaque",
-        "metadata": {
-            "name": SECRET_NAME,
-            "labels": {"app.kubernetes.io/part-of": "supabase", "app.kubernetes.io/component": "keys"},
-            "ownerReferences": [{
-                "apiVersion": "v1", "kind": "ConfigMap",
-                "name": OWNER, "uid": owner["metadata"]["uid"],
-            }],
-        },
-        "stringData": dict(keys, **SMTP),
-    }
-    if status == 200:
-        body["metadata"]["resourceVersion"] = current["metadata"]["resourceVersion"]
-        call("PUT", path, body)
-        print("Secret {} updated".format(SECRET_NAME))
+    current = call("GET", path)
+    data = {k: base64.b64decode(v).decode() for k, v in (current.get("data") or {}).items()}
+
+    want = dict(data)
+    stored = data.get("secret", "")
+    if stored or data.get("anonKey") or data.get("serviceKey"):
+        if not hmac.compare_digest(stored, JWT_SECRET):
+            sys.exit("Secret {} holds API keys signed with a different JWT secret; not re-signing them. "
+                     "Set the JwtSecret input back to the stored value.".format(SECRET_NAME))
+        if not (data.get("anonKey") and data.get("serviceKey")):
+            sys.exit("Secret {} is incomplete (JWT secret without API keys); not re-signing.".format(SECRET_NAME))
     else:
-        call("POST", "/api/v1/namespaces/{}/secrets".format(NS), body)
-        print("Secret {} created".format(SECRET_NAME))
+        now = int(time.time())
+        want.update(secret=JWT_SECRET, anonKey=sign("anon", now), serviceKey=sign("service_role", now))
+    want.update(SMTP)
+
+    if want == data:
+        print("Secret {} is up to date".format(SECRET_NAME))
+        return
+    current["data"] = {k: base64.b64encode(v.encode()).decode() for k, v in want.items()}
+    current.pop("stringData", None)
+    call("PUT", path, current)
+    print("Secret {} updated ({})".format(SECRET_NAME, ", ".join(sorted(k for k in want if want[k] != data.get(k)))))
 
 
 main()

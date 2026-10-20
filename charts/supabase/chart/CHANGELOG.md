@@ -7,7 +7,7 @@ Published on 20 October 2026
 - One host: Studio at `/` behind the Emporium login (default access: admins), the Supabase APIs through Kong with Supabase's own key auth. The `api.<host>` name is gone.
 - Uploaded files go to the `files` objectStorage integration (S3, bucket `supabase`) instead of a volume.
 - Data volumes are storage integrations: `db` (8Gi, also holds the pgsodium root key), `functions` and `snippets` (1Gi each), all grow-only.
-- JWT secret, database password, Realtime, Postgres Meta, S3 protocol and Kong dashboard credentials are generated inputs delivered by reference from the per-app Secret. A Job (not a Helm hook) signs the anon and service_role keys and copies the SMTP credentials into Secret `supabase-keys`, owned by the release.
+- JWT secret, database password, Realtime, Postgres Meta, S3 protocol and Kong dashboard credentials are generated inputs delivered by reference from the per-app Secret. Helm creates Secret `supabase-keys` empty; a Job (not a Helm hook, get/update on that Secret only) signs the anon and service_role keys once and copies the SMTP credentials on every install and upgrade. Auth waits until the SMTP copy is current. The database password is limited to URI-safe characters.
 - SMTP from the optional `mail` integration; without it new users are confirmed automatically.
 - New inputs: Site URL, additional redirect URLs, disable sign-ups, OpenAI API key for Studio. Removed: `StorageSize`, `DatabaseSize`.
 - Components and `small`/`medium` profiles with resources on every container; not deployed: Logflare/Vector, imgproxy, MinIO.

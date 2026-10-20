@@ -63,10 +63,14 @@ dependent: `<release>-tls` in perHost mode, `emporium-wildcard-<zone>` in wildca
   storage credentials in `objectStorage.files.*`.
 - The anon and service_role keys change (new JWT secret): update your apps. Existing user sessions
   are invalidated. They are in Secret `supabase-keys` (keys `anonKey`, `serviceKey`) and shown in
-  Studio. The Job `<release>-supabase-keys-<revision>` runs on every install and upgrade and writes
-  that Secret (owned by the release's ConfigMap, removed on uninstall): it re-signs the keys only
-  when the JWT secret changes and copies the SMTP user and password (upstream reads both from one
-  Secret). Auth reads them at start: restart it after rotating the SMTP password.
+  Studio. Helm creates that Secret without data (deleted with the release); the Job
+  `<release>-supabase-keys-<revision>` (get/update on that Secret only) runs on every install and
+  upgrade. It signs the keys once and never re-signs them: if the Secret holds a different JWT
+  secret, the Job fails without writing. It copies the SMTP user and password (upstream reads both
+  from one Secret) on every run; an init container keeps Auth waiting until the copy matches the
+  smtp integration.
+- `DbPassword` accepts only `A-Z a-z 0-9 . _ ~ -` (16+ characters): it goes into the services'
+  connection URLs without encoding.
 - No plaintext secrets in values (upstream's sample analytics tokens are blanked).
 
 ## Behaviour changes
