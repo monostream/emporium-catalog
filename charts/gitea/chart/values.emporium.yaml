@@ -9,40 +9,59 @@
 ## @description Admin password
 
 gitea:
-  admin:
-    existingSecret:
-    username: {{ .Emporium.UserSupplied.Username }}
-    password: {{ .Emporium.UserSupplied.Password }}
-    email: 'gitea@{{ .Emporium.Integrations.DNS.Hostname }}'
-  oauth:
-    - name: 'emporium'
-      provider: 'openidConnect'
-      key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-      secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-      autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
-      scopes: "email profile"
-      groupClaimName: "groups"
-      adminGroup: "authentik Admins"
-
   strategy:
     type: 'Recreate'
 
-  config:
-    actions:
-      ENABELD: 'true'
-    api:
-      ENABLE_SWAGGER: 'false'
-    service:
-      DISABLE_REGISTRATION: 'true'
-      SHOW_REGISTRATION_BUTTON: 'false'
-    openid:
-      ENABLE_OPENID_SIGNIN: 'true'
-      ENABLE_OPENID_SIGNUP: 'false'
-    oauth2_client:
-      ENABLE_AUTO_REGISTRATION: 'true'
-      OPENID_CONNECT_SCOPES: 'openid email profile'
-      ACCOUNT_LINKING: 'login'
-      USERNAME: 'email'
+  postgresql:
+    enabled: false
+  postgresql-ha:
+    enabled: false
+
+  gitea:
+    admin:
+      existingSecret:
+      username: {{ .Emporium.UserSupplied.Username | quote }}
+      password: {{ .Emporium.UserSupplied.Password | quote }}
+      email: 'gitea@{{ .Emporium.Integrations.DNS.Hostname }}'
+    oauth:
+      - name: 'emporium'
+        provider: 'openidConnect'
+        key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
+        secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+        autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
+        scopes: "email profile"
+        groupClaimName: "groups"
+        adminGroup: "authentik Admins"
+
+    additionalConfigFromEnvs:
+      - name: GITEA__database__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+            key: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+
+    config:
+      database:
+        DB_TYPE: postgres
+        HOST: "{{ .Emporium.Integrations.Postgres.Host }}:{{ .Emporium.Integrations.Postgres.Port }}"
+        NAME: {{ .Emporium.Integrations.Postgres.Database | quote }}
+        USER: {{ .Emporium.Integrations.Postgres.Username | quote }}
+        SSL_MODE: {{ .Emporium.Integrations.Postgres.SSLMode | quote }}
+      actions:
+        ENABLED: 'true'
+      api:
+        ENABLE_SWAGGER: 'false'
+      service:
+        DISABLE_REGISTRATION: 'true'
+        SHOW_REGISTRATION_BUTTON: 'false'
+      openid:
+        ENABLE_OPENID_SIGNIN: 'true'
+        ENABLE_OPENID_SIGNUP: 'false'
+      oauth2_client:
+        ENABLE_AUTO_REGISTRATION: 'true'
+        OPENID_CONNECT_SCOPES: 'openid email profile'
+        ACCOUNT_LINKING: 'login'
+        USERNAME: 'email'
 
   ingress:
     enabled: true

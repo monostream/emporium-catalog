@@ -3,12 +3,7 @@
 ## @type string
 ## @description Generate with `openssl rand -hex 16` for example
 
-## @userSupplied PostgresPassword
-## @label Postgres Password
-## @type string
-## @description The database password to use
 global:
-  postgresqlEnabled: true
   redisEnabled: true
 
 frontend:
@@ -39,13 +34,13 @@ config:
   apiSecretKey: "{{ .Emporium.UserSupplied.APISecretKey }}"
 
   postgresql:
-    host: {{ .Emporium.Name }}-postgresql
-    port: 5432
-    database: penpot
-    existingSecret: "penpot-secret"
+    host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+    port: {{ .Emporium.Integrations.Postgres.Port }}
+    database: {{ .Emporium.Integrations.Postgres.Database | quote }}
+    existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
     secretKeys:
-      usernameKey: "postgresql-username"
-      passwordKey: "postgresql-password"
+      usernameKey: {{ .Emporium.Integrations.Postgres.UsernameKey | quote }}
+      passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
 
   redis:
     host: {{ .Emporium.Name }}-redis-headless
@@ -82,9 +77,3 @@ config:
 smtp:
   username: "{{ .Emporium.Integrations.SMTP.Username }}"
   password: "{{ .Emporium.Integrations.SMTP.Password }}"
-
-postgresql:
-  auth:
-    username: admin
-    password: "{{ .Emporium.UserSupplied.PostgresPassword }}"
-    database: penpot

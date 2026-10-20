@@ -12,6 +12,10 @@ app:
     clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
     clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
 
+database:
+  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+  uriKey: {{ .Emporium.Integrations.Postgres.URIKey | quote }}
+
 storage:
   data:
     enabled: true

@@ -15,14 +15,16 @@ n8n:
     hosts:
       - host: {{ .Emporium.Integrations.DNS.Hostname }}
         paths:
-          - /
+          - path: /
+            pathType: Prefix
     tls:
       - secretName: {{ .Emporium.Name }}-tls
         hosts:
           - {{ .Emporium.Integrations.DNS.Hostname }}
 
-  persistence:
-    enabled: true
-    type: dynamic
-    size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
+  main:
+    persistence:
+      enabled: true
+      type: dynamic
+      size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize | quote }}
 

@@ -16,5 +16,32 @@ wiki:
         hosts:
           - {{ .Emporium.Integrations.DNS.Hostname }}
 
-# https://docs.requarks.io/install/kubernetes
-# kubectl delete pvc/data-wiki-postgresql-0
+  postgresql:
+    enabled: false
+
+  # CloudNativePG serves TLS with its own CA. Wiki.js connects with
+  # rejectUnauthorized when DB_SSL is true, so trusting the CNPG CA through
+  # NODE_EXTRA_CA_CERTS gives certificate and hostname verification
+  # (verify-full). externalPostgresql.ca (DB_SSL_CA) only takes an inline
+  # certificate body, not a mounted file.
+  nodeExtraCaCerts: /etc/ssl/postgres/ca.crt
+  volumes:
+    - name: postgres-ca
+      secret:
+        secretName: {{ .Emporium.Integrations.Postgres.CASecretName | quote }}
+        items:
+          - key: ca.crt
+            path: ca.crt
+  volumeMounts:
+    - name: postgres-ca
+      mountPath: /etc/ssl/postgres
+      readOnly: true
+
+  externalPostgresql:
+    host: {{ .Emporium.Integrations.Postgres.Host | quote }}
+    port: {{ .Emporium.Integrations.Postgres.Port }}
+    database: {{ .Emporium.Integrations.Postgres.Database | quote }}
+    username: {{ .Emporium.Integrations.Postgres.Username | quote }}
+    existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
+    existingSecretKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+    ssl: true

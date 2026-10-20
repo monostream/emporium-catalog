@@ -1,3 +1,10 @@
+# 0.1.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17) instead of the PostgreSQL StatefulSet bundled in the Wiki.js chart; the password comes from the CloudNativePG app secret. Requires Emporium v0.5.0. Existing data in the bundled database is not migrated.
+- Wiki.js connects to PostgreSQL over TLS and verifies the server certificate and hostname against the CloudNativePG CA (<release>-postgres-ca)
+
 # 0.0.14
 
 Published on 7 October 2026

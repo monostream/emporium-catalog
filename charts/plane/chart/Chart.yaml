@@ -2,7 +2,7 @@ apiVersion: v2
 name: plane
 description: Project management tool from the future
 type: application
-version: 0.1.49
+version: 0.2.0
 appVersion: v1.4.2
 home: https://plane.so/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
@@ -16,9 +16,6 @@ keywords:
   - Productivity
   - Collaboration
 dependencies:
-  - name: postgresql
-    version: 16.7.27
-    repository: oci://bitnamicharts.docker.pkg.emporium.rocks
   - name: redis
     repository: oci://bitnamicharts.docker.pkg.emporium.rocks
     version: 22.0.7
@@ -33,3 +30,9 @@ annotations:
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_2.png
+  emporiumVersion: v0.5.0
+  emporium.build/postgres: |
+    database: plane
+    owner: plane
+    version: "17"
+    storage: 8Gi

@@ -1,7 +1,7 @@
 ## @userSupplied StorageSize
 ## @label Storage Size
 ## @type byteSize
-## @description Size of the attached storage volume. Default is 8Gi.
+## @description Size of the attached storage volume. Default is 20Gi.
 ## @optional
 
 ingress:

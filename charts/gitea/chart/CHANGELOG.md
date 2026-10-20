@@ -1,3 +1,11 @@
+# 0.1.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17) instead of the bundled postgresql-ha cluster (3 PostgreSQL pods plus pgpool); the password comes from the CloudNativePG app secret. Requires Emporium v0.5.0. Existing data in the bundled database is not migrated.
+- Admin user, Emporium OIDC login and app.ini settings (registration disabled, Actions, Swagger off) are nested under gitea.gitea so the Gitea chart applies them. Before, they were ignored: installs got the chart's default admin account and open registration.
+- Connects to PostgreSQL with SSL_MODE require (CloudNativePG always serves TLS)
+
 # 0.0.37
 
 Published on 7 October 2026

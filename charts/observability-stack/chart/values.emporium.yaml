@@ -25,7 +25,7 @@
 ## @userSupplied LokiStorageSize
 ## @label Loki Storage Size
 ## @type byteSize
-## @description Size of the Loki storage volume. Default is 20Gi. Only applicable if Prometheus is enabled.
+## @description Size of the Loki storage volume. Default is 50Gi.
 ## @optional
 
 ## @userSupplied TempoStorageSize
@@ -161,8 +161,11 @@ prometheus:
           url: http://{{ .Emporium.Name }}-tempo:3100
           access: proxy
 
+  # Rules, the control-plane ServiceMonitors (they authenticate with the token
+  # Secret that is only rendered with Prometheus) and their exporters are only
+  # useful when Prometheus scrapes them.
   defaultRules:
-    create: true
+    create: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
     rules:
       alertmanager: true
       etcd: true
@@ -192,16 +195,25 @@ prometheus:
       prometheusOperator: true
 
   kubeApiServer:
-    enabled: true
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
 
   kubeControllerManager:
     enabled: false
 
+  kubelet:
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
+
+  kubeStateMetrics:
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
+
+  alertmanager:
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
+
   coreDns:
-    enabled: true
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
 
   kubeEtcd:
-    enabled: true
+    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
 
   kubeScheduler:
     enabled: false

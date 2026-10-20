@@ -129,32 +129,12 @@ agent:
   persistence:
     size: {{ default "50Gi" .Emporium.UserSupplied.AgentWorspaceSize }}
 
-  resources:
-    limits:
-     #cpu: 100m
-      memory:
-    requests:
-     #cpu: 100m
-      memory:
-
   docker:
-    repository: docker
-    pullPolicy: Always
-    tag: 23.0.1-dind
-
     persistence:
       # storageClass: "-"
       accessMode: ReadWriteOnce
       size: {{ default "50Gi" .Emporium.UserSupplied.AgentDinDSize }}
       annotations: {}
-
-    resources:
-      limits:
-       #cpu: 100m
-        memory:
-      requests:
-       #cpu: 100m
-        memory:
 
   nodeSelector: {}
 
