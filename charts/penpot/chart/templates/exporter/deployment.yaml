@@ -30,9 +30,13 @@ spec:
           image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.exporter.image.imagePullPolicy }}
           env:
-            # The headless browser renders through the frontend Service, not
-            # through the public ingress (which may require a login).
+            # The headless browser renders through the frontend Service
+            # (internal URI), not through the public ingress, which may require
+            # a login. Penpot rewrites internal references in exports to the
+            # public URI, so both must be set and differ.
             - name: PENPOT_PUBLIC_URI
+              value: {{ .Values.config.publicURI | quote }}
+            - name: PENPOT_INTERNAL_URI
               value: {{ include "penpot.frontendURL" . | quote }}
             {{- include "penpot.secretKeyEnv" . | nindent 12 }}
             {{- include "penpot.redisEnv" . | nindent 12 }}
