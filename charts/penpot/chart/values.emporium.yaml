@@ -1,79 +1,58 @@
-## @userSupplied APISecretKey
-## @label API Secret Key
-## @type string
-## @description Generate with `openssl rand -hex 16` for example
+{{- $flags := list "disable-demo-users" "disable-demo-warning" "enable-login-with-oidc" -}}
+{{- if input "Registration" | eq "true" }}{{ $flags = concat $flags (list "enable-registration" "enable-oidc-registration") }}{{ else }}{{ $flags = append $flags "disable-registration" }}{{ end -}}
+{{- if input "PasswordLogin" | eq "true" }}{{ $flags = append $flags "enable-login-with-password" }}{{ else }}{{ $flags = append $flags "disable-login-with-password" }}{{ end -}}
+{{- if .Emporium.Integrations.mail }}{{ $flags = append $flags "enable-smtp" }}{{ else }}{{ $flags = append $flags "disable-email-verification" }}{{ end }}
+config:
+  publicURI: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+  flags: {{ join " " $flags | quote }}
 
-global:
-  redisEnabled: true
+  postgresql:
+    host: {{ .Emporium.Integrations.postgres.Host | quote }}
+    port: {{ .Emporium.Integrations.postgres.Port }}
+    database: {{ .Emporium.Integrations.postgres.Database | quote }}
+    username: {{ .Emporium.Integrations.postgres.Username | quote }}
+    existingSecret: {{ .Emporium.Integrations.postgres.SecretName | quote }}
+    passwordKey: {{ .Emporium.Integrations.postgres.PasswordKey | quote }}
+    # Verified TLS against the CloudNativePG CA (Host is the -rw.<ns>.svc name in the certificate).
+    caSecret: {{ .Emporium.Integrations.postgres.CASecretName | quote }}
+
+  redis:
+    existingSecret: {{ .Emporium.Integrations.redis.SecretName | quote }}
+    uriKey: PENPOT_REDIS_URI
+
+  objectStorage:
+    endpoint: {{ .Emporium.Integrations.assets.Endpoint | quote }}
+    region: {{ .Emporium.Integrations.assets.Region | quote }}
+    bucket: {{ first .Emporium.Integrations.assets.Buckets | quote }}
+    existingSecret: {{ .Emporium.Integrations.assets.SecretName | quote }}
+    accessKeyKey: {{ .Emporium.Integrations.assets.AccessKeyKey | quote }}
+    secretKeyKey: {{ .Emporium.Integrations.assets.SecretKeyKey | quote }}
+
+  {{- with .Emporium.Integrations.mail }}
+  smtp:
+    enabled: true
+    host: {{ .Host | quote }}
+    port: {{ .Port }}
+    defaultFrom: {{ .From | quote }}
+    defaultReplyTo: {{ .ReplyTo | quote }}
+    username: {{ .Username | quote }}
+    existingSecret: {{ .SecretName | quote }}
+    passwordKey: {{ .PasswordKey | quote }}
+  {{- end }}
+
+  oidc:
+    enabled: true
+    baseURI: {{ .Emporium.Integrations.oidc.Issuer | quote }}
+    clientID: {{ .Emporium.Integrations.oidc.ClientID | quote }}
+    existingSecret: {{ .Emporium.Integrations.oidc.SecretName | quote }}
+    clientSecretKey: {{ .Emporium.Integrations.oidc.ClientSecretKey | quote }}
 
 frontend:
   ingress:
     enabled: true
-
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
-
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
-
-persistence:
-  enabled: true
-  size: 50Gi
-
-config:
-  publicURI: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
-  flags: "enable-registration enable-login enable-smtp disable-demo-users disable-demo-warning enable-login-with-oidc"
-  apiSecretKey: "{{ .Emporium.UserSupplied.APISecretKey }}"
-
-  postgresql:
-    host: {{ .Emporium.Integrations.Postgres.Host | quote }}
-    port: {{ .Emporium.Integrations.Postgres.Port }}
-    database: {{ .Emporium.Integrations.Postgres.Database | quote }}
-    existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
-    secretKeys:
-      usernameKey: {{ .Emporium.Integrations.Postgres.UsernameKey | quote }}
-      passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
-
-  redis:
-    host: {{ .Emporium.Name }}-redis-headless
-    port: 6379
-    database: "0"
-
-  smtp:
-    enabled: true
-    defaultFrom: "{{ .Emporium.Integrations.SMTP.From }}"
-    defaultReplyTo: "{{ .Emporium.Integrations.SMTP.ReplyTo }}"
-    host: "{{ .Emporium.Integrations.SMTP.Host }}"
-    port: "{{ .Emporium.Integrations.SMTP.Port }}"
-    tls: true
-    existingSecret: "penpot-secret"
-    secretKeys:
-      usernameKey: "smtp-username"
-      passwordKey: "smtp-password"
-
-  providers:
-    oidc:
-      enabled: true
-      baseURI: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-      clientID: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-      clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-      # authURI: ""
-      # tokenURI: ""
-      # userURI: ""
-      # roles: "role1 role2"
-      # rolesAttribute: ""
-      # scopes: "scope1 scope2"
-      # nameAttribute: ""
-      # emailAttribute: ""
-
-smtp:
-  username: "{{ .Emporium.Integrations.SMTP.Username }}"
-  password: "{{ .Emporium.Integrations.SMTP.Password }}"
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
