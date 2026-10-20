@@ -98,8 +98,8 @@ Declared under a name the template and `bind` use: `.Emporium.Integrations.<name
 | `smtp` | none | which SMTP config (required when `required`) | `Host`, `Port` (int), `Username`, `Password` (secret), `From`, `ReplyTo`, `SecretName`, `PasswordKey` |
 | `storage` | `size {default, growOnly}`, `accessModes`, `storageClass.default` | an existing claim, or size and class for a new one | `ClaimName`, `Capacity`, `StorageClass`, `AccessModes` |
 | `postgres` | `database, owner, version, extensions, storage, instances, parameters, resources, secretKeys` | storage size (growOnly), instances, resources | `ClusterName, Host, Port, Database, Username, SecretName, UsernameKey, PasswordKey, URIKey, JDBCURIKey, HostKey, PortKey, DatabaseKey, SSLMode, CASecretName, EnvSecretName`, `Password` (secret, last resort) |
-| `redis` | `mode: persistent\|cache` (default persistent), `size`, `maxMemory`, `secretKeys` | `size` (growOnly) | `Host`, `Port`, `SecretName`, `PasswordKey`, `Password` (secret), `URL` (secret) |
-| `objectStorage` | `buckets` (at least one), `size`, `secretKeys` | `size` (growOnly) | `Endpoint`, `Region`, `Buckets`, `SecretName`, `AccessKeyKey`, `SecretKeyKey`, `AccessKey`, `SecretKey` (secret), `PathStyle` |
+| `redis` | `mode: persistent\|cache` (default persistent), `size`, `maxMemory`, `secretKeys` | `size` (growOnly) | `Host`, `Port`, `SecretName`, `PasswordKey`, `URLKey` (key of the `redis://` URL in `SecretName`), `Password` (secret), `URL` (secret) |
+| `objectStorage` | `buckets` (at least one), `size`, `secretKeys` | `size` (growOnly) | `Endpoint`, `Region`, `Buckets`, `SecretName`, `AccessKeyKey`, `SecretKeyKey`, `AccessKey` (secret), `SecretKey` (secret), `PathStyle` |
 
 Notes per type:
 
