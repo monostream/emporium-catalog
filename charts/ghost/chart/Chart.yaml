@@ -2,7 +2,7 @@ apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
 type: application
-version: 1.1.0
+version: 1.1.1
 appVersion: "6.71.0"
 home: https://ghost.org/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.svg
@@ -26,3 +26,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.4 2026-10-20"

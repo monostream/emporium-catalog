@@ -2,7 +2,7 @@ apiVersion: v2
 name: supabase
 description: Firebase alternative for building secure and performant Postgres backends with minimal configuration.
 type: application
-version: 2.0.0
+version: 2.0.1
 # Supabase has no single release number; this follows the Studio image of the upstream chart.
 appVersion: "2026.08.03"
 dependencies:
@@ -28,6 +28,7 @@ annotations:
   category: Developer Tools
   licenses: Apache-2.0
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.4 2026-10-20"
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_1.webp
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/supabase/supabase_gallery_2.webp
