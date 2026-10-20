@@ -1,0 +1,67 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  # The upstream porter chart renders its own Secret from plain values (server.cookieSecret,
+  # dbEncryptionKey, tokenEncryptionKey) and has no existingSecret option, so these generated
+  # secrets are delivered by path. Acknowledged lint warning plaintext-secret-in-values.
+  CookieSecret:
+    label: Cookie signing key
+    description: Signs session cookies. Generated at install.
+    type: secret
+    generate: { length: 64, charset: alnum }
+    path: porter.server.cookieSecret
+  DbEncryptionKey:
+    label: Database encryption key
+    description: Encrypts credentials Porter stores in its database (AES-256, exactly 32 characters). Generated at install; never change it afterwards.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    path: porter.server.dbEncryptionKey
+  TokenEncryptionKey:
+    label: Token signing key
+    description: Signs API tokens. Generated at install.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    path: porter.server.tokenEncryptionKey
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      Hostname: ingress.host
+      TLSSecretName: ingress.tls.secretName
+      IngressClassName: ingress.className
+      Annotations: ingress.annotations
+  db:
+    type: postgres
+    database: porter
+    owner: porter
+    version: "17"
+    storage: { default: 8Gi, growOnly: true }
+    bind:
+      Host: porter.server.postgres.host
+      Database: porter.server.postgres.name
+      Username: porter.server.postgres.user
+      # The upstream chart only takes a plaintext password (it renders <release>-porter-db-secret
+      # itself). Acknowledged lint warning plaintext-secret-output (spec D16, pattern D).
+      Password: porter.server.postgres.password
+
+components:
+  app:
+    label: Porter
+    resources: porter.resources
+    replicas: { path: porter.replicaCount, min: 1, max: 3 }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A small team
+    values: profiles/small.yaml
+    integrations:
+      db:
+        instances: 1
+        resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }

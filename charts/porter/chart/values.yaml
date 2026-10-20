@@ -1,1 +1,39 @@
-porter: {}
+porter:
+  image:
+    # porter1/porter v0.53.0 (the upstream chart's default) was never published; v0.52.56 is the
+    # last self-hosted release.
+    tag: v0.52.56
+  server:
+    url: ""
+    # Emporium provides PostgreSQL; the Bitnami subchart stays off.
+    postgres:
+      host: ""
+      name: porter
+      user: porter
+      password: ""
+    additionalEnv:
+      FEATURE_FLAG_CLIENT: database
+      # CloudNativePG serves TLS; sslmode=require.
+      DB_FORCE_SSL: "true"
+  postgresql:
+    enabled: false
+  # The wrapper renders its own Ingress (templates/ingress.yaml): the upstream one has no
+  # ingressClassName and mounts a hard-coded porter-cert-tls Secret into the pod.
+  ingress:
+    enabled: false
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: null
+      memory: 512Mi
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: ""
+  tls:
+    secretName: ""
