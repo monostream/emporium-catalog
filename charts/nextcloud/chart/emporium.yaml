@@ -1,0 +1,86 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  AdminUsername:
+    label: Admin username
+    description: Local Nextcloud administrator, created on the first start. Stored in the app's Secret, so the field stays blank after install.
+    type: secret
+    required: true
+    ref:
+      namePath: nextcloud.nextcloud.existingSecret.secretName
+      keyPath: nextcloud.nextcloud.existingSecret.usernameKey
+  AdminPassword:
+    label: Admin password
+    description: Password of the local administrator. Leave empty to generate one (stored in the app's Secret).
+    type: secret
+    generate: { length: 24, charset: alnum }
+    ref:
+      namePath: nextcloud.nextcloud.existingSecret.secretName
+      keyPath: nextcloud.nextcloud.existingSecret.passwordKey
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Desktop/mobile sync clients (WebDAV, OCS, login flow v2), public shares and the
+    # CalDAV/CardDAV discovery authenticate in Nextcloud itself; the web UI stays behind the login.
+    skipPaths:
+      - /remote.php/*
+      - /ocs/*
+      - /status.php
+      - /index.php/login/v2*
+      - /login/v2*
+      - /public.php/*
+      - /s/*
+      - /index.php/s/*
+      - /.well-known/*
+    bind:
+      IngressClassName: nextcloud.ingress.className
+  mail:
+    type: smtp
+    required: false
+  data:
+    type: storage
+    size: { default: 20Gi, growOnly: true }
+    bind:
+      ClaimName: nextcloud.persistence.existingClaim
+  # Named postgres so the CloudNativePG cluster keeps the name <release>-postgres that the
+  # 0.1.0 annotation (W1 provider) created.
+  postgres:
+    type: postgres
+    database: nextcloud
+    owner: nextcloud
+    version: "17"
+    storage: { default: 8Gi, growOnly: true }
+  # Transactional file locking and the distributed cache: persistent, never evicting.
+  redis:
+    type: redis
+    mode: persistent
+
+components:
+  app:
+    label: Nextcloud
+    resources: nextcloud.resources
+    replicas: { fixed: 1, reason: "Data directory on a ReadWriteOnce volume (Recreate strategy)" }
+    match: { kind: Deployment, name: "*nextcloud*" }
+  cron:
+    label: Background jobs (cron)
+    parent: app
+    resources: nextcloud.cronjob.sidecar.resources
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+  redis:
+    label: Redis
+    integration: redis
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Families and small teams, up to about 50 users
+    values: profiles/small.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 1Gi } }

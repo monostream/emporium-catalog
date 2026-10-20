@@ -1,9 +1,0 @@
-dependencies:
-- name: redis
-  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 22.0.7
-- name: minio
-  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 17.0.21
-digest: sha256:a36938dd4cc402c3b1c92faef15655a2be0937b08669e1a7754aef65c34b0b10
-generated: "2026-10-19T22:03:44.139833456Z"

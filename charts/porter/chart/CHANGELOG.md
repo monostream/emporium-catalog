@@ -1,3 +1,14 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- PostgreSQL is Emporium's `db` postgres integration (CloudNativePG cluster `<release>-db`, PostgreSQL 17, sslmode require) instead of the bundled Bitnami postgresql subchart (PostgreSQL 11, password `porter`, image no longer pullable). Existing installs start with an empty database.
+- Fixed: the image tag `v0.53.0` that the porter chart pins was never published; the chart now uses `porter1/porter:v0.52.56`, the last self-hosted release.
+- The cookie, database encryption and token keys are generated at install instead of the upstream chart's well-known defaults. The upstream chart only accepts them, and the database password, as plain values (acknowledged lint warnings).
+- The chart renders its own Ingress (host, TLS secret, ingress class and annotations from the `web` ingress integration). The upstream Ingress had no ingress class and made the pod mount a hard-coded `porter-cert-tls` Secret.
+- Default resources without a CPU limit (requests 100m/256Mi, memory limit 512Mi); profile small.
+
 # 0.1.32
 
 Published on 19 October 2026

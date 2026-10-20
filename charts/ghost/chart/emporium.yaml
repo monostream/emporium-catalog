@@ -1,0 +1,62 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: database, label: Database, description: Generated at install. MySQL applies them only on its first start; changing them later breaks the connection. }
+
+inputs:
+  DatabasePassword:
+    label: MySQL password (Ghost user)
+    type: secret
+    section: database
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: mysql.auth.existingSecret, keyPath: mysql.auth.passwordKey }
+  DatabaseRootPassword:
+    label: MySQL root password
+    type: secret
+    section: database
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: mysql.auth.existingSecret, keyPath: mysql.auth.rootPasswordKey }
+
+integrations:
+  web:
+    type: ingress
+    # A blog is public, but Ghost's first-run owner setup (/ghost/) can be claimed by whoever
+    # comes first. Only Emporium admins reach it by default; create the owner account, then switch
+    # access to public. (Skip paths cannot express "everything but /ghost/": an entry matching / and deep
+    # paths is rejected as opening the whole app.)
+    access: { default: admins }
+    bind:
+      IngressClassName: ingress.className
+  content:
+    type: storage
+    size: { default: 8Gi, growOnly: true }
+    bind:
+      ClaimName: storage.content.existingClaim
+  mysql:
+    type: storage
+    size: { default: 8Gi, growOnly: true }
+    bind:
+      ClaimName: mysql.storage.existingClaim
+  mail:
+    type: smtp
+    required: false
+
+components:
+  ghost:
+    label: Ghost
+    resources: resources
+    replicas: { fixed: 1, reason: "Single Node.js process; content on a ReadWriteOnce volume" }
+    match: { kind: Deployment }
+  mysql:
+    label: MySQL
+    resources: mysql.resources
+    replicas: { fixed: 1, reason: "Single MySQL server on a ReadWriteOnce volume" }
+    match: { kind: StatefulSet }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A blog or newsletter with up to a few thousand members
+    values: profiles/small.yaml

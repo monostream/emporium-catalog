@@ -1,0 +1,22 @@
+# Gunicorn workers and memory are coupled (about 300 MiB per worker).
+api:
+  replicaCount: 2
+  gunicornWorkers: 2
+  resources:
+    requests: { cpu: 250m, memory: 1Gi }
+    limits: { memory: 2Gi }
+worker:
+  replicaCount: 2
+  resources:
+    requests: { cpu: 250m, memory: 768Mi }
+    limits: { memory: 1536Mi }
+web:
+  replicaCount: 2
+space:
+  resources:
+    requests: { cpu: 100m, memory: 192Mi }
+    limits: { memory: 512Mi }
+live:
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 1Gi }

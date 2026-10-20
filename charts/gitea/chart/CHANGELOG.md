@@ -1,3 +1,20 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`); PostgreSQL is the `postgres` postgres integration (CloudNativePG cluster `<release>-postgres` as in 0.1.0, PostgreSQL 17, SSL_MODE require).
+- Coming from 0.0.x (bundled postgresql-ha): Existing installs start with an empty database; move the data with the installed-app blueprint (see MIGRATION.md).
+- gitea from 1.27.0 to 28.2.0 (image tag; Gitea chart 12.7.0 is still the latest chart release).
+- Cache, sessions and the job queue use Emporium's Redis integration (Valkey, persistent) instead of the bundled Bitnami valkey-cluster (3 pods with 3 volumes); the connection URL is read from the per-app Secret.
+- Fixed: Logto logins of the only admin could fail. The oauth source no longer syncs admins from a group claim (it was the Authentik group "authentik Admins"); the setting is cleared on upgrade. Admins are granted in Gitea; the `roles` scope is requested.
+- The local admin ("Admin username", "Admin password") is read from the per-app Secret instead of plain values; the password is generated when left empty.
+- The OIDC client secret is read from the per-app Secret instead of plain values.
+- Optional SMTP: the mailer is configured from the `mail` integration, the password is read from the per-app Secret.
+- The chart sets no `emporium.build/auth-*` or `tls-acme` annotations; `/api/*` and the Git smart-HTTP/LFS paths are `skipPaths` of the ingress integration.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; `ROOT_URL` follows the hostname.
+- Repository data is the `data` storage integration (30Gi default, grow-only) instead of the chart's `gitea-shared-storage` claim, so the uninstall keep/delete choice applies.
+- Profiles small and medium; default resources for Gitea and its init containers; the Helm test pod is off.
+
 # 0.1.0
 
 Published on 19 October 2026

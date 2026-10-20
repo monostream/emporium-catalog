@@ -1,0 +1,153 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  SecretKey:
+    label: Django secret key
+    description: Signs sessions and tokens. Generated at install and kept in the app's Secret.
+    type: secret
+    generate: { length: 50, charset: alnum }
+    ref: { namePath: secrets.existingSecret, key: SECRET_KEY }
+  LiveServerSecretKey:
+    label: Live server secret key
+    description: Shared between the API and the real-time server. Generated at install.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: secrets.existingSecret, key: LIVE_SERVER_SECRET_KEY }
+  EnableSignup:
+    label: Allow sign-ups
+    description: Initial instance setting; afterwards change it in Plane's admin area (/god-mode). Invited users can always join.
+    type: boolean
+    default: false
+    installOnly: true
+    path: app.enableSignup
+
+integrations:
+  web:
+    type: ingress
+    # The instance admin is whoever completes /god-mode first, so only Emporium admins reach the
+    # app until setup is done; then relax access to authenticated (or public) in the app's settings.
+    access: { default: admins }
+    # Public REST API (X-API-Key tokens, authenticated by Plane).
+    skipPaths: [/api/v1/*]
+    bind:
+      Hostname: ingress.host
+      TLSSecretName: ingress.tls.secretName
+      IngressClassName: ingress.className
+      Annotations: ingress.annotations
+  mail:
+    type: smtp
+    required: false
+  # Named postgres so the CloudNativePG cluster keeps the name <release>-postgres that the
+  # 0.2.0 annotation (W1 provider) created.
+  postgres:
+    type: postgres
+    database: plane
+    owner: plane
+    version: "17"
+    storage: { default: 8Gi, growOnly: true }
+    bind:
+      Host: database.host
+      Port: database.port
+      Database: database.name
+      SecretName: database.existingSecret
+      UsernameKey: database.usernameKey
+      PasswordKey: database.passwordKey
+      URIKey: database.uriKey
+  # Django cache and the live server. The API's clear_cache runs FLUSHDB on it at every start.
+  redis:
+    type: redis
+    mode: persistent
+    size: 1Gi
+    secretKeys:
+      REDIS_URL: url
+    bind:
+      SecretName: redis.existingSecret
+  # Celery broker on its own instance, so clear_cache never wipes queued tasks; persistent (AOF,
+  # noeviction) so they survive restarts.
+  queue:
+    type: redis
+    mode: persistent
+    size: 1Gi
+    secretKeys:
+      QUEUE_URL: url
+    bind:
+      SecretName: queue.existingSecret
+  uploads:
+    type: objectStorage
+    buckets: [uploads]
+    size: 10Gi
+    bind:
+      Endpoint: objectStorage.endpoint
+      Region: objectStorage.region
+      SecretName: objectStorage.existingSecret
+      AccessKeyKey: objectStorage.accessKeyKey
+      SecretKeyKey: objectStorage.secretKeyKey
+
+components:
+  api:
+    label: API
+    resources: api.resources
+    replicas: { path: api.replicaCount, min: 1, max: 5 }
+  worker:
+    label: Background worker
+    resources: worker.resources
+    replicas: { path: worker.replicaCount, min: 1, max: 5 }
+  beat:
+    label: Scheduler
+    resources: beat.resources
+    replicas: { fixed: 1, reason: "Celery beat must run once, or periodic tasks run twice" }
+  web:
+    label: Web app
+    resources: web.resources
+    replicas: { path: web.replicaCount, min: 1, max: 3 }
+  space:
+    label: Public spaces
+    resources: space.resources
+    replicas: { path: space.replicaCount, min: 1, max: 3 }
+  admin:
+    label: Instance admin
+    resources: admin.resources
+    replicas: { path: admin.replicaCount, min: 1, max: 3 }
+  live:
+    label: Real-time server
+    resources: live.resources
+    replicas: { fixed: 1, reason: "Collaborative editing sessions are held in memory" }
+  migrator:
+    label: Database migrations
+    resources: migrator.resources
+    replicas: { fixed: 1, reason: "One-shot migration Job" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+  redis:
+    label: Redis (cache)
+    integration: redis
+  queue:
+    label: Redis (task queue)
+    integration: queue
+  uploads:
+    label: Object storage
+    integration: uploads
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to about 25 users
+    values: profiles/small.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+  medium:
+    label: Medium
+    description: Up to about 200 users
+    values: profiles/medium.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { memory: 1Gi } }
+      redis:
+        maxMemory: 512Mi
+      queue:
+        maxMemory: 512Mi

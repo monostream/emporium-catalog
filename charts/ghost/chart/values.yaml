@@ -1,1 +1,128 @@
-ghost: {}
+# Ghost (official Docker image) with an in-chart MySQL 8.4 (official image).
+# Ghost supports only MySQL 8 in production; Emporium has no MySQL provider.
+
+image:
+  repository: ghost
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "6.71.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Public URL of the blog (https://<host>). Required.
+url: ""
+
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+# The official image runs Ghost as user node (1000).
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 2368
+
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    # Ghost accepts uploads (images, themes) up to 50 MB by default.
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 1Gi
+
+# Content volume (images, themes, logs) at /var/lib/ghost/content.
+storage:
+  content:
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
+# SMTP for staff invites, password resets and newsletters. Empty host: no mail.
+mail:
+  host: ""
+  port: 587
+  user: ""
+  from: ""
+  # Secret and key holding the SMTP password.
+  existingSecret: ""
+  passwordKey: password
+
+mysql:
+  image:
+    repository: mysql
+    pullPolicy: IfNotPresent
+    # MySQL 8.4 LTS (Ghost 6 supports MySQL 8).
+    tag: "8.4.11"
+  database: ghost
+  user: ghost
+  auth:
+    # Secret holding the passwords of the Ghost user and of root. Required.
+    existingSecret: ""
+    passwordKey: mysql-password
+    rootPasswordKey: mysql-root-password
+  args:
+    - --innodb-buffer-pool-size=256M
+  # The official image runs mysqld as user mysql (999).
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    fsGroup: 999
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+  # Data volume at /var/lib/mysql.
+  storage:
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
