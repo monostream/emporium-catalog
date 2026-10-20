@@ -23,9 +23,10 @@ forgejo:
     env: []
 
   gitea:
-    # No local admin: Forgejo admins are the users with the identity provider's
-    # admin role (see the oauth source in values.emporium.yaml).
     admin:
+      # Emporium points existingSecret at the per-app Secret (keys username, password).
+      existingSecret: ""
       username: ""
+      passwordMode: keepUpdated
     oauth: []
     additionalConfigFromEnvs: []

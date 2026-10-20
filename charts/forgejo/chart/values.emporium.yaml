@@ -25,36 +25,40 @@ forgejo:
             key: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
 
   gitea:
+    admin:
+      email: {{ printf "forgejo@%s" .Emporium.Integrations.web.Hostname | quote }}
     oauth:
       - name: emporium
         provider: openidConnect
         key: {{ .Emporium.Integrations.sso.ClientID | quote }}
         secret: "${OIDC_CLIENT_SECRET}"
         autoDiscoverUrl: {{ .Emporium.Integrations.sso.ConfigurationEndpoint | quote }}
-        # Logto puts the user's role names into the "roles" claim; holders of the
-        # Emporium admin role become Forgejo admins. Forgejo also removes admin from
-        # users without the role, but refuses to demote the last admin (500), so the
-        # chart creates no local admin that could be linked and demoted.
+        # Role-based admin sync is intentionally off: Forgejo's adminGroup also demotes users
+        # without the role and fails with a 500 on the last admin. Admins are granted in
+        # Forgejo (Site administration > User accounts). The roles scope stays requested so
+        # the claim is there for a later grant-only mapping.
         scopes: "email profile roles"
-        groupClaimName: roles
-        adminGroup: emporium-admin
+        # Empty, not omitted: update-oauth then clears a group mapping an earlier version set
+        # ("authentik Admins" in 0.0.x/0.1.0).
+        groupClaimName: ""
+        adminGroup: ""
 
     additionalConfigFromEnvs:
       - name: FORGEJO__DATABASE__PASSWD
         valueFrom:
           secretKeyRef:
-            name: {{ .Emporium.Integrations.db.SecretName | quote }}
-            key: {{ .Emporium.Integrations.db.PasswordKey | quote }}
+            name: {{ .Emporium.Integrations.postgres.SecretName | quote }}
+            key: {{ .Emporium.Integrations.postgres.PasswordKey | quote }}
 
     config:
       server:
         ROOT_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
       database:
         DB_TYPE: postgres
-        HOST: {{ printf "%s:%v" .Emporium.Integrations.db.Host .Emporium.Integrations.db.Port | quote }}
-        NAME: {{ .Emporium.Integrations.db.Database | quote }}
-        USER: {{ .Emporium.Integrations.db.Username | quote }}
-        SSL_MODE: {{ .Emporium.Integrations.db.SSLMode | quote }}
+        HOST: {{ printf "%s:%v" .Emporium.Integrations.postgres.Host .Emporium.Integrations.postgres.Port | quote }}
+        NAME: {{ .Emporium.Integrations.postgres.Database | quote }}
+        USER: {{ .Emporium.Integrations.postgres.Username | quote }}
+        SSL_MODE: {{ .Emporium.Integrations.postgres.SSLMode | quote }}
       session:
         PROVIDER: db
       cache:
