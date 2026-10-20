@@ -1,0 +1,12 @@
+{{- /*
+Rails initializer mounted into the webservice pods, see _emporium-rails.tpl.
+*/ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gitlab.emporium.name" (list . "emporium-rails") }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  emporium_admin_sync.rb: |
+    {{- include "gitlab.emporium.adminSyncInitializer" . | nindent 4 }}
