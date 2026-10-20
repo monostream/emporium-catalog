@@ -45,6 +45,8 @@ integrations:
     access: { default: authenticated }
     # API clients authenticate with Documenso API tokens.
     skipPaths: [/api/*]
+    # Documenso's own OIDC login (NextAuth provider id "oidc").
+    redirectPaths: [/api/auth/callback/oidc]
     bind:
       IngressClassName: ingress.className
   oidc:

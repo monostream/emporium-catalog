@@ -1,6 +1,0 @@
-dependencies:
-- name: uptrace
-  repository: https://charts.uptrace.dev
-  version: 2.0.2
-digest: sha256:384c75d58f85e8cbdedd0ddfdc9cf973a1e6de392f7210b98dd28e432d120c47
-generated: "2026-10-19T22:04:09.157005525Z"
