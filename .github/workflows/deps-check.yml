@@ -31,7 +31,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        DEPS_FILES=$(find . -name 'deps.json')
+        DEPS_FILES=$(find . -name 'deps.json' -not -path './archive/*')
 
         for DEPS_FILE in ${DEPS_FILES}; do
           CHART_PATH=$(dirname "${DEPS_FILE}")
