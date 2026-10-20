@@ -1,163 +1,22 @@
-image:
-  repository: monostream/devcloud-jenkins
-  pullPolicy: Always
+# Keeps the 0.4 resource names (Deployment, PVCs) and the APPLICATION_NAME the launcher reads.
+nameOverride: {{ .Emporium.Name | quote }}
 
-imagePullSecrets: []
-nameOverride: {{ .Emporium.Name }}
-fullnameOverride: ""
-
-baseUrl: {{ .Emporium.Integrations.DNS.Hostname }}
-
-adminUser: admin
-adminPassword: eeec792-e741-4e4e-bec1-eeeeee3c6777
+baseUrl: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
 
 oidc:
-  clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-  clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-  issuerUrl: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-
-devcloud:
-  id:
-  name:
-
-  service:
-    type: ClusterIP
-    port: 8000
-    annotations: {}
-
-serviceAccount:
-  create: true
-  name:
-
-service:
-  type: ClusterIP
-  port: 80
-
-jnlp:
-  service:
-    type: ClusterIP
-    port: 50000
-    annotations: {}
+  clientId: {{ .Emporium.Integrations.oidc.ClientID | quote }}
+  issuerUrl: {{ .Emporium.Integrations.oidc.Issuer | quote }}
+  existingSecret: {{ .Emporium.Integrations.oidc.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.oidc.ClientSecretKey | quote }}
 
 ingress:
   enabled: true
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
   hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
       paths:
         - path: /
           pathType: Prefix
   tls:
-   - secretName: {{ .Emporium.Name }}-tls
-     hosts:
-       - {{ .Emporium.Integrations.DNS.Hostname }}
-
-## @userSupplied ControllerConfigSize
-## @label DataDir
-## @type byteSize
-## @description Size for the config volume on the controller. Default is 1Gi.
-## @optional
-
-## @userSupplied ControllerWorkspaceSize
-## @label JenkinsWorkspaceSize
-## @type byteSize
-## @description Size for the workspace on the controller. Default is 50Gi.
-## @optional
-
-## @userSupplied AgentWorspaceSize
-## @label Jenkins Agent Workspace Size
-## @type byteSize
-## @description Size for the workspace on the agents. Default is 50Gi.
-## @optional
-
-## @userSupplied AgentDinDSize
-## @label Jenkins Agent DIND Size
-## @type byteSize
-## @description Size for the Docker in Docker volume on the agents. Default is 50Gi.
-## @optional
-
-persistence:
-  size: {{ default "1Gi" .Emporium.UserSupplied.ControllerConfigSize }}
-  annotations: {}
-
-workspace:
-  persistence:
-    size: {{ default "50Gi" .Emporium.UserSupplied.ControllerWorkspaceSize }}
-    annotations: {}
-
-initVolume:
-  repository: busybox
-  pullPolicy: Always
-  tag: stable
-
-resources: {}
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-extraEnv: []
-
-nodeSelector: {}
-
-affinity:
-  podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - podAffinityTerm:
-        labelSelector:
-          matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: In
-            values:
-            - jenkins-agent
-        topologyKey: kubernetes.io/hostname
-      weight: 100
-
-tolerations: []
-
-agent:
-  image:
-    repository: monostream/devcloud-jenkins-agent
-    pullPolicy: Always
-
-  persistence:
-    size: {{ default "50Gi" .Emporium.UserSupplied.AgentWorspaceSize }}
-
-  docker:
-    persistence:
-      # storageClass: "-"
-      accessMode: ReadWriteOnce
-      size: {{ default "50Gi" .Emporium.UserSupplied.AgentDinDSize }}
-      annotations: {}
-
-  nodeSelector: {}
-
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-              - jenkins-agent
-          topologyKey: kubernetes.io/hostname
-        weight: 100
-      - podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-              - jenkins
-          topologyKey: kubernetes.io/hostname
-        weight: 100
-
-  tolerations: []
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

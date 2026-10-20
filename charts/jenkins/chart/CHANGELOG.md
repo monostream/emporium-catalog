@@ -1,3 +1,19 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- The local admin password is generated per install and read from the per-app Secret; it was the same hard-coded value for every install.
+- The OIDC client secret is read by reference from the per-app Secret instead of a chart-owned Secret; the redirect path moved to the ingress integration.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
+- Controller volumes are the `home` (5Gi default) and `workspace` (50Gi default) storage integrations, grow-only; the inputs "DataDir" and "JenkinsWorkspaceSize" are removed.
+- Input `AgentWorspaceSize` renamed to `AgentWorkspaceSize` (value carried over); both agent volume sizes are fixed after install (StatefulSet volume templates).
+- New input "Cluster admin access" (default on, the previous behaviour); off binds the built-in `admin` role in the app namespace only.
+- Fixed: `BASE_URL` is a full `https://<host>/` URL (it was the bare hostname).
+- Removed the HorizontalPodAutoscaler that targeted a non-existent `junkins-agent` StatefulSet and the random `rollme` pod label (every upgrade restarted Jenkins and preview never matched).
+- Docker-in-Docker from 29.8.2 to 29.9.1.
+- Default resources for every container; Docker-in-Docker requests 1Gi instead of 8Gi (8Gi limit).
+
 # 0.1.56
 
 Published on 19 October 2026
