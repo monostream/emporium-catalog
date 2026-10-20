@@ -37,7 +37,7 @@ integrations:
     # API (token auth) and Git over HTTP authenticate in OneDev.
     skipPaths:
       - /api/*
-      - regex(^(/[A-Za-z0-9_][A-Za-z0-9_.-]*)+\.git/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*)$)
+      - regex(^(/[A-Za-z0-9_][A-Za-z0-9_.-]*)+(\.git)?/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*|lfs/objects/.*)$)
     bind:
       IngressClassName: onedev.ingress.className
   db:
