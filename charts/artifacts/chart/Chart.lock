@@ -1,6 +1,6 @@
 dependencies:
 - name: artifacts
   repository: https://monostream.helm.pkg.emporium.rocks
-  version: 0.0.61
-digest: sha256:66aba21284748ea9ae117f546b45937835abd0e1d0b8e5e6d37b2e7d0f23e0b6
-generated: "2026-10-19T22:04:44.754021734Z"
+  version: 0.0.63
+digest: sha256:9be66c17956ae3cb65abeb9d0a3cb544675f1ba14b5ffb4a754001e39590b1f6
+generated: "2026-10-20T01:19:57.549980012Z"

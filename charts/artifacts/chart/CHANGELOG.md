@@ -1,3 +1,15 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- artifacts from 0.0.61 to 0.0.63
+- PostgreSQL is the `postgres` integration (CloudNativePG, PostgreSQL 17, cluster `<release>-postgres` as in 0.1.0), connected with `sslmode=require`; the `uuid-ossp` extension is created at database init. Coming from 0.0.x: Existing installs start with an empty database; the package index is rebuilt from the volume, user credentials are not migrated (see MIGRATION.md).
+- Inputs renamed: "Artifacts Volume Size" is `StorageSize` (grow-only), "Artifacts Volume StorageClass" is `StorageClass` (install-only); stored values carry over.
+- Ingress access defaults to public: Artifacts has its own OIDC login and per-user repository credentials.
+- Ingress host, TLS secret, annotations and ingress class come from the `web` ingress integration; the nginx-only buffering annotations are gone.
+- Default resources (100m CPU / 256Mi requested, 1Gi limit) instead of none.
+
 # 0.1.0
 
 Published on 19 October 2026

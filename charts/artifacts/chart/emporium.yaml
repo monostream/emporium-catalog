@@ -1,0 +1,64 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  EnablePublicRead:
+    label: Enable public read
+    description: Allow anonymous read access to repositories marked public.
+    type: boolean
+    default: false
+    path: artifacts.auth.enablePublicRead
+  StorageSize:
+    label: Storage size
+    description: Size of the volume holding the packages.
+    type: byteSize
+    default: 10Gi
+    growOnly: true
+    path: artifacts.persistence.size
+    renamedFrom: [ArtifactsPersistenceSize]
+  StorageClass:
+    label: Storage class
+    description: StorageClass of the package volume. Empty uses the cluster default.
+    type: storageClass
+    installOnly: true
+    path: artifacts.persistence.storageClass
+    renamedFrom: [ArtifactsPersistenceStorageClass]
+
+integrations:
+  web:
+    type: ingress
+    # Artifacts has its own login (OIDC) and per-user repository credentials for the CLI tools.
+    access: { default: public }
+    redirectPaths: [/auth/callback]
+    bind:
+      IngressClassName: artifacts.ingress.className
+  oidc:
+    type: oidc
+  postgres:
+    type: postgres
+    database: artifacts
+    owner: artifacts
+    version: "17"
+    extensions: [uuid-ossp]
+    storage: { default: 8Gi, growOnly: true }
+    # pgx: sslmode=require encrypts without a CA file.
+    secretKeys:
+      DATABASE_DSN: uri-sslmode-require
+
+components:
+  app:
+    label: Artifacts
+    resources: artifacts.resources
+    replicas: { fixed: 1, reason: "Packages on a ReadWriteOnce volume; the indexer worker runs in the same process" }
+    storage: { input: StorageSize }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team's container images and packages
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }

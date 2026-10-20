@@ -1,1 +1,37 @@
-artifacts: {}
+artifacts:
+  image:
+    repository: monostream.docker.pkg.emporium.rocks/artifacts
+    pullPolicy: IfNotPresent
+  hosts:
+    domain: ""
+    https: true
+  auth:
+    enablePublicRead: false
+  # database.existingSecret {name, key}: set by Emporium (postgres integration). Unset: SQLite on the volume.
+  ingress:
+    enabled: false
+    className: ""
+    # Large uploads (images, packages). The upstream nginx-only buffering annotations are removed.
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+      nginx.ingress.kubernetes.io/proxy-buffering: null
+      nginx.ingress.kubernetes.io/proxy-request-buffering: null
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+  serviceAccount:
+    create: true
+    name: artifacts
+  storage:
+    filesystem:
+      path: /data
+  telemetry:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

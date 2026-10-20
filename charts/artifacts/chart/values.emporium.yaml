@@ -1,60 +1,16 @@
-## @userSupplied ArtifactsPersistenceSize
-## @label Artifacts Volume Size
-## @type byteSize
-## @description Size of the local Artifacts volume. Default is 10Gi.
-## @optional
-
-## @userSupplied ArtifactsPersistenceStorageClass
-## @label Artifacts Volume StorageClass
-## @type storageClass
-## @description The StorageClass to use for the Artifacts volume. If not provided, default storage class is used.
-## @optional
-
-## @userSupplied EnablePublicRead
-## @label Enable public read
-## @type boolean
-## @description Enable anonymous read access for repositories set to public. Default is false.
-## @optional
-
-
 artifacts:
+  hosts:
+    domain: {{ .Emporium.Integrations.web.Hostname | quote }}
   auth:
     oidc:
-      clientId: {{ .Emporium.Integrations.OIDC.ClientID }}
-      issuer: {{ .Emporium.Integrations.OIDC.Issuer }}
-    {{- if .Emporium.UserSupplied.EnablePublicRead }}
-    enablePublicRead: true
-    {{- end }}
-  hosts:
-    domain: {{ .Emporium.Integrations.DNS.Hostname }}
-    https: true
+      clientId: {{ .Emporium.Integrations.oidc.ClientID | quote }}
+      issuer: {{ .Emporium.Integrations.oidc.Issuer | quote }}
   database:
     existingSecret:
-      name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
-      key: {{ .Emporium.Integrations.Postgres.URIKey | quote }}
-  image:
-    pullPolicy: Always
-    repository: monostream.docker.pkg.emporium.rocks/artifacts
+      name: {{ .Emporium.Integrations.postgres.EnvSecretName | quote }}
+      key: DATABASE_DSN
   ingress:
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
     enabled: true
-  persistence:
-    enabled: true
-    {{- if .Emporium.UserSupplied.ArtifactsPersistenceSize }}
-    size: {{ .Emporium.UserSupplied.ArtifactsPersistenceSize }}
-    {{- end }}
-    {{- if .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
-    storageClass: {{ .Emporium.UserSupplied.ArtifactsPersistenceStorageClass }}
-    {{- end }}
-  serviceAccount:
-    create: true
-    name: artifacts
-  storage:
-    filesystem:
-      path: /data
-  telemetry:
-    enabled: false
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
+    tls:
+      secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}

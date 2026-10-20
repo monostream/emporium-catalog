@@ -1,11 +1,11 @@
 apiVersion: v2
 name: artifacts
 description: Your all-in-one, self-hosted package registry. Easily host and manage Docker images, Helm charts, NPM, Maven, and NuGet packages, all from one central location.
-version: 0.1.0
-appVersion: 0.0.61
+version: 0.2.0
+appVersion: 0.0.63
 dependencies:
   - name: artifacts
-    version: 0.0.61
+    version: 0.0.63
     repository: https://monostream.helm.pkg.emporium.rocks
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_icon_2.svg
 sources:
@@ -27,10 +27,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_2.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/artifacts/artifacts_gallery_3.png
-  oidcRedirectPaths: /auth/callback
-  emporiumVersion: v0.5.0
-  emporium.build/postgres: |
-    database: artifacts
-    owner: artifacts
-    version: "17"
-    storage: 8Gi
+  emporiumVersion: "0.5.0"
