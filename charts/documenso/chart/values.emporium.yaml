@@ -1,40 +1,31 @@
 app:
-  domain: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
+  domain: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
   smtp:
-    host: {{ .Emporium.Integrations.SMTP.Host }}
-    port: {{ .Emporium.Integrations.SMTP.Port | quote }}
-    from: {{ .Emporium.Integrations.SMTP.From | quote }}
-    fromName: "Docuemntso"
-    username: {{ .Emporium.Integrations.SMTP.Username | quote }}
-    password: {{ .Emporium.Integrations.SMTP.Password | quote }}
+    host: {{ .Emporium.Integrations.mail.Host | quote }}
+    port: {{ .Emporium.Integrations.mail.Port }}
+    from: {{ .Emporium.Integrations.mail.From | quote }}
+    username: {{ .Emporium.Integrations.mail.Username | quote }}
+    existingSecret: {{ .Emporium.Integrations.mail.SecretName | quote }}
+    passwordKey: {{ .Emporium.Integrations.mail.PasswordKey | quote }}
   oidc:
-    wellknownUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
-    clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-    clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
+    wellknownUrl: {{ .Emporium.Integrations.oidc.ConfigurationEndpoint | quote }}
+    clientId: {{ .Emporium.Integrations.oidc.ClientID | quote }}
+    existingSecret: {{ .Emporium.Integrations.oidc.SecretName | quote }}
+    clientSecretKey: {{ .Emporium.Integrations.oidc.ClientSecretKey | quote }}
 
 database:
-  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
-  uriKey: {{ .Emporium.Integrations.Postgres.URIKey | quote }}
-
-storage:
-  data:
-    enabled: true
-    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"
+  existingSecret: {{ .Emporium.Integrations.postgres.EnvSecretName | quote }}
+  uriKey: NEXT_PRIVATE_DATABASE_URL
 
 ingress:
   enabled: true
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
-    emporium.build/auth-skip-paths: '/api/*,/#/*'
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
   hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: {{ .Emporium.Name }}-tls
-      hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

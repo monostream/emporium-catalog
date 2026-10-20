@@ -1,0 +1,81 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: signing, label: Signing certificate, description: "Documents can only be signed with a certificate. Without one Documenso starts, but signing is unavailable." }
+  - { id: security, label: Security, description: "Generated at install. Changing the encryption keys makes stored secrets unreadable." }
+
+inputs:
+  SigningCertificate:
+    label: Signing certificate (.p12, base64)
+    description: "Base64 of the PKCS#12 file used to sign documents (`base64 -w0 cert.p12`)."
+    type: secret
+    section: signing
+    ref: { namePath: app.existingSecret, key: NEXT_PRIVATE_SIGNING_LOCAL_FILE_CONTENTS }
+  SigningPassphrase:
+    label: Signing certificate passphrase
+    description: Leave empty when the .p12 file has no passphrase.
+    type: secret
+    section: signing
+    ref: { namePath: app.existingSecret, key: NEXT_PRIVATE_SIGNING_PASSPHRASE }
+  NextauthSecret:
+    label: Session secret
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: NEXTAUTH_SECRET }
+  EncryptionKey:
+    label: Encryption key
+    type: secret
+    section: security
+    installOnly: true
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: NEXT_PRIVATE_ENCRYPTION_KEY }
+  EncryptionSecondaryKey:
+    label: Secondary encryption key
+    type: secret
+    section: security
+    installOnly: true
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # API clients authenticate with Documenso API tokens.
+    skipPaths: [/api/*]
+    bind:
+      IngressClassName: ingress.className
+  oidc:
+    type: oidc
+  mail:
+    type: smtp
+  postgres:
+    type: postgres
+    database: documenso
+    owner: documenso
+    version: "17"
+    extensions: [pgcrypto, pg_trgm]
+    storage: { default: 8Gi, growOnly: true }
+    # Prisma: sslmode=require encrypts and accepts the CloudNativePG certificate without a CA file.
+    secretKeys:
+      NEXT_PRIVATE_DATABASE_URL: uri-sslmode-require
+
+components:
+  app:
+    label: Documenso
+    resources: resources
+    replicas: { fixed: 1, reason: "Background jobs and migrations run inside the single web process" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team signing a few hundred documents a month
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }

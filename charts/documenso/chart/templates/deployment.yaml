@@ -40,84 +40,101 @@ spec:
           - name: PORT
             value: "3000"
           - name: NEXTAUTH_URL
-            value: {{ .Values.app.domain }}
+            value: {{ .Values.app.domain | quote }}
           - name: NEXT_PUBLIC_WEBAPP_URL
-            value: {{ .Values.app.domain }}
-          - name: NEXTAUTH_SECRET
+            value: {{ .Values.app.domain | quote }}
+          - name: NEXT_PRIVATE_INTERNAL_WEBAPP_URL
+            value: "http://localhost:3000"
+          {{- $app := required "app.existingSecret is required" .Values.app.existingSecret }}
+          {{- range list "NEXTAUTH_SECRET" "NEXT_PRIVATE_ENCRYPTION_KEY" "NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY" }}
+          - name: {{ . }}
             valueFrom:
               secretKeyRef:
-                name: {{ include "chart.fullname" . }}-nextauth-secret
-                key: NEXTAUTH_SECRET
+                name: {{ $app }}
+                key: {{ . }}
+          {{- end }}
+          {{- range list "NEXT_PRIVATE_SIGNING_LOCAL_FILE_CONTENTS" "NEXT_PRIVATE_SIGNING_PASSPHRASE" }}
+          - name: {{ . }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $app }}
+                key: {{ . }}
+                optional: true
+          {{- end }}
           - name: NEXT_PRIVATE_DATABASE_URL
             valueFrom:
               secretKeyRef:
                 name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
                 key: {{ .Values.database.uriKey }}
-          - name: NEXT_PRIVATE_DIRECT_DATABASE_URL
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.database.existingSecret }}
-                key: {{ .Values.database.uriKey }}
+          {{- with .Values.app.smtp }}
+          {{- if .host }}
+          - name: NEXT_PRIVATE_SMTP_TRANSPORT
+            value: smtp-auth
           - name: NEXT_PRIVATE_SMTP_HOST
-            value: "{{ .Values.app.smtp.host }}"
+            value: {{ .host | quote }}
           - name: NEXT_PRIVATE_SMTP_PORT
-            value: "{{ .Values.app.smtp.port }}"
+            value: {{ .port | quote }}
           - name: NEXT_PRIVATE_SMTP_FROM_ADDRESS
-            value: "{{ .Values.app.smtp.from }}"
+            value: {{ .from | quote }}
           - name: NEXT_PRIVATE_SMTP_FROM_NAME
-            value: "{{ .Values.app.smtp.fromName }}"
+            value: {{ .fromName | quote }}
           - name: NEXT_PRIVATE_SMTP_USERNAME
-            value: "{{ .Values.app.smtp.username }}"
+            value: {{ .username | quote }}
+          {{- if .existingSecret }}
           - name: NEXT_PRIVATE_SMTP_PASSWORD
-            value: "{{ .Values.app.smtp.password }}"
-
+            valueFrom:
+              secretKeyRef:
+                name: {{ .existingSecret }}
+                key: {{ .passwordKey }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+          {{- with .Values.app.oidc }}
+          {{- if .wellknownUrl }}
           - name: NEXT_PRIVATE_OIDC_WELL_KNOWN
-            value: "{{ .Values.app.oidc.wellknownUrl }}"
+            value: {{ .wellknownUrl | quote }}
           - name: NEXT_PRIVATE_OIDC_CLIENT_ID
-            value: "{{ .Values.app.oidc.clientId }}"
+            value: {{ .clientId | quote }}
+          - name: NEXT_PRIVATE_OIDC_PROVIDER_LABEL
+            value: {{ .providerLabel | quote }}
+          {{- if .existingSecret }}
           - name: NEXT_PRIVATE_OIDC_CLIENT_SECRET
-            value: "{{ .Values.app.oidc.clientSecret }}"
-
-          - name: NEXT_PRIVATE_ENCRYPTION_KEY
             valueFrom:
               secretKeyRef:
-                name: {{ include "chart.fullname" . }}-encryption-key
-                key: NEXT_PRIVATE_ENCRYPTION_KEY
-
-          - name: NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY
-            valueFrom:
-              secretKeyRef:
-                name: {{ include "chart.fullname" . }}-encryption-key-secondary
-                key: NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY
-            
+                name: {{ .existingSecret }}
+                key: {{ .clientSecretKey }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          livenessProbe:
+          # Prisma migrations run before the server listens.
+          startupProbe:
             httpGet:
-              path: /
+              path: /api/health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          # /api/health also checks the database; a database outage should not restart the pod.
+          livenessProbe:
+            tcpSocket:
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
           volumeMounts:
-            - mountPath: /data
-              name: data
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
       volumes:
-      - name: data
-        {{- if and .Values.storage.data.enabled .Values.storage.data.existingClaim }}
-        persistentVolumeClaim:
-          claimName: {{ .Values.storage.data.existingClaim }}
-        {{- else if .Values.storage.data.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ include "chart.fullname" . }}-data
-        {{- else }}
-        emptyDir: {}
-        {{- end }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
