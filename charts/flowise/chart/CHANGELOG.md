@@ -3,7 +3,7 @@
 Published on 20 October 2026
 
 - Requires Emporium v0.5.0 (`emporium.yaml`).
-- Optional PostgreSQL through Emporium's postgres integration (CloudNativePG, PostgreSQL 17), off by default. Without it Flowise keeps SQLite on the data volume.
+- Optional PostgreSQL through Emporium's postgres integration (CloudNativePG, PostgreSQL 17, TLS verified against the cluster CA), off by default. Without it Flowise keeps SQLite on the data volume.
 - Generated session and token secrets (`JWT_AUTH_TOKEN_SECRET`, `JWT_REFRESH_TOKEN_SECRET`, `EXPRESS_SESSION_SECRET`, `TOKEN_HASH_SECRET`) from the per-app Secret instead of Flowise's built-in defaults.
 - Removed the "Username" and "Password" inputs: Flowise 3 replaced basic auth with its own user accounts.
 - Ingress host, TLS secret and ingress class come from the `web` ingress integration; data volume is the `data` storage integration (1Gi default, grow-only).

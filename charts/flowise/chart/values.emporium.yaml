@@ -6,8 +6,8 @@ database:
   user: {{ .Username | quote }}
   existingSecret: {{ .SecretName | quote }}
   passwordKey: {{ .PasswordKey | quote }}
-  # No TLS: Flowise's DATABASE_SSL=true verifies against the system CAs and rejects
-  # the CloudNativePG CA. The cluster's pg_hba accepts plain connections in-cluster.
+  # Verified TLS against the CloudNativePG CA (Host is the -rw.<ns>.svc name in the certificate).
+  caSecret: {{ .CASecretName | quote }}
 {{- end }}
 
 ingress:

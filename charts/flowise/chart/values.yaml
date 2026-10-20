@@ -28,6 +28,8 @@ database:
   user: flowise
   existingSecret: ""
   passwordKey: password
+  # Secret with the server CA (key ca.crt): TLS with certificate verification. Empty: no TLS.
+  caSecret: ""
 
 storage:
   data:

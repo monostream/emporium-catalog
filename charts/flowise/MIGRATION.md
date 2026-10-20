@@ -13,14 +13,21 @@
 - New optional `db` postgres integration (`required: false`, install toggle, PostgreSQL 17, database
   and owner `flowise`, 5Gi grow-only, no extensions). Turning it on for an existing install is not
   possible (the toggle is install-time); there is no SQLite -> Postgres migration in the chart.
-- TLS to the database: plain. Flowise's `DATABASE_SSL=true` verifies against the system CAs and
-  fails on the CloudNativePG CA; the in-cluster pg_hba accepts plain connections.
+- TLS to the database: verified. Flowise 3.1.4 (`packages/server/src/DataSource.ts`,
+  `getDatabaseSSLFromEnv`) passes `{ca, rejectUnauthorized}` to node-postgres when
+  `DATABASE_SSL_KEY_BASE64` (the CA, base64) is set, with `DATABASE_REJECT_UNAUTHORIZED=true`.
+  The chart mounts the CloudNativePG CA Secret (`CASecretName`, key `ca.crt`) and the container
+  start command base64-encodes it into that variable before `exec flowise start`. The hostname is
+  the `<cluster>-rw.<ns>.svc` name from the server certificate.
 
 ## Data volumes
 
 - `data` (storage integration, default 1Gi, grow-only), mounted at `/data`: SQLite database,
   encryption key (`/data/.flowise/encryption.key`), logs and uploaded blobs. Keep it on uninstall
   if you want the flows and credentials back.
+- No Helm-managed claim to protect: under Emporium 0.4 `existingClaim` was always set (old storage
+  integration), so the chart never rendered its own PVC and the upgrade does not delete anything.
+  Move existing installs with the installed-app blueprint by choosing the old claim.
 
 ## Hostnames
 
