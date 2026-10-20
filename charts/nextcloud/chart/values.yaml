@@ -1,1 +1,66 @@
-nextcloud: {}
+# Base values for the upstream nextcloud chart. They render on their own (SQLite, chart-generated
+# admin secret); Emporium wires the database, Redis, ingress, SMTP and the data volume in
+# values.emporium.yaml.
+nextcloud:
+  image:
+    flavor: apache
+
+  # Nextcloud sits behind a TLS-terminating ingress.
+  phpClientHttpsFix:
+    enabled: true
+    protocol: https
+
+  nextcloud:
+    datadir: /var/www/html/data
+    # Emporium points this at the app's Secret (admin username/password); empty = chart-generated.
+    existingSecret:
+      enabled: false
+      secretName: ""
+    strategy:
+      type: Recreate
+    extraEnv: []
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+
+  # The bundled Bitnami databases stay off; Emporium provides PostgreSQL and Redis.
+  postgresql:
+    enabled: false
+  mariadb:
+    enabled: false
+  redis:
+    enabled: false
+
+  # Background jobs (cleanup, previews, notifications) run through cron.php every 5 minutes.
+  cronjob:
+    enabled: true
+    type: sidecar
+    sidecar:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 1Gi
+
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 8Gi
+    existingClaim: ""
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+  # The first start installs Nextcloud (occ maintenance:install) before Apache listens.
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 60
