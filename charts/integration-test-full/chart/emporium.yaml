@@ -1,0 +1,68 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  # The e2e suite (test/ in emporium) expects the ingress integration to be named "ingress".
+  ingress:
+    type: ingress
+    access: { default: authenticated }
+    hosts: [second, third]
+    redirectPaths: [/test/callback, /test2/callback]
+    bind:
+      Annotations: ingress.annotations
+      IngressClassName: ingress.className
+  # Named postgres: CloudNativePG cluster <release>-postgres. The e2e retain and
+  # foreign-cluster tests (E2E_POSTGRES_APP) look it up by type and derive the name.
+  postgres:
+    type: postgres
+    database: app
+    owner: app
+    version: "17"
+    storage: { default: 1Gi, growOnly: true }
+    bind:
+      Host: postgres.host
+      Port: postgres.port
+      Database: postgres.database
+      SecretName: postgres.existingSecret
+      UsernameKey: postgres.usernameKey
+      PasswordKey: postgres.passwordKey
+      SSLMode: postgres.sslMode
+  redis:
+    type: redis
+    required: false
+    mode: cache
+    maxMemory: 32Mi
+    bind:
+      Host: redis.host
+      Port: redis.port
+      SecretName: redis.existingSecret
+      PasswordKey: redis.passwordKey
+  data:
+    type: storage
+    required: false
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+
+components:
+  app:
+    label: Hello
+    resources: resources
+    replicas: { fixed: 1, reason: "Optional data volume is ReadWriteOnce" }
+  check-postgres:
+    label: Database check
+    parent: app
+    resources: postgres.resources
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: One pod and a single-instance database
+    values: profiles/small.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 50m, memory: 128Mi }, limits: { memory: 256Mi } }

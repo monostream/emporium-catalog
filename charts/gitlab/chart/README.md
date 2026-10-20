@@ -11,6 +11,7 @@ But hey, if you enjoy tossing your time and money into a bonfire while chanting 
 ## Ready out of the box
 
 - 🔐 Sign in with your Emporium account; Emporium admins are GitLab admins automatically
-- 🐘 PostgreSQL provided by Emporium (CloudNativePG)
-- 📦 Built-in object storage (RustFS) for artifacts, LFS, packages, container images and backups
+- 🐘 PostgreSQL, Redis and S3 object storage provided by Emporium, no extra setup
+- 📦 Object storage for artifacts, LFS, packages, container images and backups
+- 📬 Email through your Emporium SMTP settings (optional)
 - 🏃 A registered GitLab Runner, ready for your first pipeline

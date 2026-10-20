@@ -1,3 +1,14 @@
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- The GitHub personal access token is read from the app's Secret (key `github_token`) instead of plain values.
+- Maximum runners defaults to 5 (was unset, which means unlimited); the runner container requests 250m CPU and 512Mi memory (limit 4Gi), the controller 50m and 128Mi.
+- The controller only watches its own namespace, so several installs no longer reconcile each other's runner scale sets.
+- Fixed: the pre-upgrade hook applied the CRDs of ARC 0.9.2 on every upgrade (older than the bundled 0.15.0). It now applies the CRDs of the bundled version, with the `registry.k8s.io/kubectl` image instead of a Bitnami kubectl.
+- The runner scale set name can no longer change after the install.
+
 # 0.0.23
 
 Published on 7 October 2026

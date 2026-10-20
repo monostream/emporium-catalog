@@ -1,3 +1,15 @@
+# 0.4.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`); profiles `small` (default, one pod per service, no agent server) and `medium`.
+- PostgreSQL is the `postgres` integration (CloudNativePG cluster `<release>-postgres`, PostgreSQL 18, as in 0.3.0).
+- Redis is Emporium's `redis` integration (Valkey `<release>-redis`) instead of the bundled Valkey chart; object storage is the `objects` integration (RustFS `<release>-objects`, buckets created by Emporium) instead of the bundled RustFS chart and bucket Job. Existing installs start with empty Redis and object storage; see MIGRATION.md before uninstalling a 0.3.x install.
+- Email through the optional `mail` SMTP integration (password by reference).
+- The registry and the agent server have their own ingress integrations `registry` and `kas` (no glass: they authenticate with GitLab tokens), each with its own subdomain chosen at install (were `registry.<host>` and `kas.<host>`).
+- TLS secrets, ingress class and annotations come from the ingress integrations; the paths GitLab authenticates itself are `skipPaths`. The nginx-only kas gRPC Ingress is off; agents connect over WebSocket.
+- Removed the Object Storage Size field (now the size of the `objects` integration); Repository Storage Size can no longer change after the install.
+
 # 0.3.0
 
 Published on 19 October 2026

@@ -1,0 +1,17 @@
+apiVersion: v2
+
+name: integration-test-full
+description: Emporium app used for integration testing of the provisioning integrations (PostgreSQL, Redis, storage).
+
+type: application
+version: 0.1.0
+appVersion: "0.4"
+
+home: https://emporium.build
+keywords:
+  - Testing
+  - Integration
+
+annotations:
+  displayName: Integration Test (full)
+  emporiumVersion: "0.5.0"

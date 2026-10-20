@@ -1,0 +1,49 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  ForgejoURL:
+    label: Forgejo URL
+    description: Address of the Forgejo instance the runner registers with, e.g. https://forgejo.example.com.
+    type: string
+    required: true
+    installOnly: true
+    pattern: "^https?://\\S+$"
+    path: runner.config.instance
+  Token:
+    label: Runner registration token
+    description: Registration token from Forgejo (site, organization or repository settings > Actions > Runners). Stored in the app's Secret; only used for the first registration.
+    type: secret
+    required: true
+    ref: { namePath: runner.config.tokenSecret, keyPath: runner.config.tokenKey }
+  RunnerName:
+    label: Runner name
+    description: Name the runner is registered under in Forgejo.
+    type: string
+    required: true
+    installOnly: true
+    path: runner.config.name
+  RunnerCount:
+    label: Number of runners
+    description: Runner pods; each runs one job at a time with its own Docker daemon.
+    type: integer
+    default: 1
+    min: 1
+    max: 20
+    path: replicaCount
+
+components:
+  runner:
+    label: Runner
+    resources: runner.resources
+    match: { kind: Deployment, name: "*forgejo-runner*" }
+  dind:
+    label: Docker daemon
+    parent: runner
+    resources: dind.resources
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Runner pods with a Docker daemon each
+    values: profiles/small.yaml

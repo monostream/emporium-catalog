@@ -1,10 +1,13 @@
 ## Defaults of the Emporium wrapper around the upstream GitLab chart.
-## Settings that depend on the release (hostnames, secret names, the database
-## and the OIDC client) are set by values.emporium.yaml.
+## Settings that depend on the install (hostnames, TLS, the database, Redis,
+## object storage, SMTP and the OIDC client) come from the integrations in
+## emporium.yaml (values.emporium.yaml); sizing comes from the profiles.
 
 ## Settings of the wrapper's own templates
 emporium:
-  ## Sign-in through Emporium's identity provider (Logto), set by values.emporium.yaml
+  ## Sign-in through Emporium's identity provider (Logto), set by values.emporium.yaml.
+  ## GitLab reads the OmniAuth provider (with the client secret) from one YAML
+  ## Secret, so the secret is passed as a value.
   oidc:
     issuer: ""
     clientId: ""
@@ -27,25 +30,14 @@ emporium:
       limits:
         memory: 2Gi
 
-  ## Buckets created in RustFS. They must match the buckets configured below.
+  ## S3 object storage (Emporium's objectStorage integration), set by
+  ## values.emporium.yaml. GitLab, the registry and backups read the connection
+  ## from YAML/INI Secrets this chart renders, so the keys are passed as values.
   objectStorage:
+    endpoint: ""
     region: us-east-1
-    buckets:
-      - git-lfs
-      - gitlab-artifacts
-      - gitlab-uploads
-      - gitlab-packages
-      - gitlab-mr-diffs
-      - gitlab-terraform-state
-      - gitlab-ci-secure-files
-      - gitlab-dependency-proxy
-      - gitlab-agent-plan-content
-      - gitlab-ci-catalog-bundles
-      - gitlab-pages
-      - gitlab-backups
-      - tmp
-      - registry
-      - runner-cache
+    accessKey: ""
+    secretKey: ""
 
   images:
     ## kubectl image of GitLab's cloud native images; the tag defaults to the
@@ -62,9 +54,6 @@ emporium:
     toolbox:
       repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox
       tag: ""
-    awsCli:
-      repository: docker.io/amazon/aws-cli
-      tag: "2.38.2"
 
 global:
   edition: ce
@@ -91,14 +80,18 @@ global:
     configureCertmanager: false
     # "none" omits ingressClassName so the cluster default IngressClass is used
     class: none
-    ## Every ingress names its own TLS secret (issued through the
-    ## kubernetes.io/tls-acme annotation). A non-empty tls map tells upstream
-    ## that TLS is handled; left empty, every pod mounts the CA of a
-    ## self-signed wildcard certificate (<release>-wildcard-tls-ca) that
-    ## nothing creates, and the pods hang in Init. Extra CAs go into
-    ## global.certificates.customCAs.
+    ## The TLS secret comes from the ingress integration (values.emporium.yaml).
+    ## A non-empty tls map tells upstream that TLS is handled; left empty, every
+    ## pod mounts the CA of a self-signed wildcard certificate
+    ## (<release>-wildcard-tls-ca) that nothing creates, and the pods hang in
+    ## Init. Extra CAs go into global.certificates.customCAs.
     tls:
       enabled: true
+      secretName: ""
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
 
   appConfig:
     omniauth:
@@ -110,7 +103,7 @@ global:
       syncProfileFromProvider: [openid_connect]
       syncProfileAttributes: [email]
 
-    ## All object types share one S3 connection to the bundled RustFS
+    ## All object types share one S3 connection (objectStorage integration)
     object_store:
       enabled: true
       proxy_download: true
@@ -121,10 +114,24 @@ global:
     dependencyProxy:
       enabled: true
 
+  ## Redis (Valkey) of the redis integration, set by values.emporium.yaml
   redis:
+    host: ""
+    port: 6379
     auth:
       enabled: true
-      key: default
+      secret: ""
+      key: ""
+
+  ## The agent server for Kubernetes (kas); the small profile turns it off.
+  ## Agents connect over WebSocket (wss://) through the normal Ingress; the
+  ## nginx-only gRPC Ingress stays off (it would share the host and, in perHost
+  ## zones, the certificate Secret with the kas Ingress).
+  kas:
+    enabled: true
+    ingress:
+      grpc:
+        enabled: false
 
 gitlab:
   installCertmanager: false
@@ -144,13 +151,12 @@ gitlab:
     kas:
       ingress:
         enabled: true
-        tls:
-          secretName: gitlab-kas-tls
+
+    gitaly:
+      persistence:
+        size: 50Gi
 
     webservice:
-      ingress:
-        tls:
-          secretName: gitlab-webservice-tls
       ## Maps the Logto admin role to GitLab's admin flag on sign-in. The
       ## volume is named after the initializer's checksum, so a change rolls
       ## the pods (a subPath mount never sees ConfigMap updates).
@@ -165,12 +171,9 @@ gitlab:
           readOnly: true
 
   registry:
-    ingress:
-      tls:
-        secretName: gitlab-registry-tls
     storage:
       key: registry
-      ## RustFS is only reachable inside the cluster, so the registry serves
+      ## The object storage is only reachable inside the cluster, so the registry serves
       ## blobs itself instead of redirecting clients to the object storage.
       redirect:
         disable: true
@@ -183,6 +186,10 @@ gitlab:
       ## project, so this stays off unless the installation trusts all of them.
       ## Not an upstream key; read by the config template below.
       privileged: false
+      ## S3 host:port and region of the runner cache, set by values.emporium.yaml.
+      ## Not upstream keys; read by the config template below.
+      cacheS3Address: ""
+      cacheS3Region: us-east-1
       config: |
         [[runners]]
           [runners.kubernetes]
@@ -193,42 +200,7 @@ gitlab:
             Path = "gitlab-runner"
             Shared = true
             [runners.cache.s3]
-              ServerAddress = "{{ .Release.Name }}-rustfs-svc:9000"
+              ServerAddress = {{ .Values.runners.cacheS3Address | quote }}
               BucketName = "runner-cache"
-              BucketLocation = "us-east-1"
+              BucketLocation = {{ .Values.runners.cacheS3Region | quote }}
               Insecure = true
-
-## S3 compatible object storage for GitLab (replaces the removed bundled MinIO)
-rustfs:
-  mode:
-    standalone:
-      enabled: true
-    distributed:
-      enabled: false
-  ingress:
-    enabled: false
-  storageclass:
-    # empty: the cluster's default StorageClass
-    name: ""
-    dataStorageSize: 20Gi
-  config:
-    rustfs:
-      console_enable: "false"
-      # log to stdout instead of a separate logs volume
-      obs_log_directory: ""
-      obs_environment: production
-
-## Redis compatible store for GitLab (replaces the removed bundled Redis)
-valkey:
-  auth:
-    enabled: true
-    usersExistingSecret: "{{ .Release.Name }}-valkey-auth"
-    aclUsers:
-      default:
-        permissions: "~* &* +@all"
-  dataStorage:
-    enabled: true
-    requestedSize: 2Gi
-  ## The data volume is ReadWriteOnce, so the old pod has to stop before the
-  ## new one can mount it
-  deploymentStrategy: Recreate

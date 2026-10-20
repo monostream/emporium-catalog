@@ -1,0 +1,13 @@
+ingress:
+  enabled: true
+  # One rule per host: the main host, then the extra hosts second and third.
+  hosts:
+    {{- range .Emporium.Integrations.ingress.AllHosts }}
+    - host: {{ . | quote }}
+      paths:
+        - path: /
+          pathType: Prefix
+    {{- end }}
+  tls:
+    - secretName: {{ .Emporium.Integrations.ingress.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.ingress.AllHosts | toJson }}

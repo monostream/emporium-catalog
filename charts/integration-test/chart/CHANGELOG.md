@@ -1,3 +1,14 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- The ingress integration is named `ingress` (the e2e suite expects that name); access defaults to authenticated, OIDC redirect paths `/test/callback` and `/test2/callback`.
+- The extra hosts are flat names `<subdomain>-second.<zone>` and `<subdomain>-third.<zone>` (were `second.<host>` and `third.<host>`), served by the one Ingress with one TLS entry; the `-second` and `-third` Ingress objects are gone.
+- TLS secret, ingress class and annotations come from the ingress integration; no hard-coded `tls-acme` or `letsencrypt-staging` issuer.
+- nginxdemos/hello from `plain-text` to `0.4-plain-text`; default resources; one `small` profile.
+- Removed the `helm test` connection pod.
+
 # v0.8.1 (April 1, 2024)
 
 - Fixed a bug where the app would spontaneously start playing "Never Gonna Give You Up" at random intervals
