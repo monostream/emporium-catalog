@@ -40,7 +40,7 @@ integrations:
       - /.well-known/*
       - /jwt/auth
       - /static/*
-      - regex(^/[^/]+(/[^/]+)+\.git(/.*)?$)
+      - regex(^/[A-Za-z0-9_][A-Za-z0-9_.-]*(/[A-Za-z0-9_][A-Za-z0-9_.-]*)+\.git/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*)$)
   # The container registry authenticates with GitLab tokens (docker login), so no glass.
   # Its own hostname: choose a subdomain different from the web one.
   registry:
