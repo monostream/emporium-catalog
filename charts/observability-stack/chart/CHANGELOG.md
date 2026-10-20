@@ -1,3 +1,16 @@
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- kube-prometheus-stack from 92.0.0 to 92.10.1, alloy from 1.13.0 to 1.14.0 (loki 7.3.0 and tempo 1.24.4 are current).
+- Grafana ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode (was `grafana-<release>-tls`).
+- Grafana admin user and password are inputs in the per-app Secret (password generated at install) instead of a `lookup`-kept random value.
+- Fixed: "Tempo retention" reached a dead key (`tempo.retention`); it now sets `tempo.tempo.retention`. Its format is a Go duration (`168h`), default 7 days as documented before.
+- Storage sizes for Prometheus, Loki and Tempo are fixed after install (StatefulSet volume templates).
+- The Loki canary DaemonSet and Helm test are disabled.
+- Default resources for every workload.
+
 # 0.0.329
 
 Published on 19 October 2026

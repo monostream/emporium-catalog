@@ -1,36 +1,11 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type byteSize
-## @description Size of the attached storage volume. Default is 20Gi.
-## @optional
-
 ingress:
   enabled: true
-
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
-
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
   hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: {{ .Emporium.Name }}-tls
-      hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
-
-persistence:
-  enabled: true
-  size: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
-
-## @userSupplied NvidiaEnabled
-## @label use NVidia CPU
-## @type boolean
-## @optional
-gpu:
-  nvidiaEnabled: {{ default false .Emporium.UserSupplied.NvidiaEnabled }}
-  runtimeClass: "nvidia"
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

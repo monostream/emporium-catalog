@@ -1,6 +1,219 @@
-prometheus: {}
-loki: {}
-tempo: {}
-alloy: {}
-pyroscope: {}
-dashboard: {}
+# Wrapper defaults. Emporium-specific wiring is in values.emporium.yaml; sizing in profiles/.
+prometheus:
+  prometheusOperator:
+    enabled: false
+    admissionWebhooks:
+      timeoutSeconds: 30
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+  prometheus:
+    enabled: false
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
+      retention: 10d
+      retentionSize: ""
+      resources:
+        requests:
+          cpu: 200m
+          memory: 1Gi
+        limits:
+          memory: 2Gi
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 20Gi
+
+  nodeExporter:
+    enabled: false
+  prometheus-node-exporter:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+
+  kube-state-metrics:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+
+  grafana:
+    adminPassword: ""
+    admin:
+      existingSecret: ""
+    ingress:
+      enabled: false
+      ingressClassName: ""
+      hosts: []
+      tls: []
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+    sidecar:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+    grafana.ini:
+      alerting:
+        enabled: false
+      analytics:
+        check_for_updates: false
+      users:
+        allow_sign_up: false
+        allow_org_create: false
+        auto_assign_org: true
+        auto_assign_org_role: true
+        viewers_can_edit: true
+        editors_can_admin: false
+      auth:
+        disable_login_form: false
+      auth.basic:
+        enabled: false
+      # Viewers come in through the Emporium login in front of Grafana; edit as the admin user.
+      auth.anonymous:
+        enabled: true
+        org_name: Main Org.
+        org_role: Viewer
+
+  defaultRules:
+    create: false
+  kubeApiServer:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubelet:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+  alertmanager:
+    enabled: false
+  coreDns:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeProxy:
+    enabled: false
+
+loki:
+  deploymentMode: SingleBinary
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    storage:
+      type: filesystem
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 50Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+  # The canary DaemonSet (one pod per node) and the Helm test only verify Loki itself.
+  lokiCanary:
+    enabled: false
+  test:
+    enabled: false
+  minio:
+    enabled: false
+  chunksCache:
+    enabled: false
+  gateway:
+    enabled: false
+  resultsCache:
+    enabled: false
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+  ingester:
+    replicas: 0
+  querier:
+    replicas: 0
+  queryFrontend:
+    replicas: 0
+  queryScheduler:
+    replicas: 0
+  distributor:
+    replicas: 0
+  compactor:
+    replicas: 0
+  indexGateway:
+    replicas: 0
+  bloomCompactor:
+    replicas: 0
+  bloomGateway:
+    replicas: 0
+
+tempo:
+  persistence:
+    enabled: true
+    enableStatefulSetAutoDeletePVC: false
+    size: 5Gi
+  tempo:
+    # Go duration (block_retention).
+    retention: 168h
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+
+alloy:
+  controller:
+    type: daemonset
+  alloy:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    mounts:
+      varlog: true
+  configReloader:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        memory: 64Mi

@@ -85,6 +85,12 @@ spec:
         - name: init-volume
           image: busybox:stable
           command: ["chown","1000:1000","/home/codespace"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
           volumeMounts:
             - mountPath: /home/codespace
               name: {{ template "codespace.fullname" . }}
@@ -95,7 +101,7 @@ spec:
         {{- if .Values.persistence.enabled }}
         - name: {{ template "codespace.fullname" . }}
           persistentVolumeClaim:
-            claimName: {{ template "codespace.fullname" . }}
+            claimName: {{ .Values.persistence.existingClaim | default (include "codespace.fullname" .) }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

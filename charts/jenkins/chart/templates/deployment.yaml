@@ -14,7 +14,6 @@ spec:
     metadata:
       labels:
         {{- include "jenkins.selectorLabels" . | nindent 8 }}
-        rollme: {{ randAlphaNum 5 | quote }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -40,7 +39,7 @@ spec:
                 apiVersion: v1
                 fieldPath: metadata.namespace
           - name: BASE_URL
-            value: {{ required "missing value baseUrl" .Values.baseUrl }}
+            value: {{ required "missing value baseUrl" .Values.baseUrl | quote }}
           - name: ADMIN_USERNAME
             valueFrom:
               secretKeyRef:
@@ -49,21 +48,23 @@ spec:
           - name: ADMIN_PASSWORD
             valueFrom:
               secretKeyRef:
+                {{- if .Values.existingSecret }}
+                name: {{ .Values.existingSecret | quote }}
+                key: ADMIN_PASSWORD
+                {{- else }}
                 name: {{ template "jenkins.fullname" . }}
                 key: jenkins-password
+                {{- end }}
           {{- if .Values.oidc }}
           - name: OIDC_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "jenkins.fullname" . }}
-                key: jenkins-oidc-client-id
+            value: {{ required "missing value oidc.clientId" .Values.oidc.clientId | quote }}
           - name: OIDC_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ template "jenkins.fullname" . }}
-                key: jenkins-oidc-client-secret
+                name: {{ required "missing value oidc.existingSecret" .Values.oidc.existingSecret | quote }}
+                key: {{ required "missing value oidc.clientSecretKey" .Values.oidc.clientSecretKey | quote }}
           - name: OIDC_ISSUER_URL
-            value: {{ .Values.oidc.issuerUrl }}
+            value: {{ required "missing value oidc.issuerUrl" .Values.oidc.issuerUrl | quote }}
           {{- end }}
           {{- if .Values.loop.uri }}
           - name: LOOP_URI
@@ -100,6 +101,12 @@ spec:
           image: "{{ .Values.initVolume.repository }}:{{ .Values.initVolume.tag }}"
           imagePullPolicy: {{ .Values.initVolume.pullPolicy }}
           command: [ 'sh', '-c', 'chown 1000:1000 /mnt/data /mnt/workspace' ]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
           volumeMounts:
             - name: data
               mountPath: /mnt/data

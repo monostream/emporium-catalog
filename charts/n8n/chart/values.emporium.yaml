@@ -1,30 +1,49 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type byteSize
-## @description Size of the storage volume. Default is 8Gi.
-## @optional
-
 n8n:
+  main:
+    config:
+      N8N_HOST: {{ .Emporium.Integrations.web.Hostname | quote }}
+      N8N_EDITOR_BASE_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+      WEBHOOK_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+      {{- with .Emporium.Integrations.db }}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: {{ .Host | quote }}
+      DB_POSTGRESDB_PORT: {{ .Port | quote }}
+      DB_POSTGRESDB_DATABASE: {{ .Database | quote }}
+      DB_POSTGRESDB_USER: {{ .Username | quote }}
+      # Verified TLS against the CloudNativePG CA (Host is the -rw.<ns>.svc name in the certificate).
+      DB_POSTGRESDB_SSL_ENABLED: "true"
+      # _FILE: n8n reads the CA certificate contents from this file.
+      DB_POSTGRESDB_SSL_CA_FILE: /etc/n8n/postgres-ca/ca.crt
+      DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "true"
+      {{- end }}
+    {{- with .Emporium.Integrations.db }}
+    extraEnv:
+      DB_POSTGRESDB_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: {{ .SecretName | quote }}
+            key: {{ .PasswordKey | quote }}
+    extraVolumes:
+      - name: postgres-ca
+        secret:
+          secretName: {{ .CASecretName | quote }}
+          items:
+            - key: ca.crt
+              path: ca.crt
+    extraVolumeMounts:
+      - name: postgres-ca
+        mountPath: /etc/n8n/postgres-ca
+        readOnly: true
+    {{- end }}
+
   ingress:
     enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
-
-  main:
-    persistence:
-      enabled: true
-      type: dynamic
-      size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize | quote }}
-
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

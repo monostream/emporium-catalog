@@ -1,0 +1,47 @@
+apiVersion: emporium.build/v1
+
+# NeuVector is a cluster-wide security platform: one install per cluster. It creates cluster-scoped
+# objects with fixed names (ClusterRoles/ClusterRoleBindings neuvector-binding-*, the CRDs
+# nv*.neuvector.com, admission/CRD webhooks) and a privileged enforcer DaemonSet on every node.
+# A second install (any namespace) or a pre-existing NeuVector fails on those names.
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    redirectPaths: [/openId_auth]
+    bind:
+      Hostname: neuvector.manager.ingress.host
+      TLSSecretName: neuvector.manager.ingress.secretName
+      IngressClassName: neuvector.manager.ingress.ingressClassName
+  oidc:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: neuvector.controller.pvc.existingClaim
+
+components:
+  controller:
+    label: Controller
+    resources: neuvector.controller.resources
+    replicas: { fixed: 1, reason: "Configuration backup on a ReadWriteOnce volume" }
+  enforcer:
+    label: Enforcer (per node)
+    resources: neuvector.enforcer.resources
+    perNode: true
+  manager:
+    label: Web console
+    resources: neuvector.manager.resources
+  scanner:
+    label: Vulnerability scanner
+    resources: neuvector.cve.scanner.resources
+    replicas: { path: neuvector.cve.scanner.replicas, min: 1, max: 5 }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: One cluster with a handful of nodes
+    values: profiles/small.yaml
