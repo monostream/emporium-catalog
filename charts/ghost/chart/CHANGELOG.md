@@ -1,3 +1,18 @@
+# 1.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Replaced the Bitnami Ghost chart (Bitnami Ghost and MySQL images, which no longer pull from `docker.io/bitnami`) with the chart's own templates: the official `ghost` image (6.71.0) and an in-chart MySQL 8.4 LTS StatefulSet (official `mysql:8.4.11` image). Ghost supports only MySQL 8 in production; Emporium has no MySQL provider.
+- Existing installs start with an empty database. The data of the Bitnami MySQL 9.4 StatefulSet is not carried over; move it with a mysqldump into the new MySQL as described in `MIGRATION.md` (installed-app blueprint, `docs/blueprints/migrate-installed-app-to-v0.5.md`).
+- The MySQL user and root passwords are generated once into the per-app Secret (they were created with `lookup`/`randAlphaNum`).
+- Removed the "Admin Username", "Admin Password", "Admin Email" and "Blog Title" inputs: the official image has no bootstrap; the owner account and blog title are set in Ghost's setup at `/ghost/` on first visit.
+- Removed the "Storage Size" input: the content volume is the `content` storage integration (8Gi default, grow-only); the MySQL data volume is the `mysql` storage integration (8Gi default, grow-only), so both follow the uninstall keep/delete choice.
+- Optional SMTP through the `mail` integration (staff invites, password resets, newsletters); the password is read from the per-app Secret.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration. Access defaults to authenticated so nobody else can claim the first-run owner setup; switch access to public after creating the owner account.
+- Default resources for Ghost (100m / 384Mi requested, 1Gi limit) and MySQL (100m / 512Mi requested, 1Gi limit); one `small` profile.
+- License annotation corrected to MIT (Ghost).
+
 # 1.0.149
 
 Published on 23 August 2025
