@@ -14,6 +14,13 @@ Not replaced. rotki keeps its encrypted per-user SQLite databases under `/data`.
   create `data-<release>` itself; that claim is still created when the chart is installed without
   Emporium. 0.1.x never mounted the claim (see below), so existing installs have no data on it:
   export from the rotki UI before migrating.
+- `data-<release>` was Helm-managed without a keep annotation; with the `data` integration the chart
+  stops rendering it and Helm deletes it on the upgrade. It holds no rotki data, but if you want it
+  kept anyway, run this **before the upgrade**:
+
+  ```bash
+  kubectl -n <ns> annotate pvc data-<release> helm.sh/resource-policy=keep
+  ```
 
 ## Hostnames
 
