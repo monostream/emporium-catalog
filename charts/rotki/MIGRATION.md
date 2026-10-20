@@ -15,11 +15,15 @@ Not replaced. rotki keeps its encrypted per-user SQLite databases under `/data`.
   Emporium. 0.1.x never mounted the claim (see below), so existing installs have no data on it:
   export from the rotki UI before migrating.
 - `data-<release>` was Helm-managed without a keep annotation; with the `data` integration the chart
-  stops rendering it and Helm deletes it on the upgrade. It holds no rotki data, but if you want it
-  kept anyway, run this **before the upgrade**:
+  stops rendering it, and both the upgrade and the uninstall of the 0.4 release delete it (a live
+  `kubectl annotate` does not protect the uninstall, which reads the stored manifest). It holds no
+  rotki data (0.1.x never mounted it), so letting it go is the documented path. Export from the
+  rotki UI and import after the reinstall. If you want the claim kept anyway, the old chart passes
+  `persistence.annotations` through:
 
   ```bash
-  kubectl -n <ns> annotate pvc data-<release> helm.sh/resource-policy=keep
+  helm -n <ns> upgrade <release> <catalog-repo>/rotki --version 0.1.26 --reuse-values \
+    --set-string 'persistence.annotations.helm\.sh/resource-policy=keep'
   ```
 
 ## Hostnames

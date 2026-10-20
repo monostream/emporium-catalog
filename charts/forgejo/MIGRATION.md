@@ -49,13 +49,46 @@
 - `data` (storage integration, default 30Gi, grow-only), mounted at `/data` (repositories, LFS,
   attachments, Bleve index, LevelDB queue). 0.0.x/0.1.0 used the chart-managed claim
   `gitea-shared-storage`; select it as the existing claim when migrating.
-- **Before the upgrade**, make sure Helm does not delete that claim when the chart stops rendering
-  it. The upstream chart sets `helm.sh/resource-policy: keep` on it by default; verify, and set it
-  if missing:
+- The upstream chart renders `helm.sh/resource-policy: keep` on `gitea-shared-storage` by default
+  (`persistence.annotations` in Forgejo chart 17.2.0), so the stored manifest normally already
+  protects it from both upgrade and uninstall. **Check the stored manifest first:**
 
   ```bash
-  kubectl -n <ns> annotate pvc gitea-shared-storage helm.sh/resource-policy=keep --overwrite
+  helm -n <ns> get manifest <release> | grep -A6 'kind: PersistentVolumeClaim'   # resource-policy: keep?
   ```
+
+  Only if it is missing:
+- **Why a live annotation is not enough:** `kubectl annotate` on the claim protects a
+  `helm upgrade`, but `helm uninstall` decides from the manifest stored in the release, which has no
+  keep annotation. The 0.5 path for an installed 0.4 app is uninstall + reinstall (installed-app
+  blueprint, `docs/blueprints/migrate-installed-app-to-v0.5.md`; `updateApp` refuses
+  `NEEDS_MIGRATION` apps), so the keep annotation has to be in the stored manifest first.
+- **Before uninstalling (preferred):** upgrade the release once more with the **old** chart version
+  and the annotation in the values (the old chart passes `forgejo.persistence.annotations` through), then check the
+  stored manifest:
+
+  ```bash
+  helm -n <ns> upgrade <release> <catalog-repo>/forgejo --version <installed 0.0.x/0.1.0 version> --reuse-values \
+    --set-string 'forgejo.persistence.annotations.helm\.sh/resource-policy=keep'
+  helm -n <ns> get manifest <release> | grep -A6 'kind: PersistentVolumeClaim'   # must show resource-policy: keep
+  ```
+
+- **If that upgrade is not possible** (old chart version unavailable, release broken): back the
+  data up, then take the volume out of Helm's hands before uninstalling: set the bound PV to
+  `Retain`, let the uninstall delete the claim, then clear the PV's `claimRef` and bind a new claim
+  named `gitea-shared-storage` to it with `spec.volumeName`:
+
+  ```bash
+  PV=$(kubectl -n <ns> get pvc gitea-shared-storage -o jsonpath='{.spec.volumeName}')
+  kubectl patch pv "$PV" -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+  # after the uninstall:
+  kubectl patch pv "$PV" --type json -p '[{"op":"remove","path":"/spec/claimRef"}]'
+  # create PVC gitea-shared-storage with spec.volumeName: $PV (same size/access mode/storageClassName), then
+  # choose it as the existing claim of the data integration
+  ```
+
+- If neither is possible, the claim does not survive the uninstall: migrating this install to 0.5
+  is unsupported without losing the volume (Emporium 0.5 cannot upgrade a 0.4 app in place).
 
 ## Hostnames
 
