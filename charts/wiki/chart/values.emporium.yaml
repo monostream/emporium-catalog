@@ -1,47 +1,33 @@
 wiki:
   ingress:
     enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
-
-  postgresql:
-    enabled: false
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
 
   # CloudNativePG serves TLS with its own CA. Wiki.js connects with
   # rejectUnauthorized when DB_SSL is true, so trusting the CNPG CA through
   # NODE_EXTRA_CA_CERTS gives certificate and hostname verification
-  # (verify-full). externalPostgresql.ca (DB_SSL_CA) only takes an inline
-  # certificate body, not a mounted file.
-  nodeExtraCaCerts: /etc/ssl/postgres/ca.crt
+  # (verify-full; Host is the -rw.<ns>.svc name in the certificate).
+  # externalPostgresql.ca (DB_SSL_CA) only takes an inline certificate body.
   volumes:
     - name: postgres-ca
       secret:
-        secretName: {{ .Emporium.Integrations.Postgres.CASecretName | quote }}
+        secretName: {{ .Emporium.Integrations.postgres.CASecretName | quote }}
         items:
           - key: ca.crt
             path: ca.crt
-  volumeMounts:
-    - name: postgres-ca
-      mountPath: /etc/ssl/postgres
-      readOnly: true
 
   externalPostgresql:
-    host: {{ .Emporium.Integrations.Postgres.Host | quote }}
-    port: {{ .Emporium.Integrations.Postgres.Port }}
-    database: {{ .Emporium.Integrations.Postgres.Database | quote }}
-    username: {{ .Emporium.Integrations.Postgres.Username | quote }}
-    existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
-    existingSecretKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
-    ssl: true
+    host: {{ .Emporium.Integrations.postgres.Host | quote }}
+    port: {{ .Emporium.Integrations.postgres.Port }}
+    database: {{ .Emporium.Integrations.postgres.Database | quote }}
+    username: {{ .Emporium.Integrations.postgres.Username | quote }}
+    existingSecret: {{ .Emporium.Integrations.postgres.SecretName | quote }}
+    existingSecretKey: {{ .Emporium.Integrations.postgres.PasswordKey | quote }}

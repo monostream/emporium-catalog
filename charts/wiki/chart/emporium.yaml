@@ -1,0 +1,33 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      IngressClassName: wiki.ingress.className
+  postgres:
+    type: postgres
+    database: wiki
+    owner: wiki
+    version: "17"
+    storage: { default: 8Gi, growOnly: true }
+
+components:
+  app:
+    label: Wiki.js
+    resources: wiki.resources
+    match: { kind: Deployment, name: "*wiki*" }
+    replicas: { fixed: 1, reason: "Wiki.js 2 runs its scheduler in every instance and is not cluster-aware" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team knowledge base
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }

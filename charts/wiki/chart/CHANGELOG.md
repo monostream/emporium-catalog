@@ -1,3 +1,13 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Wiki.js pinned to 2.5.316 (was the floating `2` tag).
+- PostgreSQL is the `postgres` integration (CloudNativePG, PostgreSQL 17, cluster `<release>-postgres` as in 0.1.0), TLS verified against the cluster CA. Coming from 0.0.x: Existing installs start with an empty database; the data in the PostgreSQL bundled with the Wiki.js chart is not migrated (see MIGRATION.md).
+- Ingress host, TLS secret, annotations and ingress class come from the `web` ingress integration.
+- Default resources (50m CPU / 256Mi requested, 1Gi limit) instead of none.
+
 # 0.1.0
 
 Published on 19 October 2026
