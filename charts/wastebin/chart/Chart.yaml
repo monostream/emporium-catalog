@@ -1,7 +1,7 @@
 apiVersion: v2
 name: wastebin
 description: A minimal pastebin with a design shamelessly copied from bin. Fast, lightweight, and secure paste sharing.
-version: 0.2.0
+version: 0.2.1
 appVersion: "3.9.0"
 type: application
 home: https://github.com/matze/wastebin
@@ -25,3 +25,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/wastebin/wastebin_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/wastebin/wastebin_gallery_2.png
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.4 2026-10-20"
