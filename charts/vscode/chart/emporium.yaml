@@ -1,0 +1,47 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  ClusterAdmin:
+    label: Cluster admin access
+    description: Bind the workspace to cluster-admin so kubectl and helm reach the whole cluster. Off limits it to the app's own namespace.
+    type: boolean
+    default: true
+    path: rbac.clusterAdmin
+    matrix: true
+  NvidiaEnabled:
+    label: NVIDIA GPU
+    description: Schedule on a node with an NVIDIA GPU (nvidia runtime class and node label nvidia.com/gpu.present).
+    type: boolean
+    default: false
+    path: gpu.nvidiaEnabled
+    matrix: true
+
+integrations:
+  web:
+    type: ingress
+    # code-server runs with --auth none: the Emporium login is the only protection.
+    access: { default: authenticated }
+    bind:
+      IngressClassName: ingress.ingressClassName
+  data:
+    type: storage
+    size: { default: 20Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+
+components:
+  app:
+    label: VS Code
+    resources: resources
+    replicas: { fixed: 1, reason: "Single workspace on a ReadWriteOnce home volume" }
+  docker:
+    label: Docker engine
+    parent: app
+    resources: docker.resources
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: One developer
+    values: profiles/small.yaml
