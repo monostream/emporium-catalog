@@ -25,11 +25,25 @@ integrations:
     bind:
       ClaimName: storage.data.existingClaim
 
+  db:
+    type: postgres
+    required: false
+    database: vaultwarden
+    owner: vaultwarden
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    # postgresql://...?sslmode=require: encrypted (libpq cannot be given the CA through the URL key).
+    secretKeys:
+      DATABASE_URL: uri-sslmode-require
+
 components:
   app:
     label: Vaultwarden
     resources: resources
-    replicas: { fixed: 1, reason: "SQLite database on a ReadWriteOnce volume" }
+    replicas: { fixed: 1, reason: "SQLite database and attachments on a ReadWriteOnce volume" }
+  db:
+    label: PostgreSQL
+    integration: db
 
 profiles:
   default: small
@@ -37,3 +51,5 @@ profiles:
     label: Small
     description: Families and small teams
     values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

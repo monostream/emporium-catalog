@@ -5,6 +5,7 @@ Published on 20 October 2026
 - Requires Emporium v0.5.0 (`emporium.yaml`).
 - Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
 - Data volume is the `data` storage integration (1Gi default, grow-only), so the uninstall keep/delete choice applies.
+- Optional PostgreSQL through Emporium's postgres integration (CloudNativePG, PostgreSQL 17, `sslmode=require`), off by default; without it Vaultwarden keeps SQLite on the data volume.
 - SMTP is optional; the SMTP password is read from the per-app Secret instead of plain values.
 - New input "Allow sign-ups" (default on). Fixed: `SIGNUPS_ALLOWED` was set to the domain.
 - Bitwarden client APIs (`/api/*`, `/identity/*`) skip the Emporium login; the meaningless `/#/*` skip path is gone.

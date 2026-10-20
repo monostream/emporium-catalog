@@ -27,6 +27,12 @@ app:
     existingSecret: ""
     passwordKey: ""
 
+# External PostgreSQL: Secret holding DATABASE_URL (Emporium: the per-app Secret).
+# Empty: SQLite on the data volume.
+database:
+  existingSecret: ""
+  urlKey: DATABASE_URL
+
 storage:
   data:
     enabled: true

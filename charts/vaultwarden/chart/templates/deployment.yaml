@@ -43,6 +43,13 @@ spec:
             value: {{ .Values.app.domain | quote }}
           - name: SIGNUPS_ALLOWED
             value: {{ .Values.app.signupsAllowed | quote }}
+          {{- with .Values.database.existingSecret }}
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: {{ . | quote }}
+                key: {{ $.Values.database.urlKey | quote }}
+          {{- end }}
           {{- with .Values.app.smtp }}
           {{- if .host }}
           - name: SMTP_HOST

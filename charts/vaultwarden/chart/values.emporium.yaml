@@ -10,6 +10,11 @@ app:
     passwordKey: {{ .PasswordKey | quote }}
   {{- end }}
 
+{{- with .Emporium.Integrations.db }}
+database:
+  existingSecret: {{ .EnvSecretName | quote }}
+{{- end }}
+
 ingress:
   enabled: true
   annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
