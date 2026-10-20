@@ -1,6 +1,7 @@
 apiVersion: emporium.build/v1
 
-# Cluster-wide stack: Alloy (DaemonSet) reads every pod's logs on every node, the Grafana dashboard
+# Cluster-wide stack: Alloy (DaemonSet) reads every pod's logs on every node (through the Kubernetes
+# API by default, from the node's /var/log with NodeLogCollection), the Grafana dashboard
 # sidecar watches ConfigMaps in all namespaces, and with Prometheus enabled the stack adds the
 # monitoring.coreos.com CRDs (shipped by kube-prometheus-stack, installed when missing), a
 # prometheus-operator watching all namespaces, node-exporter on every node and kube-state-metrics.
@@ -13,9 +14,16 @@ sections:
   - { id: security, label: Security, description: Grafana admin account (generated at install). }
 
 inputs:
+  NodeLogCollection:
+    label: Read logs from the nodes
+    description: Alloy reads pod logs from each node's /var/log (hostPath mount) instead of streaming them through the Kubernetes API. Needs a namespace that allows hostPath volumes (PodSecurity "privileged"); the install fails under "baseline" or "restricted".
+    type: boolean
+    default: false
+    path: alloy.alloy.mounts.varlog
+    matrix: true
   PrometheusEnabled:
     label: Enable Prometheus
-    description: Collect cluster and workload metrics with Prometheus (adds the operator, node-exporter on every node and kube-state-metrics).
+    description: Collect cluster and workload metrics with Prometheus (adds the operator, node-exporter on every node and kube-state-metrics). node-exporter uses the host network, PID namespace and hostPath volumes, so this needs a namespace with PodSecurity "privileged".
     type: boolean
     default: false
     matrix: true

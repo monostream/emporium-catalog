@@ -209,7 +209,8 @@ alloy:
       limits:
         memory: 512Mi
     mounts:
-      varlog: true
+      # Input NodeLogCollection. Off: logs come through the Kubernetes API, no hostPath (PodSecurity baseline).
+      varlog: false
   configReloader:
     resources:
       requests:
