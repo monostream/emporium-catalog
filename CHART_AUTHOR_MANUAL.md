@@ -18,7 +18,7 @@ charts/<name>/
     templates/ README.md CHANGELOG.md assets/
 ```
 
-- `Chart.yaml` annotations: `displayName`, `category`, `licenses`, `icon`, `gallery`, and `emporiumVersion` (semver, must be `>= 0.5.0`; the catalog currently writes `v0.5.0`).
+- `Chart.yaml` annotations: `displayName`, `category`, `licenses`, `icon`, `gallery`, and `emporiumVersion` (semver, must be `>= 0.5.0`; the catalog currently writes `v0.5.0`). `emporiumVersion` lives only in this `Chart.yaml` annotation; it is not a field of `emporium.yaml`.
 - Every chart ships a parseable `emporium.yaml`. Without it, or with `emporiumVersion` missing or below 0.5.0, the version is indexed invalid and cannot be installed.
 - Gone in 0.5, do not use: the `## @userSupplied` comment DSL, `.Emporium.UserSupplied`, `.Emporium.Integrations.{DNS,OIDC,SMTP,Storage,Postgres}` aliases, the `emporium.build/postgres` annotation, the `oidcRedirectPaths` annotation (now `redirectPaths` on the `ingress` integration), `kubernetes.io/tls-acme` literals.
 
@@ -93,7 +93,7 @@ Declared under a name the template and `bind` use: `.Emporium.Integrations.<name
 
 | Type | Params (chart) | User chooses at install | Outputs |
 |---|---|---|---|
-| `ingress` | `hosts` (extra host keys, e.g. `[registry]`), `redirectPaths`, `access.default`, `skipPaths`, `disableGlass` | zone, subdomain, access (public/authenticated/admins), panel toggle, global annotations | `Hostname`, `Hosts` (map: `registry` -> `<sub>-registry.<zone>`), `AllHosts`, `Subdomain`, `Zone`, `TLSSecretName`, `TLSMode`, `Annotations`, `ClientID` |
+| `ingress` | `hosts` (extra host keys, e.g. `[registry]`), `redirectPaths`, `access.default`, `skipPaths`, `disableGlass` | zone, subdomain, access (public/authenticated/admins), panel toggle, global annotations | `Hostname`, `Hosts` (map: `registry` -> `<sub>-registry.<zone>`), `AllHosts`, `Subdomain`, `Zone`, `TLSSecretName`, `TLSMode`, `IngressClassName`, `Annotations`, `ClientID` |
 | `oidc` | `adminScope`, `scopes`, `ingress` (peer name; default: first ingress) | nothing | `ClientID`, `ClientSecret` (secret), `Issuer`, `ConfigurationEndpoint`, `AdminScope`, `SecretName`, `ClientSecretKey` |
 | `smtp` | none | which SMTP config (required when `required`) | `Host`, `Port` (int), `Username`, `Password` (secret), `From`, `ReplyTo`, `SecretName`, `PasswordKey` |
 | `storage` | `size {default, growOnly}`, `accessModes`, `storageClass.default` | an existing claim, or size and class for a new one | `ClaimName`, `Capacity`, `StorageClass`, `AccessModes` |
@@ -103,7 +103,7 @@ Declared under a name the template and `bind` use: `.Emporium.Integrations.<name
 
 Notes per type:
 
-- **ingress**: also declares the app's own hostname; `Hostname` is `<subdomain>.<zone>`. Extra hosts are flat names `<sub>-<host>.<zone>` (for example `<app>-registry.<zone>`), never nested subdomains: one wildcard certificate covers one label level (section 8). Apps without an `ingress` integration get no OIDC client and no access setting. Paths needing no login: `skipPaths` (glob list, same syntax as the old `emporium.build/auth-skip-paths`).
+- **ingress**: also declares the app's own hostname; `Hostname` is `<subdomain>.<zone>`. Extra hosts are flat names `<sub>-<host>.<zone>` (for example `<app>-registry.<zone>`), never nested subdomains: one wildcard certificate covers one label level (section 8). Apps without an `ingress` integration get no OIDC client and no access setting. Paths needing no login: `skipPaths`, a list of entries that are either a path ending in a single trailing `*` (prefix match, e.g. `/api/*`) or `regex(<Go regexp>)` (the expression must not contain commas). A `*` anywhere else in a path is literal, not a wildcard. Skip paths that together open the whole app (for example `/*`) are rejected unless `access` is `public`. The Plan notice lists the effective skip paths so the installer can see what is open. `IngressClassName` is the class the zone's controller serves: charts must set `ingressClassName` from it (section 8).
 - **oidc**: shares the ingress's IdP client when the app has an `ingress`; the redirect URIs come from the ingress's `redirectPaths`. A pre-existing client without an Emporium owner id is reused and never deleted.
 - **storage**: PVC sizes are `growOnly`; a claim you declare is created by Emporium and bound by `ClaimName` (`existingClaim` style charts). An existing claim chosen by the user is never owned.
 - **postgres**: provisioned as a CloudNativePG cluster named `<release>-<integration>` (the integration named `postgres` keeps `<release>-postgres`; `db` gives `<release>-db`). The CNPG operator is a prerequisite, not part of the chart. Params: `version` (major, e.g. `"17"`), `database`, `owner`, `extensions` (declare every extension the app needs; they are created at database init), `storage` (`{default: 10Gi, growOnly: true}`), `instances`, `parameters` (postgresql.conf), `resources`. `secretKeys: { <ENV_NAME>: <source key> }` copies source keys into the per-app Secret under the names the chart wants. Source keys: `username, user, password, dbname, host, port, uri, jdbc-uri, fqdn-uri, fqdn-jdbc-uri, pgpass`, plus computed `uri-sslmode-require` and `jdbc-uri-nocreds`. `uri` has no query string (no sslmode). Keys are copied verbatim; there is no templated key. Reserved (not available): custom `image`, `sharedPreloadLibraries`, `roles`, `postInitSQL`, `superuser`. Consume with `SecretName`/`UsernameKey`/`PasswordKey` and `existingSecret`/`secretKeyRef`, or `envFrom` on the per-app Secret. `Password` exists only as a last resort (plaintext into the Helm release; lint warns). Apps that tolerate SQLite can declare it `required: false` for an install toggle. TODO: "use an existing cluster" is not defined for 0.5.
@@ -123,7 +123,7 @@ Components make a workload editable and countable. Declare them for every worklo
 | `replicas` | `{ path, min, max }`, or `{ minPath, maxPath, min, max }` for HPA-managed, or `{ fixed: 1, reason: "SQLite" }`. `fixed` excludes paths; the server rejects changes. |
 | `storage` | `{ path, installOnly }` or `{ input: <Key> }`: the component's volume size. |
 | `enabled` | Values path (boolean) that lets a profile or the user turn an optional component off. |
-| `parent` | Sidecar or init workload sized together with its parent. |
+| `parent` | Component id of the parent workload. Declares a sidecar: a real sidecar container in the parent's pod, sized with the parent. It has no `match` and no `replicas` of its own. |
 | `perNode` | DaemonSet: footprint is multiplied by node count. |
 | `integration` | Workload provided by an integration (for example the CNPG cluster), sized through it. |
 | `knobs` | Inputs shown next to the component (Puma workers coupled to memory). |
@@ -175,7 +175,8 @@ All generated, user-supplied and integration-derived secrets live in one Secret 
 - `existingSecret` / `secretKeyRef` / `envFrom` pointing at `<app>-emporium-secrets` (`.Emporium.Secrets.Name`), key names from the outputs (`PasswordKey`, `ClientSecretKey`) or from the input's `ref`.
 - Plaintext into values (`path:` on a secret input, `Password`/`ClientSecret`/`SecretKey` outputs in templates or binds) is a last-resort fallback: it lands in the Helm release Secret. Lint warns (`plaintext-secret-in-values`, `plaintext-secret-output`); acknowledge it with a comment only when the upstream chart gives no alternative (porter is the known case).
 - A Secret annotated `emporium.build/secrets-managed-by=external` is read, never written (External Secrets compatibility by naming only; no ESO code).
-- Never use Helm `lookup` to read or keep a password (preview cannot diff `lookup` charts; use a generated input or a derived secret). Charts that still use `lookup` get no manifest diff in preview.
+- Never use Helm `lookup` to read or keep a password (preview cannot diff `lookup` charts; use a generated input or a derived secret). Charts that still use `lookup` still render, but get no manifest diff in preview (lint warning `lookup-offline`).
+- Secrets created by Helm hooks (`helm.sh/hook` on a Secret) are not part of the release and block namespace cleanup on uninstall. Prefer Emporium-generated secrets via appsecrets (`generate:` inputs or provider `secretKeys`, delivered by reference) over hook-created Secrets.
 
 ## 7. Storage rules
 
@@ -186,7 +187,7 @@ All generated, user-supplied and integration-derived secrets live in one Secret 
 
 ## 8. Ingress, TLS, hostnames
 
-- Charts stay ingress-controller agnostic: plain `Ingress` objects, `pathType: Prefix`, `ingress.className` exposed with an empty default (no `kubernetes.io/ingress.class`, no `ingressClassName: nginx`), no controller snippets. Supported annotation subset: `nginx.ingress.kubernetes.io/proxy-body-size`, `proxy-connect-timeout`, `proxy-read-timeout`, `backend-protocol: HTTPS` (best effort). Dropped silently: `*-snippet`, `affinity`/`session-cookie-*`, `hsts*`, `ssl-protocols`, `proxy-buffering`, `proxy-http-version`, `proxy-send-timeout`, `proxy-redirect-*`. Match app-side limits (upload size) with `proxy-body-size`.
+- Charts stay ingress-controller agnostic: plain `Ingress` objects, `pathType: Prefix`, `ingressClassName` set from the ingress output `IngressClassName` (bind it, or read it in `values.emporium.yaml`; never hardcode `nginx`, never use the `kubernetes.io/ingress.class` annotation), no controller snippets. Supported annotation subset: `nginx.ingress.kubernetes.io/proxy-body-size`, `proxy-connect-timeout`, `proxy-read-timeout`, `backend-protocol: HTTPS` (best effort). Dropped silently: `*-snippet`, `affinity`/`session-cookie-*`, `hsts*`, `ssl-protocols`, `proxy-buffering`, `proxy-http-version`, `proxy-send-timeout`, `proxy-redirect-*`. Match app-side limits (upload size) with `proxy-body-size`.
 - Use the `Annotations` output verbatim on your Ingress (it carries app name, auth, OIDC redirect paths and, in perHost mode, the zone's cert-manager issuer). Use `TLSSecretName` for `tls[].secretName`. Do not write `kubernetes.io/tls-acme` or `cert-manager.io/cluster-issuer` literals (`tls-hardcoded` warning).
 - DNS zones run in one of two TLS modes: `perHost` (one certificate per host via the issuer annotation) or `wildcard` (one `*.<zone>` certificate; secret `emporium-wildcard-<zone>` replicated into app namespaces). A wildcard certificate covers one label, so **hostnames are flat**: `<app>-registry.<zone>`, never `registry.<app>.<zone>`. Declare extra hosts with `hosts: [registry]` and read `Hosts.registry` / `AllHosts`.
 - Consume `Hostname`/`Hosts` for every URL the app derives (external URL, redirect, CORS); never assemble a hostname from the app name.
@@ -197,11 +198,11 @@ Where Emporium has a provider (`postgres`, `redis`, `objectStorage`) do not ship
 
 ## 10. Lint
 
-`emp chart lint charts/<name>/chart` renders every profile (and `matrix` toggles) with a fake context and fails on any error. Rules (final list ships with the linter; TODO: confirm names against `pkg/chartlint`):
+`emp chart lint charts/<name>/chart` renders every profile (and `matrix` toggles) with a fake context and fails on any error. `emp chart lint --dump-dir <dir>` writes the rendered manifests of every profile to `<dir>` for inspection. Rules (final list ships with the linter; TODO: confirm names against `pkg/chartlint`):
 
-Errors: `emporium.yaml` fails the v1 JSON Schema; unknown integration type; `bind` output not valid for the type; component, parent, knob, integration or `showIf` reference unresolved; `profiles.default` missing; a declared `path` does not exist in the chart's values (unless `values.emporium.yaml` creates it); undeclared integration or input used in the template (`integration-undeclared`, `input-undeclared`); legacy context (`legacy-context`); duplicate YAML keys in the rendered values; `helm template` render failure; `emporiumVersion` missing or below 0.5.0; marker test failure (a sentinel set at a declared `resources`, replica, storage or input path does not appear in the manifests); profile violating `fixed`/`max` replica bounds, or `needsRWX` component above 1 replica.
+Errors: `emporium.yaml` fails the v1 JSON Schema; unknown integration type; `schema-remote-ref` (a JSON Schema `$ref`/`$schema` pointing at a non-standard remote id; the standard meta-schema ids are accepted); an unresolved `parent:` (a sidecar component needs an existing parent, no own `match` or `replicas`); `bind` output not valid for the type; component, parent, knob, integration or `showIf` reference unresolved; `profiles.default` missing; a declared `path` does not exist in the chart's values (unless `values.emporium.yaml` creates it); undeclared integration or input used in the template (`integration-undeclared`, `input-undeclared`); legacy context (`legacy-context`); duplicate YAML keys in the rendered values; `helm template` render failure; `emporiumVersion` missing or below 0.5.0; marker test failure (a sentinel set at a declared `resources`, replica, storage or input path does not appear in the manifests); profile violating `fixed`/`max` replica bounds, or `needsRWX` component above 1 replica.
 
-Warnings: `bare-interpolation`; `plaintext-secret-in-values`; `plaintext-secret-output`; `tls-hardcoded`; `component-unmatched`; a workload container with no requests in a profile (footprint report).
+Warnings: `lookup-offline` (the chart calls `lookup`; it still renders, preview has no manifest diff); `bare-interpolation`; `plaintext-secret-in-values`; `plaintext-secret-output`; `tls-hardcoded`; `component-unmatched`; a workload container with no requests in a profile (footprint report).
 
 ## 11. Worked example: simple app (vaultwarden)
 
@@ -240,6 +241,8 @@ profiles:
   default: small
   small: { label: Small, description: "Up to a few dozen users", values: profiles/small.yaml }
 ```
+
+A single-workload chart gets exactly one profile, `small`, like `charts/_template`.
 
 `values.emporium.yaml` keeps only what binds cannot express (a derived URL, a list, the optional SMTP block):
 
@@ -349,6 +352,8 @@ Wrapper-chart checklist: disable the bundled subchart DB, point every credential
 2. Version bumped in `Chart.yaml`, `CHANGELOG.md` entry added (the catalog repository rejects duplicate versions).
 3. README is short and product-oriented (features, perfect-for), not technical.
 4. Security context matches the container user (`runAsNonRoot`, drop ALL capabilities, `fsGroup` for volumes).
-5. No ingress class, tls-acme or snippet annotations; no plaintext secrets unless unavoidable and acknowledged.
+5. No hardcoded ingress class (use `IngressClassName`), tls-acme or snippet annotations; no plaintext secrets unless unavoidable and acknowledged.
 
 TODO (spec leaves open): `emp chart lint` exact rule names and exit codes; schema for `README`/gallery assets; the `migrations:` list for future chart upgrades (not part of v1); `lookup: cluster` preview support.
+
+Archiving a chart: move `charts/<name>/` to `archive/charts/<name>/`. Do not delete it. `removed-charts.txt` is separate: it only lists chart names whose published versions are purged from the Helm repository.

@@ -19,7 +19,7 @@ config:
 # Filled by Emporium through the `web` ingress integration (emporium.yaml bind + values.emporium.yaml).
 ingress:
   enabled: true
-  className: "" # never hard-code a class: the cluster default IngressClass is used
+  className: "" # never hard-code a class: Emporium sets it from the ingress output IngressClassName
   host: ""
   annotations: {}
   tlsSecretName: ""

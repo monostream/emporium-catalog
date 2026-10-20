@@ -8,6 +8,7 @@ integrations:
       Hostname: ingress.host
       Annotations: ingress.annotations
       TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
 
 inputs:
   LogLevel:
