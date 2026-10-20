@@ -1,7 +1,7 @@
 apiVersion: v2
 name: wiki
 description: Make documentation a joy to write using Wiki.js's beautiful and intuitive interface
-version: 0.2.0
+version: 0.2.1
 appVersion: "2.5.316"
 dependencies:
   - name: wiki
@@ -35,3 +35,4 @@ annotations:
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/wiki/wiki_gallery_1.webp
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.5 2026-10-20"

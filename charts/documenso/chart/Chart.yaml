@@ -2,7 +2,7 @@ apiVersion: v2
 name: documenso
 description: Open-source document signing, a self-hosted DocuSign alternative
 type: application
-version: 0.3.0
+version: 0.3.1
 appVersion: "v2.21.0"
 home: https://documenso.com/
 icon: https://github.com/documenso/documenso/blob/main/apps/marketing/public/android-chrome-192x192.png?raw=true
@@ -17,3 +17,4 @@ annotations:
   category: Productivity
   gallery: "https://github-production-user-asset-6210df.s3.amazonaws.com/13398220/312843205-d96ed533-6f34-4a97-be9b-442bdb189c69.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241107%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241107T162958Z&X-Amz-Expires=300&X-Amz-Signature=fead83bbf73f175b89060245c1ade06b61747eb2463bf254c35d3c2330fa13d8&X-Amz-SignedHeaders=host"
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.5 2026-10-20"
