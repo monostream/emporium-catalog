@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "plausible.clickhouse" . }}
+  labels:
+    {{- include "plausible.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8123
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "plausible.clickhouseSelectorLabels" . | nindent 4 }}

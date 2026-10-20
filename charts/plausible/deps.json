@@ -4,7 +4,10 @@
     "name": "plausible",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:plausible-analytics",
+    "imageTagPaths": [
+      "image.tag"
+    ],
+    "appVersionMapping": "value:image.tag",
     "changelogPath": "./chart"
   }
 ]

@@ -2,8 +2,8 @@ apiVersion: v2
 name: uptrace
 description: Open Source Observability with Traces, Metrics, and Logs
 type: application
-version: 0.1.0
-appVersion: "2.0.2"
+version: 0.2.0
+appVersion: "2.0.3"
 home: https://uptrace.dev/
 icon: https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/uptrace/uptrace_icon_2.svg
 sources:
@@ -14,10 +14,6 @@ keywords:
   - Logs
   - Metrics
   - Alerting
-dependencies:
-  - name: uptrace
-    version: 2.0.2
-    repository: https://charts.uptrace.dev
 annotations:
   icon: assets/icon.svg
   displayName: Uptrace
@@ -28,10 +24,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_2.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_3.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/uptrace/uptrace_gallery_4.png
-  oidcRedirectPaths: /internal/v1/sso/emporium/callback
-  emporiumVersion: v0.5.0
-  emporium.build/postgres: |
-    database: uptrace
-    owner: uptrace
-    version: "17"
-    storage: 8Gi
+  emporiumVersion: "0.5.0"

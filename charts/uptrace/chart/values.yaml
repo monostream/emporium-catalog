@@ -1,4 +1,92 @@
 nameOverride: ""
 fullnameOverride: ""
 
-uptrace: {}
+# Secret holding the generated and user-supplied secrets (keys UPTRACE_SECRET,
+# UPTRACE_ADMIN_PASSWORD, UPTRACE_TOKEN_PROJECT1, UPTRACE_TOKEN_PROJECT2,
+# CLICKHOUSE_PASSWORD). Emporium sets it to the per-app Secret.
+secrets:
+  existingSecret: ""
+
+# ClickHouse, run by the Altinity clickhouse-operator (ClickHouseInstallation).
+# The upstream chart's own installation (uptrace.clickhouse) is disabled: it
+# hardcodes the password "uptrace", the volume size and the image, and sets
+# no resources.
+clickhouse:
+  image:
+    repository: clickhouse/clickhouse-server
+    tag: "26.3.56.2"
+  persistence:
+    size: 10Gi
+    storageClassName: ""
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+
+# Uptrace itself. The keys keep the layout of the upstream uptrace chart
+# (formerly a dependency, now templates/uptrace-*.yaml in this chart).
+uptrace:
+  # Security contexts of the Uptrace pod and container (upstream hooks).
+  podSecurityContext: {}
+  containerSecurityContext: {}
+
+  ingress:
+    enabled: true
+    className: ""
+    annotations: {}
+    hosts:
+      - host: uptrace.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+  uptrace:
+    replicaCount: 1
+    image:
+      repository: uptrace/uptrace
+      tag: "2.0.3"
+      pullPolicy: IfNotPresent
+    # Secrets reach Uptrace as environment variables that the config
+    # references as ${VAR} (Emporium sets them in values.emporium.yaml).
+    env: []
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+    config:
+      service:
+        env: hosted
+      listen:
+        http:
+          addr: :80
+        grpc:
+          addr: :4317
+      logging:
+        level: INFO
+      certmagic:
+        enabled: false
+        http_challenge_addr: :80
+        staging_ca: false
+      ch_schema:
+        compression: ZSTD(1)
+        events_data:
+          storage_policy: default
+        events_index:
+          storage_policy: default
+        logs_data:
+          storage_policy: default
+        logs_index:
+          storage_policy: default
+        metrics:
+          storage_policy: default
+        span_links:
+          storage_policy: default
+        spans_data:
+          storage_policy: default
+        spans_index:
+          storage_policy: default

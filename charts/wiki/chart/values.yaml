@@ -1,1 +1,35 @@
-wiki: {}
+wiki:
+  image:
+    repository: requarks/wiki
+    tag: "2.5.316"
+
+  ingress:
+    enabled: false
+    className: ""
+
+  # Emporium provides PostgreSQL (postgres integration); the bundled
+  # PostgreSQL StatefulSet of the Wiki.js chart stays off.
+  postgresql:
+    enabled: false
+
+  externalPostgresql:
+    host: ""
+    port: 5432
+    database: wiki
+    username: wiki
+    existingSecret: ""
+    existingSecretKey: password
+    ssl: true
+
+  nodeExtraCaCerts: /etc/ssl/postgres/ca.crt
+  volumeMounts:
+    - name: postgres-ca
+      mountPath: /etc/ssl/postgres
+      readOnly: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

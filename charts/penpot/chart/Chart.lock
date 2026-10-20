@@ -1,6 +1,0 @@
-dependencies:
-- name: redis
-  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 22.0.7
-digest: sha256:ed9353180ea1e6e37047ee6fe39e5b4919b070388cc94ad1c329d8908d0509c1
-generated: "2026-10-19T22:03:13.997428728Z"

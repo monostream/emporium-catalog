@@ -1,0 +1,86 @@
+{{- /*
+ClickHouse for Uptrace, run by the Altinity clickhouse-operator (a
+prerequisite, declared in emporium.yaml options.requiredCRDs). The
+installation, cluster and volume template names are the ones of the upstream
+chart's installation, so an upgrade from 0.0.x/0.1.x keeps the ClickHouse
+volumes. The operator
+creates the Service clickhouse-uptrace1 that the Uptrace config points at.
+*/ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-clickhouse-bootstrap
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  01_create_databases.sh: |
+    #!/bin/bash
+    set -e
+    clickhouse client -n <<-EOSQL
+      CREATE DATABASE IF NOT EXISTS uptrace;
+    EOSQL
+---
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+metadata:
+  name: uptrace1
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  configuration:
+    users:
+      uptrace/password:
+        valueFrom:
+          secretKeyRef:
+            name: {{ required "secrets.existingSecret is required (ClickHouse password)" .Values.secrets.existingSecret }}
+            key: CLICKHOUSE_PASSWORD
+      uptrace/networks/ip:
+        - "::/0"
+    clusters:
+      - name: uptrace1
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+  defaults:
+    templates:
+      podTemplate: clickhouse
+      dataVolumeClaimTemplate: data-volume-template
+      logVolumeClaimTemplate: log-volume-template
+  templates:
+    podTemplates:
+      - name: clickhouse
+        spec:
+          containers:
+            - name: clickhouse
+              image: "{{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}"
+              env:
+                - name: CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS
+                  value: "true"
+              resources:
+                {{- toYaml .Values.clickhouse.resources | nindent 16 }}
+              volumeMounts:
+                - name: bootstrap
+                  mountPath: /docker-entrypoint-initdb.d
+          volumes:
+            - name: bootstrap
+              configMap:
+                name: {{ include "chart.fullname" . }}-clickhouse-bootstrap
+    volumeClaimTemplates:
+      - name: data-volume-template
+        spec:
+          accessModes: [ReadWriteOnce]
+          {{- with .Values.clickhouse.persistence.storageClassName }}
+          storageClassName: {{ . | quote }}
+          {{- end }}
+          resources:
+            requests:
+              storage: {{ .Values.clickhouse.persistence.size | quote }}
+      - name: log-volume-template
+        spec:
+          accessModes: [ReadWriteOnce]
+          {{- with .Values.clickhouse.persistence.storageClassName }}
+          storageClassName: {{ . | quote }}
+          {{- end }}
+          resources:
+            requests:
+              storage: 1Gi
