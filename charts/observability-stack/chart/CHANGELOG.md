@@ -1,3 +1,9 @@
+# 0.1.4
+
+Published on 20 October 2026
+
+- Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.8, 2026-10-20: install, Grafana Tempo datasource healthy, uninstall removes the namespace).
+
 # 0.1.3
 
 Published on 20 October 2026
