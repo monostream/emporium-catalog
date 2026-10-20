@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 20 October 2026
+
+- Fixed the ingress `skipPaths` for Git over HTTP: the `*` patterns never matched; one regex now covers clone, push and LFS (`info/refs`, `git-upload-pack`, `git-receive-pack`, `lfs/objects/`, `info/lfs/`) with or without `.git`; `~files/...` UI paths still go through Glass.
+
 # 0.1.0
 
 Published on 20 October 2026
