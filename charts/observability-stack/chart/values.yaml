@@ -20,6 +20,9 @@ prometheus:
       ruleSelectorNilUsesHelmValues: false
       retention: 10d
       retentionSize: ""
+      # PVC is deleted with the StatefulSet; Emporium's retained data keeps what the user wants to keep.
+      persistentVolumeClaimRetentionPolicy:
+        whenDeleted: Delete
       resources:
         requests:
           cpu: 200m
@@ -139,6 +142,9 @@ loki:
     persistence:
       enabled: true
       size: 50Gi
+      # PVC is deleted with the StatefulSet (chart default, pinned here).
+      enableStatefulSetAutoDeletePVC: true
+      whenDeleted: Delete
     resources:
       requests:
         cpu: 100m
@@ -186,7 +192,8 @@ loki:
 tempo:
   persistence:
     enabled: true
-    enableStatefulSetAutoDeletePVC: false
+    # PVC is deleted with the StatefulSet; Emporium's retained data keeps what the user wants to keep.
+    enableStatefulSetAutoDeletePVC: true
     size: 5Gi
   tempo:
     # Go duration (block_retention).

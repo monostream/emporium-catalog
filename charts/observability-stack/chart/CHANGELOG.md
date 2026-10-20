@@ -1,3 +1,10 @@
+# 0.1.3
+
+Published on 20 October 2026
+
+- Fixed: the Grafana Tempo datasource pointed at port 3100; the Tempo service listens on 3200. Trace links from Loki logs now open in Tempo.
+- Uninstall deletes the Tempo volume: its StatefulSet now has `persistentVolumeClaimRetentionPolicy.whenDeleted: Delete` (was retained, which left the PVC and kept the namespace). Loki and Prometheus are set the same way. Data to keep across a reinstall goes through Emporium's retained data.
+
 # 0.1.2
 
 Published on 20 October 2026
