@@ -4,7 +4,10 @@
     "name": "uptrace",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:uptrace",
+    "imageTagPaths": [
+      "uptrace.uptrace.image.tag"
+    ],
+    "appVersionMapping": "value:uptrace.uptrace.image.tag",
     "changelogPath": "./chart"
   }
 ]

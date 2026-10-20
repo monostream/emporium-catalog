@@ -68,3 +68,8 @@ The hardcoded `uptrace-tls` became the integration's `TLSSecretName` (zone depen
   (HTTP 80, gRPC 4317).
 - Optional SMTP (`mail` integration).
 - No `kubernetes.io/tls-acme` annotation from the chart.
+
+## Chart structure
+
+- The upstream `uptrace` chart (2.0.2) is no longer a dependency; this chart renders the Uptrace StatefulSet, ConfigMap, Service, ServiceAccount and Ingress itself with the same names and selector labels, so they update in place. Values keep the `uptrace.uptrace.*` / `uptrace.ingress.*` layout.
+- The SMTP password is turned into a single-quoted YAML scalar when the container starts (`SMTP_PASSWORD_YAML`); a password containing a line break is rejected at start.

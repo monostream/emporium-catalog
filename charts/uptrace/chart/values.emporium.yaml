@@ -118,7 +118,8 @@ uptrace:
           host: {{ .Host | quote }}
           port: {{ .Port }}
           username: {{ .Username | quote }}
-          password: ${SMTP_PASSWORD}
+          # Single-quoted YAML scalar built at container start (templates/uptrace-statefulset.yaml).
+          password: ${SMTP_PASSWORD_YAML}
           from: {{ .From | quote }}
       {{- end }}
       self_monitoring:

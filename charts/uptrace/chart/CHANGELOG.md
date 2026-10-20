@@ -2,6 +2,7 @@
 
 Published on 20 October 2026
 
+- The upstream uptrace chart is no longer a dependency: its Uptrace StatefulSet, ConfigMap, Service, ServiceAccount and Ingress are templates of this chart (same object names and selectors). The container start quotes the SMTP password as a YAML scalar at runtime, so passwords with YAML syntax neither break the config nor leak into its error.
 - Requires Emporium v0.5.0 (`emporium.yaml`).
 - uptrace from 2.0.2 to 2.0.3 (upstream chart 2.0.2); ClickHouse from 25.3 to 26.3.56.2.
 - PostgreSQL is provided by Emporium's postgres integration `postgres` (CloudNativePG, PostgreSQL 17, cluster `<release>-postgres`) instead of the bundled Bitnami postgresql subchart of 0.0.x. Existing installs start with an empty database; the data in the old bundled database is not migrated (see the installed-app migration blueprint). The connection is encrypted; the server certificate is not verified (the upstream chart cannot mount the CloudNativePG CA).

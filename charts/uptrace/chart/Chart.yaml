@@ -14,10 +14,6 @@ keywords:
   - Logs
   - Metrics
   - Alerting
-dependencies:
-  - name: uptrace
-    version: 2.0.2
-    repository: https://charts.uptrace.dev
 annotations:
   icon: assets/icon.svg
   displayName: Uptrace
