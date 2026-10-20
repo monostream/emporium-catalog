@@ -1,0 +1,143 @@
+apiVersion: emporium.build/v1
+
+# Cluster-wide stack: Alloy (DaemonSet) reads every pod's logs on every node, the Grafana dashboard
+# sidecar watches ConfigMaps in all namespaces, and with Prometheus enabled the stack adds the
+# monitoring.coreos.com CRDs (shipped by kube-prometheus-stack, installed when missing), a
+# prometheus-operator watching all namespaces, node-exporter on every node and kube-state-metrics.
+# Install it once per cluster, and not next to another prometheus-operator.
+
+sections:
+  - { id: general, label: General }
+  - { id: metrics, label: Metrics (Prometheus) }
+  - { id: retention, label: Storage and retention }
+  - { id: security, label: Security, description: Grafana admin account (generated at install). }
+
+inputs:
+  PrometheusEnabled:
+    label: Enable Prometheus
+    description: Collect cluster and workload metrics with Prometheus (adds the operator, node-exporter on every node and kube-state-metrics).
+    type: boolean
+    default: false
+    matrix: true
+    section: metrics
+  PrometheusRetention:
+    label: Prometheus retention period
+    description: How long metrics are kept, e.g. 10d or 120h.
+    type: string
+    default: 10d
+    pattern: "^[0-9]+(ms|s|m|h|d|w|y)$"
+    path: prometheus.prometheus.prometheusSpec.retention
+    showIf: { input: PrometheusEnabled, equals: true }
+    section: metrics
+  PrometheusRetentionSize:
+    label: Prometheus retention size
+    description: Maximum size of stored metrics, e.g. 18GB (empty = no limit). Keep it below the volume size.
+    type: string
+    default: ""
+    pattern: "^([0-9]+(B|KB|MB|GB|TB|KiB|MiB|GiB|TiB))?$"
+    path: prometheus.prometheus.prometheusSpec.retentionSize
+    showIf: { input: PrometheusEnabled, equals: true }
+    section: metrics
+  PrometheusStorageSize:
+    label: Prometheus storage size
+    description: Metrics volume. Fixed after install.
+    type: byteSize
+    default: 20Gi
+    installOnly: true
+    showIf: { input: PrometheusEnabled, equals: true }
+    section: metrics
+  LokiStorageSize:
+    label: Loki storage size
+    description: Log volume. Fixed after install.
+    type: byteSize
+    default: 50Gi
+    installOnly: true
+    path: loki.singleBinary.persistence.size
+    section: retention
+  TempoStorageSize:
+    label: Tempo storage size
+    description: Trace volume. Fixed after install.
+    type: byteSize
+    default: 5Gi
+    installOnly: true
+    path: tempo.persistence.size
+    section: retention
+  TempoRetention:
+    label: Tempo retention period
+    description: How long traces are kept, as hours (e.g. 168h for 7 days).
+    type: string
+    default: 168h
+    pattern: "^[0-9]+(s|m|h)$"
+    path: tempo.tempo.retention
+    section: retention
+  AdminUser:
+    label: Grafana admin user
+    type: secret
+    default: admin
+    section: security
+    ref: { namePath: prometheus.grafana.admin.existingSecret, key: admin-user }
+  AdminPassword:
+    label: Grafana admin password
+    type: secret
+    generate: { length: 32, charset: alnum }
+    section: security
+    ref: { namePath: prometheus.grafana.admin.existingSecret, key: admin-password }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      IngressClassName: prometheus.grafana.ingress.ingressClassName
+
+components:
+  grafana:
+    label: Grafana
+    resources: prometheus.grafana.resources
+    replicas: { fixed: 1, reason: "SQLite settings database in the pod" }
+  grafana-sidecar:
+    label: Grafana dashboard sidecar
+    parent: grafana
+    resources: prometheus.grafana.sidecar.resources
+  loki:
+    label: Loki
+    resources: loki.singleBinary.resources
+    replicas: { fixed: 1, reason: "Single binary on a ReadWriteOnce filesystem store" }
+    match: { kind: StatefulSet, name: "*loki*" }
+  tempo:
+    label: Tempo
+    resources: tempo.tempo.resources
+    replicas: { fixed: 1, reason: "Single binary on a ReadWriteOnce volume" }
+    match: { kind: StatefulSet, name: "*tempo*" }
+  alloy:
+    label: Alloy log collector (per node)
+    resources: alloy.alloy.resources
+    perNode: true
+    match: { kind: DaemonSet, name: "*alloy*" }
+  alloy-reloader:
+    label: Alloy config reloader
+    parent: alloy
+    resources: alloy.configReloader.resources
+  prometheus-operator:
+    label: Prometheus operator
+    resources: prometheus.prometheusOperator.resources
+    enabled: prometheus.prometheusOperator.enabled
+    match: { kind: Deployment, name: "*operator*" }
+  kube-state-metrics:
+    label: kube-state-metrics
+    resources: prometheus.kube-state-metrics.resources
+    enabled: prometheus.kubeStateMetrics.enabled
+    match: { kind: Deployment, name: "*kube-state-metrics*" }
+  node-exporter:
+    label: Node exporter (per node)
+    resources: prometheus.prometheus-node-exporter.resources
+    enabled: prometheus.nodeExporter.enabled
+    perNode: true
+    match: { kind: DaemonSet, name: "*node-exporter*" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Logs and traces for a small cluster
+    values: profiles/small.yaml

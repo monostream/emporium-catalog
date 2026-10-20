@@ -1,152 +1,67 @@
-## @userSupplied PrometheusEnabled
-## @label Enable Prometheus
-## @type boolean
-## @description Enable Prometheus for metrics collection. Default is disabled.
-## @optional
-
-## @userSupplied PrometheusRetention
-## @label Prometheus Retention Period
-## @type string
-## @description Retention period for Prometheus metrics (e.g. 10d or 120h). Default is 10d. Only applicable if Prometheus is enabled.
-## @optional
-
-## @userSupplied PrometheusRetentionSize
-## @label Prometheus Retention Size
-## @type string
-## @description Retention size for Prometheus metrics (e.g. 20GB, 20GiB, 500MB, 500MiB). Default is "". Only applicable if Prometheus is enabled.
-## @optional
-
-## @userSupplied PrometheusStorageSize
-## @label Prometheus Storage Size
-## @type byteSize
-## @description Size of the prometheus storage volume. Default is 20Gi. Only applicable if Prometheus is enabled.
-## @optional
-
-## @userSupplied LokiStorageSize
-## @label Loki Storage Size
-## @type byteSize
-## @description Size of the Loki storage volume. Default is 50Gi.
-## @optional
-
-## @userSupplied TempoStorageSize
-## @label Tempo Storage Size
-## @type byteSize
-## @description Size of the Tempo storage volume. Default is 5Gi.
-## @optional
-
-## @userSupplied TempoRetention
-## @label Tempo Retention Period
-## @type string
-## @description Retention period for Tempo traces (e.g. 24h or 7d). Default is 7d.
-## @optional
-
+{{- $prom := .Emporium.Inputs.PrometheusEnabled }}
 prometheus:
   prometheusOperator:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-    admissionWebhooks:
-      timeoutSeconds: 30
-
+    enabled: {{ input "PrometheusEnabled" }}
   prometheus:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
+    enabled: {{ input "PrometheusEnabled" }}
+    # Set here, not by path: the Prometheus CR only renders with Prometheus enabled.
     prometheusSpec:
-      serviceMonitorSelector: {}
-      serviceMonitorSelectorNilUsesHelmValues: false
-
-      podMonitorSelector: {}
-      podMonitorSelectorNilUsesHelmValues: false
-
-      probeSelector: {}
-      probeSelectorNilUsesHelmValues: false
-
-      ruleSelector: {}
-      ruleSelectorNilUsesHelmValues: false
-
-      retention: {{ default "10d" .Emporium.UserSupplied.PrometheusRetention }}
-      retentionSize: {{ default "" .Emporium.UserSupplied.PrometheusRetentionSize }}
-
       storageSpec:
         volumeClaimTemplate:
           spec:
-            accessModes: ["ReadWriteOnce"]
             resources:
               requests:
-                storage: {{ default "20Gi" .Emporium.UserSupplied.PrometheusStorageSize }}
-
+                storage: {{ input "PrometheusStorageSize" }}
   nodeExporter:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
+    enabled: {{ input "PrometheusEnabled" }}
+  # Rules, control-plane ServiceMonitors and their exporters are only useful with Prometheus.
+  defaultRules:
+    create: {{ input "PrometheusEnabled" }}
+  kubeApiServer:
+    enabled: {{ input "PrometheusEnabled" }}
+  kubelet:
+    enabled: {{ input "PrometheusEnabled" }}
+  kubeStateMetrics:
+    enabled: {{ input "PrometheusEnabled" }}
+  alertmanager:
+    enabled: {{ input "PrometheusEnabled" }}
+  coreDns:
+    enabled: {{ input "PrometheusEnabled" }}
+  kubeEtcd:
+    enabled: {{ input "PrometheusEnabled" }}
 
   grafana:
     ingress:
       enabled: true
-
-      annotations:
-        {{- if .Emporium.Annotations }}
-        {{- toYaml .Emporium.Annotations | nindent 8 }}
-        {{- end }}
-        kubernetes.io/tls-acme: "true"
-
+      annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
       hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
-
+        - {{ .Emporium.Integrations.web.Hostname | quote }}
       tls:
-        - secretName: grafana-{{ .Emporium.Name }}-tls
-          hosts:
-            - {{ .Emporium.Integrations.DNS.Hostname }}
-
-    adminPassword: ""
-
-    grafana.ini:
-      alerting:
-        enabled: false
-      analytics:
-        check_for_updates: false
-
-      users:
-        allow_sign_up: false
-        allow_org_create: false
-        auto_assign_org: true
-        auto_assign_org_role: true
-        viewers_can_edit: true
-        editors_can_admin: false
-
-      auth:
-        disable_login_form: false
-
-      auth.basic:
-        enabled: false
-
-      auth.anonymous:
-        enabled: true
-        org_name: Main Org.
-        org_role: Viewer
-
+        - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+          hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
     sidecar:
       datasources:
-        enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
+        enabled: {{ input "PrometheusEnabled" }}
       dashboards:
         enabled: true
         label: grafana_dashboard
         labelValue: "1"
-        searchNamespace: "ALL"
-
+        searchNamespace: ALL
     datasources:
       datasources.yaml:
         apiVersion: 1
         datasources:
-        {{- if (default false .Emporium.UserSupplied.PrometheusEnabled) }}
+        {{- if $prom }}
         - name: Prometheus
           type: prometheus
           uid: prometheus
-          url: http://{{ .Emporium.Name }}-prometheus-prometheus:9090
+          url: {{ printf "http://%s-prometheus-prometheus:9090" .Emporium.Name | quote }}
           access: proxy
         {{- end }}
         - name: Loki
           type: loki
           uid: loki
-          url: http://{{ .Emporium.Name }}-loki:3100
+          url: {{ printf "http://%s-loki:3100" .Emporium.Name | quote }}
           jsonData:
             maxLines: 1000
             derivedFields:
@@ -158,149 +73,13 @@ prometheus:
         - name: Tempo
           type: tempo
           uid: tempo
-          url: http://{{ .Emporium.Name }}-tempo:3100
+          url: {{ printf "http://%s-tempo:3100" .Emporium.Name | quote }}
           access: proxy
 
-  # Rules, the control-plane ServiceMonitors (they authenticate with the token
-  # Secret that is only rendered with Prometheus) and their exporters are only
-  # useful when Prometheus scrapes them.
-  defaultRules:
-    create: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-    rules:
-      alertmanager: true
-      etcd: true
-      configReloaders: true
-      general: true
-      k8s: true
-      kubeApiserverAvailability: true
-      kubeApiserverBurnrate: true
-      kubeApiserverHistogram: true
-      kubeApiserverSlos: true
-      kubeControllerManager: true
-      kubelet: true
-      kubeProxy: false
-      kubePrometheusGeneral: true
-      kubePrometheusNodeRecording: true
-      kubernetesApps: true
-      kubernetesResources: true
-      kubernetesStorage: true
-      kubernetesSystem: true
-      kubeScheduler: true
-      kubeStateMetrics: true
-      network: true
-      node: true
-      nodeExporterAlerting: true
-      nodeExporterRecording: true
-      prometheus: true
-      prometheusOperator: true
-
-  kubeApiServer:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-  kubeControllerManager:
-    enabled: false
-
-  kubelet:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-  kubeStateMetrics:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-  alertmanager:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-  coreDns:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-  kubeEtcd:
-    enabled: {{ default false .Emporium.UserSupplied.PrometheusEnabled }}
-
-  kubeScheduler:
-    enabled: false
-
-  kubeProxy:
-    enabled: false
-
-loki:
-  deploymentMode: SingleBinary
-  loki:
-    auth_enabled: false
-    commonConfig:
-      replication_factor: 1
-    storage:
-      type: 'filesystem'
-    schemaConfig:
-      configs:
-        - from: "2024-04-01"
-          store: tsdb
-          object_store: filesystem
-          schema: v13
-          index:
-            prefix: index_
-            period: 24h
-  singleBinary:
-    replicas: 1
-    persistence:
-      enabled: true
-      size: {{ default "50Gi" .Emporium.UserSupplied.LokiStorageSize }}
-
-
-  minio:
-    enabled: false
-  chunksCache:
-    enabled: false
-  gateway:
-    enabled: false
-  resultsCache:
-    enabled: false
-  backend:
-    replicas: 0
-  read:
-    replicas: 0
-  write:
-    replicas: 0
-  ingester:
-    replicas: 0
-  querier:
-    replicas: 0
-  queryFrontend:
-    replicas: 0
-  queryScheduler:
-    replicas: 0
-  distributor:
-    replicas: 0
-  compactor:
-    replicas: 0
-  indexGateway:
-    replicas: 0
-  bloomCompactor:
-    replicas: 0
-  bloomGateway:
-    replicas: 0
-
-tempo:
-  persistence:
-    enabled: true
-    enableStatefulSetAutoDeletePVC: false
-    size: {{ default "5Gi" .Emporium.UserSupplied.TempoStorageSize }}
-  retention: {{ default "7d" .Emporium.UserSupplied.TempoRetention }}
-
 alloy:
-  controller:
-    type: daemonset
-
   alloy:
-    resources:
-      requests:
-        memory: 128Mi
-        cpu: 100m
-
-    mounts:
-      varlog: true
-
     configMap:
       create: true
-
       content: |-
         logging {
                 level  = "warn"
