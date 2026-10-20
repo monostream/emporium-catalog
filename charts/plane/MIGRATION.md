@@ -26,8 +26,10 @@
 
 ## Redis and uploads
 
-- Redis: Bitnami `redis` subchart -> `redis` integration (Valkey StatefulSet `<release>-redis`,
-  persistent, 1Gi). It holds the Django cache and the Celery queue (`AMQP_URL` is the redis URL).
+- Redis: Bitnami `redis` subchart -> two redis integrations (Valkey, persistent, 1Gi each):
+  `redis` (`<release>-redis`, Django cache and live server) and `queue` (`<release>-queue`, the
+  Celery broker, `AMQP_URL`). They are separate because the API's `clear_cache` runs `FLUSHDB` on
+  the cache at every start, which would wipe queued tasks.
   Nothing to carry over: queued tasks and cache rebuild themselves.
 - Uploads: Bitnami `minio` subchart (`<release>-minio`, bucket `uploads`) -> `uploads` integration
   (RustFS StatefulSet `<release>-uploads`, bucket `uploads`, 10Gi). Existing attachments are not
@@ -63,8 +65,8 @@ uploads `/uploads` (presigned S3 URLs through the ingress).
 ## Secrets
 
 - `SECRET_KEY` and `LIVE_SERVER_SECRET_KEY`: `<app>-emporium-secrets` (generated once, stable).
-- Redis URL: `<app>-emporium-secrets`, key `REDIS_URL` (copied by the redis integration's
-  `secretKeys`).
+- Redis URLs: `<app>-emporium-secrets`, keys `REDIS_URL` (cache) and `QUEUE_URL` (Celery broker),
+  copied by the integrations' `secretKeys`.
 - S3 credentials: `<app>-emporium-secrets`, keys `objectStorage.uploads.accessKey` and
   `objectStorage.uploads.secretKey`.
 - SMTP password: `<app>-emporium-secrets`, key `smtp.mail.password` (was plaintext in the values).
@@ -75,8 +77,10 @@ uploads `/uploads` (presigned S3 URLs through the ingress).
 
 - The chart was broken on Plane v1.4.2 (start scripts removed from the v1 images, no Celery
   broker, no admin app, `/spaces` routed to the API). It now follows the upstream plane-ce layout.
-- Access defaults to authenticated: the first person to finish `/god-mode` becomes the instance
-  admin, so the app should not be public before that. `/api/v1/*` skips the login (API keys).
+- Access defaults to `admins`: the first person to finish `/god-mode` becomes the instance admin,
+  so only Emporium admins reach the app until then. After an admin has completed `/god-mode`,
+  relax the app's access to `authenticated` (or `public`) in the Emporium app settings so the team
+  can sign in. `/api/v1/*` skips the login (API keys).
 - SMTP settings seed Plane's instance configuration on first start only (Plane stores them in its
   database; later changes go through `/god-mode`).
 - The ingress body limit follows `app.fileSizeLimit` (5 MiB uploads -> `proxy-body-size: 6m`).

@@ -24,8 +24,9 @@ inputs:
 integrations:
   web:
     type: ingress
-    # The instance admin is whoever completes /god-mode first, so keep the app behind the login by default.
-    access: { default: authenticated }
+    # The instance admin is whoever completes /god-mode first, so only Emporium admins reach the
+    # app until setup is done; then relax access to authenticated (or public) in the app's settings.
+    access: { default: admins }
     # Public REST API (X-API-Key tokens, authenticated by Plane).
     skipPaths: [/api/v1/*]
     bind:
@@ -52,7 +53,7 @@ integrations:
       UsernameKey: database.usernameKey
       PasswordKey: database.passwordKey
       URIKey: database.uriKey
-  # Cache and Celery broker: persistent (AOF, noeviction) so queued tasks survive restarts.
+  # Django cache and the live server. The API's clear_cache runs FLUSHDB on it at every start.
   redis:
     type: redis
     mode: persistent
@@ -61,6 +62,16 @@ integrations:
       REDIS_URL: url
     bind:
       SecretName: redis.existingSecret
+  # Celery broker on its own instance, so clear_cache never wipes queued tasks; persistent (AOF,
+  # noeviction) so they survive restarts.
+  queue:
+    type: redis
+    mode: persistent
+    size: 1Gi
+    secretKeys:
+      QUEUE_URL: url
+    bind:
+      SecretName: queue.existingSecret
   uploads:
     type: objectStorage
     buckets: [uploads]
@@ -109,8 +120,11 @@ components:
     label: PostgreSQL
     integration: postgres
   redis:
-    label: Redis
+    label: Redis (cache)
     integration: redis
+  queue:
+    label: Redis (task queue)
+    integration: queue
   uploads:
     label: Object storage
     integration: uploads
@@ -134,4 +148,6 @@ profiles:
         instances: 1
         resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { memory: 1Gi } }
       redis:
+        maxMemory: 512Mi
+      queue:
         maxMemory: 512Mi

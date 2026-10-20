@@ -127,10 +127,15 @@ database:
   passwordKey: password
   uriKey: uri
 
-# Redis: cache and Celery broker. urlKey holds a redis:// URL including the password.
+# Redis for the Django cache and the live server. urlKey holds a redis:// URL including the password.
 redis:
   existingSecret: ""
   urlKey: REDIS_URL
+
+# Separate Redis for the Celery broker (the API flushes the cache Redis at every start).
+queue:
+  existingSecret: ""
+  urlKey: QUEUE_URL
 
 # S3 bucket for uploads, served through the ingress at /<bucket>.
 objectStorage:

@@ -132,12 +132,13 @@ Backend environment (API, worker, beat, migrator).
       name: {{ .Values.database.existingSecret }}
       key: {{ .Values.database.uriKey }}
 {{ include "plane.redisEnv" . }}
-# Celery accepts a redis:// broker URL, so Plane needs no RabbitMQ.
+# Celery accepts a redis:// broker URL, so Plane needs no RabbitMQ. Its own instance: the
+# API's clear_cache flushes the cache Redis.
 - name: AMQP_URL
   valueFrom:
     secretKeyRef:
-      name: {{ .Values.redis.existingSecret }}
-      key: {{ .Values.redis.urlKey }}
+      name: {{ required "queue.existingSecret is required" .Values.queue.existingSecret }}
+      key: {{ .Values.queue.urlKey }}
 - name: USE_MINIO
   value: "1"
 # Presigned upload/download URLs point at https://<host>/<bucket>.
