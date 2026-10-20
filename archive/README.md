@@ -23,3 +23,4 @@ Then check that the chart still lints and installs (images, deprecated APIs, ups
 | Chart | Reason |
 | --- | --- |
 | maybe-finance | Upstream `maybe-finance/maybe` was archived in July 2025; the image is frozen at 0.6.0. |
+| jenkins | Images are Jenkins 2.479.2 and the upstream sources are archived. |
