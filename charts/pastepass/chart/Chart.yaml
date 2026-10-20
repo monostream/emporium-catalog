@@ -2,7 +2,7 @@ apiVersion: v2
 name: pastepass
 description: Secure, one-time paste bin for sharing secrets.
 type: application
-version: 0.2.0
+version: 0.2.1
 appVersion: "0.1.1"
 
 home: https://github.com/v1k45/pastepass/tree/master

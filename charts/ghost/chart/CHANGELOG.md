@@ -1,3 +1,9 @@
+# 1.1.2
+
+Published on 20 October 2026
+
+- Smaller gallery screenshots (re-encoded, max width 1600 px) so the packaged chart fits the Helm release record.
+
 # 1.1.1
 - Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.4, 2026-10-20).
 

@@ -1,3 +1,9 @@
+# 0.2.1
+
+Published on 20 October 2026
+
+- Smaller gallery screenshots (re-encoded, max width 1600 px) so the packaged chart fits the Helm release record.
+
 # 0.2.0
 
 Published on 20 October 2026
