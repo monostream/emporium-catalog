@@ -1,0 +1,91 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  Username:
+    label: Admin username
+    description: Local Gitea administrator. Stored in the app's Secret, so the field stays blank after install.
+    type: secret
+    required: true
+    ref: { namePath: gitea.gitea.admin.existingSecret, key: username }
+  Password:
+    label: Admin password
+    description: Password of the local administrator. Leave empty to generate one (stored in the app's Secret).
+    type: secret
+    generate: { length: 24, charset: alnum }
+    ref: { namePath: gitea.gitea.admin.existingSecret, key: password }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    redirectPaths: [/user/oauth2/emporium/callback]
+    # API (token auth), Git smart HTTP and LFS of /<owner>/<repo>[.git] authenticate in Gitea;
+    # the repository web UI stays behind the login (same rule as forgejo).
+    skipPaths:
+      - /api/*
+      - regex(^/[^/]+/[^/]+/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*)$)
+    bind:
+      IngressClassName: gitea.ingress.className
+  sso:
+    type: oidc
+  mail:
+    type: smtp
+    required: false
+  data:
+    type: storage
+    size: { default: 30Gi, growOnly: true }
+    bind:
+      ClaimName: gitea.persistence.claimName
+  # Named postgres so the CloudNativePG cluster keeps the name <release>-postgres that the
+  # 0.1.0 annotation (W1 provider) created.
+  postgres:
+    type: postgres
+    database: gitea
+    owner: gitea
+    version: "17"
+    storage: { default: 10Gi, growOnly: true }
+  # Cache, sessions and the job queue (persistent: queued jobs must survive a restart).
+  redis:
+    type: redis
+    mode: persistent
+    size: 1Gi
+    maxMemory: 256Mi
+    secretKeys:
+      gitea-redis-url: url
+
+components:
+  app:
+    label: Gitea
+    resources: gitea.resources
+    replicas: { fixed: 1, reason: "Repositories, LFS and the Bleve index on a ReadWriteOnce volume" }
+  init:
+    label: Init containers
+    parent: app
+    resources: gitea.initContainers.resources
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+  redis:
+    label: Redis (Valkey)
+    integration: redis
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to about 20 users
+    values: profiles/small.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+  medium:
+    label: Medium
+    description: Up to about 200 users with Actions
+    values: profiles/medium.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { memory: 1Gi } }
+      redis:
+        maxMemory: 512Mi
