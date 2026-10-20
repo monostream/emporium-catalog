@@ -5,9 +5,10 @@ metadata:
   labels:
     {{- include "wastebin.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  strategy:
+    # SQLite on a ReadWriteOnce volume: never run two pods at once.
+    type: Recreate
   selector:
     matchLabels:
       {{- include "wastebin.selectorLabels" . | nindent 6 }}
@@ -38,6 +39,18 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            {{- with .Values.existingSecret }}
+            - name: WASTEBIN_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . | quote }}
+                  key: WASTEBIN_SIGNING_KEY
+            - name: WASTEBIN_PASSWORD_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . | quote }}
+                  key: WASTEBIN_PASSWORD_SALT
+            {{- end }}
           ports:
             - name: http
               containerPort: 8088
@@ -56,17 +69,21 @@ spec:
             periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.persistence.enabled }}
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.persistence.enabled }}
             - name: data
               mountPath: /data
-          {{- end }}
-      {{- if .Values.persistence.enabled }}
+            {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.persistence.enabled }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ include "wastebin.fullname" . }}-data
-      {{- end }}
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "wastebin.fullname" .)) }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
