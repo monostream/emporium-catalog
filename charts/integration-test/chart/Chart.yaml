@@ -4,8 +4,8 @@ name: integration-test
 description: Emporium app used for integration testing.
 
 type: application
-version: 0.1.7
-appVersion: 0.1.0
+version: 0.2.0
+appVersion: "0.4"
 
 home: https://emporium.build
 keywords:
@@ -14,4 +14,4 @@ keywords:
 
 annotations:
   displayName: Integration Test
-  oidcRedirectPaths: /test/callback,/test2/callback
+  emporiumVersion: "0.5.0"
