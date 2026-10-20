@@ -3,6 +3,8 @@
 Published on 20 October 2026
 
 - Respect the access policy chosen in Emporium. With 'Public' access the chart no longer fails to render (duplicate `emporium.build/auth-skip-paths`); with other policies only the API and the Git smart-HTTP and LFS endpoints skip the Emporium login (no longer repository pages under `.git` URLs), and Forgejo itself requires sign-in, so public repositories are not served anonymously.
+- With 'Authenticated' or 'Admins' access, LFS objects of public repositories can still be downloaded without sign-in (Forgejo serves them without checking it). A download needs the object's 64-character id, which only the repository, behind sign-in, reveals.
+- With 'Authenticated' or 'Admins' access, the runner can no longer fetch actions hosted on this Forgejo, because it fetches them without credentials. Workflows must use actions from a public source (`DEFAULT_ACTIONS_URL`) or public mirrors.
 - Drop the group-based admin sync of the Emporium OAuth source (the old `authentik Admins` group). Logging in with an account linked to the only admin no longer fails with "can not delete the last admin user". Admins are managed in Forgejo itself; upgrading clears the old admin group setting.
 
 # 0.0.76
