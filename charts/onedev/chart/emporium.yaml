@@ -35,7 +35,9 @@ integrations:
     type: ingress
     access: { default: authenticated }
     # API (token auth) and Git over HTTP authenticate in OneDev.
-    skipPaths: [/api/*, /*.git/*, /*/*.git/*]
+    skipPaths:
+      - /api/*
+      - regex(^(/[^/]+)+\.git/.*$)
     bind:
       IngressClassName: onedev.ingress.className
   db:
