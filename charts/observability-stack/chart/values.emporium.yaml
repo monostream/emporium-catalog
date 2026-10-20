@@ -74,7 +74,7 @@ prometheus:
         - name: Tempo
           type: tempo
           uid: tempo
-          url: {{ printf "http://%s-tempo:3100" .Emporium.Name | quote }}
+          url: {{ printf "http://%s-tempo:3200" .Emporium.Name | quote }}
           access: proxy
 
 alloy:
