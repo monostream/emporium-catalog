@@ -1,0 +1,10 @@
+ollama:
+  ollama:
+    gpu:
+      enabled: false
+  resources:
+    requests:
+      cpu: "2"
+      memory: 4Gi
+    limits:
+      memory: 12Gi
