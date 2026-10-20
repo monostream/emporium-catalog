@@ -67,23 +67,6 @@ metadata:
     "helm.sh/hook-weight": "1"
 type: Opaque
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ $name }}
-  labels:
-    app.kubernetes.io/component: config-generate-job
-    {{- include "forgejo-runner.labels" . | nindent 4 }}
-  annotations:
-    config-hash: {{ toYaml .Values.runner.config | sha256sum }}
-    "helm.sh/hook": "pre-install,pre-upgrade"
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
-    "helm.sh/hook-weight": "1"
-stringData:
-  CONFIG_NAME: {{ .Values.runner.config.name | quote }}
-  CONFIG_INSTANCE: {{ .Values.runner.config.instance | quote }}
-  CONFIG_TOKEN: {{ .Values.runner.config.token | quote }}
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -101,55 +84,77 @@ spec:
         config-hash: {{ toYaml .Values.runner.config | sha256sum }}
     spec:
       restartPolicy: "Never"
-      serviceAccount: {{ $name }}
-      containers:
-        - name: upload-config
-          image: "{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}"
-          command:
-            - sh
-            - -c
-            - | 
-              # check if key already exists
-              key=$(kubectl get secret {{ $secretName }} -o jsonpath="{.data['.runner']}" 2> /dev/null)
-              [ $? -ne 0 ] && echo "Failed to get existing secret" && exit 1
-              [ -n "$key" ] && echo "Config already created, exiting." && exit 0
-              # wait for config
-              while [ ! -f /data/.runner ]; do
-                echo "Waiting for config.."
-                sleep 5;
-              done
-              # update secret
-              kubectl patch secret {{ $secretName }} -p "{\"data\":{\".runner\":\"$(base64 /data/.runner | tr -d '\n')\"}}"
-              [ $? -ne 0 ] && echo "Failed to update secret." && exit 1
-              echo "Config successfully created."
-          volumeMounts:
-            - mountPath: /data/
-              name: data
-              readOnly: true
+      serviceAccountName: {{ $name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Registers the runner unless the Secret already holds a .runner file, then writes
+        # the Secret manifest for the next container.
         - name: generate-config
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - sh 
-            - -c
+            - sh
+            - -ec
             - |
-              if [[ -s /current/.runner ]]; then
-                echo "runner-config exists already";
-                cp /current/.runner /data/.runner;
-                exit 0;
+              cd /data
+              if [ -s /current/.runner ]; then
+                echo "runner-config exists already"
+                cp /current/.runner /data/.runner
+              else
+                /bin/forgejo-runner register --no-interactive --token "${CONFIG_TOKEN}" --name "${CONFIG_NAME}" --instance "${CONFIG_INSTANCE}" --labels docker:docker://catthehacker/ubuntu:act-latest 2>&1 | tee /tmp/reg.log
+                grep -q 'Runner registered successfully' /tmp/reg.log
               fi
-              cd /data;
-              /bin/forgejo-runner register --no-interactive --token "${CONFIG_TOKEN}" --name "${CONFIG_NAME}" --instance "${CONFIG_INSTANCE}" --labels docker:docker://catthehacker/ubuntu:act-latest 2>&1 | tee /tmp/reg.log;
-              cat /tmp/reg.log | grep 'Runner registered successfully';
-          envFrom:
-            - secretRef:
-                name: {{ $name }}
+              cat > /data/secret.yaml <<EOF
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: {{ $secretName }}
+              data:
+                .runner: $(base64 /data/.runner | tr -d '\n')
+              EOF
+          env:
+            - name: CONFIG_NAME
+              value: {{ .Values.runner.config.name | quote }}
+            - name: CONFIG_INSTANCE
+              value: {{ .Values.runner.config.instance | quote }}
+            - name: CONFIG_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "runner.config.tokenSecret is required" .Values.runner.config.tokenSecret | quote }}
+                  key: {{ .Values.runner.config.tokenKey | quote }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.kubectl.resources | nindent 12 }}
           volumeMounts:
             - mountPath: /data/
               name: data
             - name: runner-data
               mountPath: /current
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: upload-config
+          image: "{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}"
+          imagePullPolicy: {{ .Values.kubectl.image.pullPolicy }}
+          args: ["apply", "--server-side", "--force-conflicts", "--field-manager=forgejo-runner-config", "--filename=/data/secret.yaml"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.kubectl.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /data/
+              name: data
+              readOnly: true
       volumes:
         - name: data
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
         - name: runner-data
           secret:

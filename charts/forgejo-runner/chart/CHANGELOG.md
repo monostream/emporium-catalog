@@ -1,3 +1,15 @@
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- forgejo runner from 3.3.0 to 13.2.0; docker from 29.8.2 to 29.9.1-dind (the plain `docker` image has no dockerd).
+- The registration token is read from the app's Secret instead of plain values (the hook's `-config-generate` Secret is gone).
+- The registration hook uses `registry.k8s.io/kubectl` instead of the unavailable `bitnami/kubectl` image and writes the `.runner` file with a server-side apply.
+- Only the Docker daemon runs privileged; the runner container drops all capabilities and reaches the Docker socket through group 1000.
+- Forgejo URL and runner name can no longer change after the install (the runner is registered once).
+- Default memory limits for runner (512Mi) and Docker daemon (8Gi); requests for the hook containers.
+
 # 0.0.69
 
 Published on 7 October 2026
