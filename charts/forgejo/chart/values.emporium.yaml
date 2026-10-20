@@ -1,74 +1,64 @@
-## @userSupplied Username
-## @label Admin username
-## @type string
-## @description Admin Username
-
-## @userSupplied Password
-## @label Admin password
-## @type string
-## @description Admin password
-
 forgejo:
-
   persistence:
     enabled: true
-    size: 30Gi
-
-  strategy:
-    type: 'Recreate'
+    create: false
 
   ingress:
     enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
-      nginx.ingress.kubernetes.io/proxy-body-size: '0'
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
-      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
-      nginx.ingress.kubernetes.io/service-upstream: 'true'
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+
+  # configure-gitea expands ${OIDC_CLIENT_SECRET} when it adds or updates the oauth source.
+  deployment:
+    env:
+      - name: OIDC_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.sso.SecretName | quote }}
+            key: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
 
   gitea:
     admin:
-      existingSecret:
-      username: {{ .Emporium.UserSupplied.Username | quote }}
-      password: {{ .Emporium.UserSupplied.Password | quote }}
-      email: 'forgejo@{{ .Emporium.Integrations.DNS.Hostname }}'
+      email: {{ printf "forgejo@%s" .Emporium.Integrations.web.Hostname | quote }}
     oauth:
-      - name: 'emporium'
-        provider: 'openidConnect'
-        key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-        secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-        autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
-        scopes: "email profile"
-        groupClaimName: "groups"
-        adminGroup: "authentik Admins"
+      - name: emporium
+        provider: openidConnect
+        key: {{ .Emporium.Integrations.sso.ClientID | quote }}
+        secret: "${OIDC_CLIENT_SECRET}"
+        autoDiscoverUrl: {{ .Emporium.Integrations.sso.ConfigurationEndpoint | quote }}
+        # Role-based admin sync is intentionally off: Forgejo's adminGroup also demotes users
+        # without the role and fails with a 500 on the last admin. Admins are granted in
+        # Forgejo (Site administration > User accounts). The roles scope stays requested so
+        # the claim is there for a later grant-only mapping.
+        scopes: "email profile roles"
+        # Empty, not omitted: update-oauth then clears a group mapping an earlier version set
+        # ("authentik Admins" in 0.0.x/0.1.0).
+        groupClaimName: ""
+        adminGroup: ""
 
     additionalConfigFromEnvs:
       - name: FORGEJO__DATABASE__PASSWD
         valueFrom:
           secretKeyRef:
-            name: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
-            key: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+            name: {{ .Emporium.Integrations.postgres.SecretName | quote }}
+            key: {{ .Emporium.Integrations.postgres.PasswordKey | quote }}
 
     config:
+      server:
+        ROOT_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
       database:
         DB_TYPE: postgres
-        HOST: "{{ .Emporium.Integrations.Postgres.Host }}:{{ .Emporium.Integrations.Postgres.Port }}"
-        NAME: {{ .Emporium.Integrations.Postgres.Database | quote }}
-        USER: {{ .Emporium.Integrations.Postgres.Username | quote }}
-        SSL_MODE: {{ .Emporium.Integrations.Postgres.SSLMode | quote }}
+        HOST: {{ printf "%s:%v" .Emporium.Integrations.postgres.Host .Emporium.Integrations.postgres.Port | quote }}
+        NAME: {{ .Emporium.Integrations.postgres.Database | quote }}
+        USER: {{ .Emporium.Integrations.postgres.Username | quote }}
+        SSL_MODE: {{ .Emporium.Integrations.postgres.SSLMode | quote }}
       session:
         PROVIDER: db
       cache:
@@ -79,17 +69,17 @@ forgejo:
         ISSUE_INDEXER_TYPE: bleve
         REPO_INDEXER_ENABLED: true
       actions:
-        ENABLED: 'true'
+        ENABLED: "true"
       api:
-        ENABLE_SWAGGER: 'false'
+        ENABLE_SWAGGER: "false"
       service:
-        DISABLE_REGISTRATION: 'true'
-        SHOW_REGISTRATION_BUTTON: 'false'
+        DISABLE_REGISTRATION: "true"
+        SHOW_REGISTRATION_BUTTON: "false"
       openid:
-        ENABLE_OPENID_SIGNIN: 'true'
-        ENABLE_OPENID_SIGNUP: 'false'
+        ENABLE_OPENID_SIGNIN: "true"
+        ENABLE_OPENID_SIGNUP: "false"
       oauth2_client:
-        ENABLE_AUTO_REGISTRATION: 'true'
-        OPENID_CONNECT_SCOPES: 'openid email profile'
-        ACCOUNT_LINKING: 'login'
-        USERNAME: 'email'
+        ENABLE_AUTO_REGISTRATION: "true"
+        OPENID_CONNECT_SCOPES: "openid email profile roles"
+        ACCOUNT_LINKING: login
+        USERNAME: email

@@ -16,7 +16,13 @@ spec:
       serviceAccountName: {{ include "chart.fullname" . }}-job-sa
       containers:
         - name: post-install
-          image: bitnami/kubectl
+          image: {{ .Values.job.image }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
           command:
             - /bin/sh
             - -c
@@ -29,7 +35,7 @@ spec:
               SECRET_NAME="{{ include "chart.fullname" . }}-root-api-key"
 
               # Check if ROOT_API_KEY is set
-              ROOT_API_KEY=$(kubectl get secret $SECRET_NAME -o jsonpath="{.data.ROOT_API_KEY}" || echo "")
+              ROOT_API_KEY=$(kubectl get secret $SECRET_NAME -o jsonpath="{.data.ROOT_API_KEY}" 2>/dev/null || echo "")
 
               if [ -z "$ROOT_API_KEY" ]; then
                 echo "ROOT_API_KEY is not set. Generating new API key."
@@ -39,8 +45,6 @@ spec:
 
                 # Exec into the pod and run the command
                 API_KEY=$(kubectl exec $POD_NAME -c {{ .Chart.Name }} -- headscale apikeys create --expiration 30000d | tail -n1 | tr -d '\r')
-
-                echo "Generated API_KEY: $API_KEY"
 
                 # Update the secret
                 kubectl patch secret $SECRET_NAME -p "{\"data\": {\"ROOT_API_KEY\": \"$(echo -n $API_KEY | base64)\"}}"

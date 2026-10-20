@@ -1,1 +1,29 @@
-onedev: {}
+onedev:
+  onedev:
+    initSettings:
+      user: admin
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+  persistence:
+    size: 20Gi
+    storageClassName: ""
+  ingress:
+    className: ""
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      # Upstream defaults: nginx-only cookie affinity, not supported by Emporium ingresses.
+      nginx.ingress.kubernetes.io/affinity: null
+      nginx.ingress.kubernetes.io/affinity-mode: null
+      nginx.ingress.kubernetes.io/session-cookie-name: null
+      nginx.ingress.kubernetes.io/session-cookie-expires: null
+      nginx.ingress.kubernetes.io/session-cookie-max-age: null
+  env: []
+  # The upstream chart renders database.password into its Secret even when unused.
+  database:
+    password: ""

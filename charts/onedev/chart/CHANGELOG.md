@@ -1,3 +1,14 @@
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Optional PostgreSQL through Emporium's postgres integration (CloudNativePG, PostgreSQL 17, `sslmode=require`), off by default; without it OneDev keeps its embedded database on the data volume.
+- The admin password is a secret input (generated when left empty) read from the per-app Secret instead of plain values.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the initial server URL follows the hostname.
+- Storage size and class are install-only (the upstream chart uses a StatefulSet volumeClaimTemplate).
+- Profiles small and medium; default resources (250m CPU / 1Gi requested, 2Gi limit) instead of none.
+
 # 0.0.40
 
 Published on 19 October 2026

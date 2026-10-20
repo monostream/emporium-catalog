@@ -1,0 +1,34 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  AppName:
+    label: App name
+    description: Name shown in the page title and header.
+    type: string
+    default: Pastepass
+    path: app.name
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      IngressClassName: ingress.className
+  data:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: storage.workdir.existingClaim
+
+components:
+  app:
+    label: Pastepass
+    resources: resources
+    replicas: { fixed: 1, reason: "BoltDB file on a ReadWriteOnce volume" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Personal and team use
+    values: profiles/small.yaml

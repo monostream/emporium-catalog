@@ -48,6 +48,14 @@ spec:
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.app.image.pullPolicy }}
           args: ["serve"]
+          {{- if .Values.oidc.existingSecret }}
+          env:
+            - name: HEADSCALE_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.existingSecret | quote }}
+                  key: {{ .Values.oidc.clientSecretKey | quote }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -71,8 +79,13 @@ spec:
             value: 'http://{{ include "chart.fullname" . }}:{{ .Values.service.port }}'
           - name: OIDC_CLIENT_ID
             value: '{{ .Values.oidc.clientId }}'
+          {{- if .Values.oidc.existingSecret }}
           - name: OIDC_CLIENT_SECRET
-            value: '{{ .Values.oidc.clientSecret }}'
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.oidc.existingSecret | quote }}
+                key: {{ .Values.oidc.clientSecretKey | quote }}
+          {{- end }}
           - name: OIDC_ISSUER
             value: '{{ .Values.oidc.issuerUrl }}'
           - name: COOKIE_SECURE
@@ -87,12 +100,16 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: {{ include "chart.fullname" . }}-root-api-key
-                key: ROOT_API_KEY            
+                key: ROOT_API_KEY
+                # Filled by the post-install job once headscale runs.
+                optional: true
+          {{- with .Values.cookie.existingSecret }}
           - name: COOKIE_SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ include "chart.fullname" . }}-root-api-key
+                name: {{ . | quote }}
                 key: COOKIE_SECRET
+          {{- end }}
           - name: POD_NAME
             valueFrom:
               fieldRef:
