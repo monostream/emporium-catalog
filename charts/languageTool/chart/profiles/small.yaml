@@ -1,0 +1,11 @@
+# The JVM heap and the memory limit move together: keep about 1Gi of headroom above -Xmx for
+# the language models outside the heap.
+env:
+  Java_Xms: 256m
+  Java_Xmx: 512m
+resources:
+  requests:
+    cpu: 100m
+    memory: 768Mi
+  limits:
+    memory: 1536Mi
