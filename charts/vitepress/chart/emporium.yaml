@@ -1,0 +1,45 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  GitUrl:
+    label: Git repository URL
+    description: Public Git repository with the VitePress site (branch main). It is cloned and built at start and rebuilt when main changes.
+    type: string
+    default: https://github.com/monostream/emporium-docs.git
+    required: true
+    path: gitUrl
+  BasePath:
+    label: Base path
+    description: URL path the site is served under; must match the VitePress `base` setting of the site.
+    type: string
+    default: /docs
+    pattern: "^/[A-Za-z0-9._~/-]*$"
+  PollInterval:
+    label: Poll interval
+    description: Seconds between checks of the repository for new commits.
+    type: integer
+    default: 60
+    min: 10
+    max: 86400
+    path: pollInterval
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      IngressClassName: ingress.className
+
+components:
+  app:
+    label: VitePress
+    resources: resources
+    # Every pod clones and builds the site on its own; pods share no state.
+    replicas: { path: replicaCount, min: 1, max: 3 }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: One documentation site
+    values: profiles/small.yaml

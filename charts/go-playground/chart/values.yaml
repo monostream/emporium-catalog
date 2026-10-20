@@ -1,13 +1,14 @@
-# Default values for go-playground
-# This is a YAML-formatted file for standard Helm deployments
-# For Emporium deployments, see values.emporium.yaml
+# Default values for go-playground.
 
 nameOverride: ""
 fullnameOverride: ""
 
+replicaCount: 1
+
 image:
   repository: ghcr.io/x1unix/go-playground/go-playground
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
+  tag: "3.0.0"
 
 imagePullSecrets: []
 
@@ -23,7 +24,10 @@ podSecurityContext:
   runAsUser: 65534
   runAsGroup: 65534
   fsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
 
+# Read-only root filesystem: builds go to the /tmp and /var/cache emptyDirs.
 securityContext:
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
@@ -32,7 +36,7 @@ securityContext:
   runAsGroup: 65534
   capabilities:
     drop:
-    - ALL
+      - ALL
 
 service:
   type: ClusterIP
@@ -50,19 +54,13 @@ ingress:
           pathType: Prefix
   tls: []
 
+# Compiling to WebAssembly needs memory in bursts; idle use is a few MiB.
 resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
   requests:
-    cpu: 250m
-    memory: 256Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
 
 nodeSelector: {}
 
@@ -70,12 +68,7 @@ tolerations: []
 
 affinity: {}
 
-deployment:
-  replicaCount: 1
-
 env:
-  - name: PORT
-    value: "8000"
   - name: PLAYGROUND_ENV
     value: "production"
 
@@ -95,4 +88,4 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
   timeoutSeconds: 3
-  failureThreshold: 3 
+  failureThreshold: 3

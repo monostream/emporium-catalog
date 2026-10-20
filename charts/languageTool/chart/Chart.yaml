@@ -2,7 +2,7 @@ apiVersion: v2
 name: languagetool
 description: polish your writing and grammar in various languages
 type: application
-version: 0.1.17
+version: 0.2.0
 appVersion: "6.8"
 home: https://languagetool.org/
 icon: https://languagetool.org/images/logo_white.svg
@@ -17,3 +17,4 @@ annotations:
   licenses: LGPL-2.1 license
   category: Utilities
   gallery: ""
+  emporiumVersion: "0.5.0"

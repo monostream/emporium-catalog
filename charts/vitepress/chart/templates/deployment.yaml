@@ -51,9 +51,16 @@ spec:
               value: {{ .Values.pollInterval | quote }}
             {{- end }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+          # Ready once the first build is served under the base path (git clone and npm build
+          # take a few minutes on the first start).
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            httpGet:
+              path: {{ printf "%s/" (.Values.basePath | default "/docs" | trimSuffix "/") }}
+              port: http
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
