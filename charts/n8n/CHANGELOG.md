@@ -1,3 +1,6 @@
+
+# 0.2.1
+- Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.5, 2026-10-20).
 # Updates Thursday, 14-Mar-2024 16:52:22 CET
 | Source   | Name | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
 | -------- | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
@@ -12,4 +15,3 @@
 | Source   | Name | Description | Current Version | New Version | Current AppVersion | New AppVersion | Reference                                   |
 | -------- | ---- | ----------- | --------------- | ----------- | ------------------ | -------------- | ------------------------------------------- |
 | helm-oci | n8n  |             | 0.23.0          | 0.23.1      |                    | 1.34.2         | oci://8gears.container-registry.com/library |
-
