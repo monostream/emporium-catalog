@@ -1,58 +1,24 @@
-database:
-  host: {{ .Emporium.Integrations.Postgres.Host | quote }}
-  port: {{ .Emporium.Integrations.Postgres.Port }}
-  name: {{ .Emporium.Integrations.Postgres.Database | quote }}
-  username: {{ .Emporium.Integrations.Postgres.Username | quote }}
-  existingSecret: {{ .Emporium.Integrations.Postgres.SecretName | quote }}
-  passwordKey: {{ .Emporium.Integrations.Postgres.PasswordKey | quote }}
+app:
+  baseURL: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
 
-plausible:
-  baseURL: {{ printf "https://%s" .Emporium.Integrations.DNS.Hostname }}
+{{- with .Emporium.Integrations.mail }}
+mailer:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  from: {{ .From | quote }}
+  username: {{ .Username | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}
 
-  # CloudNativePG serves TLS with its own CA. With DATABASE_CACERTFILE set,
-  # Plausible connects with ssl: [cacertfile: ...], which Postgrex verifies
-  # with verify_peer and a hostname check (verify-full). The subchart's
-  # databaseCA value wants the certificate inline, so mount the CA secret.
-  extraVolumes:
-    - name: postgres-ca
-      secret:
-        secretName: {{ .Emporium.Integrations.Postgres.CASecretName | quote }}
-        items:
-          - key: ca.crt
-            path: ca.crt
-  extraVolumeMounts:
-    - name: postgres-ca
-      mountPath: /etc/ssl/postgres
-      readOnly: true
-  extraEnv:
-    - name: DATABASE_CACERTFILE
-      value: /etc/ssl/postgres/ca.crt
-
-  ingress:
-    enabled: true
-    pathType: Prefix
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-    hosts:
-      - {{ .Emporium.Integrations.DNS.Hostname }}
-    path: /
-    tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
-
-  mailer:
-    enabled: true
-    email: {{ .Emporium.Integrations.SMTP.From }}
-    adapter: "Bamboo.SMTPAdapter"
-    smtp:
-      host: {{ .Emporium.Integrations.SMTP.Host }}
-      port: {{ .Emporium.Integrations.SMTP.Port }}
-      auth: true
-      username: {{ .Emporium.Integrations.SMTP.Username }}
-      password: {{ .Emporium.Integrations.SMTP.Password }}
-      ssl: true
-      retries: 5
+ingress:
+  enabled: true
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
+  hosts:
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

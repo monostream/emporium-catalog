@@ -1,0 +1,98 @@
+{{- $secret := required "app.existingSecret is required" .Values.app.existingSecret -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "plausible.clickhouse" . }}
+  labels:
+    {{- include "plausible.labels" . | nindent 4 }}
+spec:
+  # Plausible does not support a ClickHouse cluster; the data volume is ReadWriteOnce.
+  replicas: 1
+  serviceName: {{ include "plausible.clickhouse" . }}
+  selector:
+    matchLabels:
+      {{- include "plausible.clickhouseSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/clickhouse-configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "plausible.labels" . | nindent 8 }}
+        {{- include "plausible.clickhouseSelectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "plausible.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.clickhouse.podSecurityContext | nindent 8 }}
+      containers:
+        - name: clickhouse
+          securityContext:
+            {{- toYaml .Values.clickhouse.securityContext | nindent 12 }}
+          image: "{{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}"
+          imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
+          env:
+            # The entrypoint replaces the passwordless default user with this one.
+            - name: CLICKHOUSE_USER
+              value: {{ .Values.clickhouse.user | quote }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: CLICKHOUSE_PASSWORD
+            - name: CLICKHOUSE_DB
+              value: {{ .Values.clickhouse.database | quote }}
+          ports:
+            - name: http
+              containerPort: 8123
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 30
+          resources:
+            {{- toYaml .Values.clickhouse.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/clickhouse
+            - name: logs
+              mountPath: /var/log/clickhouse-server
+            # Single files (subPath) keep config.d/users.d writable for the entrypoint.
+            {{- range list "logs.xml" "ipv4-only.xml" "low-resources.xml" }}
+            - name: config
+              mountPath: /etc/clickhouse-server/config.d/{{ . }}
+              subPath: {{ . }}
+              readOnly: true
+            {{- end }}
+            - name: config
+              mountPath: /etc/clickhouse-server/users.d/default-profile-low-resources-overrides.xml
+              subPath: default-profile-low-resources-overrides.xml
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "plausible.clickhouseClaim" . }}
+        - name: logs
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ include "plausible.clickhouse" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,33 +1,128 @@
+# Plausible Community Edition with its ClickHouse event store.
+# PostgreSQL is external: Emporium provides it with its postgres integration.
+
 nameOverride: ""
+fullnameOverride: ""
 
-# PostgreSQL database. Emporium provides it with its native Postgres
-# integration (CloudNativePG) and fills these values in values.emporium.yaml.
-database:
-  host: ""
-  port: 5432
-  name: plausible
-  username: plausible
-  # Secret holding the password (the CNPG app secret).
-  existingSecret: ""
-  passwordKey: password
+image:
+  repository: ghcr.io/plausible/community-edition
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v3.2.1"
 
-plausible:
+imagePullSecrets: []
+
+app:
+  # Public URL, e.g. https://plausible.example.com (BASE_URL).
   baseURL: ""
-  disableRegistration: true
+  # DISABLE_REGISTRATION: "true" (only the first user may register),
+  # "invite_only" or "false".
+  disableRegistration: "true"
   logFailedLoginAttempts: true
+  # Secret with the keys SECRET_KEY_BASE (64+ characters), TOTP_VAULT_KEY
+  # (32 characters, base64-encoded at start) and CLICKHOUSE_PASSWORD.
+  existingSecret: ""
 
-  secret:
-    create: false
-    existingSecret: plausible
+# External PostgreSQL.
+database:
+  # Secret holding DATABASE_URL (postgresql://user:password@host:port/db?sslmode=require).
+  existingSecret: ""
+  urlKey: DATABASE_URL
+  # Secret with the server CA (key ca.crt): Plausible verifies the server
+  # certificate and hostname (DATABASE_CACERTFILE). Empty: the sslmode in the URL applies.
+  caSecret: ""
 
-  postgresql:
-    enabled: false
+# Outgoing mail (Bamboo.Mua). Empty host: no mail relay is configured.
+mailer:
+  host: ""
+  port: 587
+  from: ""
+  username: ""
+  # Secret and key holding the SMTP password.
+  existingSecret: ""
+  passwordKey: ""
 
-  clickhouse:
-    fullnameOverride: plausible-clickhouse
-    auth:
-      existingSecret: plausible
-      existingSecretKey: "CLICKHOUSE_PASSWORD"
-    persistence:
-      enabled: true
-      size: 10Gi
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  runAsGroup: 999
+  fsGroup: 999
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 1Gi
+
+# Resources of the init container that waits for ClickHouse.
+initResources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    memory: 64Mi
+
+clickhouse:
+  image:
+    repository: clickhouse/clickhouse-server
+    # The ClickHouse line Plausible CE ships with (community-edition compose.yml).
+    tag: "24.12.6.70-alpine"
+    pullPolicy: IfNotPresent
+  user: plausible
+  database: plausible_events_db
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    fsGroup: 101
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+  persistence:
+    # Existing claim for /var/lib/clickhouse. Empty: the chart creates one.
+    existingClaim: ""
+    storageClass: ""
+    size: 10Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

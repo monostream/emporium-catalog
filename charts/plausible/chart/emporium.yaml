@@ -1,0 +1,93 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: security, label: Security, description: Generated at install. A new secret key base signs everyone out. }
+
+inputs:
+  Registration:
+    label: Registration
+    description: Who may create an account. The first user can always register.
+    type: enum
+    options:
+      - { value: "true", label: Closed (first user only) }
+      - { value: invite_only, label: Invite only }
+      - { value: "false", label: Open }
+    default: "true"
+    path: app.disableRegistration
+  SecretKeyBase:
+    label: Secret key base
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: SECRET_KEY_BASE }
+  TotpVaultKey:
+    label: Two-factor vault key
+    description: Encrypts the stored two-factor secrets; changing it breaks existing two-factor logins.
+    type: secret
+    section: security
+    installOnly: true
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: app.existingSecret, key: TOTP_VAULT_KEY }
+  ClickhousePassword:
+    label: ClickHouse password
+    type: secret
+    section: security
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: app.existingSecret, key: CLICKHOUSE_PASSWORD }
+
+integrations:
+  web:
+    type: ingress
+    # Visitors' browsers load the tracking script and send events without a login;
+    # Plausible has its own accounts.
+    access: { default: public }
+    # Kept open when an admin chooses "authenticated", so tracking keeps working.
+    skipPaths: [/js/*, /api/event]
+    bind:
+      IngressClassName: ingress.className
+  mail:
+    type: smtp
+    required: false
+  postgres:
+    type: postgres
+    database: plausible
+    owner: plausible
+    version: "17"
+    extensions: [citext]
+    storage: { default: 8Gi, growOnly: true }
+    # postgresql://...?sslmode=require under the key Plausible reads.
+    secretKeys:
+      DATABASE_URL: uri-sslmode-require
+    bind:
+      EnvSecretName: database.existingSecret
+      CASecretName: database.caSecret
+  events:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: clickhouse.persistence.existingClaim
+
+components:
+  app:
+    label: Plausible
+    resources: resources
+    replicas: { fixed: 1, reason: "Community Edition keeps ingest buffers and background jobs in one node" }
+    match: { kind: Deployment }
+  clickhouse:
+    label: ClickHouse (events)
+    resources: clickhouse.resources
+    replicas: { fixed: 1, reason: "Plausible does not support a ClickHouse cluster; ReadWriteOnce volume" }
+    match: { kind: StatefulSet, name: "*clickhouse*" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A handful of sites, up to about a million page views a month
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }
