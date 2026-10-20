@@ -1,4 +1,5 @@
 {{- $prom := .Emporium.Inputs.PrometheusEnabled }}
+{{- $nodeLogs := .Emporium.Inputs.NodeLogCollection }}
 prometheus:
   prometheusOperator:
     enabled: {{ input "PrometheusEnabled" }}
@@ -88,6 +89,14 @@ alloy:
 
         discovery.kubernetes "kubernetes_pods" {
                 role = "pod"
+                {{- if not $nodeLogs }}
+
+                // Each Alloy pod (one per node) streams only the pods on its own node.
+                selectors {
+                        role  = "pod"
+                        field = "spec.nodeName=" + sys.env("HOSTNAME")
+                }
+                {{- end }}
         }
 
         discovery.relabel "kubernetes_pods" {
@@ -142,6 +151,7 @@ alloy:
                         source_labels = ["__meta_kubernetes_pod_container_name"]
                         target_label  = "container"
                 }
+                {{- if $nodeLogs }}
 
                 rule {
                         source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
@@ -157,7 +167,9 @@ alloy:
                         target_label  = "__path__"
                         replacement   = "/var/log/pods/*$1/*.log"
                 }
+                {{- end }}
         }
+        {{- if $nodeLogs }}
 
         local.file_match "kubernetes_pods" {
                 path_targets = discovery.relabel.kubernetes_pods.output
@@ -174,6 +186,14 @@ alloy:
                 forward_to            = [loki.process.kubernetes_pods.receiver]
                 legacy_positions_file = "/run/promtail/positions.yaml"
         }
+        {{- else }}
+
+        // Without the /var/log hostPath mount (PodSecurity baseline): read container logs through the Kubernetes API.
+        loki.source.kubernetes "kubernetes_pods" {
+                targets    = discovery.relabel.kubernetes_pods.output
+                forward_to = [loki.write.default.receiver]
+        }
+        {{- end }}
 
         loki.write "default" {
                 endpoint {

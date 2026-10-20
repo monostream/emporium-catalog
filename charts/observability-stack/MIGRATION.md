@@ -44,8 +44,8 @@ No extra hosts.
 
 ## Cluster-scoped objects (one install per cluster)
 
-- Always: ClusterRoles/Bindings for Alloy (reads pod logs on every node through a DaemonSet with
-  `/var/log` host mounts) and the Grafana dashboard sidecar (watches ConfigMaps in all namespaces).
+- Always: ClusterRoles/Bindings for Alloy (a DaemonSet that reads the logs of every pod on its node:
+  through the Kubernetes API by default, from `/var/log` host mounts with `NodeLogCollection`) and the Grafana dashboard sidecar (watches ConfigMaps in all namespaces).
   Their names are release-based, so two installs do not collide by name, but both would collect
   the same logs.
 - With `PrometheusEnabled`: kube-prometheus-stack's `monitoring.coreos.com` CRDs (installed from

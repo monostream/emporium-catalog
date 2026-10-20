@@ -1,3 +1,11 @@
+# 0.1.2
+
+Published on 20 October 2026
+
+- Installs in namespaces with PodSecurity "baseline": by default Alloy streams pod logs through the Kubernetes API (`loki.source.kubernetes`, each Alloy pod reads the pods on its own node) and mounts no hostPath volume. Before, Alloy always mounted the node's `/var/log` and the install was rejected under "baseline".
+- New input "Read logs from the nodes" (`NodeLogCollection`, default off) restores the previous behaviour: Alloy reads `/var/log/pods` on each node through a hostPath mount. It needs a namespace with PodSecurity "privileged".
+- The "Enable Prometheus" description states that node-exporter (host network, host PID, hostPath) needs a namespace with PodSecurity "privileged".
+
 # 0.1.1
 
 Published on 20 October 2026
