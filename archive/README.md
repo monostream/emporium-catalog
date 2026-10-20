@@ -24,3 +24,4 @@ Then check that the chart still lints and installs (images, deprecated APIs, ups
 | --- | --- |
 | maybe-finance | Upstream `maybe-finance/maybe` was archived in July 2025; the image is frozen at 0.6.0. |
 | jenkins | Images are Jenkins 2.479.2 and the upstream sources are archived. |
+| artifacts | Not in 0.5: app needs flat-host or path routing, OIDC secret from a Secret, plain keys; migration WIP on branch feat/emporium-yaml-artifacts. |
