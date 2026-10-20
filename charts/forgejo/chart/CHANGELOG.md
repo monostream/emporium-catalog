@@ -1,8 +1,8 @@
 # 0.0.78
 
-Published on 19 October 2026
+Published on 20 October 2026
 
-- Respect the access policy chosen in Emporium. With 'Public' access the chart no longer fails to render (duplicate `emporium.build/auth-skip-paths`); with other policies the API and Git-over-HTTP paths still skip the Emporium login.
+- Respect the access policy chosen in Emporium. With 'Public' access the chart no longer fails to render (duplicate `emporium.build/auth-skip-paths`); with other policies only the API and the Git smart-HTTP and LFS endpoints skip the Emporium login (no longer repository pages under `.git` URLs), and Forgejo itself requires sign-in, so public repositories are not served anonymously.
 - Drop the group-based admin sync of the Emporium OAuth source (the old `authentik Admins` group). Logging in with an account linked to the only admin no longer fails with "can not delete the last admin user". Admins are managed in Forgejo itself; upgrading clears the old admin group setting.
 
 # 0.0.76

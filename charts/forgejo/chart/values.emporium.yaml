@@ -14,6 +14,10 @@
 ## @description Installs a highly available version of the chart
 ## @optional
 
+{{- /* Emporium sets auth-skip-paths ('/*') only for Public access. The
+       annotations are a map[string]string, which hasKey does not take, so
+       they go through JSON first. */}}
+{{- $public := hasKey (.Emporium.Annotations | toJson | fromJson) "emporium.build/auth-skip-paths" }}
 forgejo:
   redis-cluster:
     enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
@@ -36,9 +40,14 @@ forgejo:
       {{- toYaml .Emporium.Annotations | nindent 6 }}
       {{- end }}
       kubernetes.io/tls-acme: "true"
-      {{- /* Public access: Emporium sets auth-skip-paths to '/*' itself. */}}
-      {{- if not (index .Emporium.Annotations "emporium.build/auth-skip-paths") }}
-      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
+      {{- if not $public }}
+      ## Paths that bypass the Emporium login because their clients cannot
+      ## do a browser sign-in; Forgejo authenticates them itself:
+      ## - /api/*: the REST API with access tokens, Actions runners, packages
+      ## - Git smart HTTP (info/refs, git-upload-pack, git-receive-pack) and
+      ##   Git LFS (info/lfs/...) of /<owner>/<repo>[.git]; nothing else, so
+      ##   the repository web UI stays behind the login
+      emporium.build/auth-skip-paths: '/api/*,regex(^/[^/]+/[^/]+/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*)$)'
       {{- end }}
       nginx.ingress.kubernetes.io/proxy-body-size: '0'
       nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
@@ -92,6 +101,9 @@ forgejo:
       service:
         DISABLE_REGISTRATION: 'true'
         SHOW_REGISTRATION_BUTTON: 'false'
+        ## Unless the app is public, Forgejo itself requires sign-in, so the
+        ## API and Git paths above serve no public repository anonymously.
+        REQUIRE_SIGNIN_VIEW: '{{ not $public }}'
       openid:
         ENABLE_OPENID_SIGNIN: 'true'
         ENABLE_OPENID_SIGNUP: 'false'
