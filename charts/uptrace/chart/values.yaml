@@ -1,4 +1,67 @@
 nameOverride: ""
 fullnameOverride: ""
 
-uptrace: {}
+# Secret holding the generated and user-supplied secrets (keys UPTRACE_SECRET,
+# UPTRACE_ADMIN_PASSWORD, UPTRACE_TOKEN_PROJECT1, UPTRACE_TOKEN_PROJECT2,
+# CLICKHOUSE_PASSWORD). Emporium sets it to the per-app Secret.
+secrets:
+  existingSecret: ""
+
+# ClickHouse, run by the Altinity clickhouse-operator (ClickHouseInstallation).
+# The upstream chart's own installation (uptrace.clickhouse) is disabled: it
+# hardcodes the password "uptrace", the volume size and the image, and sets
+# no resources.
+clickhouse:
+  image:
+    repository: clickhouse/clickhouse-server
+    tag: "26.3.56.2"
+  persistence:
+    size: 10Gi
+    storageClassName: ""
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+
+uptrace:
+  # The upstream chart's ClickHouseInstallation is replaced by this chart's
+  # templates/clickhouse.yaml.
+  clickhouse:
+    enabled: false
+
+  # PostgreSQL comes from outside (Emporium's postgres integration); the
+  # upstream CloudNativePG Cluster is not rendered.
+  postgresql:
+    enabled: false
+
+  otelcol:
+    enabled: false
+
+  # The daemonset is an OpenTelemetryCollector resource and needs the
+  # OpenTelemetry operator, which Emporium does not install.
+  otelcolDaemonset:
+    enabled: false
+
+  ingress:
+    enabled: true
+    className: ""
+    annotations: {}
+    hosts:
+      - host: uptrace.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+  uptrace:
+    replicaCount: 1
+    image:
+      tag: "2.0.3"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
