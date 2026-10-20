@@ -1,3 +1,18 @@
+# 2.0.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Breaking: replaces the Bitnami `supabase` chart 5.3.6 (deprecated, images no longer pullable) with the supabase-community chart `supabase` 0.8.0 and its bundled `supabase/postgres` 17.6 database (documented exception to the postgres integration). **Existing installs start with an empty database**; data moves by dump and restore (MIGRATION.md).
+- One host: Studio at `/` behind the Emporium login (default access: admins), the Supabase APIs through Kong with Supabase's own key auth. The `api.<host>` name is gone.
+- Uploaded files go to the `files` objectStorage integration (S3, bucket `supabase`) instead of a volume.
+- Data volumes are storage integrations: `db` (8Gi, also holds the pgsodium root key), `functions` and `snippets` (1Gi each), all grow-only.
+- JWT secret, database password, Realtime, Postgres Meta, S3 protocol and Kong dashboard credentials are generated inputs delivered by reference from the per-app Secret. A Job (not a Helm hook) signs the anon and service_role keys and copies the SMTP credentials into Secret `supabase-keys`, owned by the release.
+- SMTP from the optional `mail` integration; without it new users are confirmed automatically.
+- New inputs: Site URL, additional redirect URLs, disable sign-ups, OpenAI API key for Studio. Removed: `StorageSize`, `DatabaseSize`.
+- Components and `small`/`medium` profiles with resources on every container; not deployed: Logflare/Vector, imgproxy, MinIO.
+- Fixes the pgsodium config copy on volumes that are not empty (lost+found).
+
 # 1.0.55
 
 Published on 19 October 2026

@@ -1,11 +1,206 @@
-supabase: {}
+# Supabase on Emporium: a wrapper around the supabase-community chart
+# (https://github.com/supabase-community/supabase-kubernetes, chart `supabase`).
+# It renders on its own; Emporium layers emporium.yaml, values.emporium.yaml and a
+# profile on top.
 
-# SMTP settings for Supabase auth (GoTrue). When host is set they are stored in
-# the <release>-smtp Secret; point supabase.auth.extraEnvVarsSecret at it.
-smtp:
+# Single host for Studio and the APIs. Filled by the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
   host: ""
-  port: "587"
-  username: ""
-  password: ""
-  from: ""
-  senderName: Supabase
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+  # Matches the storage API's FILE_SIZE_LIMIT (50 MiB) below.
+  bodySize: 50m
+  # Routed to Kong (Supabase key auth); everything else goes to Studio.
+  # Keep in sync with `skipPaths` in emporium.yaml.
+  apiPaths:
+    - /auth/v1
+    - /rest/v1
+    - /graphql/v1
+    - /realtime/v1
+    - /storage/v1
+    - /functions/v1
+    - /sso/saml
+    - /.well-known/oauth-authorization-server
+
+# The anon and service_role API keys are JWTs signed with the JWT secret, which a
+# template cannot compute, and upstream reads the SMTP user and password from one
+# Secret. A Job (templates/keys.yaml, not a Helm hook) runs on every install and
+# upgrade and writes the Secret `supabase.secret.jwt.secretRef` with the keys
+# `secret`, `anonKey`, `serviceKey`, `smtpUsername` and `smtpPassword`. The Secret
+# is owned by a ConfigMap of the release, so it goes away on uninstall. The API
+# keys are re-signed only when the JWT secret changes.
+keys:
+  # Secret and key holding the JWT secret (Emporium: the per-app Secret, input
+  # JwtSecret). Empty name: upstream's sample `supabase.secret.jwt.secret`
+  # (outside Emporium only).
+  jwtSecret:
+    name: ""
+    key: SUPABASE_JWT_SECRET
+  # SMTP credentials for Auth; the password is read by reference.
+  smtp:
+    username: ""
+    passwordSecret:
+      name: ""
+      key: ""
+  image:
+    repository: python
+    tag: 3.13.16-alpine3.24
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+
+supabase:
+  # Credentials are read by reference. Under Emporium the secretRefs point at the
+  # per-app Secret (generated inputs, emporium.yaml) and at the integrations'
+  # Secrets; values.emporium.yaml sets the key names. Without Emporium the
+  # upstream chart creates its Secrets from its sample values: change them.
+  secret:
+    # Written by the keys Job (keys secret, anonKey, serviceKey).
+    jwt:
+      secretRef: supabase-keys
+    db:
+      secretRef: ""
+    realtime:
+      secretRef: ""
+    meta:
+      secretRef: ""
+    dashboard:
+      secretRef: ""
+    s3:
+      secretRef: ""
+    # Also written by the keys Job (from keys.smtp).
+    smtp:
+      secretRef: supabase-keys
+      secretRefKey:
+        username: smtpUsername
+        password: smtpPassword
+    # Logflare is not deployed; empty tokens instead of upstream's sample values.
+    analytics:
+      publicAccessToken: ""
+      privateAccessToken: ""
+
+  # The wrapper renders its own single-host Ingress (templates/ingress.yaml).
+  ingress:
+    enabled: false
+
+  image:
+    db:
+      repository: supabase/postgres
+      tag: 17.6.1.136
+    initDb:
+      repository: postgres
+      tag: 17.11-alpine3.24
+
+  deployment:
+    db:
+      resources:
+        requests: { cpu: 250m, memory: 512Mi }
+        limits: { memory: 1Gi }
+      # Upstream's init-pgsodium copies the default /etc/postgresql-custom only into
+      # an empty volume. The volume is never empty (lost+found on ext4, and the
+      # postgres-data subPath of the same claim), so copy the defaults when they are
+      # missing. A generated pgsodium key is never overwritten.
+      extraInitContainers:
+        - name: fix-pgsodium
+          image: supabase/postgres:17.6.1.136
+          command: [/bin/sh, -c]
+          args:
+            - |
+              if [ ! -f /mnt/pgsodium/supautils.conf ]; then
+                echo "pgsodium volume has no config, copying defaults"
+                cp -a /etc/postgresql-custom/. /mnt/pgsodium/
+              fi
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 64Mi }
+          volumeMounts:
+            - mountPath: /mnt/pgsodium
+              name: pgsodium
+    kong:
+      resources:
+        requests: { cpu: 50m, memory: 256Mi }
+        limits: { memory: 512Mi }
+    auth:
+      resources:
+        requests: { cpu: 20m, memory: 64Mi }
+        limits: { memory: 256Mi }
+    rest:
+      resources:
+        requests: { cpu: 20m, memory: 64Mi }
+        limits: { memory: 256Mi }
+    realtime:
+      resources:
+        requests: { cpu: 50m, memory: 256Mi }
+        limits: { memory: 512Mi }
+    meta:
+      resources:
+        requests: { cpu: 20m, memory: 96Mi }
+        limits: { memory: 256Mi }
+    storage:
+      resources:
+        requests: { cpu: 50m, memory: 128Mi }
+        limits: { memory: 512Mi }
+    # Studio and Edge Functions share the functions volume, and Studio also uses the
+    # snippets volume (all ReadWriteOnce). Both run on the database's node, so they
+    # can share the volumes and roll over without Multi-Attach errors.
+    # (No instance label: values can't name the release; one Supabase per namespace.)
+    studio:
+      resources:
+        requests: { cpu: 50m, memory: 256Mi }
+        limits: { memory: 1Gi }
+      affinity: &onDatabaseNode
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: supabase-db
+              topologyKey: kubernetes.io/hostname
+    functions:
+      resources:
+        requests: { cpu: 50m, memory: 128Mi }
+        limits: { memory: 512Mi }
+      affinity: *onDatabaseNode
+    # Image transformations need imgproxy with access to the object storage; off.
+    imgproxy:
+      enabled: false
+    # Logflare/Vector (log explorer) and MinIO are not deployed.
+    analytics:
+      enabled: false
+    vector:
+      enabled: false
+    minio:
+      enabled: false
+
+  # Under Emporium the data volumes are `storage` integration claims (emporium.yaml),
+  # so the uninstall dialog decides whether they are kept:
+  #   db        -> persistence.db.existingClaim and persistence.pgsodium.existingClaim:
+  #                the data directory is the postgres-data subPath, the pgsodium
+  #                config with its root key sits at the root of the same volume
+  #   functions -> persistence.functions.existingClaim (Edge Functions code)
+  #   snippets  -> persistence.snippets.existingClaim (Studio SQL snippets)
+  # Uploaded files go to the objectStorage integration (S3), not to a volume.
+  # Standalone installs (no existingClaim) get Helm-managed PVCs.
+  persistence:
+    db:
+      size: 8Gi
+      existingClaim: ""
+    pgsodium:
+      existingClaim: ""
+    functions:
+      existingClaim: ""
+    snippets:
+      existingClaim: ""
+    # Without Emporium's object storage the Storage API keeps files on this volume.
+    storage:
+      enabled: true
+      size: 10Gi
+    # Deno module cache: rebuilt on start, no volume needed.
+    deno:
+      enabled: false

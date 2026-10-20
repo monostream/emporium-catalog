@@ -1,72 +1,156 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type byteSize
-## @description The size of the volume used for the storage service. Default is 8Gi.
-## @optional
-
-## @userSupplied DatabaseSize
-## @label Database Size
-## @type byteSize
-## @description The size of the volume used for the Postgres DB. Default is 8Gi.
-## @optional
-
+# Thin wiring that needs logic: the key names of the per-app Secret, the object
+# storage and SMTP blocks, and the public URL inside the Auth, Storage and Studio
+# environment lists. Host, annotations, TLS, ingress class, data claims and the
+# Secret names of the generated inputs are bound in emporium.yaml.
+#
+# Upstream renders environment.<component> after its built-in variables, and a
+# list replaces the upstream default completely, so the lists below restate the
+# upstream defaults (supabase chart 0.8.0) we keep. STORAGE_BACKEND, which
+# upstream hard-codes to "file" unless its MinIO is deployed, is listed again as
+# "s3": Kubernetes uses the last entry of a name. Re-check when the dependency is
+# bumped.
+{{- $url := printf "https://%s" .Emporium.Integrations.web.Hostname }}
+{{- $site := .Emporium.Inputs.SiteUrl | default $url }}
+{{- $files := .Emporium.Integrations.files }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+{{- with .Emporium.Integrations.mail }}
+keys:
+  smtp:
+    username: {{ .Username | quote }}
+    passwordSecret:
+      name: {{ .SecretName | quote }}
+      key: {{ .PasswordKey | quote }}
+{{- end }}
 supabase:
-  publicUrl: api.{{ .Emporium.Integrations.DNS.Hostname }}
-
-  auth:
-    image:
-      repository: supabase/gotrue
-      tag: v2.159.1
-    # The subchart's default ConfigMap points GOTRUE_DB_MIGRATIONS_PATH at the
-    # Bitnami image layout (/opt/bitnami/gotrue/); the official image ships its
-    # migrations in /usr/local/etc/auth/migrations. Container env takes
-    # precedence over envFrom, so this override wins.
-    extraEnvVars:
-      - name: GOTRUE_DB_MIGRATIONS_PATH
-        value: /usr/local/etc/auth/migrations
-    # GOTRUE_SMTP_* settings come from the Secret templates/secret-smtp.yaml
-    # creates (the subchart only mounts auth.extraConfig with an existing ConfigMap).
-    extraEnvVarsSecret: {{ printf "%s-smtp" .Emporium.Name | quote }}
-
-  studio:
-    ingress:
-      enabled: true
-
-      pathType: Prefix
-
-      annotations:
-        {{- if .Emporium.Annotations }}
-        {{- toYaml .Emporium.Annotations | nindent 8 }}
-        {{- end }}
-        kubernetes.io/tls-acme: "true"
-
-      hostname: {{ .Emporium.Integrations.DNS.Hostname }}
-      tls: true
-
-  kong:
-    ingress:
-      enabled: true
-      hostname: api.{{ .Emporium.Integrations.DNS.Hostname }}
-      tls: true
-
-      annotations:
-        {{- if .Emporium.Annotations }}
-        {{- toYaml .Emporium.Annotations | nindent 8 }}
-        {{- end }}
-        kubernetes.io/tls-acme: "true"
-
-  storage:
-    persistence:
-      size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize | quote }}
-
-  postgresql:
-    primary:
-      persistence:
-        size: {{ default "8Gi" .Emporium.UserSupplied.DatabaseSize | quote }}
-
-smtp:
-  host: {{ .Emporium.Integrations.SMTP.Host | quote }}
-  port: {{ .Emporium.Integrations.SMTP.Port | quote }}
-  username: {{ .Emporium.Integrations.SMTP.Username | quote }}
-  password: {{ .Emporium.Integrations.SMTP.Password | quote }}
-  from: {{ .Emporium.Integrations.SMTP.From | quote }}
+  secret:
+    db:
+      secretRefKey:
+        password: SUPABASE_DB_PASSWORD
+        # Generated passwords are alphanumeric: the URL-encoded form is the same.
+        passwordEncoded: SUPABASE_DB_PASSWORD
+        database: SUPABASE_DB_NAME
+    realtime:
+      secretRefKey:
+        secretKeyBase: SUPABASE_REALTIME_SECRET_KEY_BASE
+        dbEncKey: SUPABASE_REALTIME_DB_ENC_KEY
+    meta:
+      secretRefKey:
+        cryptoKey: SUPABASE_META_CRYPTO_KEY
+    dashboard:
+      secretRefKey:
+        username: SUPABASE_DASHBOARD_USERNAME
+        password: SUPABASE_DASHBOARD_PASSWORD
+        openAiApiKey: SUPABASE_OPENAI_API_KEY
+    s3:
+      secretRefKey:
+        keyId: SUPABASE_S3_PROTOCOL_KEY_ID
+        accessKey: SUPABASE_S3_PROTOCOL_SECRET
+    # Upstream reads the S3 backend credentials (AWS_ACCESS_KEY_ID/SECRET) from
+    # its "minio" Secret: point it at the object storage's credentials.
+    minio:
+      secretRef: {{ $files.SecretName | quote }}
+      secretRefKey:
+        user: {{ $files.AccessKeyKey | quote }}
+        password: {{ $files.SecretKeyKey | quote }}
+  persistence:
+    # pgsodium's config directory (with its root key) lives at the root of the
+    # database volume; the data directory is its postgres-data subPath.
+    pgsodium:
+      existingClaim: {{ .Emporium.Integrations.db.ClaimName | quote }}
+    # Files go to the object storage.
+    storage:
+      enabled: false
+  {{- with .Emporium.Integrations.mail }}
+  deployment:
+    auth:
+      # Restart Auth when the SMTP settings change (it reads them at start).
+      podAnnotations:
+        emporium.build/smtp-config: {{ list .Host .Port .Username .From .SecretName .PasswordKey | toJson | sha256sum | trunc 16 | quote }}
+  {{- end }}
+  environment:
+    auth:
+      - name: API_EXTERNAL_URL
+        value: {{ $url | quote }}
+      - name: GOTRUE_SITE_URL
+        value: {{ $site | quote }}
+      - name: GOTRUE_URI_ALLOW_LIST
+        value: {{ .Emporium.Inputs.AdditionalRedirectUrls | default "" | quote }}
+      - name: GOTRUE_DISABLE_SIGNUP
+        value: {{ input "DisableSignup" }}
+      - name: GOTRUE_API_HOST
+        value: "0.0.0.0"
+      - name: GOTRUE_API_PORT
+        value: "9999"
+      - name: GOTRUE_JWT_DEFAULT_GROUP_NAME
+        value: authenticated
+      - name: GOTRUE_JWT_ADMIN_ROLES
+        value: service_role
+      - name: GOTRUE_JWT_AUD
+        value: authenticated
+      - name: GOTRUE_JWT_EXP
+        value: "3600"
+      - name: GOTRUE_EXTERNAL_EMAIL_ENABLED
+        value: "true"
+      - name: GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED
+        value: "false"
+      - name: GOTRUE_EXTERNAL_PHONE_ENABLED
+        value: "false"
+      - name: GOTRUE_SMS_AUTOCONFIRM
+        value: "false"
+      - name: GOTRUE_MAILER_URLPATHS_INVITE
+        value: /auth/v1/verify
+      - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
+        value: /auth/v1/verify
+      - name: GOTRUE_MAILER_URLPATHS_RECOVERY
+        value: /auth/v1/verify
+      - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
+        value: /auth/v1/verify
+      {{- with .Emporium.Integrations.mail }}
+      - name: GOTRUE_MAILER_AUTOCONFIRM
+        value: "false"
+      - name: GOTRUE_SMTP_HOST
+        value: {{ .Host | quote }}
+      - name: GOTRUE_SMTP_PORT
+        value: {{ .Port | quote }}
+      - name: GOTRUE_SMTP_ADMIN_EMAIL
+        value: {{ .From | quote }}
+      - name: GOTRUE_SMTP_SENDER_NAME
+        value: {{ $.Emporium.Name | quote }}
+      {{- else }}
+      - name: GOTRUE_MAILER_AUTOCONFIRM
+        value: "true"
+      {{- end }}
+    storage:
+      - name: STORAGE_BACKEND
+        value: s3
+      - name: GLOBAL_S3_ENDPOINT
+        value: {{ $files.Endpoint | quote }}
+      - name: GLOBAL_S3_FORCE_PATH_STYLE
+        value: "true"
+      - name: GLOBAL_S3_BUCKET
+        value: {{ index $files.Buckets 0 | quote }}
+      - name: REGION
+        value: {{ $files.Region | quote }}
+      - name: TENANT_ID
+        value: stub
+      - name: REQUEST_ALLOW_X_FORWARDED_PATH
+        value: "true"
+      - name: FILE_SIZE_LIMIT
+        value: "52428800"
+      # No imgproxy (see values.yaml).
+      - name: ENABLE_IMAGE_TRANSFORMATION
+        value: "false"
+    studio:
+      - name: SUPABASE_PUBLIC_URL
+        value: {{ $url | quote }}
+      - name: HOSTNAME
+        value: "::"
+      - name: STUDIO_PORT
+        value: "3000"
+      - name: DEFAULT_ORGANIZATION_NAME
+        value: {{ $.Emporium.Name | quote }}
+      - name: DEFAULT_PROJECT_NAME
+        value: {{ $.Emporium.Name | quote }}
+      - name: NEXT_ANALYTICS_BACKEND_PROVIDER
+        value: postgres
