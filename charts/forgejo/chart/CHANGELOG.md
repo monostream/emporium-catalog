@@ -1,3 +1,16 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`); PostgreSQL is the `db` postgres integration (CloudNativePG, PostgreSQL 17, SSL_MODE require).
+- Admins come from the identity provider: the oauth source requests the `roles` scope and maps the Logto role `emporium-admin` to Forgejo admin (was the Authentik group "authentik Admins", which made Logto logins of the only admin fail with a 500).
+- Removed the "Admin username" and "Admin password" inputs: the chart creates no local admin any more, so no admin password sits in the Helm values.
+- The OIDC client secret is read from the per-app Secret instead of plain values.
+- Fixed: with access public the ingress carried `emporium.build/auth-skip-paths` twice. The chart sets no `emporium.build/auth-*` annotations; API and Git-over-HTTP paths are `skipPaths` of the ingress integration.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; `ROOT_URL` follows the hostname.
+- Repository data is the `data` storage integration (30Gi default, grow-only) instead of the chart's `gitea-shared-storage` claim, so the uninstall keep/delete choice applies.
+- Profiles small and medium; default resources for Forgejo.
+
 # 0.1.0
 
 Published on 19 October 2026

@@ -1,0 +1,52 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    redirectPaths: [/user/oauth2/emporium/callback]
+    # API (token auth) and Git over HTTP (/<owner>/<repo>.git/...) authenticate in Forgejo.
+    skipPaths: [/api/*, /*/*.git/*]
+    bind:
+      IngressClassName: forgejo.ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 30Gi, growOnly: true }
+    bind:
+      ClaimName: forgejo.persistence.claimName
+  db:
+    type: postgres
+    database: forgejo
+    owner: forgejo
+    version: "17"
+    storage: { default: 10Gi, growOnly: true }
+
+components:
+  app:
+    label: Forgejo
+    resources: forgejo.resources
+    replicas: { fixed: 1, reason: "Repositories, LevelDB queue and Bleve index on a ReadWriteOnce volume" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to about 20 users
+    values: profiles/small.yaml
+    integrations:
+      db:
+        instances: 1
+        resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+  medium:
+    label: Medium
+    description: Up to about 200 users with Actions
+    values: profiles/medium.yaml
+    integrations:
+      db:
+        instances: 1
+        resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { memory: 1Gi } }
