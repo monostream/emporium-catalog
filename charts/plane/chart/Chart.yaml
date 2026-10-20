@@ -2,7 +2,7 @@ apiVersion: v2
 name: plane
 description: Project management tool from the future
 type: application
-version: 0.3.1
+version: 0.3.2
 appVersion: v1.4.2
 home: https://plane.so/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_icon_2.svg
@@ -24,3 +24,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_1.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/plane/plane_gallery_2.png
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.7 2026-10-20"
