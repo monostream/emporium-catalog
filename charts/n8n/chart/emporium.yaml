@@ -1,0 +1,49 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Webhook, form and MCP trigger endpoints are called by external systems; n8n authenticates
+    # them per workflow (header/basic/JWT auth on the trigger node). The editor stays behind the login.
+    skipPaths:
+      - /webhook/*
+      - /webhook-test/*
+      - /webhook-waiting/*
+      - /form/*
+      - /form-test/*
+      - /form-waiting/*
+      - /mcp/*
+    bind:
+      IngressClassName: n8n.ingress.className
+  data:
+    type: storage
+    size: { default: 8Gi, growOnly: true }
+    bind:
+      ClaimName: n8n.main.persistence.existingClaim
+  db:
+    type: postgres
+    required: false
+    database: n8n
+    owner: n8n
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+
+components:
+  main:
+    label: n8n
+    resources: n8n.main.resources
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/type: master } }
+    replicas: { fixed: 1, reason: "Single main process; SQLite and the encryption key on a ReadWriteOnce volume (scaling needs queue mode)" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Personal automations and small teams
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
