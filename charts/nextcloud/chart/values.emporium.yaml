@@ -5,8 +5,9 @@
 nextcloud:
   ingress:
     enabled: true
-    # Nextcloud uploads in chunks, but single files can still be large.
-    {{- $annotations := dict "nginx.ingress.kubernetes.io/proxy-body-size" "5000m" }}
+    # Nextcloud uploads in chunks, but single files can still be large: no body size limit.
+    # (A limit above 4 GiB, such as 5000m, makes the ingress answer 500 for the whole host.)
+    {{- $annotations := dict "nginx.ingress.kubernetes.io/proxy-body-size" "0" }}
     {{- range $k, $v := $web.Annotations }}{{ $_ := set $annotations $k $v }}{{ end }}
     annotations: {{ $annotations | toJson }}
     tls:
@@ -24,6 +25,12 @@ nextcloud:
       # is not used because it writes empty sslrootcert/sslcert/... entries into the PDO DSN.
       - name: PGSSLMODE
         value: {{ $db.SSLMode | quote }}
+      # The image runs occ (install, upgrade, hooks) with `su -p www-data`, which keeps
+      # HOME=/root. libpq then fails on the unreadable default client certificate
+      # /root/.postgresql/postgresql.crt ("Permission denied") instead of skipping it. A path
+      # that does not exist means "no client certificate".
+      - name: PGSSLCERT
+        value: /nonexistent/postgresql.crt
       # Emporium SSO, read by the before-starting hook (values.yaml). occ reads the client
       # secret from the environment (--clientsecret-env), so it is never a command argument.
       - name: EMPORIUM_OIDC_CLIENT_ID
