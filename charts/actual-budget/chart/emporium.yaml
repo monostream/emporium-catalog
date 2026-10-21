@@ -1,0 +1,51 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  UserCreation:
+    label: Create accounts at the first single sign-on
+    description: Every Emporium user who signs in gets a regular Actual account (own budgets). Off means the owner adds users in Server administration first. The first user to sign in is always the owner.
+    type: boolean
+    default: true
+    path: oidc.autoCreate
+  UploadLimit:
+    label: Largest budget file (MB)
+    description: Upper limit for a synced budget file.
+    type: integer
+    default: 50
+    min: 10
+    max: 1000
+    path: config.uploadLimitMB
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Bank-sync and API clients (for example the Actual API and importers) call the
+    # sync server with their own session token.
+    skipPaths: [/sync/*, /account/*]
+    # Actual's own OpenID Connect login.
+    redirectPaths: [/openid/callback]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 2Gi, growOnly: true }
+    bind: { ClaimName: storage.data.existingClaim }
+
+components:
+  app:
+    label: Actual Budget
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database and budget files on a ReadWriteOnce volume" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team
+    values: profiles/small.yaml

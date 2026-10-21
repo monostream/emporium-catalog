@@ -1,0 +1,11 @@
+Actual Budget is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+{{- if .Values.oidc.enabled }}
+
+Click "Sign in with OpenID" on the login page.
+The first account that signs in becomes the owner and administrator (Server administration).
+{{- if .Values.oidc.autoCreate }} Every later Emporium user gets a regular account at the first sign-in.{{ else }} Later users must be added by the owner first (username = Emporium username).{{ end }}
+Your Actual username is your Emporium username.
+{{- end }}
+
+Budgets live on the data volume. They are kept when you uninstall unless you choose to delete the data.

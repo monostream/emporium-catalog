@@ -1,0 +1,13 @@
+[
+  {
+    "provider": "chart",
+    "name": "actual-budget",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "imageTagPaths": [
+      "image.tag"
+    ],
+    "appVersionMapping": "value:image.tag",
+    "changelogPath": "./chart"
+  }
+]

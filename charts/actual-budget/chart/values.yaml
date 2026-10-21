@@ -1,0 +1,81 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: docker.io/actualbudget/actual-server
+  tag: "26.10.0"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 5006
+
+# Budgets and the account database (SQLite) live under /data.
+storage:
+  data:
+    # Claim created by Emporium (storage integration); empty means the chart creates its own.
+    existingClaim: ""
+    storageClass: ""
+    size: 1Gi
+
+config:
+  # Public URL of the instance, e.g. https://actual.example.com. Used as the OpenID redirect base.
+  baseUrl: ""
+  # Largest budget file the sync server accepts (MB).
+  uploadLimitMB: 50
+
+# OpenID Connect login ("Sign in with OpenID"). The first account that signs in
+# becomes the owner and administrator.
+oidc:
+  enabled: false
+  # Issuer URL; Actual appends /.well-known/openid-configuration.
+  discoveryUrl: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  providerName: Emporium
+  # "oauth2" reads the user from the userinfo endpoint and does not check the ID
+  # token. Needed for Emporium's identity provider (ID tokens signed with ES384,
+  # which Actual's OpenID client rejects in "openid" mode).
+  authMethod: oauth2
+  # Every signed-in user gets a regular account (ACTUAL_USER_CREATION_MODE=login);
+  # off means the owner adds users first (manual). The first user is always the owner.
+  autoCreate: true
+
+# Additional environment variables (see https://actualbudget.org/docs/config/).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
