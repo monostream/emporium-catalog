@@ -31,11 +31,12 @@ inputs:
     path: admin.username
   AdminPassword:
     label: Administrator password
-    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Miniflux.
+    description: 6-72 printable ASCII characters without spaces. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Miniflux.
     type: secret
     generate: { length: 24, charset: alnum }
-    # Miniflux refuses passwords shorter than 6 characters and then does not start.
-    pattern: '^.{6,128}$'
+    # Miniflux refuses passwords under 6 bytes, and bcrypt over 72 bytes; either stops the first start.
+    # ASCII only, so characters == bytes.
+    pattern: '^[\x21-\x7E]{6,72}$'
     section: admin
     ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
 
