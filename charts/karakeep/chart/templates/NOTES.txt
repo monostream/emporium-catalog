@@ -15,4 +15,4 @@ Email and password sign-in is enabled; use "Sign up" to create the first (admini
 if you do not use single sign-on.
 {{- end }}
 
-Browser extensions and mobile apps sign in with an API key (Settings > API Keys) and bypass the Emporium login.
+Browser extensions and mobile apps sign in with an API key (Settings > API Keys); /api/v1 and /api/trpc bypass the Emporium login, sign-up (/api/auth) does not.

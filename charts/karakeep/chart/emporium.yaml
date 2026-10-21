@@ -8,7 +8,7 @@ sections:
 inputs:
   AllowSignup:
     label: Allow new accounts
-    description: Let people create accounts, by email and password and at their first single sign-on. Turn it off after everyone who should have an account has signed in once. The first account ever created is the administrator.
+    description: Let Emporium users create a Karakeep account at their first single sign-on or with "Sign up". Sign-up is only reachable behind the Emporium login. Turn it off after everyone who should have an account has signed in once (this also stops new single sign-on accounts). The first account ever created is the administrator, so sign in yourself first.
     type: boolean
     default: true
     path: config.allowSignup
@@ -47,9 +47,12 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
-    # The REST API, the browser extension and the mobile apps use Karakeep API keys or
-    # session tokens; shared lists (/public/*) are public links.
-    skipPaths: [/api/*, /public/*]
+    # Only what API clients and public links need: the REST API (API keys), tRPC (browser
+    # extension and mobile apps), assets, health/version and shared lists. /api/auth/* (sign-up,
+    # password sign-in, OIDC) is NOT skipped: nobody reaches the sign-up endpoint without an
+    # Emporium session. Karakeep's DISABLE_SIGNUPS also blocks the OIDC sign-up, so it cannot
+    # be used to close password sign-up on its own.
+    skipPaths: [/api/v1/*, /api/trpc/*, /api/assets/*, /api/public/*, /api/health, /api/version, /public/*]
     # Karakeep's own OpenID Connect login (provider id "custom").
     redirectPaths: [/api/auth/callback/custom]
     bind:

@@ -28,7 +28,7 @@ service:
 config:
   # Public URL of the instance (NEXTAUTH_URL), e.g. https://bookmarks.example.com
   baseUrl: ""
-  # Let new users create an account (password sign-up and first single sign-on).
+  # Let new users create an account (password sign-up and first single sign-on; Karakeep has one switch for both).
   # The first account ever created is the administrator.
   allowSignup: true
   # Keep the "Sign in with email and password" form next to single sign-on.
