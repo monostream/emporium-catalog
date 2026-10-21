@@ -1,0 +1,11 @@
+Outline is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start runs database migrations and takes a minute.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with "Continue with {{ .Values.oidc.displayName }}" on the login page.
+Outline needs an email address: Emporium users without an email cannot sign in until an administrator sets one.
+The first person who signs in creates the workspace and becomes its administrator; everyone after that joins as a member.
+Administrators promote members under Settings > Members.
+{{- end }}
+
+API keys (Settings > API) and shared documents (/s/...) bypass the Emporium login.

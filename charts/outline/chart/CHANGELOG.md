@@ -1,0 +1,7 @@
+# 0.1.0
+
+- New chart: Outline 1.11.0 (official image `outlinewiki/outline`, Business Source License 1.1), requires Emporium v0.5.0.
+- PostgreSQL 17 (`db`, CloudNativePG), Redis (`cache`, persistent) and a persistent volume for attachments (`data`, `FILE_STORAGE=local`); optional SMTP for invitations and notifications.
+- Single sign-on through Emporium (`sso` OIDC integration, issuer discovery, "Continue with Emporium"); an email address is required. The first user to sign in becomes the workspace administrator.
+- `SECRET_KEY` and `UTILS_SECRET` are generated once into the per-app Secret.
+- The REST API and shared documents skip the Emporium login.
