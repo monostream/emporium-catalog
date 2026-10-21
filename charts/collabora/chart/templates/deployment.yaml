@@ -1,0 +1,94 @@
+{{- /* WOPI host allowlist: coolwsd reads aliasgroup<N> as "scheme://host-regex:port". */ -}}
+{{- $hosts := list }}
+{{- if .Values.wopi.zone }}
+{{- $hosts = append $hosts (printf "[^/.]+\\.%s" (regexQuoteMeta .Values.wopi.zone)) }}
+{{- end }}
+{{- range splitList "," (default "" .Values.wopi.hosts) }}
+{{- $h := trimPrefix "https://" (trim .) }}
+{{- if $h }}
+{{- $hosts = append $hosts (regexQuoteMeta $h) }}
+{{- end }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/wopi: {{ toJson $hosts | sha256sum | trunc 16 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: collabora
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          # The image entrypoint is coolwsd --use-env-vars. TLS ends at the ingress.
+          args:
+            - --o:ssl.enable=false
+            - --o:ssl.termination=true
+            {{- with .Values.ingress.host }}
+            - --o:server_name={{ . }}
+            {{- end }}
+            {{- range .Values.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          env:
+            - name: username
+              value: {{ .Values.admin.username | quote }}
+            {{- if .Values.admin.existingSecret }}
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret | quote }}
+                  key: {{ .Values.admin.passwordKey | quote }}
+            {{- end }}
+            {{- range $i, $h := $hosts }}
+            - name: aliasgroup{{ add $i 1 }}
+              value: {{ printf "https://%s:443" $h | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          startupProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 3
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
