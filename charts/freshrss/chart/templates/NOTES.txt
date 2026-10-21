@@ -1,0 +1,16 @@
+FreshRSS is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start fetches the default feeds, give it a minute.
+
+{{- if and .Values.oidc.enabled (eq .Values.login.mode "sso") }}
+
+Sign in with Emporium: your FreshRSS account is created at your first visit and named like your Emporium username.
+The administrator is "{{ .Values.admin.username }}".
+{{- else }}
+
+Sign in with the administrator "{{ .Values.admin.username }}". The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+Feed reader apps: in FreshRSS open Settings > Profile and set an "API password", then use
+https://{{ .Values.ingress.host }}/api/greader.php (Google Reader API) or /api/fever.php (Fever API) in the app.
+These URLs skip the Emporium login.

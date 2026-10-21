@@ -1,0 +1,92 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administrator, description: "The FreshRSS administrator is an account created at the first start. With single sign-on it is the Emporium user whose username you enter below; the other users get their own account at their first sign-in." }
+
+inputs:
+  RefreshMinutes:
+    label: Refresh interval (minutes)
+    description: How often FreshRSS fetches new articles from all feeds.
+    type: enum
+    options: ["15", "30", "60"]
+    default: "30"
+    path: config.refreshMinutes
+  LoginMode:
+    label: Sign-in method
+    description: '"sso": users sign in with Emporium (single sign-on) and get an account at the first sign-in. "password": FreshRSS shows its own login form and only the administrator can sign in, with the password below; use it when single sign-on is unavailable. Switching restarts the app.'
+    type: enum
+    options: [sso, password]
+    default: sso
+    path: login.mode
+  AdminUsername:
+    label: Administrator username
+    description: The Emporium username (the name you sign in with) of the first administrator. Letters, digits, "_", "." , "@" and "-", at most 38 characters. A wrong name locks the administrator out of the admin area until it is fixed in the pod (see the README).
+    type: string
+    required: true
+    installOnly: true
+    pattern: '^[0-9A-Za-z_.@-]{1,38}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Administrator password
+    description: Used by the "password" sign-in method and to recover access. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it in FreshRSS.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[0-9A-Za-z]{7,128}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  OidcCryptoKey:
+    label: Session encryption key
+    description: Encrypts the single sign-on session cookie. Leave empty to generate one.
+    type: secret
+    generate: { length: 40, charset: alnum }
+    section: admin
+    ref: { namePath: oidc.cryptoSecret, keyPath: oidc.cryptoSecretKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Mobile apps use the Google Reader API (/api/greader.php) and the Fever API
+    # (/api/fever.php) with the per-user API password set in FreshRSS; WebSub callbacks
+    # arrive at /api/pshb.php. Everything under /api/ authenticates itself.
+    skipPaths: [/api/*]
+    # mod_auth_openidc's fixed redirect URI.
+    redirectPaths: [/i/oidc/]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+  db:
+    type: postgres
+    database: freshrss
+    owner: freshrss
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+
+components:
+  app:
+    label: FreshRSS
+    resources: resources
+    replicas: { fixed: 1, reason: "Configuration, sessions and the feed refresh cron live on a ReadWriteOnce volume" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few hundred feeds
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

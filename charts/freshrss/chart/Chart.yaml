@@ -1,0 +1,25 @@
+apiVersion: v2
+name: freshrss
+description: Self-hosted feed aggregator and reader (RSS, Atom, web scraping) with a Google Reader and Fever API for mobile apps
+type: application
+version: 0.1.0
+appVersion: "1.30.3"
+home: https://freshrss.org/
+icon: https://raw.githubusercontent.com/FreshRSS/FreshRSS/edge/p/themes/icons/favicon.svg
+sources:
+  - https://github.com/FreshRSS/FreshRSS
+keywords:
+  - RSS
+  - Feed reader
+  - News
+annotations:
+  icon: assets/icon.svg
+  displayName: FreshRSS
+  category: Reading
+  licenses: AGPL-3.0-only
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"
