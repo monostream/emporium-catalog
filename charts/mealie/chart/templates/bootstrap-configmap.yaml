@@ -1,0 +1,83 @@
+{{- if .Values.admin.existingSecret }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-bootstrap
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  bootstrap.py: |
+    """Replace Mealie's built-in administrator (changeme@example.com / MyPassword).
+
+    Mealie creates that account at the first start, with a public password and no setting to
+    change it. Once the API answers and the default account still exists, log in with the default
+    password, set the password given in ADMIN_PASSWORD and move the account to ADMIN_EMAIL with the
+    username "admin". Afterwards the script only sleeps.
+    """
+    import json
+    import os
+    import sys
+    import time
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    BASE = "http://127.0.0.1:%s" % os.environ.get("PORT", "9000")
+    DEFAULT_EMAIL = "changeme@example.com"
+    DEFAULT_PASSWORD = "MyPassword"
+    NEW_PASSWORD = os.environ["ADMIN_PASSWORD"]
+    NEW_EMAIL = os.environ["ADMIN_EMAIL"]
+
+
+    def call(method, path, body=None, form=None, token=None):
+        headers = {}
+        data = None
+        if body is not None:
+            data = json.dumps(body).encode()
+            headers["Content-Type"] = "application/json"
+        if form is not None:
+            data = urllib.parse.urlencode(form).encode()
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+        if token:
+            headers["Authorization"] = "Bearer " + token
+        req = urllib.request.Request(BASE + path, data=data, method=method, headers=headers)
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            raw = resp.read()
+            return json.loads(raw) if raw else {}
+
+
+    def wait_ready():
+        while True:
+            try:
+                return call("GET", "/api/app/about/startup-info")
+            except Exception:
+                time.sleep(5)
+
+
+    def run():
+        info = wait_ready()
+        if not info.get("isFirstLogin"):
+            print("default administrator already replaced", flush=True)
+            return
+        try:
+            token = call("POST", "/api/auth/token", form={"username": DEFAULT_EMAIL, "password": DEFAULT_PASSWORD})["access_token"]
+            call("PUT", "/api/users/password", body={"currentPassword": DEFAULT_PASSWORD, "newPassword": NEW_PASSWORD}, token=token)
+        except urllib.error.HTTPError:
+            # An earlier run changed the password but stopped before the email.
+            token = call("POST", "/api/auth/token", form={"username": DEFAULT_EMAIL, "password": NEW_PASSWORD})["access_token"]
+        me = call("GET", "/api/users/self", token=token)
+        me["email"] = NEW_EMAIL
+        me["username"] = "admin"
+        me["fullName"] = "Administrator"
+        call("PUT", "/api/users/" + me["id"], body=me, token=token)
+        print("default administrator replaced", flush=True)
+
+
+    try:
+        run()
+    except Exception as exc:  # never print the response: it may hold tokens
+        print("bootstrap failed: %s" % type(exc).__name__, file=sys.stderr, flush=True)
+        sys.exit(1)
+    while True:
+        time.sleep(3600)
+{{- end }}

@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start and the data volume is ReadWriteOnce.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      {{- if .Values.admin.existingSecret }}
+      annotations:
+        checksum/bootstrap: {{ include (print $.Template.BasePath "/bootstrap-configmap.yaml") . | sha256sum }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: mealie
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: PUID
+              value: {{ .Values.podSecurityContext.runAsUser | quote }}
+            - name: PGID
+              value: {{ .Values.podSecurityContext.runAsGroup | quote }}
+            - name: API_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | upper | quote }}
+            - name: ALLOW_SIGNUP
+              value: {{ .Values.config.allowSignup | quote }}
+            - name: DEFAULT_GROUP
+              value: {{ .Values.config.defaultGroup | quote }}
+            - name: DEFAULT_HOUSEHOLD
+              value: {{ .Values.config.defaultHousehold | quote }}
+            {{- with .Values.config.baseUrl }}
+            - name: BASE_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: DB_ENGINE
+              value: postgres
+            - name: POSTGRES_URL_OVERRIDE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .configurationUrl }}
+            - name: OIDC_AUTH_ENABLED
+              value: "true"
+            - name: OIDC_CONFIGURATION_URL
+              value: {{ .configurationUrl | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: OIDC_PROVIDER_NAME
+              value: {{ .providerName | quote }}
+            - name: OIDC_SIGNUP_ENABLED
+              value: {{ .signupEnabled | quote }}
+            - name: OIDC_NAME_CLAIM
+              value: {{ .nameClaim | quote }}
+            {{- if or .adminGroup .userGroup }}
+            - name: OIDC_GROUPS_CLAIM
+              value: {{ .groupsClaim | quote }}
+            {{- end }}
+            {{- with .adminGroup }}
+            - name: OIDC_ADMIN_GROUP
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .userGroup }}
+            - name: OIDC_USER_GROUP
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .existingSecret }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # Migrations run before Mealie listens.
+          startupProbe:
+            httpGet: { path: /api/app/about, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /api/app/about, port: http }
+            periodSeconds: 20
+          readinessProbe:
+            httpGet: { path: /api/app/about, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+        {{- if .Values.admin.existingSecret }}
+        - name: bootstrap
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/opt/mealie/bin/python", "/bootstrap/bootstrap.py"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret }}
+                  key: {{ .Values.admin.passwordKey }}
+          resources:
+            {{- toYaml .Values.bootstrapResources | nindent 12 }}
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+        {{- end }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.admin.existingSecret }}
+        - name: bootstrap
+          configMap:
+            name: {{ include "chart.fullname" . }}-bootstrap
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,101 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: sso, label: Single sign-on }
+  - { id: admin, label: Local administrator, description: "Mealie creates an administrator at the first start with a public default password. Emporium replaces it right away with the values below. Use this account when single sign-on is unavailable." }
+
+inputs:
+  AllowSignup:
+    label: Open registration
+    description: Let anyone who reaches the Mealie login page register an account. Leave off to create users from the Mealie admin area or let them join through single sign-on.
+    type: boolean
+    default: false
+    path: config.allowSignup
+  SsoUserCreation:
+    label: Create accounts at the first single sign-on
+    description: Every Emporium user who signs in with "Sign in with Emporium" gets a Mealie account. Off means an administrator creates accounts first (matched by email).
+    type: boolean
+    default: true
+    section: sso
+    path: oidc.signupEnabled
+  SsoAdminRole:
+    label: Administrator role
+    description: Emporium role whose members become Mealie administrators at every sign-in. Empty disables the mapping (roles are then managed in Mealie).
+    type: string
+    default: emporium-admin
+    section: sso
+    path: oidc.adminGroup
+  SsoUserRole:
+    label: Required role
+    description: If set, only members of this Emporium role (and administrators) may sign in to Mealie. Empty allows every Emporium user.
+    type: string
+    default: ""
+    section: sso
+    path: oidc.userGroup
+  AdminEmail:
+    label: Administrator email
+    description: Email of the local administrator. Used only when the account is created.
+    type: string
+    default: admin@example.org
+    required: true
+    installOnly: true
+    pattern: '^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$'
+    section: admin
+    path: admin.email
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Mealie. The username is "admin".
+    type: secret
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Mobile apps, Home Assistant and API tokens call the REST API with their own bearer
+    # tokens; Mealie rejects anonymous requests there except for public (shared) recipes.
+    skipPaths: [/api/*]
+    # Mealie's own OpenID Connect login: the browser returns to <BASE_URL>/login.
+    redirectPaths: [/login]
+    bind:
+      Annotations: ingress.annotations
+      Hostname: ingress.host
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+  db:
+    type: postgres
+    database: mealie
+    owner: mealie
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    # psycopg2 (libpq): sslmode=require encrypts and accepts the CloudNativePG certificate without a CA file.
+    secretKeys:
+      POSTGRES_URL_OVERRIDE: uri-sslmode-require
+
+components:
+  app:
+    label: Mealie
+    resources: resources
+    replicas: { fixed: 1, reason: "Recipe images live on a ReadWriteOnce volume and the scheduler runs in every pod" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household, a few thousand recipes
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

@@ -1,0 +1,21 @@
+Mealie is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with the "Sign in with {{ .Values.oidc.providerName }}" button on the login page.
+{{- if .Values.oidc.signupEnabled }} Your Mealie account is created at your first sign-in.{{ end }}
+{{- if .Values.oidc.adminGroup }}
+Members of the Emporium role "{{ .Values.oidc.adminGroup }}" are Mealie administrators.
+{{- end }}
+Your Emporium account needs an email address; Mealie refuses single sign-on without one.
+{{- end }}
+{{- if .Values.admin.existingSecret }}
+
+Local administrator: username "admin" (email {{ .Values.admin.email }}). Mealie's built-in
+default login is replaced a few seconds after the first start. The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+Mobile apps and integrations (Home Assistant, Mealient, ...): create an API token under
+User Profile > API Tokens. /api/ bypasses the Emporium login and is protected by Mealie itself.
