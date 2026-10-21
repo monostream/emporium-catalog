@@ -62,6 +62,10 @@ global:
     ## Users with this Logto role become GitLab administrators when they sign
     ## in; users without it lose administrator rights on their next sign-in.
     ## Global so that the webservice pods can roll when it changes.
+    ## This is the role NAME in the "roles" claim, not the oidc integration's
+    ## AdminScope (the scope "admin" of the Emporium API resource, which is not
+    ## in that claim). Emporium does not expose the role name to charts; change
+    ## it only if Emporium runs with a different EMPORIUM_ADMIN_ROLE.
     adminRole: emporium-admin
 
   hosts:

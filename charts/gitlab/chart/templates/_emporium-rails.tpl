@@ -1,5 +1,7 @@
 {{/*
-Rails initializer that maps Emporium's Logto admin role to GitLab's admin flag.
+Rails initializer that maps Emporium's Logto admin role to GitLab's admin flag
+and links OpenID Connect sign-ins to existing accounts by email only when the
+email is verified.
 GitLab CE ignores the OIDC admin_groups option (it is a Premium feature), so
 this does the same for the "roles" claim. Takes a context with .Values.global,
 so the parent chart (ConfigMap) and the webservice subchart (checksum in
@@ -53,6 +55,13 @@ module EmporiumAdminSync
     Gitlab::AppLogger.error(message: 'Emporium admin sync failed', user_id: user&.id, error: e.message)
   end
 
+  # true only when the userinfo response says the email is verified (Logto
+  # sends a boolean; accept the string form too)
+  def self.email_verified?(omniauth_hash)
+    info = (omniauth_hash.dig('extra', 'raw_info') || {}).to_h.transform_keys(&:to_s)
+    [true, 'true'].include?(info['email_verified'])
+  end
+
   # Prepended to Gitlab::Auth::OAuth::User (and so its subclasses, e.g. the
   # EE Gitlab::Auth::Oidc::User, which call super)
   module OAuthUser
@@ -60,6 +69,23 @@ module EmporiumAdminSync
       user = super
       EmporiumAdminSync.apply(user, auth_hash) if user
       user
+    end
+
+    protected
+
+    # GitLab links an OpenID Connect sign-in to an existing local account with
+    # the same email (auto_link_user) without looking at email_verified. Only
+    # link when the identity provider vouches for the email; otherwise the
+    # sign-in does not take over the account (GitLab then refuses to create a
+    # second user with that email). Users already linked by their OIDC subject
+    # are found before this and are not affected.
+    def find_by_email
+      if auth_hash.provider.to_s == PROVIDER && !EmporiumAdminSync.email_verified?(auth_hash.auth_hash)
+        Gitlab::AppLogger.warn(message: 'Emporium: not linking OIDC sign-in to an existing account by email, email_verified is not true')
+        return
+      end
+
+      super
     end
   end
 end
