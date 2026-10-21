@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.synapseName" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: synapse
+spec:
+  replicas: 1
+  # One Synapse process owns the database schema and the media volume.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.synapseSelector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        app.kubernetes.io/component: synapse
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap-synapse.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.synapsePodSecurityContext | nindent 8 }}
+      {{- $image := printf "%s:%s" .Values.synapse.image.repository (.Values.synapse.image.tag | default .Chart.AppVersion) }}
+      initContainers:
+        # Creates the signing key on the volume at the first start (no database access).
+        - name: generate-keys
+          image: {{ $image | quote }}
+          imagePullPolicy: {{ .Values.synapse.image.pullPolicy }}
+          command: ["python", "-m", "synapse.app.homeserver", "--config-path", "/config/homeserver.yaml", "--generate-keys"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            {{- include "chart.synapseMounts" . | nindent 12 }}
+      containers:
+        - name: synapse
+          image: {{ $image | quote }}
+          imagePullPolicy: {{ .Values.synapse.image.pullPolicy }}
+          command: ["python", "-m", "synapse.app.homeserver", "--config-path", "/config/homeserver.yaml"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+            readOnlyRootFilesystem: true
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            {{- with .Values.database.existingSecret }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.passwordKey }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8008
+          # The database schema is created at the first start.
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 20
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+          resources:
+            {{- toYaml .Values.synapse.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "chart.synapseMounts" . | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chart.synapseName" . }}
+        - name: data
+          {{- if .Values.synapse.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.synapse.persistence.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+        - name: secrets
+          projected:
+            sources:
+              {{- with .Values.synapse.secrets.existingSecret }}
+              - secret:
+                  name: {{ . }}
+                  items:
+                    - { key: {{ $.Values.synapse.secrets.macaroonKey }}, path: macaroon-secret-key }
+                    - { key: {{ $.Values.synapse.secrets.formKey }}, path: form-secret }
+                    - { key: {{ $.Values.synapse.secrets.registrationKey }}, path: registration-shared-secret }
+              {{- end }}
+              {{- if and .Values.oidc.enabled .Values.oidc.existingSecret }}
+              - secret:
+                  name: {{ .Values.oidc.existingSecret }}
+                  items:
+                    - { key: {{ .Values.oidc.clientSecretKey }}, path: oidc-client-secret }
+              {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

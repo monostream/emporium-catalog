@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.elementName" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {{- $cfg := dict
+      "default_server_config" (dict "m.homeserver" (dict "base_url" (.Values.synapse.publicBaseUrl | trimSuffix "/") "server_name" .Values.synapse.serverName))
+      "brand" .Values.element.brand
+      "disable_custom_urls" true
+      "disable_guests" true
+      "show_labs_settings" false
+      "sso_redirect_options" (dict "immediate" false)
+      "room_directory" (dict "servers" (list .Values.synapse.serverName))
+    }}
+    {{- $cfg | toPrettyJson | nindent 4 }}

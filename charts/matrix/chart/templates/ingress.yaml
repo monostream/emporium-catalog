@@ -1,0 +1,41 @@
+{{- if and .Values.ingress.enabled .Values.ingress.host }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  tls:
+    - secretName: {{ required "ingress.tlsSecretName is set by the ingress integration" .Values.ingress.tlsSecretName }}
+      hosts:
+        {{- toYaml (default (list .Values.ingress.host) .Values.ingress.tlsHosts) | nindent 8 }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          # Matrix client, media and admin APIs, the SSO pages, and (federation on) server discovery.
+          {{- range (list "/_matrix" "/_synapse" "/.well-known/matrix") }}
+          - path: {{ . }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "chart.synapseName" $ }}
+                port:
+                  name: http
+          {{- end }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "chart.elementName" . }}
+                port:
+                  name: http
+{{- end }}
