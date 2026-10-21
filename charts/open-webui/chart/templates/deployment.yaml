@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start and the data volume is ReadWriteOnce.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: open-webui
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            # The image's home is /root, which a non-root user cannot write.
+            - name: HOME
+              value: /tmp/home
+            # The Emporium login proxy (glass) breaks on Open WebUI's brotli responses
+            # (ERR_CONTENT_DECODING_FAILED); the ingress controller compresses instead.
+            - name: ENABLE_COMPRESSION_MIDDLEWARE
+              value: "false"
+            - name: SCARF_NO_ANALYTICS
+              value: "true"
+            - name: DO_NOT_TRACK
+              value: "true"
+            - name: ANONYMIZED_TELEMETRY
+              value: "false"
+            # Accounts come from single sign-on or the local administrator.
+            - name: ENABLE_SIGNUP
+              value: "false"
+            - name: DEFAULT_USER_ROLE
+              value: user
+            - name: WEBUI_SESSION_COOKIE_SECURE
+              value: "true"
+            {{- with .Values.config.baseUrl }}
+            - name: WEBUI_URL
+              value: {{ . | quote }}
+            - name: CORS_ALLOW_ORIGIN
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .Values.config.ollamaBaseUrl }}
+            - name: ENABLE_OLLAMA_API
+              value: "true"
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.config.ollamaBaseUrl | quote }}
+            {{- else }}
+            - name: ENABLE_OLLAMA_API
+              value: "false"
+            {{- end }}
+            {{- with .Values.secret.existingSecret }}
+            - name: WEBUI_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secret.secretKey }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            {{- with .Values.admin.existingSecret }}
+            - name: WEBUI_ADMIN_EMAIL
+              value: {{ $.Values.admin.email | quote }}
+            - name: WEBUI_ADMIN_NAME
+              value: {{ $.Values.admin.name | quote }}
+            - name: WEBUI_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .providerUrl }}
+            - name: ENABLE_OAUTH_SIGNUP
+              value: {{ .signup | quote }}
+            # Logto users may have no email; Open WebUI then derives <provider>@<sub>.local.
+            - name: ENABLE_OAUTH_EMAIL_FALLBACK
+              value: "true"
+            - name: OAUTH_PROVIDER_NAME
+              value: {{ .providerName | quote }}
+            - name: OPENID_PROVIDER_URL
+              value: {{ .providerUrl | quote }}
+            - name: OPENID_REDIRECT_URI
+              value: {{ printf "%s/oauth/oidc/callback" $.Values.config.baseUrl | quote }}
+            - name: OAUTH_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: OAUTH_SCOPES
+              value: "openid email profile roles"
+            - name: OAUTH_USERNAME_CLAIM
+              value: preferred_username
+            - name: ENABLE_OAUTH_ROLE_MANAGEMENT
+              value: "true"
+            - name: OAUTH_ROLES_CLAIM
+              value: roles
+            - name: OAUTH_ALLOWED_ROLES
+              value: {{ printf "%s,%s" .userRole .adminRole | quote }}
+            - name: OAUTH_ADMIN_ROLES
+              value: {{ .adminRole | quote }}
+            {{- with .existingSecret }}
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/backend/data
+            - name: tmp
+              mountPath: /tmp
+            # Open WebUI refreshes its branding assets here at every start.
+            - name: static
+              mountPath: /app/backend/open_webui/static
+          # Database migrations run before Open WebUI listens.
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 10
+            failureThreshold: 90
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 20
+            timeoutSeconds: 5
+          # /health/db also checks the database connection.
+          readinessProbe:
+            httpGet: { path: /health/db, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+          {{- if .Values.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+        - name: static
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
