@@ -65,10 +65,14 @@ spec:
                 # Update the secret
                 kubectl patch secret $SECRET_NAME -p "{\"data\": {\"ROOT_API_KEY\": \"$(echo -n $API_KEY | base64 | tr -d '\n')\"}}"
 
-                # Restart so Headplane picks the key up (it also retries on its own)
-                kubectl rollout restart deployment/{{ include "chart.fullname" . }}
-
               else
                 echo "ROOT_API_KEY is already set."
               fi
+
+              # Converge: stamp the key's fingerprint on the pod template. The first time this changes the
+              # pod template, so Headplane restarts and reads the key (without it Headplane runs with OIDC
+              # disabled); afterwards it is a no-op. Runs on every attempt, so a failed earlier step is retried.
+              FP=$(kubectl get secret $SECRET_NAME -o jsonpath="{.data.ROOT_API_KEY}" | sha256sum | cut -c1-16)
+              kubectl patch deployment {{ include "chart.fullname" . }} -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"emporium.build/api-key-fingerprint\":\"$FP\"}}}}}"
+              kubectl rollout status deployment/{{ include "chart.fullname" . }} --timeout=300s
       restartPolicy: OnFailure

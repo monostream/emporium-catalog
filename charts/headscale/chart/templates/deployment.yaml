@@ -13,10 +13,12 @@ spec:
       {{- include "chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/headscale-config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/headplane-config: {{ include (print $.Template.BasePath "/configmap-headplane.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "chart.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -96,7 +98,8 @@ spec:
               secretKeyRef:
                 name: {{ include "chart.fullname" . }}-root-api-key
                 key: ROOT_API_KEY
-                # Filled by the post-install job once headscale runs; Headplane restarts until it exists.
+                # Filled by the post-install job once headscale runs. Without it Headplane starts with OIDC disabled
+                # (API key login only); the job rolls the pod once the key exists.
                 optional: true
           ports:
             - name: web
