@@ -23,11 +23,12 @@ nextcloud:
     # every start, so it also repairs the setup after an upgrade. It installs the user_oidc app
     # from the Nextcloud app store (not bundled in the image) once, enables it, and creates or
     # updates the provider "Emporium" from EMPORIUM_OIDC_* (values.emporium.yaml). It never
-    # fails the start: without the variables or the app store Nextcloud keeps the local login.
+    # fails the start for missing variables or app store (Nextcloud keeps the local login).
     # User ids are the Logto user id (`sub`, unique-uid=0), stable across provider changes.
     # soft_auto_provision is forced off: an Emporium login whose id equals an existing local
     # account is refused ("User conflict") instead of signing in to that account. If that
-    # setting cannot be applied, the provider is not configured (fail closed). The local login
+    # setting cannot be applied, the provider "Emporium" is deleted (or, failing that, user_oidc
+    # is disabled); only if neither works does the hook stop the start (exit 1). The local login
     # form stays available (break-glass admin). Admins are granted in Nextcloud.
     hooks:
       before-starting: |
@@ -63,8 +64,22 @@ nextcloud:
         # Never sign an Emporium user in to an existing account of another backend (local users).
         occ config:system:set user_oidc soft_auto_provision --type=boolean --value=false >/dev/null 2>&1
         if [ "$(occ config:system:get user_oidc soft_auto_provision 2>/dev/null)" != "false" ]; then
-          log "WARNING: user_oidc soft_auto_provision could not be turned off; provider Emporium not configured"
-          exit 0
+          # Fail closed: a provider from an earlier start must not stay usable. Deleting it keeps
+          # the accounts (user ids are the Logto sub, not tied to the provider row); the next
+          # start that can apply the setting creates it again.
+          log "WARNING: user_oidc soft_auto_provision could not be turned off; removing provider Emporium"
+          occ user_oidc:provider:delete Emporium --force >/dev/null 2>&1
+          if ! occ user_oidc:provider Emporium >/dev/null 2>&1; then
+            log "provider Emporium removed; only the local login is available"
+            exit 0
+          fi
+          occ app:disable user_oidc >/dev/null 2>&1
+          if [ "$(occ config:app:get user_oidc enabled 2>/dev/null)" = "no" ]; then
+            log "provider Emporium could not be removed; user_oidc disabled; only the local login is available"
+            exit 0
+          fi
+          log "ERROR: Emporium login could not be made safe (provider still active); not starting"
+          exit 1
         fi
         if out=$(occ user_oidc:provider Emporium \
             --clientid="$EMPORIUM_OIDC_CLIENT_ID" \
