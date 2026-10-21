@@ -52,9 +52,12 @@ spec:
               if echo "$out" | /shell/busybox grep -q "already exists \[user id"; then
                 # Success only when the colliding account is exactly the configured administrator
                 # (same username and email); a collision with another user fails the Job.
-                if /app/vikunja/vikunja user list 2>/dev/null | /shell/busybox awk -v u="$ADMIN_USERNAME" -v e="$ADMIN_EMAIL" '
-                    { gsub("│", " "); gsub("\\|", " "); n = split($0, t, " ")
-                      if (n >= 3 && t[2] == u && t[3] == e) found = 1 }
+                # Rows are split on the table's "│" borders only; cells are the ID, Username and Email columns,
+                # trimmed of the padding spaces. Residual case accepted: a username with edge whitespace (registration is
+                # closed and Logto usernames cannot contain whitespace or pipes).
+                if /app/vikunja/vikunja user list 2>/dev/null | /shell/busybox awk -F '│' -v u="$ADMIN_USERNAME" -v e="$ADMIN_EMAIL" '
+                    { for (i = 1; i <= NF; i++) { sub(/^ +/, "", $i); sub(/ +$/, "", $i) }
+                      if (NF >= 4 && $3 == u && $4 == e) found = 1 }
                     END { exit !found }'; then
                   echo "administrator account already exists, nothing to do"; exit 0
                 fi
