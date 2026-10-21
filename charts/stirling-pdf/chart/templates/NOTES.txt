@@ -1,0 +1,9 @@
+Stirling-PDF is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Access is controlled by the Emporium login. This is the open-source (MIT) ultra-lite
+build: it has no accounts or single sign-on of its own, and it has no Office
+conversion, OCR or Calibre tools. Files are processed in memory and in temporary
+space and are gone when the pod restarts.
+
+The REST API under /api/v1 is behind the same Emporium login, so scripts need an
+Emporium session.

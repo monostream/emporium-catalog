@@ -1,0 +1,37 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  MaxFileSize:
+    label: Maximum upload size (MB)
+    description: Largest PDF or image one request may upload.
+    type: integer
+    default: 200
+    min: 1
+    max: 2000
+    path: config.maxFileSize
+
+integrations:
+  web:
+    type: ingress
+    # Stirling-PDF's open-source build has no accounts of its own (its login and
+    # SSO belong to the proprietary edition), so the Emporium login is the only
+    # gate. No skipPaths: the REST API under /api/v1 is unauthenticated upstream.
+    access: { default: authenticated }
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+
+components:
+  app:
+    label: Stirling-PDF
+    resources: resources
+    replicas: { fixed: 1, reason: "Stateless, but the in-memory job queue and temporary files are per pod" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team
+    values: profiles/small.yaml
