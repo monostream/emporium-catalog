@@ -5,10 +5,12 @@ metadata:
   name: {{ include "chart.fullname" . }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    # Let the largest accepted upload (plus multipart overhead) through nginx.
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ printf "%dm" (add (div (mul (int .Values.config.maxFileSize) 11) 10) 1) | quote }}
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}

@@ -3,11 +3,11 @@ apiVersion: emporium.build/v1
 inputs:
   MaxFileSize:
     label: Maximum upload size (MB)
-    description: Largest PDF or image one request may upload.
+    description: Largest PDF or image one request may upload (upstream accepts 1 to 999).
     type: integer
     default: 200
     min: 1
-    max: 2000
+    max: 999
     path: config.maxFileSize
 
 integrations:
