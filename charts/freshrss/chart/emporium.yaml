@@ -50,9 +50,9 @@ integrations:
     access: { default: authenticated }
     # Mobile apps use the Google Reader API (/api/greader.php) and the Fever API
     # (/api/fever.php) with the per-user API password set in FreshRSS. Other endpoints
-    # under /api/ check their own credentials: WebSub callbacks (/api/pshb.php, verified
-    # by FreshRSS), shared queries (/api/query.php, an unguessable token) and extension
-    # endpoints (/api/misc.php).
+    # under /api/: WebSub callbacks (/api/pshb.php, verified by FreshRSS), shared queries
+    # (/api/query.php, an unguessable token) and extension endpoints (/api/misc.php, no
+    # FreshRSS credential check; each extension handles its own authentication).
     skipPaths: [/api/*]
     # mod_auth_openidc's fixed redirect URI.
     redirectPaths: [/i/oidc/]
