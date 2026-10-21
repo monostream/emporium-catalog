@@ -1,3 +1,12 @@
+# 0.2.1
+
+Published on 21 October 2026
+
+- Headplane 0.7.1 is configured in its current format: a rendered `/etc/headplane/config.yaml` (server `base_url`, `cookie_secure` from the https URL, headscale URL and config path, OIDC issuer, client id, `use_pkce`) plus `HEADPLANE_*` overrides for the three secrets (cookie secret, OIDC client secret, headscale API key), all by `secretKeyRef`. The pre-0.5 flat variables (`OIDC_*`, `HEADSCALE_URL`, `COOKIE_*`, `ROOT_API_KEY`, `DEBUG`) are gone. Headplane state is stored on the data volume (`/var/lib/headplane`, subPath `headplane`).
+- The Headplane admin UI can sign in through OIDC again. The API key login stays enabled as the break-glass path (`web.disableApiKeyLogin`, default `false`).
+- New opt-in `oidc.allowedDomains` / `oidc.allowedUsers` restrict who may register nodes through headscale OIDC (default: unrestricted).
+- The post-install job waits for the headscale container instead of the whole pod (Headplane needs the API key the job creates).
+
 # 0.2.0
 
 Published on 20 October 2026

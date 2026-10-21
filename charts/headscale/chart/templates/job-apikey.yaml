@@ -29,8 +29,14 @@ spec:
             - |
               set -e
 
-              # Wait for the deployment to be ready
-              kubectl rollout status deployment/{{ include "chart.fullname" . }}
+              # Wait for the headscale container only: Headplane (same pod) cannot start
+              # without the API key this job creates, so the pod is not Ready yet.
+              for i in $(seq 1 90); do
+                READY=$(kubectl get pods -l app.kubernetes.io/name={{ include "chart.name" . }},app.kubernetes.io/instance={{ .Release.Name }} \
+                  -o jsonpath='{.items[0].status.containerStatuses[?(@.name=="{{ .Chart.Name }}")].ready}' 2>/dev/null || echo "")
+                [ "$READY" = "true" ] && break
+                sleep 5
+              done
 
               SECRET_NAME="{{ include "chart.fullname" . }}-root-api-key"
 
@@ -41,7 +47,7 @@ spec:
                 echo "ROOT_API_KEY is not set. Generating new API key."
 
                 # Get the pod name
-                POD_NAME=$(kubectl get pods -l app.kubernetes.io/name={{ include "chart.name" . }} -o jsonpath="{.items[0].metadata.name}")
+                POD_NAME=$(kubectl get pods -l app.kubernetes.io/name={{ include "chart.name" . }},app.kubernetes.io/instance={{ .Release.Name }} -o jsonpath="{.items[0].metadata.name}")
 
                 # Exec into the pod and run the command
                 API_KEY=$(kubectl exec $POD_NAME -c {{ .Chart.Name }} -- headscale apikeys create --expiration 30000d | tail -n1 | tr -d '\r')
@@ -49,7 +55,7 @@ spec:
                 # Update the secret
                 kubectl patch secret $SECRET_NAME -p "{\"data\": {\"ROOT_API_KEY\": \"$(echo -n $API_KEY | base64)\"}}"
 
-                # Restart the deployment
+                # Restart so Headplane picks the key up (it also retries on its own)
                 kubectl rollout restart deployment/{{ include "chart.fullname" . }}
 
               else
