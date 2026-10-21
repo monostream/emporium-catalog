@@ -41,6 +41,10 @@ prometheus:
     grafana.ini:
       server:
         root_url: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+      auth:
+        # Logging out lands on the local login form: with auto_login the normal login page would
+        # sign the user straight back in. (No Logto end-session: Emporium registers no post-logout URIs.)
+        signout_redirect_url: "/login?disableAutoLogin=true"
       auth.generic_oauth:
         enabled: true
         name: Emporium
@@ -58,10 +62,6 @@ prometheus:
         login_attribute_path: email
         email_attribute_path: email
         name_attribute_path: name
-        # Emporium administrators (Logto role emporium-admin, "roles" claim) become Grafana admins
-        # (org Admin and server admin); everybody else is a Viewer. The role name is fixed by
-        # Emporium (.AdminScope is the API scope "admin", not the role).
-        role_attribute_path: "contains(roles[*], 'emporium-admin') && 'GrafanaAdmin' || 'Viewer'"
         allow_assign_grafana_admin: true
     ingress:
       enabled: true

@@ -44,4 +44,4 @@ annotations:
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_4.png
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/observability-stack/observability-stack_gallery_5.png
   emporiumVersion: "0.5.0"
-  emporium.build/tested: "0.5.0-rc.8 2026-10-20"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

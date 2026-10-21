@@ -4,6 +4,9 @@ Published on 21 October 2026
 
 - Grafana signs in with Emporium (generic OAuth against the `oidc` integration, callback `/login/generic_oauth`, PKCE, client secret by reference). Emporium administrators (role `emporium-admin`) become Grafana admins, everybody else a Viewer.
 - Grafana redirects straight to the Emporium login (`auto_login`). The local admin account stays available at `/login?disableAutoLogin=true`.
+- Logging out lands on the local login form (`signout_redirect_url`), so auto login does not sign the user straight back in.
+- The admin role is the values key `prometheus.grafana.emporiumAdminRole` (default `emporium-admin`; must match Emporium's `identity.logto.adminRole`). A missing `roles` claim gives a Viewer.
+- Upgrade warning: Grafana's storage is an emptyDir and this upgrade rolls the Grafana pod. Dashboards, users and datasources created by hand in the UI are lost (provisioned ones come back). Export them first.
 - Anonymous access is off: every user now has a real identity and role. Before, anyone behind the Emporium login was an anonymous Viewer.
 
 # 0.1.4
