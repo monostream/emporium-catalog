@@ -32,6 +32,37 @@ prometheus:
     enabled: {{ input "PrometheusEnabled" }}
 
   grafana:
+    # Client secret by reference; the client id and URLs are not secret.
+    envValueFrom:
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+        secretKeyRef:
+          name: {{ .Emporium.Integrations.sso.SecretName | quote }}
+          key: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+    grafana.ini:
+      server:
+        root_url: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+      auth:
+        # Logging out lands on the local login form: with auto_login the normal login page would
+        # sign the user straight back in. (No Logto end-session: Emporium registers no post-logout URIs.)
+        signout_redirect_url: "/login?disableAutoLogin=true"
+      auth.generic_oauth:
+        enabled: true
+        name: Emporium
+        client_id: {{ .Emporium.Integrations.sso.ClientID | quote }}
+        scopes: openid email profile roles
+        use_pkce: true
+        allow_sign_up: true
+        # Straight to the Emporium login (a silent redirect: glass already authenticated the user).
+        # The local admin form stays reachable at /login?disableAutoLogin=true.
+        auto_login: true
+        # Logto endpoints below the issuer (<issuer>/auth, /token, /me).
+        auth_url: {{ printf "%s/auth" .Emporium.Integrations.sso.Issuer | quote }}
+        token_url: {{ printf "%s/token" .Emporium.Integrations.sso.Issuer | quote }}
+        api_url: {{ printf "%s/me" .Emporium.Integrations.sso.Issuer | quote }}
+        login_attribute_path: email
+        email_attribute_path: email
+        name_attribute_path: name
+        allow_assign_grafana_admin: true
     ingress:
       enabled: true
       annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}

@@ -56,6 +56,10 @@ prometheus:
         memory: 256Mi
 
   grafana:
+    # Logto role whose members become Grafana admins when they sign in with Emporium (the "roles"
+    # claim). Must match Emporium's identity.logto.adminRole (default emporium-admin). Everybody
+    # else is a Viewer. Not .AdminScope: that is the API scope "admin", not the role.
+    emporiumAdminRole: emporium-admin
     adminPassword: ""
     admin:
       existingSecret: ""
@@ -91,13 +95,16 @@ prometheus:
         editors_can_admin: false
       auth:
         disable_login_form: false
+      auth.generic_oauth:
+        # Rendered by the Grafana chart (tpl). `roles || [] ` keeps a missing or null roles claim
+        # a plain Viewer instead of a JMESPath error.
+        role_attribute_path: "contains(roles || `[]`, '{{ .Values.emporiumAdminRole }}') && 'GrafanaAdmin' || 'Viewer'"
       auth.basic:
         enabled: false
-      # Viewers come in through the Emporium login in front of Grafana; edit as the admin user.
+      # Everybody signs in with Emporium (auth.generic_oauth, see values.emporium.yaml) and gets a
+      # role from it. The local admin account stays as a break-glass login.
       auth.anonymous:
-        enabled: true
-        org_name: Main Org.
-        org_role: Viewer
+        enabled: false
 
   defaultRules:
     create: false
