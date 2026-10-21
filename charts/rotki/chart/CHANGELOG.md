@@ -1,3 +1,9 @@
+# 0.2.1
+
+Published on 21 October 2026
+
+- Category: Finance (was Bitcoin).
+
 # 0.2.0
 
 Published on 20 October 2026

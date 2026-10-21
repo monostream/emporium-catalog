@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
 description: A powerful workflow automation tool.
-version: 0.3.0
+version: 0.3.1
 appVersion: "2.43.8"
 dependencies:
   - name: n8n
@@ -25,7 +25,7 @@ type: application
 annotations:
   icon: assets/icon.svg
   displayName: n8n
-  category: Utilities
+  category: Productivity
   licenses: Sustainable Use License
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/n8n/n8n_gallery_1.png

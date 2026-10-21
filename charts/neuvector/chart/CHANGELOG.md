@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 21 October 2026
+
+- Category: Security (was Monitoring).
+
 # 0.1.0
 
 Published on 20 October 2026

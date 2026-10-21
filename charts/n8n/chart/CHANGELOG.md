@@ -1,3 +1,9 @@
+# 0.3.1
+
+Published on 21 October 2026
+
+- Category: Productivity (was Utilities).
+
 # 0.3.0
 - Optional single sign-on with Emporium (OIDC), off by default: new inputs "Single sign-on with Emporium" and "Enterprise license key". n8n only offers OIDC SSO with an Enterprise license. With both unset local email login works as before.
 - When on, n8n gets `N8N_SSO_OIDC_LOGIN_ENABLED`, `N8N_SSO_OIDC_CLIENT_ID`, `N8N_SSO_OIDC_DISCOVERY_ENDPOINT`, `N8N_SSO_MANAGED_BY_ENV` and the client secret by Secret reference; the callback `/rest/sso/oidc/callback` is registered with the Emporium login.

@@ -1,3 +1,9 @@
+# 1.1.3
+
+Published on 21 October 2026
+
+- Category: Content (was CMS).
+
 # 1.1.2
 
 Published on 20 October 2026

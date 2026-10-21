@@ -1,3 +1,9 @@
+# 0.2.2
+
+Published on 21 October 2026
+
+- Category: Security (was Utilities).
+
 # 0.2.1
 
 Published on 21 October 2026
