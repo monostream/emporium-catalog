@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-start
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  start.sh: |
+    #!/bin/sh
+    # Runs after the stock entrypoint (first installation, administrator creation, permissions)
+    # and before Apache: keeps the settings stored in data/config.php in line with the chart
+    # (public URL, sign-in method, database credentials), then starts cron and Apache exactly
+    # like the image's default command.
+    su www-data -s /bin/sh -c 'php -f ./cli/reconfigure.php -- \
+      --base-url "$BASE_URL" --auth-type "$FRESHRSS_AUTH_TYPE" --api-enabled \
+      --db-type pgsql --db-host "$DB_HOST" --db-user "$DB_USER" --db-base "$DB_BASE" \
+      --db-password "$DB_PASSWORD"' >/dev/null || echo 'warning: FreshRSS reconfigure failed' >&2
+    ([ -z "$CRON_MIN" ] || cron) && \
+      . /etc/apache2/envvars && \
+      exec apache2 -D FOREGROUND $([ -n "$OIDC_ENABLED" ] && [ "$OIDC_ENABLED" -ne 0 ] && echo "-D OIDC_ENABLED")
