@@ -1,0 +1,13 @@
+Hoppscotch is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Sign in with your e-mail address: Hoppscotch sends a sign-in link.
+The first person to open the administration pages (/admin) after signing in becomes the
+Hoppscotch administrator, but only while theirs is the only account. Sign in and open /admin
+yourself before you share the address.
+
+Hoppscotch Community Edition has no OpenID Connect login (an Enterprise feature). Access is
+protected by the Emporium login; people then sign in to Hoppscotch by e-mail.
+{{- if not .Values.mail.host }}
+
+No SMTP server is configured: open the address and complete the setup wizard, or add one.
+{{- end }}

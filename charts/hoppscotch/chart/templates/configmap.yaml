@@ -1,0 +1,50 @@
+{{- if .Values.mail.host }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-onboard
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  onboard.mjs: |
+    // Completes the Hoppscotch onboarding once: e-mail sign-in through the SMTP
+    // server of the Emporium smtp integration. Hoppscotch keeps these settings in
+    // its database; the first POST makes the backend restart itself.
+    const base = `http://127.0.0.1:${process.env.PORT}/backend/v1/onboarding`;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM } = process.env;
+    const auth = SMTP_USER
+      ? `${encodeURIComponent(SMTP_USER)}:${encodeURIComponent(SMTP_PASSWORD ?? "")}@`
+      : "";
+    const url = `${SMTP_PORT === "465" ? "smtps" : "smtp"}://${auth}${SMTP_HOST}:${SMTP_PORT}`;
+    let announced = false;
+    for (;;) {
+      try {
+        const res = await fetch(`${base}/status`);
+        if (res.ok) {
+          const status = await res.json();
+          if (status.onboardingCompleted) {
+            if (!announced) console.log("onboarding already completed");
+            announced = true;
+            await sleep(600000);
+            continue;
+          }
+          const post = await fetch(`${base}/config`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              VITE_ALLOWED_AUTH_PROVIDERS: "EMAIL",
+              MAILER_SMTP_ENABLE: "true",
+              MAILER_USE_CUSTOM_CONFIGS: "false",
+              MAILER_SMTP_URL: url,
+              MAILER_ADDRESS_FROM: SMTP_FROM,
+            }),
+          });
+          console.log(`onboarding request answered ${post.status}`);
+        }
+      } catch (e) {
+        // backend not up yet, or restarting
+      }
+      await sleep(5000);
+    }
+{{- end }}
