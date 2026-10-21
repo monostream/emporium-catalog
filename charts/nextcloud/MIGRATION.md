@@ -128,6 +128,8 @@ files and a share, updated to 0.3.0: all kept).
   roles are not mapped.
 - 0.2.0 instances that never finished installing (status.php says `installed: false`, see the
   libpq fix in the CHANGELOG): after the update, delete `/var/www/html/version.php` on the data
-  volume and restart the pod; the image then installs Nextcloud on the empty database.
+  volume and restart the pod; the image then installs Nextcloud on the empty database (derived
+  from the image's entrypoint; the same reinstall worked when run by hand on emporium-dev, the
+  restart variant was not run).
 - The ingress has no request body limit any more (`proxy-body-size: 0`, was `5000m`, which made
   the host answer 500 on emporium-dev). Nextcloud's own upload limits and quotas still apply.
