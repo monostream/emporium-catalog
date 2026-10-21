@@ -48,14 +48,14 @@ spec:
           - name: SSO_ENABLED
             value: "true"
           - name: SSO_AUTHORITY
-            value: {{ required "app.sso.authority is required with app.sso.enabled" .authority | quote }}
+            value: {{ .authority | quote }}
           - name: SSO_CLIENT_ID
-            value: {{ required "app.sso.clientId is required with app.sso.enabled" .clientId | quote }}
+            value: {{ .clientId | quote }}
           - name: SSO_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ required "app.sso.existingSecret is required with app.sso.enabled" .existingSecret | quote }}
-                key: {{ required "app.sso.secretKey is required with app.sso.enabled" .secretKey | quote }}
+                name: {{ .existingSecret | quote }}
+                key: {{ .secretKey | quote }}
           - name: SSO_SCOPES
             value: {{ .scopes | quote }}
           - name: SSO_ONLY
@@ -90,7 +90,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: {{ .existingSecret | quote }}
-                key: {{ required "app.smtp.passwordKey is required with app.smtp.existingSecret" .passwordKey | quote }}
+                key: {{ .passwordKey | quote }}
           {{- end }}
           {{- end }}
           {{- end }}
