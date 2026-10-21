@@ -1,0 +1,81 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Local administrator, description: "Miniflux creates this account at the first start. Use it when single sign-on is unavailable and to make other users administrators." }
+
+inputs:
+  PollingFrequency:
+    label: Refresh interval (minutes)
+    description: How often Miniflux checks each feed for new entries.
+    type: integer
+    default: 60
+    min: 5
+    max: 1440
+    path: config.pollingFrequency
+  SsoUserCreation:
+    label: Create accounts at the first single sign-on
+    description: Every Emporium user who signs in with "Sign in with Emporium" gets a Miniflux account. Off means an administrator creates accounts first.
+    type: boolean
+    default: true
+    path: oidc.userCreation
+  AdminUsername:
+    label: Administrator username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    pattern: '^[^\s]{3,64}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Miniflux.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Miniflux REST API, Fever and Google Reader clients authenticate with their own
+    # tokens or passwords; shared entries (/share/<code>) are public links.
+    skipPaths: [/v1/*, /fever/*, /reader/*, /accounts/ClientLogin*, /share/*]
+    # Miniflux's own OpenID Connect login.
+    redirectPaths: [/oauth2/oidc/callback]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  db:
+    type: postgres
+    database: miniflux
+    owner: miniflux
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    # lib/pq: sslmode=require encrypts and accepts the CloudNativePG certificate without a CA file.
+    secretKeys:
+      DATABASE_URL: uri-sslmode-require
+
+components:
+  app:
+    label: Miniflux
+    resources: resources
+    replicas: { fixed: 1, reason: "The feed scheduler and the database migrations run in every Miniflux pod" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few hundred feeds
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
