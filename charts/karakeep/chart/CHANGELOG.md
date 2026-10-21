@@ -6,3 +6,4 @@
 - Karakeep has no administrator mapping or bootstrap account: the first account created is the administrator (documented).
 - Only `/api/v1`, `/api/trpc`, `/api/assets`, `/api/public`, health/version and `/public` skip the Emporium login; `/api/auth/*` (sign-up, sign-in) stays behind it, so nobody outside Emporium can create an account or become the first administrator.
 - Single sign-on only by default: password sign-up and sign-in are off (input "Email and password sign-in") and email account linking is off, which prevents pre-registering a victim's email address and taking over their first sign-in.
+- Tested on Emporium 0.5.0-rc.12 (2026-10-21): install, SSO first login (first account admin, second regular), password sign-up, sign-in and API-key exchange refused even with an Emporium session, uninstall without leftovers.
