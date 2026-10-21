@@ -17,7 +17,7 @@ keywords:
 annotations:
   icon: assets/icon.svg
   displayName: Formbricks
-  category: Productivity
+  category: Analytics
   licenses: AGPL-3.0-only
   gallery: |
     assets/screenshot-1.webp

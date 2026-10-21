@@ -59,11 +59,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.database.passwordSecret | quote }}
                   key: {{ .Values.database.passwordKey }}
-            # CloudNativePG serves a certificate of its own CA; the connection stays inside the cluster.
+            # TLS with certificate verification against the CloudNativePG CA (added to Node's trust store).
             - name: CUBEJS_DB_SSL
               value: "true"
-            - name: CUBEJS_DB_SSL_REJECT_UNAUTHORIZED
-              value: "false"
+            {{- include "chart.dbCaEnv" . | nindent 12 }}
             - name: CUBEJS_API_SECRET
               valueFrom:
                 {{- include "chart.secretRef" (dict "ctx" . "key" "CUBEJS_API_SECRET") | nindent 16 }}
@@ -94,11 +93,13 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
           volumeMounts:
+            {{- include "chart.dbCaMount" . | nindent 12 }}
             - { name: cube-config, mountPath: /cube/conf/cube.js, subPath: cube.js, readOnly: true }
             - { name: cube-config, mountPath: /cube/conf/model/FeedbackRecords.js, subPath: FeedbackRecords.js, readOnly: true }
           resources:
             {{- toYaml .Values.cubeResources | nindent 12 }}
       volumes:
+        {{- include "chart.dbCaVolume" . | nindent 8 }}
         - name: cube-config
           configMap:
             name: {{ include "chart.fullname" . }}-cube

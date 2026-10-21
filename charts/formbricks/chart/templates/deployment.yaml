@@ -225,11 +225,14 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 6
+          # Ready only after the first administrator exists.
           readinessProbe:
-            httpGet: { path: /health, port: http }
-            periodSeconds: 10
+            exec:
+              command: [sh, -c, "test -f /bootstrap/done && wget -q -O /dev/null http://127.0.0.1:3000/health"]
+            periodSeconds: 5
             timeoutSeconds: 5
           volumeMounts:
+            - { name: bootstrap, mountPath: /bootstrap, readOnly: true }
             {{- include "chart.dbCaMount" . | nindent 12 }}
             - { name: tmp, mountPath: /tmp }
             - { name: next-cache, mountPath: /home/nextjs/apps/web/.next/cache }
@@ -237,8 +240,61 @@ spec:
             - { name: saml, mountPath: /home/nextjs/apps/web/saml-connection }
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        # Creates the first administrator at install, so the instance is never "fresh": Formbricks lets anyone
+        # register on an empty instance, and public survey paths would expose that to anonymous visitors.
+        - name: bootstrap-admin
+          image: {{ include "chart.appImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          command:
+            - node
+            - -e
+            - |
+              const fs = require("fs");
+              const base = "http://127.0.0.1:3000";
+              const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+              (async () => {
+                for (let i = 0; ; i++) {
+                  try {
+                    if (fs.existsSync("/bootstrap/done")) break;
+                    const h = await fetch(base + "/health");
+                    if (!h.ok) throw new Error("not ready");
+                    const r = await fetch(base + "/api/auth/sign-up/email", {
+                      method: "POST",
+                      headers: { "content-type": "application/json", origin: process.env.WEBAPP_URL },
+                      body: JSON.stringify({ name: process.env.ADMIN_NAME, email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }),
+                    });
+                    console.log("bootstrap sign-up status", r.status);
+                    // 200: created (or the address exists); 403: the instance already has users.
+                    if (r.status === 200 || r.status === 403) { fs.writeFileSync("/bootstrap/done", "1"); break; }
+                  } catch (e) { /* the web process is still starting */ }
+                  await sleep(2000);
+                }
+                setInterval(() => {}, 1 << 30);
+              })();
+          env:
+            - name: WEBAPP_URL
+              value: {{ .Values.config.baseUrl | quote }}
+            - name: ADMIN_NAME
+              value: {{ .Values.admin.name | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                {{- include "chart.secretRef" (dict "ctx" . "key" "ADMIN_PASSWORD") | nindent 16 }}
+          volumeMounts:
+            - { name: bootstrap, mountPath: /bootstrap }
+          resources:
+            requests: { cpu: 5m, memory: 48Mi }
+            limits: { memory: 128Mi }
       volumes:
         {{- include "chart.dbCaVolume" . | nindent 8 }}
+        - { name: bootstrap, emptyDir: {} }
         - { name: tmp, emptyDir: {} }
         - { name: next-cache, emptyDir: {} }
         - { name: uploads, emptyDir: {} }

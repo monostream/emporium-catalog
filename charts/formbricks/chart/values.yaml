@@ -40,7 +40,12 @@ config:
   # Opt out of Formbricks' anonymous usage telemetry.
   telemetryDisabled: true
 
-# Secret holding the generated keys: BETTER_AUTH_SECRET, ENCRYPTION_KEY, CRON_SECRET,
+# First administrator, created at install (see README). The password is in the secret below.
+admin:
+  name: Administrator
+  email: ""
+
+# Secret holding the generated keys: ADMIN_PASSWORD, BETTER_AUTH_SECRET, ENCRYPTION_KEY, CRON_SECRET,
 # HUB_API_KEY, CUBEJS_API_SECRET, AUTHZED_TOKEN.
 secrets:
   existingSecret: ""

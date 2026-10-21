@@ -2,9 +2,35 @@ apiVersion: emporium.build/v1
 
 sections:
   - { id: general, label: General }
+  - { id: admin, label: First administrator, description: "Created at install, so nobody else can claim the first account through the public survey paths." }
   - { id: security, label: Security, description: "Generated at install and delivered to the pods by reference. Changing the encryption key makes stored secrets unreadable." }
 
 inputs:
+  AdminName:
+    label: Administrator name
+    type: string
+    default: Administrator
+    required: true
+    installOnly: true
+    section: admin
+    path: admin.name
+  AdminEmail:
+    label: Administrator email
+    description: Formbricks account that owns the organisation. Its password is generated into the app's Secret (key ADMIN_PASSWORD) unless you set one; you can change it in Formbricks. No mail is sent.
+    type: string
+    required: true
+    installOnly: true
+    pattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    section: admin
+    path: admin.email
+  AdminPassword:
+    label: Administrator password
+    description: At least 8 characters with upper and lower case letters and a number. Leave empty to generate one.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: ADMIN_PASSWORD }
   AuthSecret:
     label: Session secret
     description: Signs session cookies and invitation tokens.
