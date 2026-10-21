@@ -1,0 +1,81 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: sso, label: Single sign-on }
+  - { id: security, label: Security }
+
+inputs:
+  AllowSignup:
+    label: Allow new accounts
+    description: Let people create accounts, by email and password and at their first single sign-on. Turn it off after everyone who should have an account has signed in once. The first account ever created is the administrator.
+    type: boolean
+    default: true
+    path: config.allowSignup
+  PasswordAuth:
+    label: Email and password sign-in
+    description: Keep the email and password form next to "Sign in with Emporium". Turn it off to allow single sign-on only (the administrator then has no sign-in that works without Emporium).
+    type: boolean
+    default: true
+    section: sso
+    path: config.passwordAuth
+  SsoLinkByEmail:
+    label: Link single sign-on to existing accounts by email
+    description: A single sign-on user whose email matches an existing Karakeep account signs in to that account instead of failing. Safe with Emporium because only administrators can set a user's email.
+    type: boolean
+    default: true
+    section: sso
+    path: oidc.linkByEmail
+  SessionSecret:
+    label: Session secret
+    description: Signs sessions and API keys. Generated at install; changing it signs everyone out.
+    type: secret
+    generate: { length: 64, charset: alnum }
+    installOnly: true
+    section: security
+    ref: { namePath: app.existingSecret, key: NEXTAUTH_SECRET }
+  SearchKey:
+    label: Search master key
+    description: Protects the Meilisearch index inside the pod. Generated at install.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: security
+    ref: { namePath: app.existingSecret, key: MEILI_MASTER_KEY }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The REST API, the browser extension and the mobile apps use Karakeep API keys or
+    # session tokens; shared lists (/public/*) are public links.
+    skipPaths: [/api/*, /public/*]
+    # Karakeep's own OpenID Connect login (provider id "custom").
+    redirectPaths: [/api/auth/callback/custom]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+
+components:
+  app:
+    label: Karakeep
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database, search index and archives live on a ReadWriteOnce volume" }
+    # The headless Chrome (chromeResources) and Meilisearch (searchResources) sidecars are sized
+    # through the profile: lint matches one component per workload.
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, up to tens of thousands of bookmarks
+    values: profiles/small.yaml
