@@ -1,0 +1,2 @@
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

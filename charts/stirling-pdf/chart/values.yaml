@@ -1,0 +1,67 @@
+# Base configuration. Renders on its own; Emporium fills the host through
+# emporium.yaml (bind) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+# The ultra-lite image is built from the MIT-licensed core only (no proprietary
+# login/SSO/audit module) and has no LibreOffice, OCR or Calibre.
+image:
+  repository: docker.io/stirlingtools/stirling-pdf
+  tag: "3.2.0"
+  # Image flavour appended to the tag: ultra-lite (MIT core only). The default
+  # and -fat images contain the proprietary module; do not switch without a licence.
+  variant: ultra-lite
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080
+
+config:
+  # Largest accepted upload in MB (SYSTEM_MAXFILESIZE).
+  maxFileSize: 200
+  # Default UI language (SYSTEM_DEFAULTLOCALE).
+  defaultLocale: en-US
+  # Application name shown in the UI (UI_APPNAME).
+  appName: Stirling-PDF
+  # Send anonymous usage statistics upstream.
+  analytics: false
+
+# Additional environment variables (see https://docs.stirlingpdf.com/Configuration/).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+# Scratch space for uploads in flight and generated files (emptyDir).
+scratch:
+  sizeLimit: 4Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 2Gi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
