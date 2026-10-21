@@ -69,16 +69,20 @@ nextcloud:
           # start that can apply the setting creates it again.
           log "WARNING: user_oidc soft_auto_provision could not be turned off; removing provider Emporium"
           occ user_oidc:provider:delete Emporium --force >/dev/null 2>&1
-          # Only a successful provider listing without "Emporium" proves the removal; a failed
-          # lookup (e.g. the database went away) is not proof and falls through to disabling.
-          if list=$(occ user_oidc:provider --output=json 2>/dev/null); then
-            list=$(printf '%s\n' "$list" | tail -n 1)
-            case "$list" in
-              *'"identifier":"Emporium"'*) ;;
-              '['*']')
-                log "provider Emporium removed; only the local login is available"
-                exit 0 ;;
-            esac
+          # Proof of removal: the whole listing decodes as a JSON list of providers and none is
+          # "Emporium". Anything else (failed lookup, extra output, unexpected shape) is no proof
+          # and falls through to disabling user_oidc.
+          # shellcheck disable=SC2016 # PHP variables, not shell
+          if list=$(occ user_oidc:provider --output=json 2>/dev/null) &&
+             printf '%s' "$list" | php -r '
+               try { $d = json_decode(stream_get_contents(STDIN), false, 64, JSON_THROW_ON_ERROR); } catch (\Throwable $e) { exit(1); }
+               if (!is_array($d) || !array_is_list($d)) { exit(1); }
+               foreach ($d as $p) {
+                 if (!is_object($p) || !isset($p->identifier) || !is_string($p->identifier) || strcasecmp($p->identifier, "Emporium") === 0) { exit(1); }
+               }
+               exit(0);'; then
+            log "provider Emporium removed; only the local login is available"
+            exit 0
           fi
           occ app:disable user_oidc >/dev/null 2>&1
           if [ "$(occ config:app:get user_oidc enabled 2>/dev/null)" = "no" ]; then
