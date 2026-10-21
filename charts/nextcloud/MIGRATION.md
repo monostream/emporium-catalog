@@ -106,6 +106,30 @@ change edit them there.
 
 ## Known limitations
 
-- Unverified on a cluster yet (coordinator smoke install pending).
 - The upstream chart still vendors the Bitnami postgresql/mariadb/redis subcharts (disabled); lint
   reports their `lookup` calls (`lookup-offline` warnings), which never render.
+
+# nextcloud 0.2.0 -> 0.3.0
+
+An in-place update; no data moves. Verified on emporium-dev (0.2.0 install with a local user,
+files and a share, updated to 0.3.0: all kept).
+
+- New required `sso` OIDC integration (Emporium creates the Logto client on update). On the next
+  start the before-starting hook installs `user_oidc` from the Nextcloud app store, enables it,
+  sets `user_oidc.single_logout` and `user_oidc.soft_auto_provision` to false in `config.php`
+  and creates or updates the provider "Emporium". The login page gets "Login with Emporium";
+  the local login form stays. Without app store access the hook logs a warning and the
+  instance keeps the local login only.
+- Accounts: an Emporium login creates a new account whose user id is the Logto user id
+  (`sub`). Existing local accounts are never reused (a login whose id equals a local account
+  is refused). To hand a local user's files to the new account:
+  `occ files:transfer-ownership <local-user> <logto-sub>` (after the first Emporium login).
+- Admins: grant Nextcloud admin to Emporium accounts in Nextcloud (Users, group `admin`); Logto
+  roles are not mapped.
+- 0.2.0 instances that never finished installing (status.php says `installed: false`, see the
+  libpq fix in the CHANGELOG): after the update, delete `/var/www/html/version.php` on the data
+  volume and restart the pod; the image then installs Nextcloud on the empty database (derived
+  from the image's entrypoint; the same reinstall worked when run by hand on emporium-dev, the
+  restart variant was not run).
+- The ingress has no request body limit any more (`proxy-body-size: 0`, was `5000m`, which made
+  the host answer 500 on emporium-dev). Nextcloud's own upload limits and quotas still apply.
