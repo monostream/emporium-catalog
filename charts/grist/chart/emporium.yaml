@@ -7,9 +7,10 @@ sections:
 inputs:
   AdminEmail:
     label: Administrator email
-    description: The Emporium user with this email becomes the Grist administrator (Admin Panel, installation settings) at the first sign-in. Leave empty for no administrator.
+    description: "The Emporium user with this email becomes the Grist administrator (Admin Panel, installation settings) at the first sign-in. Required: without it Grist would fall back to its built-in support account as administrator."
     type: string
-    pattern: '^$|^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    required: true
+    pattern: '^[^\s@]+@[^\s@]+\.[^\s@]+$'
     section: admin
     path: config.adminEmail
   SandboxFlavor:

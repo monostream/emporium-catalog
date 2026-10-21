@@ -49,10 +49,11 @@ spec:
             - name: APP_HOME_URL
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.config.adminEmail }}
+            # Never leave it unset: Grist then makes its built-in support account
+            # (support@getgrist.com) the installation administrator. The placeholder
+            # is a reserved, non-routable address that no identity provider issues.
             - name: GRIST_ADMIN_EMAIL
-              value: {{ . | quote }}
-            {{- end }}
+              value: {{ .Values.config.adminEmail | default "no-administrator@admin.invalid" | quote }}
             {{- with .Values.secrets.existingSecret }}
             - name: GRIST_SESSION_SECRET
               valueFrom:

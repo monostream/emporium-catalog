@@ -19,7 +19,8 @@ config:
   # as the Grist process and is only safe when every user is trusted.
   sandboxFlavor: pyodide
   # Email of the Grist installation administrator (Admin Panel). That person must
-  # sign in with this email. Empty: nobody is administrator.
+  # sign in with this email. Empty: a non-routable placeholder, so nobody is administrator
+  # (an unset value would make Grist's support account the administrator).
   adminEmail: ""
   # Refuse anonymous visitors (also on the Grist side, behind the Emporium login).
   forceLogin: true
