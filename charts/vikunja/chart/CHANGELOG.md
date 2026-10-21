@@ -6,4 +6,6 @@
 - Local login stays on as the break-glass way in; the local administrator is created once after the install, its password is generated into the per-app Secret. Self-registration is off by default.
 - API, CalDAV and link shares skip the Emporium login so apps and shared links work.
 - Known limit: Vikunja needs an email address in the sign-in; Emporium users without an email cannot use single sign-on.
-- Tested on Emporium 0.5.0-rc.12 (2026-10-21): install, SSO login (ES384) with a new Emporium user, local administrator login, registration closed, uninstall without leftovers.
+
+- The administrator Job is idempotent: an existing account (retained data) is success and is not changed; other errors fail and retry.
+- Tested on Emporium 0.5.0-rc.12: install, SSO login, administrator login, hook re-run on existing data, uninstall without leftovers.

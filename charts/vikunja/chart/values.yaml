@@ -29,6 +29,10 @@ admin:
   # Key of the administrator password in secrets.existingSecret.
   passwordKey: ADMIN_PASSWORD
 
+adminJob:
+  # Static busybox, copied into the Job pod to wrap the Vikunja CLI (the image has no shell).
+  shellImage: busybox:1.37.0-musl
+
 secrets:
   # Secret holding the administrator password and the token signing secret.
   existingSecret: ""
