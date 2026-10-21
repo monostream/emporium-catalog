@@ -93,11 +93,10 @@ prometheus:
         disable_login_form: false
       auth.basic:
         enabled: false
-      # Viewers come in through the Emporium login in front of Grafana; edit as the admin user.
+      # Everybody signs in with Emporium (auth.generic_oauth, see values.emporium.yaml) and gets a
+      # role from it. The local admin account stays as a break-glass login.
       auth.anonymous:
-        enabled: true
-        org_name: Main Org.
-        org_role: Viewer
+        enabled: false
 
   defaultRules:
     create: false
