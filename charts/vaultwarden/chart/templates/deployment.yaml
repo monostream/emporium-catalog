@@ -60,6 +60,8 @@ spec:
             value: {{ .scopes | quote }}
           - name: SSO_ONLY
             value: {{ .only | quote }}
+          - name: SSO_SIGNUPS_ALLOWED
+            value: {{ $.Values.app.signupsAllowed | quote }}
           - name: SSO_SIGNUPS_MATCH_EMAIL
             value: {{ .signupsMatchEmail | quote }}
           {{- end }}
