@@ -47,9 +47,19 @@ headscale directly; headscale (`/oidc/callback`) and Headplane (`/admin/oidc/cal
 - No `emporium.build/auth-skip-paths`, `emporium.build/disable-glass` or `kubernetes.io/tls-acme`
   annotations from the chart.
 
-## Known issue (not changed here)
+## Headplane configuration (0.2.1)
 
-Headplane 0.7.1 reads its settings from a config file (`/etc/headplane/config.yaml`); the
-environment variables this chart sets (`HEADSCALE_URL`, `OIDC_*`, `ROOT_API_KEY`, `COOKIE_SECRET`)
-are the pre-0.5 Headplane format. The headscale server itself is unaffected. Fixing the Headplane
-configuration needs a smoke test and is left for a follow-up.
+Headplane 0.7.1 is configured through `/etc/headplane/config.yaml` and `HEADPLANE_*` overrides
+(the old flat variables were ignored by it). Headplane's own state (users, roles) is kept on the data
+volume under `headplane/`; the first user who signs in through OIDC becomes the Headplane owner.
+Sign-in: OIDC button, or the API key login (break-glass, works when the identity provider is down):
+
+    kubectl exec deploy/<release> -c headscale -- headscale apikeys create --expiration 24h
+
+## Who can register nodes
+
+The ingress runs without glass (Tailscale clients cannot pass a forward-auth login), so the Emporium
+access policy does not gate headscale or Headplane; the identity provider does. By default every user
+of the identity provider can register nodes (`oidc.allowedDomains` / `oidc.allowedUsers` restrict this).
+Restricting to Emporium admins is not possible: headscale only reads a `groups` claim for
+`allowed_groups`, and Logto issues the Emporium roles in `roles`.

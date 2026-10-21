@@ -15,11 +15,25 @@ metadata:
     {{- include "chart.labels" . | nindent 4 }}
 rules:
   - apiGroups: [""]
-    resources: ["pods", "pods/exec", "secrets"]
-    verbs: ["get", "list", "watch", "patch"]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  # Pod names are generated, so exec cannot be limited by resourceNames. The namespace holds only this
+  # app (Emporium installs one release per namespace), and the job's pod runs only this script.
+  # kubectl >= 1.31 runs exec over WebSocket, which needs `create` (older SPDY used `get`).
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["get", "create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["{{ include "chart.fullname" . }}-root-api-key"]
+    verbs: ["get", "patch"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get", "list", "watch", "patch"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["{{ include "chart.fullname" . }}"]
+    verbs: ["patch"]
 
 ---
 
