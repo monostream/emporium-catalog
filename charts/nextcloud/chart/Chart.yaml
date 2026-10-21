@@ -13,7 +13,7 @@ icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/nextc
 annotations:
   icon: assets/icon.svg
   displayName: Nextcloud
-  category: Utilities
+  category: Productivity
   licenses: AGPL-3.0
   gallery: |
     https://raw.githubusercontent.com/nextcloud/screenshots/master/nextcloud-hub-files-25-preview.png

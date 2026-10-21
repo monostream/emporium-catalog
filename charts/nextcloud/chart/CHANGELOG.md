@@ -8,6 +8,7 @@ Published on 21 October 2026
 - The local login stays available (the admin from "Admin username" is the break-glass account). Admins are granted in Nextcloud (Users > group `admin`): `user_oidc` can only create groups named like the Logto roles (`emporium-admin`), not map them to Nextcloud's `admin` group, so group provisioning is off.
 - Fix: a new install failed and never recovered. The image runs `occ maintenance:install` (and upgrades and hooks) as `su -p www-data` with `HOME=/root`, and libpq stopped at the unreadable `/root/.postgresql/postgresql.crt`; the next start found the copied files and skipped the install, leaving Nextcloud "not installed". `PGSSLCERT` now points to a path that does not exist (no client certificate). An instance stuck in that state installs itself after `rm /var/www/html/version.php` and a pod restart.
 - Fix: the ingress answered 500 for the whole host on clusters whose ingress rejects a body size limit above 4 GiB (`proxy-body-size: 5000m`). The limit is now `0` (none).
+- Catalog category is now Productivity (was Utilities).
 - Nextcloud stays on 35.0.2 (nextcloud chart 9.4.1), the latest upstream release.
 
 # 0.2.0
