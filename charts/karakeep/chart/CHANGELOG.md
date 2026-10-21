@@ -5,4 +5,4 @@
 - Single sign-on through Emporium (`sso` OIDC integration, "Sign in with Emporium", callback `/api/auth/callback/custom`); accounts are created at the first sign-in and linked to existing accounts by email.
 - Karakeep has no administrator mapping or bootstrap account: the first account created is the administrator (documented).
 - Only `/api/v1`, `/api/trpc`, `/api/assets`, `/api/public`, health/version and `/public` skip the Emporium login; `/api/auth/*` (sign-up, sign-in) stays behind it, so nobody outside Emporium can create an account or become the first administrator.
-- Tested on Emporium 0.5.0-rc.12 (2026-10-21): anonymous sign-up, sign-in and callback refused by the Emporium login, install, SSO first login (first account admin, second regular), uninstall without leftovers.
+- Single sign-on only by default: password sign-up and sign-in are off (input "Email and password sign-in") and email account linking is off, which prevents pre-registering a victim's email address and taking over their first sign-in.

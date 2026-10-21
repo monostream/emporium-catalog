@@ -31,8 +31,8 @@ config:
   # Let new users create an account (password sign-up and first single sign-on; Karakeep has one switch for both).
   # The first account ever created is the administrator.
   allowSignup: true
-  # Keep the "Sign in with email and password" form next to single sign-on.
-  passwordAuth: true
+  # Email and password sign-up and sign-in (DISABLE_PASSWORD_AUTH=false). Off by default: single sign-on only.
+  passwordAuth: false
   logLevel: info
 
 # Secret holding NEXTAUTH_SECRET and MEILI_MASTER_KEY.

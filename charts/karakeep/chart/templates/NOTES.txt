@@ -11,8 +11,11 @@ Accounts need an email address: an Emporium user without an email cannot sign in
 {{- end }}
 {{- if .Values.config.passwordAuth }}
 
-Email and password sign-in is enabled; use "Sign up" to create the first (administrator) account
-if you do not use single sign-on.
+Email and password sign-up and sign-in are enabled (still behind the Emporium login). Any Emporium
+user can register any email address; keep email linking off.
+{{- else }}
+
+Single sign-on only: email and password sign-up and sign-in are disabled.
 {{- end }}
 
-Browser extensions and mobile apps sign in with an API key (Settings > API Keys); /api/v1 and /api/trpc bypass the Emporium login, sign-up (/api/auth) does not.
+Browser extensions and mobile apps sign in with an API key (Settings > API Keys); /api/v1 and /api/trpc bypass the Emporium login, /api/auth does not.
