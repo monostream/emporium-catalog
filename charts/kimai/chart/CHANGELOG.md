@@ -6,3 +6,4 @@
 - Super administrator `admin` created at the first start; the password is generated into the per-app Secret unless set at install.
 - The REST API (`/api/*`, API tokens) skips the Emporium login so the mobile apps and scripts work.
 - Tested on Emporium 0.5.0-rc.12 (2026-10-21): install, Emporium login in front of the Kimai login, local administrator login, REST API token, uninstall without leftovers.
+- Database passwords accept only letters and digits (16-64) and are immutable after install: Kimai's entrypoint splits the connection URL on `/ : @`, and MariaDB applies the credentials only at first initialisation. README documents `TRUSTED_HOSTS` for password-reset emails.

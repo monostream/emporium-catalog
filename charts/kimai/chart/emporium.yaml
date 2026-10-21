@@ -38,13 +38,19 @@ inputs:
     ref: { namePath: appSecret.existingSecret, keyPath: appSecret.key }
   DatabasePassword:
     label: MariaDB password
+    description: "Letters and digits only, 16-64 characters (Kimai's entrypoint splits the connection URL on / : @). MariaDB applies it only when its volume is first initialised, so it cannot be changed after install."
     type: secret
     generate: { length: 32, charset: alnum }
+    pattern: '^[A-Za-z0-9]{16,64}$'
+    installOnly: true
     ref: { namePath: db.existingSecret, keyPath: db.passwordKey }
   DatabaseRootPassword:
     label: MariaDB root password
+    description: "Letters and digits only, 16-64 characters (Kimai's entrypoint splits the connection URL on / : @). MariaDB applies it only when its volume is first initialised, so it cannot be changed after install."
     type: secret
     generate: { length: 32, charset: alnum }
+    pattern: '^[A-Za-z0-9]{16,64}$'
+    installOnly: true
     ref: { namePath: db.existingSecret, keyPath: db.rootPasswordKey }
 
 integrations:
