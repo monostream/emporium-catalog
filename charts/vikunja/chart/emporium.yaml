@@ -1,0 +1,90 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Local administrator, description: "Vikunja creates this account once, after the first install. Use it when single sign-on is unavailable." }
+
+inputs:
+  Registration:
+    label: Allow self-registration
+    description: Let anyone who reaches the login page create a local account. Single sign-on accounts are created at the first sign-in regardless of this setting.
+    type: boolean
+    default: false
+    path: config.enableRegistration
+  AdminUsername:
+    label: Administrator username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    pattern: '^[a-z0-9_.-]{3,64}$'
+    section: admin
+    path: admin.username
+  AdminEmail:
+    label: Administrator email
+    description: Vikunja requires an email address for every local account.
+    type: string
+    default: admin@example.com
+    required: true
+    installOnly: true
+    section: admin
+    path: admin.email
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Vikunja.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: secrets.existingSecret, keyPath: admin.passwordKey }
+  JwtSecret:
+    label: Token signing secret
+    description: Signs the login tokens of Vikunja. Generated; changing it signs everybody out.
+    type: secret
+    generate: { length: 48, charset: alnum }
+    section: admin
+    ref: { namePath: secrets.existingSecret, keyPath: secrets.jwtKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Vikunja's API (web app, mobile apps, API tokens), CalDAV and link shares authenticate themselves.
+    skipPaths: [/api/*, /dav/*, /.well-known/caldav, /.well-known/carddav, /share/*]
+    # Vikunja's own OpenID Connect login (callback page of the web app, provider key "emporium").
+    redirectPaths: [/auth/openid/emporium]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  files:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: storage.files.existingClaim
+  db:
+    type: postgres
+    database: vikunja
+    owner: vikunja
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+
+components:
+  app:
+    label: Vikunja
+    resources: resources
+    replicas: { fixed: 1, reason: "Attachments on a ReadWriteOnce volume; the database migrations run at start" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
