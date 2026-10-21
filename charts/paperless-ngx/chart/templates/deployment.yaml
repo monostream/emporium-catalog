@@ -1,0 +1,231 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # One pod runs the web server, the consumer, the Celery worker and the scheduler on a
+  # ReadWriteOnce volume; migrations run at start. Never run two side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      {{- if .Values.oidc.enabled }}
+      annotations:
+        checksum/patch: {{ include (print $.Template.BasePath "/configmap-patch.yaml") . | sha256sum }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: paperless
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            # s6-overlay refuses a /run it does not own; the emptyDir is world-writable by design (non-root pod).
+            - name: S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES
+              value: "1"
+            - name: PAPERLESS_DATA_DIR
+              value: /usr/src/paperless/volume/data
+            - name: PAPERLESS_MEDIA_ROOT
+              value: /usr/src/paperless/volume/media
+            - name: PAPERLESS_CONSUMPTION_DIR
+              value: /usr/src/paperless/volume/consume
+            - name: PAPERLESS_SCRATCH_DIR
+              value: /tmp/paperless
+            # The Emporium login gateway injects the panel script into HTML responses and cannot
+            # rewrite br/zstd bodies; the ingress controller compresses instead.
+            - name: PAPERLESS_ENABLE_COMPRESSION
+              value: "false"
+            - name: PAPERLESS_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: PAPERLESS_TIME_ZONE
+              value: {{ .Values.config.timeZone | quote }}
+            - name: PAPERLESS_OCR_LANGUAGE
+              value: {{ .Values.config.ocrLanguage | quote }}
+            - name: PAPERLESS_TASK_WORKERS
+              value: {{ .Values.config.taskWorkers | quote }}
+            - name: PAPERLESS_THREADS_PER_WORKER
+              value: {{ .Values.config.threadsPerWorker | quote }}
+            - name: PAPERLESS_WEBSERVER_WORKERS
+              value: {{ .Values.config.webserverWorkers | quote }}
+            # The Emporium ingress terminates TLS.
+            - name: PAPERLESS_PROXY_SSL_HEADER
+              value: '["HTTP_X_FORWARDED_PROTO", "https"]'
+            {{- with .Values.config.url }}
+            - name: PAPERLESS_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if and .Values.config.tikaEndpoint .Values.config.gotenbergEndpoint }}
+            - name: PAPERLESS_TIKA_ENABLED
+              value: "true"
+            - name: PAPERLESS_TIKA_ENDPOINT
+              value: {{ .Values.config.tikaEndpoint | quote }}
+            - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+              value: {{ .Values.config.gotenbergEndpoint | quote }}
+            {{- end }}
+            {{- with .Values.secretKey.existingSecret }}
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secretKey.key }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: PAPERLESS_DBENGINE
+              value: postgresql
+            - name: PAPERLESS_DBHOST
+              value: {{ $.Values.database.host | quote }}
+            - name: PAPERLESS_DBPORT
+              value: {{ $.Values.database.port | quote }}
+            - name: PAPERLESS_DBNAME
+              value: {{ $.Values.database.name | quote }}
+            - name: PAPERLESS_DBUSER
+              value: {{ $.Values.database.user | quote }}
+            - name: PAPERLESS_DB_OPTIONS
+              value: {{ printf "sslmode=%s" $.Values.database.sslmode | quote }}
+            - name: PAPERLESS_DBPASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.passwordKey }}
+            {{- end }}
+            {{- with .Values.redis.existingSecret }}
+            - name: PAPERLESS_REDIS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.redis.urlKey }}
+            {{- end }}
+            {{- with .Values.admin.existingSecret }}
+            - name: PAPERLESS_ADMIN_USER
+              value: {{ $.Values.admin.username | quote }}
+            - name: PAPERLESS_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- with .Values.smtp }}
+            {{- if and .enabled .host }}
+            - name: PAPERLESS_EMAIL_HOST
+              value: {{ .host | quote }}
+            - name: PAPERLESS_EMAIL_PORT
+              value: {{ .port | quote }}
+            - name: PAPERLESS_EMAIL_FROM
+              value: {{ .from | quote }}
+            - name: PAPERLESS_EMAIL_USE_TLS
+              value: {{ .useTLS | quote }}
+            {{- with .username }}
+            - name: PAPERLESS_EMAIL_HOST_USER
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .existingSecret }}
+            - name: PAPERLESS_EMAIL_HOST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .existingSecret }}
+                  key: {{ .passwordKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .issuer .existingSecret }}
+            # The client secret is injected by reference: Kubernetes expands $(OIDC_CLIENT_SECRET)
+            # inside the JSON below from this variable, so the pod spec never contains the value.
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .existingSecret }}
+                  key: {{ .clientSecretKey }}
+            - name: PAPERLESS_APPS
+              value: allauth.socialaccount.providers.openid_connect
+            - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
+              value: {{ dict "openid_connect" (dict "OAUTH_PKCE_ENABLED" true "APPS" (list (dict "provider_id" "emporium" "name" .providerName "client_id" .clientId "secret" "$(OIDC_CLIENT_SECRET)" "settings" (dict "server_url" .issuer "scope" (list "openid" "profile" "email" "roles"))))) | toJson | squote }}
+            - name: PAPERLESS_SOCIAL_AUTO_SIGNUP
+              value: "true"
+            - name: PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS
+              value: {{ .userCreation | quote }}
+            - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS_CLAIM
+              value: roles
+            - name: PAPERLESS_SOCIAL_ACCOUNT_SYNC_SUPERUSER_GROUP
+              value: {{ .adminRole | quote }}
+            # Makes allauth accept the EC (ES384) keys of the identity provider.
+            - name: PYTHONPATH
+              value: /opt/emporium-patch
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # Migrations, the search index and the OCR languages are prepared before the web server listens.
+          startupProbe:
+            httpGet: { path: /accounts/login/, port: http }
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 180
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            httpGet: { path: /accounts/login/, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/paperless/volume
+            - name: run
+              mountPath: /run
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.oidc.enabled }}
+            - name: patch
+              mountPath: /opt/emporium-patch
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: data
+          {{- if .Values.persistence.claimName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.claimName }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.oidc.enabled }}
+        - name: patch
+          configMap:
+            name: {{ include "chart.fullname" . }}-patch
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,27 @@
+{{- if .Values.oidc.enabled }}
+# django-allauth 65.16 verifies id tokens with RSAAlgorithm.from_jwk only, which rejects the
+# EC keys (ES384) that Logto signs with. This sitecustomize makes that call accept EC JWKs.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-patch
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  sitecustomize.py: |
+    try:
+        import json
+        import jwt.algorithms as _alg
+
+        _rsa_from_jwk = _alg.RSAAlgorithm.from_jwk
+
+        def _from_jwk(jwk):
+            data = jwk if isinstance(jwk, dict) else json.loads(jwk)
+            if data.get("kty") == "EC":
+                return _alg.ECAlgorithm.from_jwk(jwk)
+            return _rsa_from_jwk(jwk)
+
+        _alg.RSAAlgorithm.from_jwk = staticmethod(_from_jwk)
+    except Exception:  # never block the interpreter start
+        pass
+{{- end }}
