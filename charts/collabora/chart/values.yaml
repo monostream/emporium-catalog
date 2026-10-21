@@ -42,7 +42,6 @@ ingress:
   tlsHosts: []
   # Editing sessions are long-lived websockets; the proxy must not cut them.
   timeoutSeconds: 3600
-  maxBodySize: 100m
 
 resources:
   requests:
