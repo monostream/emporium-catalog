@@ -19,6 +19,61 @@ nextcloud:
     strategy:
       type: Recreate
     extraEnv: []
+    # Login with Emporium. The image runs this as www-data after the install/upgrade step on
+    # every start, so it also repairs the setup after an upgrade. It installs the user_oidc app
+    # from the Nextcloud app store (not bundled in the image) once, enables it, and creates or
+    # updates the provider "Emporium" from EMPORIUM_OIDC_* (values.emporium.yaml). It never
+    # fails the start: without the variables or the app store Nextcloud keeps the local login.
+    # User ids are the Logto user id (`sub`, unique-uid=0): stable, and never equal to a local
+    # account name, so an Emporium login cannot take over an existing local account. The local
+    # login form stays available (break-glass admin). Admins are granted in Nextcloud.
+    hooks:
+      before-starting: |
+        #!/bin/sh
+        log() { echo "Emporium SSO: $*"; }
+        occ() { php /var/www/html/occ "$@"; }
+        if [ -z "${EMPORIUM_OIDC_CLIENT_ID:-}" ] || [ -z "${EMPORIUM_OIDC_DISCOVERY_URI:-}" ] || [ -z "${EMPORIUM_OIDC_CLIENT_SECRET:-}" ]; then
+          log "not configured (EMPORIUM_OIDC_* empty), skipped"
+          exit 0
+        fi
+        status=$(occ status --output=json 2>/dev/null)
+        case "$status" in
+          *'"installed":true'*'"maintenance":false'*) ;;
+          *) log "Nextcloud is not installed or in maintenance mode, skipped"; exit 0 ;;
+        esac
+        if ! occ app:getpath user_oidc >/dev/null 2>&1; then
+          log "installing user_oidc from the Nextcloud app store"
+          if ! occ app:install user_oidc; then
+            log "WARNING: user_oidc could not be installed (app store unreachable?); only the local login is available"
+            exit 0
+          fi
+        fi
+        if ! occ app:enable user_oidc >/dev/null 2>&1; then
+          # A Nextcloud upgrade disables an incompatible app: fetch a compatible release first.
+          occ app:update user_oidc >/dev/null 2>&1
+          if ! occ app:enable user_oidc; then
+            log "WARNING: user_oidc could not be enabled; only the local login is available"
+            exit 0
+          fi
+        fi
+        # Logto has no post-logout redirect for this client: log out of Nextcloud only.
+        occ config:system:set user_oidc single_logout --type=boolean --value=false >/dev/null 2>&1
+        if out=$(occ user_oidc:provider Emporium \
+            --clientid="$EMPORIUM_OIDC_CLIENT_ID" \
+            --clientsecret-env=EMPORIUM_OIDC_CLIENT_SECRET \
+            --discoveryuri="$EMPORIUM_OIDC_DISCOVERY_URI" \
+            --scope="openid email profile" \
+            --unique-uid=0 \
+            --mapping-uid=sub \
+            --resolve-nested-claims=1 \
+            --mapping-display-name="name | username" \
+            --mapping-email=email \
+            --group-provisioning=0 2>&1); then
+          log "provider Emporium configured (user_oidc $(occ config:app:get user_oidc installed_version 2>/dev/null))"
+        else
+          log "WARNING: provider Emporium could not be configured: $(printf '%s' "$out" | tail -n 3)"
+        fi
+        exit 0
 
   ingress:
     enabled: false

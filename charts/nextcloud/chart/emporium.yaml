@@ -22,6 +22,9 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
+    # user_oidc callback. Nextcloud links it without index.php when its front controller
+    # (pretty URLs) is active, with index.php otherwise; both are registered.
+    redirectPaths: [/apps/user_oidc/code, /index.php/apps/user_oidc/code]
     # Desktop/mobile sync clients (WebDAV, OCS, login flow v2), public shares and the
     # CalDAV/CardDAV discovery authenticate in Nextcloud itself; the web UI stays behind the login.
     skipPaths:
@@ -36,6 +39,10 @@ integrations:
       - /.well-known/*
     bind:
       IngressClassName: nextcloud.ingress.className
+  # Login with Emporium through the user_oidc app (provider "Emporium"); set up by the
+  # before-starting hook in values.yaml on every start.
+  sso:
+    type: oidc
   mail:
     type: smtp
     required: false

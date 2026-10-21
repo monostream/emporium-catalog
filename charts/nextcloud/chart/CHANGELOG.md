@@ -1,3 +1,13 @@
+# 0.3.0
+
+Published on 21 October 2026
+
+- Login with Emporium: the `sso` OIDC integration and the official `user_oidc` app. A before-starting hook installs the app from the Nextcloud app store (it is not in the image) and creates or updates the provider "Emporium" on every start; the login page gets a "Login with Emporium" button. The client secret is read by reference and handed to `occ` through the environment (`--clientsecret-env`), never as an argument. Without the app store or the OIDC settings the hook logs a warning and Nextcloud starts with the local login only.
+- Callback `/apps/user_oidc/code` (also registered with `/index.php`). Logout ends the Nextcloud session only (`single_logout` off: no post-logout redirect is registered at Logto).
+- Accounts: an Emporium login creates a Nextcloud account whose user id is the Logto user id (`sub`, no hashing), with the display name from `name` (fallback `username`) and the email. It never matches an existing local account by name, so existing local users get a new, empty account on their first Emporium login; move files with `occ files:transfer-ownership <old-user> <new-user-id>` if wanted.
+- The local login stays available (the admin from "Admin username" is the break-glass account). Admins are granted in Nextcloud (Users > group `admin`): `user_oidc` can only create groups named like the Logto roles (`emporium-admin`), not map them to Nextcloud's `admin` group, so group provisioning is off.
+- Nextcloud stays on 35.0.2 (nextcloud chart 9.4.1), the latest upstream release.
+
 # 0.2.0
 
 Published on 20 October 2026
