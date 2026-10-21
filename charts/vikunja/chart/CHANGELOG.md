@@ -7,5 +7,5 @@
 - API, CalDAV and link shares skip the Emporium login so apps and shared links work.
 - Known limit: Vikunja needs an email address in the sign-in; Emporium users without an email cannot use single sign-on.
 
-- The administrator Job is idempotent: an existing account (retained data) is success and is not changed; other errors fail and retry.
+- The administrator Job is idempotent: it succeeds only when the existing account has the configured username and email (retained data; not changed); any other collision or error fails and retries.
 - Tested on Emporium 0.5.0-rc.12: install, SSO login, administrator login, hook re-run on existing data, uninstall without leftovers.
