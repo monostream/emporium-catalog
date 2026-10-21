@@ -1,3 +1,9 @@
+# 0.3.1
+
+Published on 21 October 2026
+
+- Category: Security (was Utilities).
+
 # 0.3.0
 - Single sign-on through Emporium (OpenID Connect, `sso` integration): the login page offers "Enterprise single sign-on". Password login stays available (`SSO_ONLY` off) and the master password is still required after an SSO login.
 - `SSO_SIGNUPS_MATCH_EMAIL` is on: the first SSO login of an existing account with the same email links to it (only with a verified email at the provider).

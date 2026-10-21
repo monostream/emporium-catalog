@@ -19,6 +19,23 @@ charts/<name>/
 ```
 
 - `Chart.yaml` annotations: `displayName`, `category`, `licenses`, `icon`, `gallery`, and `emporiumVersion` (semver, must be `>= 0.5.0`; the catalog currently writes `v0.5.0`). `emporiumVersion` lives only in this `Chart.yaml` annotation; it is not a field of `emporium.yaml`.
+- `category` is exactly one of these values (the panel maps it to an icon, case-insensitive; anything else gets a generic tag icon):
+  - `AI`: language models, chat front-ends, AI workflow builders and LLM tooling.
+  - `Analytics`: web analytics, surveys and forms that collect data for evaluation.
+  - `Bitcoin`: Bitcoin nodes, Lightning and other Bitcoin-network services.
+  - `Communication`: chat, video calls and email servers.
+  - `Content`: CMS, blogs, wikis, knowledge bases and documentation sites.
+  - `Design`: diagrams, whiteboards and UI/graphic design tools.
+  - `Developer Tools`: Git forges, CI runners, IDEs and backend platforms for developers.
+  - `Finance`: budgeting, accounting and portfolio tracking.
+  - `Home`: household, recipes, groceries and home automation.
+  - `Media`: video, music, photos, books and the tools that fetch them.
+  - `Monitoring`: metrics, logs, traces, uptime and status pages.
+  - `Productivity`: documents, office suites, project management, e-signatures and workflow automation.
+  - `Reading`: RSS readers, read-it-later and bookmark managers.
+  - `Security`: password managers, VPN/mesh networking and security scanning.
+  - `Storage`: file sync, sharing and backup.
+  - `Utilities`: small single-purpose tools (converters, pastebins, text helpers).
 - Every chart ships a parseable `emporium.yaml`. Without it, or with `emporiumVersion` missing or below 0.5.0, the version is indexed invalid and cannot be installed.
 - Gone in 0.5, do not use: the `## @userSupplied` comment DSL, `.Emporium.UserSupplied`, `.Emporium.Integrations.{DNS,OIDC,SMTP,Storage,Postgres}` aliases, the `emporium.build/postgres` annotation, the `oidcRedirectPaths` annotation (now `redirectPaths` on the `ingress` integration), `kubernetes.io/tls-acme` literals.
 

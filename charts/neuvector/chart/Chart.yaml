@@ -1,7 +1,7 @@
 apiVersion: v2
 name: neuvector
 description: OpenSource Container Security Platform
-version: 0.1.0
+version: 0.1.1
 appVersion: 5.6.2
 dependencies:
   - name: core
@@ -23,7 +23,7 @@ keywords:
 annotations:
   icon: assets/icon.svg
   displayName: NeuVector
-  category: Monitoring
+  category: Security
   licenses: Apache-2.0
   gallery: |-
     https://raw.githubusercontent.com/monostream/emporium-catalog/main/assets/neuvector/neuvector_gallery_1.png

@@ -1,3 +1,9 @@
+# 0.2.2
+
+Published on 21 October 2026
+
+- Category: Content (was CMS).
+
 # 0.2.1
 - Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.5, 2026-10-20).
 
