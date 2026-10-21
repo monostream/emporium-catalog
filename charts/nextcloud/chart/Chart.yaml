@@ -18,3 +18,4 @@ annotations:
   gallery: |
     https://raw.githubusercontent.com/nextcloud/screenshots/master/nextcloud-hub-files-25-preview.png
   emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"
