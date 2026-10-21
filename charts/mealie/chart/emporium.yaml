@@ -3,7 +3,7 @@ apiVersion: emporium.build/v1
 sections:
   - { id: general, label: General }
   - { id: sso, label: Single sign-on }
-  - { id: admin, label: Local administrator, description: "Mealie creates an administrator at the first start with a public default password. Emporium replaces it right away with the values below. Use this account when single sign-on is unavailable." }
+  - { id: admin, label: Local administrator, description: "Mealie creates an administrator at the first start with a public default password. Emporium replaces it before Mealie starts with the values below. Use this account when single sign-on is unavailable." }
 
 inputs:
   AllowSignup:

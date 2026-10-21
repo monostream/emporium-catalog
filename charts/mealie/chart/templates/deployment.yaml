@@ -24,6 +24,46 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.admin.existingSecret }}
+      # Replaces Mealie's public default administrator password before Mealie serves.
+      initContainers:
+        - name: bootstrap
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: /app
+          command: ["/opt/mealie/bin/python", "/bootstrap/bootstrap.py"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret }}
+                  key: {{ .Values.admin.passwordKey }}
+            {{- with .Values.database.existingSecret }}
+            - name: DB_ENGINE
+              value: postgres
+            - name: POSTGRES_URL_OVERRIDE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+      {{- end }}
       containers:
         - name: mealie
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
@@ -109,15 +149,8 @@ spec:
           livenessProbe:
             httpGet: { path: /api/app/about, port: http }
             periodSeconds: 20
-          # Not ready (no traffic through the Service/Ingress) until the bootstrap sidecar has
-          # replaced Mealie's default administrator.
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - {{ if .Values.admin.existingSecret }}test -f /status/ready && {{ end }}curl -fs http://127.0.0.1:{{ .Values.service.port }}/api/app/about > /dev/null
-            periodSeconds: 5
+            httpGet: { path: /api/app/about, port: http }
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -125,44 +158,11 @@ spec:
               mountPath: /app/data
             - name: tmp
               mountPath: /tmp
-            - name: status
-              mountPath: /status
-              readOnly: true
-        {{- if .Values.admin.existingSecret }}
-        - name: bootstrap
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/opt/mealie/bin/python", "/bootstrap/bootstrap.py"]
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          env:
-            - name: PORT
-              value: {{ .Values.service.port | quote }}
-            - name: ADMIN_USERNAME
-              value: {{ .Values.admin.username | quote }}
-            - name: ADMIN_EMAIL
-              value: {{ .Values.admin.email | quote }}
-            - name: ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.admin.existingSecret }}
-                  key: {{ .Values.admin.passwordKey }}
-          resources:
-            {{- toYaml .Values.bootstrapResources | nindent 12 }}
-          volumeMounts:
-            - name: bootstrap
-              mountPath: /bootstrap
-              readOnly: true
-            - name: status
-              mountPath: /status
-        {{- end }}
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
         - name: tmp
-          emptyDir: {}
-        - name: status
           emptyDir: {}
         {{- if .Values.admin.existingSecret }}
         - name: bootstrap
