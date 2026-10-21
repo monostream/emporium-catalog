@@ -7,6 +7,14 @@ inputs:
     type: boolean
     default: true
     path: oidc.autoCreate
+  TokenDays:
+    label: Session lifetime (days)
+    description: How long an Actual session token stays valid. Tokens of API clients skip the Emporium login, so this also bounds their access after an Emporium account is disabled; disable the Actual account for immediate revocation.
+    type: integer
+    default: 30
+    min: 1
+    max: 365
+    path: config.tokenDays
   UploadLimit:
     label: Largest budget file (MB)
     description: Upper limit for a synced budget file.
@@ -19,10 +27,13 @@ inputs:
 integrations:
   web:
     type: ingress
-    access: { default: authenticated }
-    # Bank-sync and API clients (for example the Actual API and importers) call the
-    # sync server with their own session token.
-    skipPaths: [/sync/*, /account/*]
+    # Admins only until the owner has signed in: Actual makes the FIRST identity that
+    # signs in the owner and administrator. Switch the access to "authenticated" in the
+    # app's settings afterwards so the other Emporium users can sign in.
+    access: { default: admins }
+    # Sync clients (for example the Actual API) call the sync server with their own
+    # Actual session token. Bootstrap, login and admin endpoints stay behind the login.
+    skipPaths: [/sync/*, /account/validate]
     # Actual's own OpenID Connect login.
     redirectPaths: [/openid/callback]
     bind:

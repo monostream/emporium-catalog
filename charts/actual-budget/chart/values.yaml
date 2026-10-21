@@ -24,6 +24,8 @@ config:
   baseUrl: ""
   # Largest budget file the sync server accepts (MB).
   uploadLimitMB: 50
+  # Lifetime of session tokens in days (ACTUAL_TOKEN_EXPIRATION).
+  tokenDays: 30
 
 # OpenID Connect login ("Sign in with OpenID"). The first account that signs in
 # becomes the owner and administrator.
