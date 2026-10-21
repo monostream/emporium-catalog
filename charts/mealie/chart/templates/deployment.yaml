@@ -155,8 +155,6 @@ spec:
               readOnly: true
             - name: status
               mountPath: /status
-            - name: data
-              mountPath: /data
         {{- end }}
       volumes:
         - name: data

@@ -7,17 +7,20 @@ metadata:
     {{- include "chart.labels" . | nindent 4 }}
 data:
   bootstrap.py: |
-    """Replace Mealie's built-in administrator (changeme@example.com / MyPassword).
+    """Keep Mealie's built-in administrator (changeme@example.com / MyPassword) unusable.
 
     Mealie creates that account at the first start, with a public password and no setting to
-    change it. The pod stays NotReady (the main container's readiness probe waits for
-    /status/ready) until this script is done:
-      - the default account is gone or its password is no longer the default: nothing to do;
-      - the default password still works: set ADMIN_PASSWORD, then move the account to ADMIN_EMAIL
-        with the username ADMIN_USERNAME.
-    The default login is tried at most once per volume (marker file), so an administrator who
-    already customised the account is never locked out. Any other failure exits non-zero and the
-    pod stays NotReady.
+    change it. The pod is NotReady (the main container's readiness probe waits for /status/ready)
+    until this script has checked the CURRENT database:
+      - no account with the default email: nothing to do, ready;
+      - the default password still works: set ADMIN_PASSWORD, log in again with it (the old token
+        is invalid after a password change), move the account to ADMIN_EMAIL / ADMIN_USERNAME, ready;
+      - the default password does not work: the account was customised, left untouched, ready.
+    There is no state on disk. /status/ready is removed at start and whenever the API stops
+    answering, and the check runs again, so a reset or restored database is handled too. The
+    default login is only attempted while the account is unprovisioned and at most once per
+    process in the customised case, so an administrator is never locked out by retries. Any
+    other failure leaves the pod NotReady and is retried.
     """
     import json
     import os
@@ -33,7 +36,6 @@ data:
     NEW_PASSWORD = os.environ["ADMIN_PASSWORD"]
     NEW_EMAIL = os.environ["ADMIN_EMAIL"]
     NEW_USERNAME = os.environ["ADMIN_USERNAME"]
-    MARKER = "/data/.emporium-admin-bootstrap"
     READY = "/status/ready"
 
 
@@ -54,60 +56,79 @@ data:
             return json.loads(raw) if raw else {}
 
 
-    def wait_ready():
-        while True:
+    def set_ready(ready):
+        if ready:
+            with open(READY, "w") as f:
+                f.write("ready\n")
+        elif os.path.exists(READY):
+            os.remove(READY)
+
+
+    def login(password):
+        return call("POST", "/api/auth/token", form={"username": DEFAULT_EMAIL, "password": password})["access_token"]
+
+
+    STATE = {"have_new": False}  # our password is set on the account
+
+
+    def provision():
+        """Returns "done" or "customised"."""
+        token = None
+        if not STATE["have_new"]:
             try:
-                return call("GET", "/api/app/about/startup-info")
-            except Exception:
-                time.sleep(5)
-
-
-    def finish(message):
-        with open(MARKER, "w") as f:
-            f.write(message + "\n")
-        with open(READY, "w") as f:
-            f.write("ready\n")
-        print(message, flush=True)
+                token = login(DEFAULT_PASSWORD)
+            except urllib.error.HTTPError as exc:
+                if exc.code not in (401, 423):
+                    raise
+        if token is not None:
+            call("PUT", "/api/users/password", body={"currentPassword": DEFAULT_PASSWORD, "newPassword": NEW_PASSWORD}, token=token)
+            STATE["have_new"] = True
+        # Tokens issued before a password change are invalid: always log in again with our password.
+        try:
+            token = login(NEW_PASSWORD)
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 423) and not STATE["have_new"]:
+                return "customised"
+            raise
+        me = call("GET", "/api/users/self", token=token)
+        me["email"] = NEW_EMAIL
+        me["username"] = NEW_USERNAME
+        me["fullName"] = "Administrator"
+        call("PUT", "/api/users/" + me["id"], body=me, token=token)
+        return "done"
 
 
     def run():
         if len(NEW_PASSWORD) < 8:
             raise SystemExit("administrator password must have at least 8 characters (Mealie minimum); refusing to serve with the default login active")
-        info = wait_ready()
-        if os.path.exists(MARKER):
-            open(READY, "w").write("ready\n")
-            print("administrator already handled", flush=True)
-            return
-        if not info.get("isFirstLogin"):
-            finish("default administrator account no longer exists, nothing to replace")
-            return
-        try:
-            token = call("POST", "/api/auth/token", form={"username": DEFAULT_EMAIL, "password": DEFAULT_PASSWORD})["access_token"]
-        except urllib.error.HTTPError as exc:
-            if exc.code in (401, 423):
-                finish("default administrator has a custom password, left untouched")
-                return
-            raise
-        # The password change must succeed; otherwise the pod stays NotReady.
-        call("PUT", "/api/users/password", body={"currentPassword": DEFAULT_PASSWORD, "newPassword": NEW_PASSWORD}, token=token)
-        try:
-            me = call("GET", "/api/users/self", token=token)
-            me["email"] = NEW_EMAIL
-            me["username"] = NEW_USERNAME
-            me["fullName"] = "Administrator"
-            call("PUT", "/api/users/" + me["id"], body=me, token=token)
-        except Exception as exc:
-            print("password replaced, profile update failed: %s" % type(exc).__name__, file=sys.stderr, flush=True)
-        finish("default administrator replaced")
+        set_ready(False)
+        customised = False
+        while True:
+            try:
+                info = call("GET", "/api/app/about/startup-info")
+            except Exception:
+                set_ready(False)
+                time.sleep(5)
+                continue
+            if not info.get("isFirstLogin"):
+                customised = False
+                STATE["have_new"] = False
+                set_ready(True)
+            elif customised:
+                set_ready(True)
+            else:
+                set_ready(False)
+                try:
+                    result = provision()
+                    print("default administrator %s" % ("replaced" if result == "done" else "has a custom password, left untouched"), flush=True)
+                    if result == "customised":
+                        customised = True
+                except Exception as exc:  # never print the response: it may hold tokens
+                    print("bootstrap step failed: %s" % type(exc).__name__, file=sys.stderr, flush=True)
+                    time.sleep(10)
+                continue
+            time.sleep(10)
 
 
-    try:
-        run()
-    except SystemExit:
-        raise
-    except Exception as exc:  # never print the response: it may hold tokens
-        print("bootstrap failed: %s" % type(exc).__name__, file=sys.stderr, flush=True)
-        sys.exit(1)
-    while True:
-        time.sleep(3600)
+    run()
 {{- end }}

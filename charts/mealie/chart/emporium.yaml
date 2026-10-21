@@ -14,7 +14,7 @@ inputs:
     path: config.allowSignup
   SsoUserCreation:
     label: Create accounts at the first single sign-on
-    description: Every Emporium user who signs in with "Sign in with Emporium" gets a Mealie account. Off means an administrator creates accounts first (matched by email).
+    description: Every Emporium user who signs in with "Sign in with Emporium" gets a Mealie account. Off means an administrator creates accounts first; the Mealie username must equal the Emporium username.
     type: boolean
     default: true
     section: sso
