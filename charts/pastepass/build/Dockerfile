@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine3.19 AS builder
+FROM golang:1.27.3-alpine3.24 AS builder
 
 RUN apk add git
 
@@ -10,7 +10,7 @@ RUN go mod download
 RUN CGO_ENABLED=0 go build -o /out/pastepass main.go
 
 
-FROM alpine:3.19
+FROM alpine:3.24
 
 ENV USER=pastepass
 ENV UID=1000
