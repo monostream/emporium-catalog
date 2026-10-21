@@ -1,0 +1,8 @@
+Formbricks is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start migrates four datastores and can take a few minutes.
+
+Sign in with your Emporium account first (the instance is protected by the Emporium login).
+The first person to open {{ with .Values.ingress.host }}https://{{ . }}{{ end }}/auth/signup creates the Formbricks account that owns the organisation;
+sign-up closes afterwards, other people join by invitation.
+
+Survey links (/s/...) and the SDK and client API paths are public so respondents can answer without an account.
+Formbricks single sign-on is part of the Enterprise Edition and is not enabled.
