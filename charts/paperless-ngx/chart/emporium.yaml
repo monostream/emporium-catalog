@@ -1,0 +1,120 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: ocr, label: Documents and OCR }
+  - { id: admin, label: Local administrator, description: "Paperless-ngx creates this superuser at the first start. Use it when single sign-on is unavailable." }
+
+inputs:
+  TimeZone:
+    label: Time zone
+    description: IANA time zone used for dates and the scheduler, for example Europe/Zurich.
+    type: string
+    default: UTC
+    section: ocr
+    path: config.timeZone
+  OcrLanguage:
+    label: OCR languages
+    description: Tesseract languages joined with "+". The image includes eng, deu, fra, ita and spa, for example deu+eng.
+    type: string
+    default: eng
+    section: ocr
+    path: config.ocrLanguage
+  TikaEndpoint:
+    label: Apache Tika endpoint (optional)
+    description: URL of a Tika server, for example http://tika:9998. Together with Gotenberg it lets Paperless-ngx import Office documents and e-mails. Both endpoints are needed; leave empty to turn it off.
+    type: string
+    section: ocr
+    path: config.tikaEndpoint
+  GotenbergEndpoint:
+    label: Gotenberg endpoint (optional)
+    description: URL of a Gotenberg server, for example http://gotenberg:3000.
+    type: string
+    section: ocr
+    path: config.gotenbergEndpoint
+  SsoUserCreation:
+    label: Create accounts at the first single sign-on
+    description: Every Emporium user who signs in with "Emporium" gets a Paperless-ngx account. Off means an administrator creates accounts first.
+    type: boolean
+    default: true
+    path: oidc.userCreation
+  AdminUsername:
+    label: Administrator username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    pattern: '^[^\s]{3,64}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Paperless-ngx.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  SecretKey:
+    label: Django secret key
+    description: Signs sessions and tokens. Generated once; changing it signs everyone out.
+    type: secret
+    generate: { length: 64, charset: alnum }
+    section: admin
+    ref: { namePath: secretKey.existingSecret, keyPath: secretKey.key }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The REST API (mobile apps, scripts, paperless-ai and others) authenticates with its own token.
+    skipPaths: [/api/*]
+    # allauth OpenID Connect callback of the provider id "emporium".
+    redirectPaths: [/accounts/oidc/emporium/login/callback/]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  mail:
+    type: smtp
+    required: false
+  data:
+    type: storage
+    size: { default: 20Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.claimName
+  db:
+    type: postgres
+    database: paperless
+    owner: paperless
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+  redis:
+    type: redis
+    # Celery broker, websocket status and cache; the task queue survives restarts.
+    mode: persistent
+    size: 1Gi
+    maxMemory: 128Mi
+
+components:
+  app:
+    label: Paperless-ngx
+    resources: resources
+    replicas: { fixed: 1, reason: "Web server, consumer and scheduler share one ReadWriteOnce volume" }
+  db:
+    label: PostgreSQL
+    integration: db
+  redis:
+    label: Redis (Valkey)
+    integration: redis
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small office, one document processed at a time
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

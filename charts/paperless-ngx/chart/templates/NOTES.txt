@@ -1,0 +1,17 @@
+Paperless-ngx is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start runs the database migrations and builds the search index, which can take a few minutes.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with the "{{ .Values.oidc.providerName }}" button on the login page. Your Paperless-ngx account is created at your
+first sign-in{{ if not .Values.oidc.userCreation }} only when an administrator created it first{{ end }}, and its username is your Emporium username.
+Emporium users with the role "{{ .Values.oidc.adminRole }}" become Paperless-ngx superusers at every sign-in.
+{{- end }}
+{{- if .Values.admin.existingSecret }}
+
+Local superuser: "{{ .Values.admin.username }}". The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+Mobile apps and scripts use an API token (profile menu > My Profile); /api/ bypasses the Emporium login.
+Documents dropped into the "consume" folder of the data volume are imported automatically.
