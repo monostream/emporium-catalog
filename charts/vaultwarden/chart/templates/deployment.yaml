@@ -43,6 +43,29 @@ spec:
             value: {{ .Values.app.domain | quote }}
           - name: SIGNUPS_ALLOWED
             value: {{ .Values.app.signupsAllowed | quote }}
+          {{- with .Values.app.sso }}
+          {{- if .enabled }}
+          - name: SSO_ENABLED
+            value: "true"
+          - name: SSO_AUTHORITY
+            value: {{ .authority | quote }}
+          - name: SSO_CLIENT_ID
+            value: {{ .clientId | quote }}
+          - name: SSO_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ .existingSecret | quote }}
+                key: {{ .secretKey | quote }}
+          - name: SSO_SCOPES
+            value: {{ .scopes | quote }}
+          - name: SSO_ONLY
+            value: {{ .only | quote }}
+          - name: SSO_SIGNUPS_ALLOWED
+            value: {{ $.Values.app.signupsAllowed | quote }}
+          - name: SSO_SIGNUPS_MATCH_EMAIL
+            value: {{ .signupsMatchEmail | quote }}
+          {{- end }}
+          {{- end }}
           {{- with .Values.database.existingSecret }}
           - name: DATABASE_URL
             valueFrom:
@@ -69,7 +92,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: {{ .existingSecret | quote }}
-                key: {{ required "app.smtp.passwordKey is required with app.smtp.existingSecret" .passwordKey | quote }}
+                key: {{ .passwordKey | quote }}
           {{- end }}
           {{- end }}
           {{- end }}
