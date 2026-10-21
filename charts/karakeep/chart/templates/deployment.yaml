@@ -1,0 +1,191 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # SQLite on a ReadWriteOnce volume: never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: karakeep
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            # The s6 init of the image keeps its state in /run and /etc and must own them: writable root.
+            {{- toYaml (omit .Values.securityContext "readOnlyRootFilesystem") | nindent 12 }}
+            readOnlyRootFilesystem: false
+          env:
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            - name: DATA_DIR
+              value: /data
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: DISABLE_NEW_RELEASE_CHECK
+              value: "true"
+            - name: DISABLE_SIGNUPS
+              value: {{ ternary "false" "true" .Values.config.allowSignup | quote }}
+            - name: DISABLE_PASSWORD_AUTH
+              value: {{ ternary "false" "true" .Values.config.passwordAuth | quote }}
+            {{- with .Values.config.baseUrl }}
+            - name: NEXTAUTH_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.app.existingSecret }}
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.app.sessionSecretKey }}
+            {{- if $.Values.search.enabled }}
+            - name: MEILI_ADDR
+              value: http://127.0.0.1:7700
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.app.searchKeyKey }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.chrome.enabled }}
+            - name: BROWSER_WEB_URL
+              value: http://127.0.0.1:9222
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .discoveryEndpoint }}
+            - name: OAUTH_WELLKNOWN_URL
+              value: {{ .discoveryEndpoint | quote }}
+            - name: OAUTH_PROVIDER_NAME
+              value: {{ .providerName | quote }}
+            - name: OAUTH_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING
+              value: {{ .linkByEmail | quote }}
+            {{- with .existingSecret }}
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # Database migrations run before the web server listens.
+          startupProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 30
+            failureThreshold: 5
+          readinessProbe:
+            httpGet: { path: /api/health, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+        {{- if .Values.chrome.enabled }}
+        - name: chrome
+          image: "{{ .Values.chrome.image.repository }}:{{ .Values.chrome.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --disable-gpu
+            - --disable-dev-shm-usage
+            - --hide-scrollbars
+            - --disable-blink-features=AutomationControlled
+            - --window-size=1440,900
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: devtools
+              containerPort: 9222
+          resources:
+            {{- toYaml .Values.chromeResources | nindent 12 }}
+          volumeMounts:
+            - name: chrome-tmp
+              mountPath: /tmp
+        {{- end }}
+        {{- if and .Values.search.enabled .Values.app.existingSecret }}
+        - name: meilisearch
+          image: "{{ .Values.search.image.repository }}:{{ .Values.search.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: MEILI_ENV
+              value: production
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+            - name: MEILI_HTTP_ADDR
+              value: 127.0.0.1:7700
+            - name: MEILI_DB_PATH
+              value: /data/meili/data.ms
+            - name: MEILI_DUMP_DIR
+              value: /data/meili/dumps
+            - name: MEILI_SNAPSHOT_DIR
+              value: /data/meili/snapshots
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.existingSecret }}
+                  key: {{ .Values.app.searchKeyKey }}
+          # Listens on localhost only (probes would use the pod IP); Karakeep retries until it answers.
+          resources:
+            {{- toYaml .Values.searchResources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data/meili
+              subPath: meili
+            - name: tmp
+              mountPath: /tmp
+        {{- end }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
+        - name: tmp
+          emptyDir: {}
+        - name: chrome-tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

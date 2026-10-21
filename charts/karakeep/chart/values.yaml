@@ -1,0 +1,106 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/karakeep-app/karakeep
+  tag: "0.34.0"
+  pullPolicy: IfNotPresent
+
+# Headless Chrome that renders pages for archiving and screenshots (same pod).
+chrome:
+  enabled: true
+  image:
+    repository: ghcr.io/karakeep-app/karakeep-chrome
+    tag: "154.0.8037.57-r1"
+
+# Meilisearch for full-text search (same pod, data on the app volume).
+search:
+  enabled: true
+  image:
+    repository: getmeili/meilisearch
+    tag: "v1.55.0"
+
+service:
+  port: 3000
+
+config:
+  # Public URL of the instance (NEXTAUTH_URL), e.g. https://bookmarks.example.com
+  baseUrl: ""
+  # Let new users create an account (password sign-up and first single sign-on; Karakeep has one switch for both).
+  # The first account ever created is the administrator.
+  allowSignup: true
+  # Email and password sign-up and sign-in (DISABLE_PASSWORD_AUTH=false). Off by default: single sign-on only.
+  passwordAuth: false
+  logLevel: info
+
+# Secret holding NEXTAUTH_SECRET and MEILI_MASTER_KEY.
+app:
+  existingSecret: ""
+  sessionSecretKey: NEXTAUTH_SECRET
+  searchKeyKey: MEILI_MASTER_KEY
+
+# OpenID Connect login ("Sign in with <providerName>").
+oidc:
+  enabled: false
+  # Full discovery URL (.../.well-known/openid-configuration).
+  discoveryEndpoint: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  providerName: Emporium
+  # Link an SSO login to a local account with the same email.
+  linkByEmail: false
+
+persistence:
+  # Claim filled by the `data` storage integration; created by the chart when empty.
+  existingClaim: ""
+  size: 10Gi
+
+# Additional environment variables for the web container (see https://docs.karakeep.app/configuration).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 1Gi
+chromeResources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+searchResources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

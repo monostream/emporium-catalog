@@ -1,0 +1,21 @@
+Karakeep is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with "Sign in with {{ .Values.oidc.providerName }}" on the login page.
+{{- if .Values.config.allowSignup }} Your Karakeep account is created at your first sign-in.{{ end }}
+The FIRST account that is ever created becomes the administrator of this instance; sign in
+once yourself before you share the address. Other users stay regular users until an
+administrator promotes them (Admin settings > Users).
+Accounts need an email address: an Emporium user without an email cannot sign in by SSO.
+{{- end }}
+{{- if .Values.config.passwordAuth }}
+
+Email and password sign-up and sign-in are enabled (still behind the Emporium login). Any Emporium
+user can register any email address; keep email linking off.
+{{- else }}
+
+Single sign-on only: email and password sign-up and sign-in are disabled.
+{{- end }}
+
+Browser extensions and mobile apps sign in with an API key (Settings > API Keys); /api/v1 and /api/trpc bypass the Emporium login, /api/auth does not.
