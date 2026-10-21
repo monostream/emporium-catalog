@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: searxng
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: GRANIAN_HOST
+              value: "0.0.0.0"
+            - name: GRANIAN_PORT
+              value: {{ .Values.service.port | quote }}
+            {{- with .Values.config.baseUrl }}
+            - name: SEARXNG_BASE_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.secret.existingSecret }}
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secret.key }}
+            {{- end }}
+            {{- if .Values.valkey.enabled }}
+            - name: SEARXNG_LIMITER
+              value: "true"
+            - name: SEARXNG_VALKEY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.valkey.existingSecret }}
+                  key: {{ .Values.valkey.urlKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          startupProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 3
+            failureThreshold: 40
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            timeoutSeconds: 5
+          volumeMounts:
+            - { name: config, mountPath: /etc/searxng/settings.yml, subPath: settings.yml, readOnly: true }
+            {{- if .Values.valkey.enabled }}
+            - { name: config, mountPath: /etc/searxng/limiter.toml, subPath: limiter.toml, readOnly: true }
+            {{- end }}
+            - { name: cache, mountPath: /var/cache/searxng }
+            - { name: cache, mountPath: /tmp, subPath: tmp }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chart.fullname" . }}
+        - name: cache
+          emptyDir:
+            sizeLimit: 512Mi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

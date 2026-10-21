@@ -1,0 +1,57 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  InstanceName:
+    label: Instance name
+    description: Shown in the page title and on the preferences page.
+    type: string
+    default: SearXNG
+    path: config.instanceName
+  SafeSearch:
+    label: Default safe search
+    description: Filter level applied to searches unless a user picks another in the preferences (0 off, 1 moderate, 2 strict).
+    type: enum
+    options: ["0", "1", "2"]
+    default: "0"
+    path: config.safeSearch
+  JsonApi:
+    label: Enable the JSON API
+    description: Also answers /search?format=json, for scripts and other apps such as Open WebUI web search. Callers inside the cluster can use it directly through the service; through the public address it stays behind the Emporium login.
+    type: boolean
+    default: false
+    path: config.jsonApi
+  SecretKey:
+    label: Secret key
+    description: Signs SearXNG's tokens and image-proxy links. Generated once; changing it only invalidates links already handed out.
+    type: secret
+    generate: { length: 48, charset: alnum }
+    ref: { namePath: secret.existingSecret, keyPath: secret.key }
+
+integrations:
+  web:
+    type: ingress
+    # SearXNG has no accounts of its own, so the Emporium login is the only gate.
+    access: { default: authenticated }
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  cache:
+    type: redis
+    required: false
+    # Only the rate limiter and bot detection use it; losing it loses nothing.
+    mode: cache
+
+components:
+  app:
+    label: SearXNG
+    resources: resources
+    replicas: { fixed: 1, reason: "Single pod is plenty for a household or team; engine statistics are kept per pod" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team
+    values: profiles/small.yaml
