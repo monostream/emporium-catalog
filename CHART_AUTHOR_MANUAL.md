@@ -454,7 +454,7 @@ The path from "this app would be useful" to a pull request, for humans and agent
 
 - **Icon**: the official logo as SVG from the upstream repository or brand page, in `assets/icon.svg`, referenced as `annotations.icon: assets/icon.svg`. Check the project's licence and trademark note (logos may be used to refer to the project; do not alter them). Without an official logo, use a simple generated flat square icon (`assets/icon.svg`, or a 512 px `assets/icon.png`) and write "Icon generated (not the official logo)." in the README. The indexer accepts PNG, JPEG, GIF, WebP and SVG up to 1 MB.
 - **Gallery**: `gallery: |` with one entry per line. An entry is either an `https://` URL or a path inside the package (`assets/screenshot-1.webp`), which the indexer loads from the package and the panel serves (up to 10 package images, 5 MB each). Use 2-3 screenshots of your own running install: 1440x900, WebP, about 100-150 KB each, realistic demo content, no secrets, tokens, email addresses or internal hostnames.
-- **Size**: Helm stores the whole package in the release Secret, which Kubernetes limits to 1 MB, so an install of a larger package fails. Keep the `.tgz` under 900 KB; leave raw PNGs, sources and test files out (`.helmignore`).
+- **Size**: Helm stores every install as a release Secret, which Kubernetes limits to 1 MiB. The release is JSON with every chart file base64-encoded plus the rendered manifests, gzipped and base64-encoded again, so it is larger than the `.tgz` (already-compressed images do not shrink). Keep the package at 600 KB or less, and check the estimated release payload (gzip + base64 of the chart files and the `helm template` output) stays at 900 KiB or less. Leave raw PNGs, sources and test files out (`.helmignore`).
 
 ### 15.2 Tested marker
 
@@ -474,7 +474,7 @@ Wiring (section 3.2, `oidc` outputs):
 
 What Logto sends:
 
-- **Signing algorithm**: ID tokens are signed with **ES384** only. Apps that default to RS256 fail with "unexpected JWT alg". Libraries that take the algorithms from discovery work; otherwise set ES384 explicitly.
+- **Signing algorithm**: Logto signs ID tokens with **ES384** by default (an installation may use another key type, e.g. RSA). Apps must take the algorithm from the provider's discovery document or JWKS, or be configured to match the identity provider. Apps that assume RS256 fail with "unexpected JWT alg" on a default installation; where the app has an algorithm setting, expose it as a value defaulting to ES384 and document it.
 - **Username**: `preferred_username` / `username` is the Logto username; `name` is the display name.
 - **Email**: only Emporium admins set a user's email, and `email_verified` is true whenever an email is present. Many users have no email, so an app that requires an email for SSO accounts needs a note in the README. Linking an existing app account by email is acceptable because users cannot set their own email.
 - **Roles**: with the `roles` scope, the `roles` claim is an array of Logto role names (`emporium-admin`, `emporium-user`). `.AdminScope` is the API scope `admin`, not a role. To map admins, add a values key that defaults to `emporium-admin` (for example `emporiumAdminRole`) and feed it to the app's role or group mapping; treat a missing `roles` claim as a plain user. An app that only accepts a fixed role value (for example the literal `admin`) cannot map Emporium admins; document it.
