@@ -21,8 +21,8 @@ integrations:
     type: ingress
     access: { default: authenticated }
     # The API is called with Outline API keys, integrations and webhooks; shared
-    # documents (/s/<id>) are public links.
-    skipPaths: [/api/*, /s/*]
+    # documents (/s/<id>) are public links and load their app from /static, /fonts and /images.
+    skipPaths: [/api/*, /s/*, /static/*, /fonts/*, /images/*]
     # Outline's own OpenID Connect login.
     redirectPaths: [/auth/oidc.callback]
     bind:
@@ -33,6 +33,7 @@ integrations:
   sso:
     type: oidc
   db:
+    required: true
     type: postgres
     database: outline
     owner: outline
@@ -40,12 +41,14 @@ integrations:
     storage: { default: 5Gi, growOnly: true }
   # Job queues, cache and real-time editing sessions; queued jobs must survive a restart.
   cache:
+    required: true
     type: redis
     mode: persistent
     size: 1Gi
     maxMemory: 256Mi
   # Attachments and images (FILE_STORAGE=local).
   data:
+    required: true
     type: storage
     size: { default: 10Gi, growOnly: true }
   mail:

@@ -55,12 +55,12 @@ persistence:
   claimName: ""
 
 # Outgoing email (invitations, notifications). Optional.
+# SMTP_SECURE (implicit TLS) is on for port 465 only; other ports use STARTTLS.
 smtp:
   host: ""
   port: 587
   username: ""
   from: ""
-  secure: true
   existingSecret: ""
   passwordKey: password
 

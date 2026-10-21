@@ -104,7 +104,7 @@ spec:
             - name: SMTP_PORT
               value: {{ .port | quote }}
             - name: SMTP_SECURE
-              value: {{ .secure | quote }}
+              value: {{ eq (int .port) 465 | quote }}
             {{- with .from }}
             - name: SMTP_FROM_EMAIL
               value: {{ . | quote }}
