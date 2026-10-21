@@ -16,6 +16,7 @@ Households, freelancers and small offices who want every invoice, contract and l
 
 ## Good to know
 
+- If account creation by single sign-on is turned off at install, Emporium users cannot sign in until their account is linked: an administrator creates the local account, its owner logs in locally and connects Emporium under My Profile > Connected social accounts. Creating the account alone does not enable SSO (Paperless-ngx links by provider identity, not by username or e-mail).
 - Sign in with the "Emporium" button. The Paperless-ngx username is the Emporium (Logto) username; no e-mail is needed. An Emporium user whose username matches an existing local account (for example `admin`) cannot sign in by SSO.
 - The local superuser (created at install, password in the app's Secret) works without SSO. Users with the Emporium role `emporium-admin` become superusers at every SSO sign-in; everyone else is a regular user without permissions until an administrator grants them (Settings > Users and groups).
 - The REST API (`/api/`) skips the Emporium login so mobile apps and scripts can use their API token.

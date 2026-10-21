@@ -3,7 +3,11 @@ Paperless-ngx is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ en
 {{- if .Values.oidc.enabled }}
 
 Sign in with the "{{ .Values.oidc.providerName }}" button on the login page. Your Paperless-ngx account is created at your
-first sign-in{{ if not .Values.oidc.userCreation }} only when an administrator created it first{{ end }}, and its username is your Emporium username.
+first sign-in, and its username is your Emporium username.
+{{- if not .Values.oidc.userCreation }}
+Account creation by single sign-on is off: only accounts already linked to an Emporium identity can sign in. Create the local account, let its owner
+log in locally and connect "{{ .Values.oidc.providerName }}" under My Profile > Connected social accounts; after that the SSO button works.
+{{- end }}
 Emporium users with the role "{{ .Values.oidc.adminRole }}" become Paperless-ngx superusers at every sign-in.
 {{- end }}
 {{- if .Values.admin.existingSecret }}

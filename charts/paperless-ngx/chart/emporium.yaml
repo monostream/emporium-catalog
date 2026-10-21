@@ -34,7 +34,7 @@ inputs:
     path: config.gotenbergEndpoint
   SsoUserCreation:
     label: Create accounts at the first single sign-on
-    description: Every Emporium user who signs in with "Emporium" gets a Paperless-ngx account. Off means an administrator creates accounts first.
+    description: 'On: every Emporium user who signs in with "Emporium" gets a Paperless-ngx account. Off: only accounts already linked to an Emporium identity can sign in; creating a local account is not enough, its owner must log in locally and connect Emporium under My Profile > Connected social accounts first.'
     type: boolean
     default: true
     path: oidc.userCreation

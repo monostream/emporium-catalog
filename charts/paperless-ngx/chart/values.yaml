@@ -67,7 +67,8 @@ oidc:
   providerName: Emporium
   # Name of the id token role that makes the user a Paperless superuser (roles claim).
   adminRole: emporium-admin
-  # Create the Paperless account at the first sign-in (PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS).
+  # Create the Paperless account at the first sign-in (PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS). When false only
+  # already linked social accounts can sign in (link from a local login: My Profile > Connected social accounts).
   userCreation: true
 
 smtp:
