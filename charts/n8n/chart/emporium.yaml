@@ -1,9 +1,32 @@
 apiVersion: emporium.build/v1
 
+inputs:
+  Sso:
+    label: Single sign-on with Emporium
+    description: >-
+      Sign in to n8n through the Emporium login (OIDC). n8n only offers OIDC SSO with an Enterprise
+      license, so also set the license key below. Off keeps the local n8n accounts and disables
+      SSO in n8n (SSO settings in the n8n UI are managed by this chart).
+      Recovery: if the license has expired while the login method is OIDC, re-add a valid key and then turn this off, or
+      set the setting `userManagement.authenticationMethod` back to `email` (see README).
+    type: boolean
+    default: false
+    matrix: true
+  LicenseKey:
+    label: Enterprise license key
+    description: >-
+      Optional n8n Enterprise activation key. Only needed for single sign-on with
+      Emporium (n8n gates OIDC behind a paid license). Leave empty for the Community edition.
+    type: secret
+    required: false
+    showIf: { input: Sso, equals: true }
+    ref: { namePath: n8n.main.licenseSecretName, key: N8N_LICENSE_ACTIVATION_KEY }
+
 integrations:
   web:
     type: ingress
     access: { default: authenticated }
+    redirectPaths: [/rest/sso/oidc/callback]
     # Webhook, form and MCP trigger endpoints are called by external systems; n8n authenticates
     # them per workflow (header/basic/JWT auth on the trigger node). The editor stays behind the login.
     skipPaths:
@@ -17,6 +40,10 @@ integrations:
       - /mcp-test/*
     bind:
       IngressClassName: n8n.ingress.className
+  # The oidc provider has no "enabled" choice: required: false does not make it optional, so a
+  # Logto client is always created. It stays unused unless the Sso input is on (needs a license).
+  sso:
+    type: oidc
   data:
     type: storage
     size: { default: 8Gi, growOnly: true }

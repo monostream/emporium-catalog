@@ -4,6 +4,21 @@ n8n:
       N8N_HOST: {{ .Emporium.Integrations.web.Hostname | quote }}
       N8N_EDITOR_BASE_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
       WEBHOOK_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+      {{- if input "Sso" | eq "true" }}{{ with .Emporium.Integrations.sso }}
+      # Needs an Enterprise license; without one n8n reads these but keeps local login.
+      N8N_SSO_MANAGED_BY_ENV: "true"
+      N8N_SSO_OIDC_LOGIN_ENABLED: "true"
+      N8N_SSO_OIDC_CLIENT_ID: {{ .ClientID | quote }}
+      N8N_SSO_OIDC_DISCOVERY_ENDPOINT: {{ .ConfigurationEndpoint | quote }}
+      {{- end }}
+      {{- else }}
+      # SSO off: n8n persists env-managed SSO settings in its database, so dropping the variables
+      # would leave a previously enabled OIDC login on. Managed-by-env with both logins disabled
+      # makes n8n write "disabled" on every start and switch back to email login.
+      N8N_SSO_MANAGED_BY_ENV: "true"
+      N8N_SSO_OIDC_LOGIN_ENABLED: "false"
+      N8N_SSO_SAML_LOGIN_ENABLED: "false"
+      {{- end }}
       {{- with .Emporium.Integrations.db }}
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: {{ .Host | quote }}
@@ -16,13 +31,29 @@ n8n:
       DB_POSTGRESDB_SSL_CA_FILE: /etc/n8n/postgres-ca/ca.crt
       DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "true"
       {{- end }}
-    {{- with .Emporium.Integrations.db }}
     extraEnv:
+      # Optional (key absent when the LicenseKey input is empty): Community edition then.
+      N8N_LICENSE_ACTIVATION_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Secrets.Name | quote }}
+            key: N8N_LICENSE_ACTIVATION_KEY
+            optional: true
+      {{- if input "Sso" | eq "true" }}{{ with .Emporium.Integrations.sso }}
+      N8N_SSO_OIDC_CLIENT_SECRET:
+        valueFrom:
+          secretKeyRef:
+            name: {{ .SecretName | quote }}
+            key: {{ .ClientSecretKey | quote }}
+      {{- end }}{{ end }}
+      {{- with .Emporium.Integrations.db }}
       DB_POSTGRESDB_PASSWORD:
         valueFrom:
           secretKeyRef:
             name: {{ .SecretName | quote }}
             key: {{ .PasswordKey | quote }}
+      {{- end }}
+    {{- with .Emporium.Integrations.db }}
     extraVolumes:
       - name: postgres-ca
         secret:
