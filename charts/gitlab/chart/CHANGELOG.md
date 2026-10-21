@@ -1,3 +1,10 @@
+# 0.4.2
+
+Published on 21 October 2026
+
+- A first OpenID Connect sign-in is linked to an existing GitLab account with the same email only when Logto reports `email_verified: true` (GitLab itself does not check it). Users already linked keep signing in as before.
+- Documented that `global.emporium.adminRole` is the Logto role name in the `roles` claim and cannot come from the oidc integration's `AdminScope` (the API scope `admin`).
+
 # 0.4.1
 
 Published on 20 October 2026
