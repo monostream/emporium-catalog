@@ -1,0 +1,61 @@
+{{- if and .Release.IsInstall .Values.secrets.existingSecret .Values.database.existingSecret }}
+# Creates the local (break-glass) administrator once, after the first install.
+# Vikunja has no environment variables for it; the CLI reads the password from the
+# container environment ($(...) is expanded by Kubernetes) so the Secret value never
+# appears in the manifest.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "chart.fullname" . }}-admin
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 12
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: admin-bootstrap
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: create-admin
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          args:
+            - user
+            - create
+            - --username={{ .Values.admin.username }}
+            - --email={{ .Values.admin.email }}
+            - --password=$(ADMIN_PASSWORD)
+          env:
+            {{- include "vikunja.env" . | nindent 12 }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.admin.passwordKey }}
+          volumeMounts:
+            - name: files
+              mountPath: /app/vikunja/files
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+      volumes:
+        # Only the migrations and the user record are written; no attachments.
+        - name: files
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+{{- end }}

@@ -1,0 +1,104 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: vikunja/vikunja
+  tag: "2.7.1"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 3456
+
+config:
+  # Public URL of the instance (VIKUNJA_SERVICE_PUBLICURL), e.g. https://vikunja.example.com/
+  publicUrl: ""
+  # Let anyone create a local account (VIKUNJA_SERVICE_ENABLEREGISTRATION).
+  enableRegistration: false
+  # Local username/password login. Keep it on as the break-glass way in.
+  localAuth: true
+  logLevel: INFO
+
+# Local administrator, created once after the first install (post-install hook,
+# `vikunja user create`) when secrets.existingSecret is set. Vikunja has no
+# instance-admin role in the free edition; this is an ordinary account.
+admin:
+  username: admin
+  email: admin@example.com
+  # Key of the administrator password in secrets.existingSecret.
+  passwordKey: ADMIN_PASSWORD
+
+secrets:
+  # Secret holding the administrator password and the token signing secret.
+  existingSecret: ""
+  jwtKey: JWT_SECRET
+
+# OpenID Connect login (button "Sign in with <providerName>").
+oidc:
+  enabled: false
+  # Issuer URL; Vikunja appends /.well-known/openid-configuration.
+  authUrl: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  providerName: Emporium
+  # Provider key; part of the callback path /auth/openid/<key>.
+  providerKey: emporium
+  # Link a first OIDC login to an existing local account with the same
+  # username or email. Off by default: a local "admin" must not be taken over.
+  usernameFallback: false
+  emailFallback: false
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  host: ""
+  port: 5432
+  name: vikunja
+  sslMode: require
+  # Secret holding the role name and password.
+  existingSecret: ""
+  userKey: username
+  passwordKey: password
+
+storage:
+  files:
+    # Existing PersistentVolumeClaim for attachments (filled by the `files` storage integration).
+    existingClaim: ""
+
+# Additional environment variables (see https://vikunja.io/docs/config-options).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

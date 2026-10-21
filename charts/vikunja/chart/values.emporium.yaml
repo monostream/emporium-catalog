@@ -1,0 +1,19 @@
+config:
+  publicUrl: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+secrets:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+oidc:
+  enabled: true
+  authUrl: {{ .Emporium.Integrations.sso.Issuer | quote }}
+  clientId: {{ .Emporium.Integrations.sso.ClientID | quote }}
+  existingSecret: {{ .Emporium.Integrations.sso.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+database:
+  host: {{ .Emporium.Integrations.db.Host | quote }}
+  port: {{ .Emporium.Integrations.db.Port }}
+  name: {{ .Emporium.Integrations.db.Database | quote }}
+  existingSecret: {{ .Emporium.Integrations.db.SecretName | quote }}
+  userKey: {{ .Emporium.Integrations.db.UsernameKey | quote }}
+  passwordKey: {{ .Emporium.Integrations.db.PasswordKey | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
