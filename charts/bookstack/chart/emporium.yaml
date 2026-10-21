@@ -18,7 +18,7 @@ inputs:
     path: admin.email
   AdminPassword:
     label: Administrator password
-    description: Leave empty to generate one (stored in the app's Secret), at least 8 characters if you set one. Used only when the account is created; change it later in BookStack.
+    description: Leave empty to generate one (stored in the app's Secret), at least 8 characters if you set one; "password" is refused. Used only when the account is created; change it later in BookStack.
     type: secret
     pattern: '^.{8,}$'
     generate: { length: 24, charset: alnum }

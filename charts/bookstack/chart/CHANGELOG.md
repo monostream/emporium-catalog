@@ -5,3 +5,4 @@
 - Behind the Emporium login (`access: authenticated`); only the REST API (`/api/*`, API tokens) skips it.
 - No single sign-on: BookStack accepts only RS256-signed ID tokens, Logto signs with ES384 (BookStack issues #5390, #5915).
 - BookStack's public default login `admin@admin.com` / `password` is replaced before the web server starts, by an init container, with the configured email and the generated password.
+- Fail closed: the bootstrap init container is always rendered and `admin.existingSecret` is required; bootstrap refuses to start the pod when the administrator password is missing, shorter than 8 characters or the public default `password`, or the email is invalid.

@@ -17,15 +17,13 @@ spec:
     metadata:
       labels:
         {{- include "chart.labels" . | nindent 8 }}
-      {{- if .Values.admin.existingSecret }}
       annotations:
         checksum/bootstrap: {{ include (print $.Template.BasePath "/bootstrap-configmap.yaml") . | sha256sum }}
-      {{- end }}
     spec:
       automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.admin.existingSecret }}
+      # Fails closed: the pod does not start unless the administrator secret exists and bootstrap succeeds.
       # Runs the database migrations (which seed admin@admin.com / password), then replaces that
       # account, before the web server starts: the public default login is never reachable.
       initContainers:
@@ -55,7 +53,7 @@ spec:
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.admin.existingSecret | quote }}
+                  name: {{ required "admin.existingSecret is required: it holds the administrator password that replaces BookStack's default login" .Values.admin.existingSecret | quote }}
                   key: {{ .Values.admin.passwordKey | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -64,7 +62,6 @@ spec:
               mountPath: /bootstrap
               readOnly: true
             {{- include "chart.uploadMounts" . | nindent 12 }}
-      {{- end }}
       containers:
         - name: bookstack
           image: {{ $image | quote }}
@@ -98,11 +95,9 @@ spec:
         - name: uploads
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (printf "%s-uploads" (include "chart.fullname" .)) }}
-        {{- if .Values.admin.existingSecret }}
         - name: bootstrap
           configMap:
             name: {{ include "chart.fullname" . }}-bootstrap
-        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
