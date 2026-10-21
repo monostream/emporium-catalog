@@ -1,3 +1,9 @@
+# 0.2.2
+
+Published on 21 October 2026
+
+- Image 0.1.2: rebuilt with Go 1.27.3 (crypto/x509 security fix) on Alpine 3.24. Ported from 0.1.6 (main).
+
 # 0.2.1
 
 Published on 20 October 2026
