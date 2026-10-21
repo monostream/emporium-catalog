@@ -5,10 +5,9 @@ metadata:
   name: {{ include "chart.fullname" . }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+  {{- /* Upload limit plus multipart overhead; annotations from Emporium win. */}}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- toYaml (merge (deepCopy .Values.ingress.annotations) (dict "nginx.ingress.kubernetes.io/proxy-body-size" (printf "%dm" (add (int .Values.config.uploadMaxSizeMb) 5)))) | nindent 4 }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . }}

@@ -5,5 +5,6 @@
 - Single sign-on through Emporium (`sso` OIDC integration, issuer discovery, "Continue with Emporium"); an email address is required. The first user to sign in becomes the workspace administrator.
 - `SECRET_KEY` and `UTILS_SECRET` are generated once into the per-app Secret.
 - The REST API and shared documents skip the Emporium login.
-- Public share pages: `/static/*`, `/fonts/*` and `/images/*` skip the Emporium login so shared documents can load.
+- Public share pages: `/static/*`, `/fonts/*`, `/images/*` and `/locales/*` skip the Emporium login so shared documents can load.
 - SMTP: implicit TLS only on port 465, STARTTLS otherwise; `db`, `cache` and `data` are explicitly required.
+- The Ingress sets `proxy-body-size` to the upload limit plus 5 MB so attachments are not rejected with 413.

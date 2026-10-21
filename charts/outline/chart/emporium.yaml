@@ -21,8 +21,8 @@ integrations:
     type: ingress
     access: { default: authenticated }
     # The API is called with Outline API keys, integrations and webhooks; shared
-    # documents (/s/<id>) are public links and load their app from /static, /fonts and /images.
-    skipPaths: [/api/*, /s/*, /static/*, /fonts/*, /images/*]
+    # documents (/s/<id>) are public links and load their app from /static, /fonts, /images and /locales.
+    skipPaths: [/api/*, /s/*, /static/*, /fonts/*, /images/*, /locales/*]
     # Outline's own OpenID Connect login.
     redirectPaths: [/auth/oidc.callback]
     bind:
