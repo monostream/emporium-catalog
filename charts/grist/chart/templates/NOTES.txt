@@ -1,0 +1,20 @@
+Grist is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with your Emporium account. Grist identifies people by email address: an
+account without an email address cannot sign in. Your personal site is created at
+the first sign-in.
+{{- end }}
+{{- with .Values.config.adminEmail }}
+
+Installation administrator: {{ . }} (Admin Panel under the account menu).
+{{- end }}
+{{- if .Values.secrets.existingSecret }}
+
+Break-glass: the boot key authenticates API calls as the administrator
+(header x-boot-key). It is in the Secret {{ .Values.secrets.existingSecret }}, key {{ .Values.secrets.bootKeyKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.secrets.existingSecret }} -o jsonpath='{.data.{{ .Values.secrets.bootKeyKey }}}' | base64 -d
+{{- end }}
+
+The REST API (/api, /o/<site>/api) bypasses the Emporium login and uses Grist API keys.

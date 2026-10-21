@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # One writer on the SQLite database and the document files.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: grist
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            # The entrypoint only sets HOME when it starts as root.
+            - name: HOME
+              value: /tmp
+            - name: GRIST_SANDBOX_FLAVOR
+              value: {{ .Values.config.sandboxFlavor | quote }}
+            # A fresh Grist install is out of service (administrators only, at /boot) until an
+            # operator completes the setup; Emporium installs it ready to use.
+            - name: GRIST_IN_SERVICE
+              value: "true"
+            - name: GRIST_FORCE_LOGIN
+              value: {{ .Values.config.forceLogin | quote }}
+            - name: GRIST_ANON_PLAYGROUND
+              value: "false"
+            # No telemetry and no phone-home version check.
+            - name: GRIST_TELEMETRY_LEVEL
+              value: "off"
+            - name: GRIST_ALLOW_AUTOMATIC_VERSION_CHECKING
+              value: "false"
+            {{- with .Values.config.baseUrl }}
+            - name: APP_HOME_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.config.adminEmail }}
+            - name: GRIST_ADMIN_EMAIL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.secrets.existingSecret }}
+            - name: GRIST_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.sessionSecretKey }}
+            - name: GRIST_BOOT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.bootKeyKey }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .issuer }}
+            - name: GRIST_OIDC_IDP_ISSUER
+              value: {{ .issuer | quote }}
+            - name: GRIST_OIDC_IDP_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: GRIST_OIDC_SP_HOST
+              value: {{ $.Values.config.baseUrl | quote }}
+            - name: GRIST_OIDC_IDP_SCOPES
+              value: "openid email profile"
+            # Logto signs ID tokens with ES384; openid-client defaults to RS256.
+            - name: GRIST_OIDC_IDP_EXTRA_CLIENT_METADATA
+              value: '{"id_token_signed_response_alg":"ES384"}'
+            # Logging out of Grist keeps the Emporium session (the ingress login).
+            - name: GRIST_OIDC_IDP_SKIP_END_SESSION_ENDPOINT
+              value: "true"
+            {{- with .existingSecret }}
+            - name: GRIST_OIDC_IDP_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          startupProbe:
+            httpGet: { path: /status, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /status, port: http }
+          readinessProbe:
+            httpGet: { path: /status, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /persist
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          {{- if .Values.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
