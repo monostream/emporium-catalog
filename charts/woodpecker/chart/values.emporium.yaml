@@ -1,0 +1,14 @@
+server:
+  host: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+forge:
+  type: {{ input "ForgeType" }}
+  url: {{ input "ForgeURL" }}
+  clientId: {{ input "ForgeClientID" }}
+database:
+  existingSecret: {{ .Emporium.Integrations.postgres.EnvSecretName | quote }}
+  urlKey: DATABASE_URL
+agent:
+  persistence:
+    claimName: {{ .Emporium.Integrations.agentdata.ClaimName | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
