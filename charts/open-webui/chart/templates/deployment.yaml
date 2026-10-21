@@ -45,8 +45,11 @@ spec:
             # Accounts come from single sign-on or the local administrator.
             - name: ENABLE_SIGNUP
               value: "false"
+            # Fail closed: Open WebUI only rejects a roles claim that is present and unmatched.
+            # An account whose token has no roles claim at all stays "pending" (no access)
+            # until an administrator approves it.
             - name: DEFAULT_USER_ROLE
-              value: user
+              value: pending
             - name: WEBUI_SESSION_COOKIE_SECURE
               value: "true"
             {{- with .Values.config.baseUrl }}

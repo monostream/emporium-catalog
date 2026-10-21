@@ -1,3 +1,9 @@
+# 0.1.1
+
+- Users whose token carries no roles claim are created as `pending` (fail closed) instead of regular users; README explains revocation.
+- Document that the Ollama URL input only seeds the first start (Open WebUI persists connection settings).
+- Re-tested on Emporium 0.5.0-rc.12 (2026-10-21), including a user without any Emporium role.
+
 # 0.1.0
 
 - New chart: Open WebUI v0.12.3 (official image `ghcr.io/open-webui/open-webui`), requires Emporium v0.5.0.

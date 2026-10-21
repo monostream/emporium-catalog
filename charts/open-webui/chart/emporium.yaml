@@ -8,7 +8,7 @@ sections:
 inputs:
   OllamaBaseUrl:
     label: Ollama URL
-    description: "Address of an Ollama server, for example http://ollama.<namespace>.svc:11434 when the Ollama app is installed in the cluster. Leave empty to add model connections later in the Open WebUI admin settings."
+    description: "Address of an Ollama server, for example http://ollama.<namespace>.svc:11434 when the Ollama app is installed in the cluster. Only used at the first start: Open WebUI keeps connection settings in its database afterwards, so change it later under Admin Settings > Connections. Leave empty to add connections there."
     type: string
     default: ""
     pattern: '^(https?://[^\s]+)?$'
@@ -29,7 +29,7 @@ inputs:
     path: oidc.adminRole
   UserRole:
     label: Emporium role for users
-    description: Users need this role (or the administrator role) to sign in.
+    description: Users need this role (or the administrator role); users with no role at all stay pending until an administrator approves them.
     type: string
     default: emporium-user
     required: true
