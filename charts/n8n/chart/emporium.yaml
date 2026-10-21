@@ -4,15 +4,16 @@ inputs:
   Sso:
     label: Single sign-on with Emporium
     description: >-
-      Sign in to n8n through the Emporium login (OIDC). n8n only offers OIDC with a Business or
-      Enterprise license, so also set the license key below. Off keeps the local n8n accounts.
+      Sign in to n8n through the Emporium login (OIDC). n8n only offers OIDC SSO with an Enterprise
+      license, so also set the license key below. Off keeps the local n8n accounts and disables
+      SSO in n8n (SSO settings in the n8n UI are managed by this chart).
     type: boolean
     default: false
     matrix: true
   LicenseKey:
     label: Enterprise license key
     description: >-
-      Optional n8n Business or Enterprise activation key. Only needed for single sign-on with
+      Optional n8n Enterprise activation key. Only needed for single sign-on with
       Emporium (n8n gates OIDC behind a paid license). Leave empty for the Community edition.
     type: secret
     required: false

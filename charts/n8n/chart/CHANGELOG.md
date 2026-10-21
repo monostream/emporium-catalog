@@ -1,6 +1,7 @@
 # 0.3.0
-- Optional single sign-on with Emporium (OIDC), off by default: new inputs "Single sign-on with Emporium" and "Enterprise license key". n8n only offers OIDC SSO with a Business or Enterprise license. With both unset the chart behaves as before.
+- Optional single sign-on with Emporium (OIDC), off by default: new inputs "Single sign-on with Emporium" and "Enterprise license key". n8n only offers OIDC SSO with an Enterprise license. With both unset local email login works as before.
 - When on, n8n gets `N8N_SSO_OIDC_LOGIN_ENABLED`, `N8N_SSO_OIDC_CLIENT_ID`, `N8N_SSO_OIDC_DISCOVERY_ENDPOINT`, `N8N_SSO_MANAGED_BY_ENV` and the client secret by Secret reference; the callback `/rest/sso/oidc/callback` is registered with the Emporium login.
+- With single sign-on off the chart sets `N8N_SSO_MANAGED_BY_ENV=true` with OIDC and SAML login disabled: n8n stores env-managed SSO settings in its database, so turning the input off again must actively disable the login. Side effect: SSO settings in the n8n UI are managed by the chart (read-only) and SAML is disabled.
 - The `sso` integration is always declared, because the oidc provider cannot be optional: a Logto client is created for every install, unused unless single sign-on is on.
 - No role mapping: n8n reads the instance role from a claim (`n8n_instance_role`) or from rules configured in the n8n UI; Emporium admins are not mapped automatically.
 

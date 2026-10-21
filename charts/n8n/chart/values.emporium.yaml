@@ -5,12 +5,20 @@ n8n:
       N8N_EDITOR_BASE_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
       WEBHOOK_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
       {{- if input "Sso" | eq "true" }}{{ with .Emporium.Integrations.sso }}
-      # Needs a Business or Enterprise license; without one n8n reads these but keeps local login.
+      # Needs an Enterprise license; without one n8n reads these but keeps local login.
       N8N_SSO_MANAGED_BY_ENV: "true"
       N8N_SSO_OIDC_LOGIN_ENABLED: "true"
       N8N_SSO_OIDC_CLIENT_ID: {{ .ClientID | quote }}
       N8N_SSO_OIDC_DISCOVERY_ENDPOINT: {{ .ConfigurationEndpoint | quote }}
-      {{- end }}{{ end }}
+      {{- end }}
+      {{- else }}
+      # SSO off: n8n persists env-managed SSO settings in its database, so dropping the variables
+      # would leave a previously enabled OIDC login on. Managed-by-env with both logins disabled
+      # makes n8n write "disabled" on every start and switch back to email login.
+      N8N_SSO_MANAGED_BY_ENV: "true"
+      N8N_SSO_OIDC_LOGIN_ENABLED: "false"
+      N8N_SSO_SAML_LOGIN_ENABLED: "false"
+      {{- end }}
       {{- with .Emporium.Integrations.db }}
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: {{ .Host | quote }}
