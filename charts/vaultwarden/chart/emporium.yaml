@@ -14,8 +14,12 @@ integrations:
     access: { default: authenticated }
     # Bitwarden clients and the web vault talk to these APIs with their own tokens.
     skipPaths: [/api/*, /identity/*]
+    # Vaultwarden's own OIDC login; this path is also skipped above, so the callback reaches the app.
+    redirectPaths: [/identity/connect/oidc-signin]
     bind:
       IngressClassName: ingress.className
+  sso:
+    type: oidc
   mail:
     type: smtp
     required: false

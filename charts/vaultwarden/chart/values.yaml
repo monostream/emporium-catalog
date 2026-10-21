@@ -17,6 +17,21 @@ fullnameOverride: ""
 app:
   domain: "https://localhost"
   signupsAllowed: true
+  # OpenID Connect login (Emporium: the sso integration). Password login stays available
+  # unless only is true. The master password is still required after an SSO login.
+  sso:
+    enabled: false
+    # Issuer URL, exactly as the provider reports it (no /.well-known/...).
+    authority: ""
+    clientId: ""
+    # Secret and key holding the client secret (Emporium: the per-app Secret).
+    existingSecret: ""
+    secretKey: ""
+    scopes: "email profile"
+    only: false
+    # First SSO login joins an existing account with the same email (the provider's
+    # email_verified claim must be true) instead of failing with "user already exists".
+    signupsMatchEmail: true
   smtp:
     host: ""
     port: 587

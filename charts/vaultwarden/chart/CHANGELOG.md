@@ -1,3 +1,8 @@
+# 0.3.0
+- Single sign-on through Emporium (OpenID Connect, `sso` integration): the login page offers "Enterprise single sign-on". Password login stays available (`SSO_ONLY` off) and the master password is still required after an SSO login.
+- `SSO_SIGNUPS_MATCH_EMAIL` is on: the first SSO login of an existing account with the same email links to it (only with a verified email at the provider).
+- The callback `/identity/connect/oidc-signin` is registered as redirect path; `/identity/*` and `/api/*` still skip the Emporium login.
+
 # 0.2.1
 - Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.5, 2026-10-20).
 

@@ -1,5 +1,11 @@
 app:
   domain: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+  sso:
+    enabled: true
+    authority: {{ .Emporium.Integrations.sso.Issuer | quote }}
+    clientId: {{ .Emporium.Integrations.sso.ClientID | quote }}
+    existingSecret: {{ .Emporium.Integrations.sso.SecretName | quote }}
+    secretKey: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
   {{- with .Emporium.Integrations.mail }}
   smtp:
     host: {{ .Host | quote }}
