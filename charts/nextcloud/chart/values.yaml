@@ -69,16 +69,23 @@ nextcloud:
           # start that can apply the setting creates it again.
           log "WARNING: user_oidc soft_auto_provision could not be turned off; removing provider Emporium"
           occ user_oidc:provider:delete Emporium --force >/dev/null 2>&1
-          if ! occ user_oidc:provider Emporium >/dev/null 2>&1; then
-            log "provider Emporium removed; only the local login is available"
-            exit 0
+          # Only a successful provider listing without "Emporium" proves the removal; a failed
+          # lookup (e.g. the database went away) is not proof and falls through to disabling.
+          if list=$(occ user_oidc:provider --output=json 2>/dev/null); then
+            list=$(printf '%s\n' "$list" | tail -n 1)
+            case "$list" in
+              *'"identifier":"Emporium"'*) ;;
+              '['*']')
+                log "provider Emporium removed; only the local login is available"
+                exit 0 ;;
+            esac
           fi
           occ app:disable user_oidc >/dev/null 2>&1
           if [ "$(occ config:app:get user_oidc enabled 2>/dev/null)" = "no" ]; then
-            log "provider Emporium could not be removed; user_oidc disabled; only the local login is available"
+            log "removal of provider Emporium not verified; user_oidc disabled; only the local login is available"
             exit 0
           fi
-          log "ERROR: Emporium login could not be made safe (provider still active); not starting"
+          log "ERROR: neither the removal of provider Emporium nor disabling user_oidc could be verified; not starting"
           exit 1
         fi
         if out=$(occ user_oidc:provider Emporium \
