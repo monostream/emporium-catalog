@@ -375,13 +375,15 @@ Wrapper-chart checklist: disable the bundled subchart DB, point every credential
 
 ## 13. Before opening a PR
 
+New apps: follow the blueprint in section 15 first.
+
 1. `emp chart lint charts/<name>/chart` is green for every profile.
 2. Version bumped in `Chart.yaml`, `CHANGELOG.md` entry added (the catalog repository rejects duplicate versions).
 3. README is short and product-oriented (features, perfect-for), not technical.
 4. Security context matches the container user (`runAsNonRoot`, drop ALL capabilities, `fsGroup` for volumes).
 5. No hardcoded ingress class (use `IngressClassName`), tls-acme or snippet annotations; no plaintext secrets unless unavoidable and acknowledged.
 
-TODO (not defined): `emp chart lint` exit codes; schema for `README`/gallery assets; the `migrations:` list for future chart upgrades (not part of v1); `lookup: cluster` preview support.
+TODO (not defined): `emp chart lint` exit codes; a schema for the README; the `migrations:` list for future chart upgrades (not part of v1); `lookup: cluster` preview support.
 
 Archiving a chart: move `charts/<name>/` to `archive/charts/<name>/`. Do not delete it. `removed-charts.txt` is separate: it only lists chart names whose published versions are purged from the Helm repository.
 
@@ -444,3 +446,55 @@ A consumer chart ships `ci/connections.yaml`: integration name -> the outputs a 
 
 - Generated wallet material, such as the lnd seed, lives in the app's own Secret. Uninstalling the app deletes it, so tell users to back it up (docs page "App connections").
 - Do not use a `type: app` integration to reach something outside the cluster. Offer a plain input for that.
+
+## 15. Adding a new app (blueprint)
+
+The path from "this app would be useful" to a pull request, for humans and agents. Each step links to the rules above instead of repeating them. `charts/miniflux` is the reference result (own templates, `postgres` + `oidc`, break-glass admin, package assets).
+
+1. **Choose the app.**
+   - Self-hostable and maintained (a stable release in the last months), useful to Emporium users, not a duplicate of a catalog chart.
+   - The licence allows self-hosting and running the published image (OSI licences are fine; read "source-available"/"fair-code" terms before you start). Record it as SPDX id in `licenses`.
+   - Native generic OpenID Connect in the free edition is a strong plus (section 16). If SSO is paid-only upstream, ship the chart behind the Emporium login (`access: authenticated`) and say so in the README.
+   - Official upstream image (Docker Hub or GHCR), latest stable tag, no Bitnami images or subcharts (section 9). State goes to Emporium's providers (`postgres`, `redis`, `objectStorage`, `storage`).
+2. **Read the upstream source of the exact version you ship**, not only the docs: configuration keys and their `_FILE` variants for secrets, container UID and writable paths, health endpoints, database version and extensions, API paths used by mobile apps and CLIs, the OIDC callback path, which claims become username, email and admin, and the ID token signing algorithm the OIDC library accepts.
+3. **Scaffold** from `charts/_template` (section 1). For a single-container app write your own small templates; wrap an upstream chart only when it is large and maintained (section 12). Add `deps.json` like the neighbours (`imageTagPaths: [image.tag]`, `appVersionMapping: value:image.tag`, `allowPrerelease: false`) and pin `image.tag` to `appVersion`.
+4. **Chart.yaml**: `version: 0.1.0`, `appVersion`, a one-line `description`, `home`, `sources`, `keywords`, a top-level `icon` URL (for plain Helm), and the annotations `icon`, `displayName`, `category` (one of the values in section 1), `licenses`, `gallery` (15.1) and `emporiumVersion: "0.5.0"`. Add `emporium.build/tested` only after step 9 (15.2).
+5. **emporium.yaml** (section 3): an `ingress` integration with `access: { default: authenticated }`, `skipPaths` only for what clients reach with their own credentials (REST/mobile APIs, webhooks, public share links) and `redirectPaths` for the OIDC callback; an `oidc` integration (section 16); provider integrations for state; inputs only for what the installer decides; secrets generated and delivered by reference (section 6); `components` with `replicas: { fixed: 1, reason }` for singletons; one `small` profile (section 11).
+6. **Templates**: security context as in section 13; a startup probe when the app migrates its database at start, a liveness probe that does not depend on the database, `strategy: Recreate` when two versions must not run side by side, `automountServiceAccountToken: false` when the app does not talk to the Kubernetes API. Render optional blocks (OIDC, SMTP, admin bootstrap) with `if`/`with` on their values instead of `required`, so `values.yaml` renders on its own and preview works.
+7. **Docs in the chart**: README (product-oriented, section 13, plus a short "Good to know" on SSO behaviour, the admin account and the paths that skip the Emporium login), `CHANGELOG.md` entry for 0.1.0, `templates/NOTES.txt` (URL, how to sign in, where the break-glass password lives).
+8. **Local checks**: `emp chart lint` with 0 errors (explain every warning in the PR), `helm lint`, read the rendered Deployment from `emp chart lint --dump-dir` (env, `secretKeyRef`s, no plaintext secret), package size (15.1).
+9. **Live verification** on a development Emporium, through Emporium itself (a raw `helm install` does not count):
+   publish the package to the staging repository under a prerelease version (`<version>-<tag>.<n>`, a new suffix per attempt) → the indexer imports it as valid → `previewApp` is ok → install into a fresh test namespace → ready, the app answers through its ingress → SSO login with a temporary identity-provider user (section 16) → break-glass admin login → screenshots from this install (15.1) → the panel's catalog page shows icon and gallery → uninstall through Emporium → namespace, volumes, the identity-provider client and the temporary users are gone, other databases unchanged, no new certificates. Serialize and limit concurrent test installs on a shared cluster, and run heavy apps one at a time.
+10. **Pull request** against the release branch, one chart per PR (`feat/app-<name>`): what the app is, the upstream facts from step 2, the verification table from step 9 (run id, timings, results), known limits and open questions.
+
+### 15.1 Icon, gallery and package size
+
+- **Icon**: the official logo as SVG from the upstream repository or brand page, in `assets/icon.svg`, referenced as `annotations.icon: assets/icon.svg`. Check the project's licence and trademark note (logos may be used to refer to the project; do not alter them). Without an official logo, use a simple generated flat square icon (`assets/icon.svg`, or a 512 px `assets/icon.png`) and write "Icon generated (not the official logo)." in the README. The indexer accepts PNG, JPEG, GIF, WebP and SVG up to 1 MB.
+- **Gallery**: `gallery: |` with one entry per line. An entry is either an `https://` URL or a path inside the package (`assets/screenshot-1.webp`), which the indexer loads from the package and the panel serves (up to 10 package images, 5 MB each). Use 2-3 screenshots of your own running install: 1440x900, WebP, about 100-150 KB each, realistic demo content, no secrets, tokens, email addresses or internal hostnames.
+- **Size**: Helm stores every install as a release Secret, which Kubernetes limits to 1 MiB. The release is JSON: the chart with its metadata and values as parsed fields, its templates and files base64-encoded and its dependencies as nested chart objects (as packaged), plus the user config, the rendered manifest (including subchart resources), hooks and NOTES; this JSON is gzipped and base64-encoded into the Secret. Already-compressed images do not shrink, so the payload is usually larger than the `.tgz`. Keep the package at 600 KB or less and estimate the payload before publishing as a pre-check (for example `helm install --dry-run=client -o json` of the package, gzipped and base64-encoded, plus a 10% margin; at most 900 KiB). The authoritative check is the real Secret after the test install in step 9: the `release` data of the Secret labelled `owner=helm` in the app's namespace must stay under 900 KiB. Leave raw PNGs, sources and test files out (`.helmignore`).
+
+### 15.2 Tested marker
+
+`annotations.emporium.build/tested: "<Emporium version> <date>"`, for example `"0.5.0-rc.12 2026-10-21"`, records that step 9 passed on that Emporium version, including the SSO login. Set it in the same version whose templates were installed; changes to metadata only (screenshots, README) keep it. Any change to templates, values or `emporium.yaml` needs a new run before the marker is updated.
+
+## 16. Single sign-on (OIDC) with Emporium/Logto
+
+An app behind Emporium has two independent logins:
+
+- **Emporium login (glass forward-auth)**, set by `access` on the `ingress` integration: nobody reaches the host without an Emporium session. `skipPaths` (section 3.2) open the paths that clients call with their own credentials; keep them narrow.
+- **The app's own OIDC login**, declared with `type: oidc`: the app learns who the user is and creates the account. The callback path goes into `redirectPaths` on the `ingress` integration (the OIDC client is shared with the ingress). Custom URL schemes of mobile apps are not valid redirect paths.
+
+Wiring (section 3.2, `oidc` outputs):
+
+- `Issuer` or `ConfigurationEndpoint`: check which one the app wants. Libraries such as go-oidc take the issuer, append `/.well-known/openid-configuration` and require the issuer to match exactly.
+- `ClientID` as a plain value. The client secret only by reference: `SecretName` + `ClientSecretKey` into a `secretKeyRef` env var or the app's `_FILE` variant; never into args, ConfigMaps, SQL text or logs. If the app reads its settings only from a file, render that file as a Secret and say so.
+
+What Logto sends:
+
+- **Signing algorithm**: Logto signs ID tokens with **ES384** by default (an installation may use another key type, e.g. RSA). Apps must take the algorithm from the provider's discovery document or JWKS, or be configured to match the identity provider. Apps that assume RS256 fail with "unexpected JWT alg" on a default installation; where the app has an algorithm setting, expose it as a value defaulting to ES384 and document it.
+- **Username**: `preferred_username` / `username` is the Logto username; `name` is the display name.
+- **Email**: only Emporium admins set a user's email, and `email_verified` is true whenever an email is present. Many users have no email, so an app that requires an email for SSO accounts needs a note in the README. Linking an existing app account by email is acceptable because users cannot set their own email.
+- **Roles**: with the `roles` scope, the `roles` claim is an array of Logto role names (`emporium-admin`, `emporium-user`). `.AdminScope` is the API scope `admin`, not a role. To map admins, add a values key that defaults to `emporium-admin` (for example `emporiumAdminRole`) and feed it to the app's role or group mapping; treat a missing `roles` claim as a plain user. An app that only accepts a fixed role value (for example the literal `admin`) cannot map Emporium admins; document it.
+- **No admin mapping in the app**: SSO accounts are plain users. Provide a break-glass local administrator (a `generate:` secret input delivered by reference, created at first start) and document where its password is and how it promotes users. A local account with the same username as a Logto user usually blocks that user's SSO login.
+
+Verify with a real login (step 9): a temporary Logto user signs in through the app's SSO button and lands in the app as that user (the account is created); where the app uses email, also a user without email; where admin mapping exists, an `emporium-admin` user becomes app admin and a plain user does not; the break-glass admin can log in; delete the temporary users afterwards. If a real login is impossible (paid licence), prove that the app loaded the OIDC configuration (SSO button, features endpoint) and say so in the PR.
