@@ -1,0 +1,11 @@
+config:
+  baseUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+database:
+  host: {{ .Emporium.Integrations.db.Host | quote }}
+  port: {{ .Emporium.Integrations.db.Port | quote }}
+  name: {{ .Emporium.Integrations.db.Database | quote }}
+  existingSecret: {{ .Emporium.Integrations.db.SecretName | quote }}
+  usernameKey: {{ .Emporium.Integrations.db.UsernameKey | quote }}
+  passwordKey: {{ .Emporium.Integrations.db.PasswordKey | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

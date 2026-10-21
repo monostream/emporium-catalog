@@ -1,0 +1,73 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administration, description: "The /admin page (settings, plugins, pad management) signs in with the user \"admin\" and this password." }
+
+inputs:
+  Title:
+    label: Instance title
+    description: Name shown in the browser tab and on the start page.
+    type: string
+    default: Etherpad
+    path: config.title
+  DefaultPadText:
+    label: Text of new pads
+    description: Initial content of every new pad. Leave empty for Etherpad's welcome text.
+    type: string
+    path: config.defaultPadText
+  AdminPassword:
+    label: Administrator password
+    description: Password of the user "admin" for the /admin page. Leave empty to generate one (stored in the app's Secret).
+    type: secret
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  AdminClientSecret:
+    label: Admin sign-in client secret
+    description: Internal secret of Etherpad's built-in sign-in service for /admin. Generated; no need to change it.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    section: admin
+    ref: { namePath: sso.existingSecret, keyPath: sso.adminSecretKey }
+  UserClientSecret:
+    label: User sign-in client secret
+    description: Internal secret of Etherpad's built-in sign-in service for API clients. Generated; no need to change it.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    section: admin
+    ref: { namePath: sso.existingSecret, keyPath: sso.userSecretKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  db:
+    type: postgres
+    database: etherpad
+    owner: etherpad
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+
+components:
+  app:
+    label: Etherpad
+    resources: resources
+    replicas: { fixed: 1, reason: "Pad editing sessions live in the memory of one Etherpad process" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team of up to a few dozen people editing at the same time
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
