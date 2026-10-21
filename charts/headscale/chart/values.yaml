@@ -81,11 +81,13 @@ app:
       auto_update_enabled: true
       update_frequency: 24h
     disable_check_updates: false
-    ephemeral_node_inactivity_timeout: 30m
+    node:
+      ephemeral:
+        inactivity_timeout: 30m
 
     database:
       type: sqlite
-      debug: true
+      debug: false
       gorm:
         prepare_stmt: true
         parameterized_queries: true
@@ -129,7 +131,6 @@ app:
     unix_socket_permission: "0770"
     logtail:
       enabled: true
-    randomize_client_port: false
 
     oidc:
       only_start_if_oidc_is_available: true

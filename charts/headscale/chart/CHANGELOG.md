@@ -4,6 +4,8 @@ Published on 21 October 2026
 
 - Headplane 0.7.1 is configured in its current format: a rendered `/etc/headplane/config.yaml` (server `base_url`, `cookie_secure` from the https URL, headscale URL and config path, OIDC issuer, client id, `use_pkce`) plus `HEADPLANE_*` overrides for the three secrets (cookie secret, OIDC client secret, headscale API key), all by `secretKeyRef`. The pre-0.5 flat variables (`OIDC_*`, `HEADSCALE_URL`, `COOKIE_*`, `ROOT_API_KEY`, `DEBUG`) are gone. Headplane state is stored on the data volume (`/var/lib/headplane`, subPath `headplane`).
 - The Headplane admin UI can sign in through OIDC again. The API key login stays enabled as the break-glass path (`web.disableApiKeyLogin`, default `false`).
+- headscale 0.29 refused to start with the old configuration: `randomize_client_port` was removed and `ephemeral_node_inactivity_timeout` became `node.ephemeral.inactivity_timeout`. Both are fixed. SQL debug logging (`database.debug`) is off.
+- The post-install job could not create the API key (`kubectl exec` needs `create` on `pods/exec` with current kubectl, and a failure was silent): RBAC fixed, the job retries and fails loudly, and the hook is deleted after it succeeds.
 - New opt-in `oidc.allowedDomains` / `oidc.allowedUsers` restrict who may register nodes through headscale OIDC (default: unrestricted).
 - The post-install job waits for the headscale container instead of the whole pod (Headplane needs the API key the job creates).
 

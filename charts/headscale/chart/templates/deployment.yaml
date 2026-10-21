@@ -76,9 +76,7 @@ spec:
           imagePullPolicy: {{ .Values.web.image.pullPolicy }}
           env:
           # Headplane 0.7 reads /etc/headplane/config.yaml; the HEADPLANE_* variables below
-          # override it (HEADPLANE_LOAD_ENV_OVERRIDES) and carry the secrets by reference.
-          - name: HEADPLANE_LOAD_ENV_OVERRIDES
-            value: 'true'
+          # override it and carry the secrets by reference.
           {{- with .Values.cookie.existingSecret }}
           - name: HEADPLANE_SERVER__COOKIE_SECRET
             valueFrom:

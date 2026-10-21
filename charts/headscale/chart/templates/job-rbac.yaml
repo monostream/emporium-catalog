@@ -17,6 +17,10 @@ rules:
   - apiGroups: [""]
     resources: ["pods", "pods/exec", "secrets"]
     verbs: ["get", "list", "watch", "patch"]
+  # kubectl >= 1.31 runs exec over WebSocket, which needs `create` on pods/exec.
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
     verbs: ["get", "list", "watch", "patch"]
