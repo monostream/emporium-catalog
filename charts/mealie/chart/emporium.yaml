@@ -45,8 +45,9 @@ inputs:
     path: admin.email
   AdminPassword:
     label: Administrator password
-    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Mealie. The username is "admin".
+    description: Leave empty to generate one (stored in the app's Secret), at least 8 characters if you set one (Mealie minimum). Used only when the account is created; change it later in Mealie. The username is "mealie-local-admin".
     type: secret
+    pattern: '^.{8,}$'
     generate: { length: 24, charset: alnum }
     section: admin
     ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
@@ -55,9 +56,21 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
-    # Mobile apps, Home Assistant and API tokens call the REST API with their own bearer
-    # tokens; Mealie rejects anonymous requests there except for public (shared) recipes.
-    skipPaths: [/api/*]
+    # Mobile apps, Home Assistant and API tokens call these REST API areas with their own bearer
+    # tokens; Mealie authenticates them itself. Not skipped: /api/validators/* (anonymous
+    # account-existence checks), /api/media/*/assets/* (attachments), /api/admin, /api/explore.
+    skipPaths:
+      - /api/auth/*
+      - /api/app/about
+      - /api/recipes/*
+      - /api/households/*
+      - /api/groups/*
+      - /api/users/*
+      - /api/organizers/*
+      - /api/foods/*
+      - /api/units/*
+      - /api/comments/*
+      - regex(^/api/media/recipes/[^/]+/images/[^/]+$)
     # Mealie's own OpenID Connect login: the browser returns to <BASE_URL>/login.
     redirectPaths: [/login]
     bind:

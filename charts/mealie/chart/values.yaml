@@ -24,9 +24,11 @@ config:
 
 # Local administrator. Mealie creates "changeme@example.com" with the public password
 # "MyPassword" on the first start and offers no setting for it. When existingSecret is set, a
-# small sidecar replaces that password (and the email) with these values as soon as the API
-# answers, and does nothing once the default login no longer works.
+# small sidecar replaces that password (and the email, username) with these values; the pod is
+# not Ready until it has finished. It leaves an account whose password was already changed alone.
 admin:
+  # Not "admin": a Logto user with that username would be matched to this account at the first SSO.
+  username: mealie-local-admin
   email: admin@example.org
   # Secret and key holding the administrator password (at least 8 characters).
   existingSecret: ""
@@ -49,7 +51,9 @@ oidc:
   adminGroup: emporium-admin
   # Only members of this role may sign in (empty: every Emporium user).
   userGroup: ""
-  # Claim used as the account name; "preferred_username" is always present in Logto tokens.
+  # Claim that identifies the account (looked up as Mealie username, then email) and claim used as
+  # the full name. "preferred_username" is always present in Logto tokens and stable when the email changes.
+  userClaim: preferred_username
   nameClaim: preferred_username
 
 # PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).

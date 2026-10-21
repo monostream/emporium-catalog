@@ -11,11 +11,11 @@ Your Emporium account needs an email address; Mealie refuses single sign-on with
 {{- end }}
 {{- if .Values.admin.existingSecret }}
 
-Local administrator: username "admin" (email {{ .Values.admin.email }}). Mealie's built-in
-default login is replaced a few seconds after the first start. The password is in the Secret
+Local administrator: username "{{ .Values.admin.username }}" (email {{ .Values.admin.email }}). Mealie's built-in
+default login is replaced before the pod becomes Ready. The password is in the Secret
 {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
   kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
 {{- end }}
 
 Mobile apps and integrations (Home Assistant, Mealient, ...): create an API token under
-User Profile > API Tokens. /api/ bypasses the Emporium login and is protected by Mealie itself.
+User Profile > API Tokens. The API areas used by apps bypass the Emporium login and are protected by Mealie.

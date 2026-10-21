@@ -10,9 +10,14 @@ data:
     """Replace Mealie's built-in administrator (changeme@example.com / MyPassword).
 
     Mealie creates that account at the first start, with a public password and no setting to
-    change it. Once the API answers and the default account still exists, log in with the default
-    password, set the password given in ADMIN_PASSWORD and move the account to ADMIN_EMAIL with the
-    username "admin". Afterwards the script only sleeps.
+    change it. The pod stays NotReady (the main container's readiness probe waits for
+    /status/ready) until this script is done:
+      - the default account is gone or its password is no longer the default: nothing to do;
+      - the default password still works: set ADMIN_PASSWORD, then move the account to ADMIN_EMAIL
+        with the username ADMIN_USERNAME.
+    The default login is tried at most once per volume (marker file), so an administrator who
+    already customised the account is never locked out. Any other failure exits non-zero and the
+    pod stays NotReady.
     """
     import json
     import os
@@ -27,6 +32,9 @@ data:
     DEFAULT_PASSWORD = "MyPassword"
     NEW_PASSWORD = os.environ["ADMIN_PASSWORD"]
     NEW_EMAIL = os.environ["ADMIN_EMAIL"]
+    NEW_USERNAME = os.environ["ADMIN_USERNAME"]
+    MARKER = "/data/.emporium-admin-bootstrap"
+    READY = "/status/ready"
 
 
     def call(method, path, body=None, form=None, token=None):
@@ -54,27 +62,49 @@ data:
                 time.sleep(5)
 
 
+    def finish(message):
+        with open(MARKER, "w") as f:
+            f.write(message + "\n")
+        with open(READY, "w") as f:
+            f.write("ready\n")
+        print(message, flush=True)
+
+
     def run():
+        if len(NEW_PASSWORD) < 8:
+            raise SystemExit("administrator password must have at least 8 characters (Mealie minimum); refusing to serve with the default login active")
         info = wait_ready()
+        if os.path.exists(MARKER):
+            open(READY, "w").write("ready\n")
+            print("administrator already handled", flush=True)
+            return
         if not info.get("isFirstLogin"):
-            print("default administrator already replaced", flush=True)
+            finish("default administrator account no longer exists, nothing to replace")
             return
         try:
             token = call("POST", "/api/auth/token", form={"username": DEFAULT_EMAIL, "password": DEFAULT_PASSWORD})["access_token"]
-            call("PUT", "/api/users/password", body={"currentPassword": DEFAULT_PASSWORD, "newPassword": NEW_PASSWORD}, token=token)
-        except urllib.error.HTTPError:
-            # An earlier run changed the password but stopped before the email.
-            token = call("POST", "/api/auth/token", form={"username": DEFAULT_EMAIL, "password": NEW_PASSWORD})["access_token"]
-        me = call("GET", "/api/users/self", token=token)
-        me["email"] = NEW_EMAIL
-        me["username"] = "admin"
-        me["fullName"] = "Administrator"
-        call("PUT", "/api/users/" + me["id"], body=me, token=token)
-        print("default administrator replaced", flush=True)
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 423):
+                finish("default administrator has a custom password, left untouched")
+                return
+            raise
+        # The password change must succeed; otherwise the pod stays NotReady.
+        call("PUT", "/api/users/password", body={"currentPassword": DEFAULT_PASSWORD, "newPassword": NEW_PASSWORD}, token=token)
+        try:
+            me = call("GET", "/api/users/self", token=token)
+            me["email"] = NEW_EMAIL
+            me["username"] = NEW_USERNAME
+            me["fullName"] = "Administrator"
+            call("PUT", "/api/users/" + me["id"], body=me, token=token)
+        except Exception as exc:
+            print("password replaced, profile update failed: %s" % type(exc).__name__, file=sys.stderr, flush=True)
+        finish("default administrator replaced")
 
 
     try:
         run()
+    except SystemExit:
+        raise
     except Exception as exc:  # never print the response: it may hold tokens
         print("bootstrap failed: %s" % type(exc).__name__, file=sys.stderr, flush=True)
         sys.exit(1)

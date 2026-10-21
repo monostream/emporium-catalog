@@ -70,6 +70,8 @@ spec:
               value: {{ .providerName | quote }}
             - name: OIDC_SIGNUP_ENABLED
               value: {{ .signupEnabled | quote }}
+            - name: OIDC_USER_CLAIM
+              value: {{ .userClaim | quote }}
             - name: OIDC_NAME_CLAIM
               value: {{ .nameClaim | quote }}
             {{- if or .adminGroup .userGroup }}
@@ -107,8 +109,15 @@ spec:
           livenessProbe:
             httpGet: { path: /api/app/about, port: http }
             periodSeconds: 20
+          # Not ready (no traffic through the Service/Ingress) until the bootstrap sidecar has
+          # replaced Mealie's default administrator.
           readinessProbe:
-            httpGet: { path: /api/app/about, port: http }
+            exec:
+              command:
+                - sh
+                - -c
+                - {{ if .Values.admin.existingSecret }}test -f /status/ready && {{ end }}curl -fs http://127.0.0.1:{{ .Values.service.port }}/api/app/about > /dev/null
+            periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -116,6 +125,9 @@ spec:
               mountPath: /app/data
             - name: tmp
               mountPath: /tmp
+            - name: status
+              mountPath: /status
+              readOnly: true
         {{- if .Values.admin.existingSecret }}
         - name: bootstrap
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
@@ -126,6 +138,8 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.service.port | quote }}
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
             - name: ADMIN_EMAIL
               value: {{ .Values.admin.email | quote }}
             - name: ADMIN_PASSWORD
@@ -139,12 +153,18 @@ spec:
             - name: bootstrap
               mountPath: /bootstrap
               readOnly: true
+            - name: status
+              mountPath: /status
+            - name: data
+              mountPath: /data
         {{- end }}
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
         - name: tmp
+          emptyDir: {}
+        - name: status
           emptyDir: {}
         {{- if .Values.admin.existingSecret }}
         - name: bootstrap
