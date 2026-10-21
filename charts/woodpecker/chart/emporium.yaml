@@ -62,6 +62,13 @@ inputs:
     min: 1Gi
     path: agent.workspaceVolumeSize
     section: pipelines
+  WorkspaceRWX:
+    label: ReadWriteMany workspace volumes
+    description: Turn on only when the default storage class supports ReadWriteMany. Off uses ReadWriteOnce volumes, which most block storage offers.
+    type: boolean
+    default: false
+    path: agent.workspaceRWX
+    section: pipelines
   MaxWorkflows:
     label: Parallel workflows
     description: Workflows the agent runs at the same time.

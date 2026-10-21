@@ -85,6 +85,9 @@ spec:
             - name: WOODPECKER_BACKEND_K8S_STORAGE_CLASS
               value: {{ . | quote }}
             {{- end }}
+            # ReadWriteMany is the Woodpecker default; most block-storage classes only offer ReadWriteOnce.
+            - name: WOODPECKER_BACKEND_K8S_STORAGE_RWX
+              value: {{ .Values.agent.workspaceRWX | quote }}
             - name: WOODPECKER_MAX_WORKFLOWS
               value: {{ .Values.agent.maxWorkflows | quote }}
             - name: WOODPECKER_AGENT_CONFIG_FILE

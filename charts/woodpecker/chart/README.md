@@ -22,3 +22,5 @@ Teams that host their code on a Forgejo or Gitea instance (for example the catal
 - The forge URL is a plain input. Emporium app connections cannot create the OAuth2 application, so the forge is not wired automatically.
 - Pipelines run in this app's namespace. The agent has a Role limited to pods, volumes, services and secrets of that namespace and no cluster-wide permissions. Pipeline steps can use any image, so give access to trusted people.
 - Administrators are named by their forge username. With "Everyone on the forge may log in" off, other users must be added by an administrator.
+- Workflow volumes are ReadWriteOnce by default (Woodpecker itself defaults to ReadWriteMany, which most block storage cannot provide and leaves the pipeline pending). Turn on "ReadWriteMany workspace volumes" only with an RWX storage class.
+- Pipeline pods and volumes belong to Woodpecker, not to the release. Finished pipelines remove them; a pipeline that is stuck when you uninstall leaves them behind and the namespace stays until you delete them.
