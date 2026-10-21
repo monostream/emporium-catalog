@@ -1,0 +1,81 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/miniflux/miniflux
+  tag: "2.3.4"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080
+
+config:
+  # Public URL of the instance (BASE_URL), e.g. https://miniflux.example.com
+  baseUrl: ""
+  # Minutes between two refreshes of a feed (POLLING_FREQUENCY).
+  pollingFrequency: 60
+  logLevel: info
+
+# Local administrator, created at the first start when existingSecret is set
+# (CREATE_ADMIN). Miniflux never changes the password of an existing account.
+admin:
+  username: admin
+  # Secret and key holding the administrator password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# OpenID Connect login ("Sign in with <providerName>").
+oidc:
+  enabled: false
+  # Issuer URL; Miniflux appends /.well-known/openid-configuration.
+  discoveryEndpoint: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  providerName: Emporium
+  # Create a Miniflux account at the first OIDC login (OAUTH2_USER_CREATION).
+  userCreation: true
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  # Secret holding a postgres:// connection URL.
+  existingSecret: ""
+  urlKey: DATABASE_URL
+
+# Additional environment variables (see https://miniflux.app/docs/configuration.html).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

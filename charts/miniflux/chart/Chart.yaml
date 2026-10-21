@@ -1,0 +1,25 @@
+apiVersion: v2
+name: miniflux
+description: Minimalist and opinionated feed reader (RSS, Atom, JSON Feed)
+type: application
+version: 0.1.0
+appVersion: "2.3.4"
+home: https://miniflux.app/
+icon: https://raw.githubusercontent.com/miniflux/v2/main/internal/ui/static/bin/icon.svg
+sources:
+  - https://github.com/miniflux/v2
+keywords:
+  - RSS
+  - Feed reader
+  - News
+annotations:
+  icon: assets/icon.svg
+  displayName: Miniflux
+  category: Reading
+  licenses: Apache-2.0
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"
