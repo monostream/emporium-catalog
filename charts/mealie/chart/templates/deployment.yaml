@@ -44,15 +44,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.admin.existingSecret }}
                   key: {{ .Values.admin.passwordKey }}
-            {{- with .Values.database.existingSecret }}
-            - name: DB_ENGINE
-              value: postgres
-            - name: POSTGRES_URL_OVERRIDE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ . }}
-                  key: {{ $.Values.database.urlKey }}
-            {{- end }}
+            {{- include "chart.initEnv" . | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -81,22 +73,10 @@ spec:
               value: {{ .Values.config.logLevel | upper | quote }}
             - name: ALLOW_SIGNUP
               value: {{ .Values.config.allowSignup | quote }}
-            - name: DEFAULT_GROUP
-              value: {{ .Values.config.defaultGroup | quote }}
-            - name: DEFAULT_HOUSEHOLD
-              value: {{ .Values.config.defaultHousehold | quote }}
+            {{- include "chart.initEnv" . | nindent 12 }}
             {{- with .Values.config.baseUrl }}
             - name: BASE_URL
               value: {{ . | quote }}
-            {{- end }}
-            {{- with .Values.database.existingSecret }}
-            - name: DB_ENGINE
-              value: postgres
-            - name: POSTGRES_URL_OVERRIDE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ . }}
-                  key: {{ $.Values.database.urlKey }}
             {{- end }}
             {{- with .Values.oidc }}
             {{- if and .enabled .configurationUrl }}

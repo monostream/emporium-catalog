@@ -13,7 +13,7 @@ data:
     it. This runs before Mealie serves, on every pod start, directly against the database:
       1. Mealie's own database init (migrations and seeding), the same call the app makes;
       2. if the default-email account exists and its password hash still verifies against the
-         public default, replace the password (and email, username) with ADMIN_*; otherwise do
+         public default, replace password, email and username in ONE transaction; otherwise do
          nothing. No HTTP, no login attempts, no state.
     """
     import os
@@ -24,7 +24,7 @@ data:
     from mealie.core.security.security import hash_password
     from mealie.db.db_setup import session_context
     from mealie.db.init_db import main as init_database
-    from mealie.repos.repository_factory import AllRepositories
+    from mealie.db.models.users.users import User
 
     DEFAULT_PASSWORD = "MyPassword"
     new_password = os.environ["ADMIN_PASSWORD"]
@@ -34,17 +34,18 @@ data:
     init_database()
     settings = get_app_settings()
     with session_context() as session:
-        repos = AllRepositories(session, group_id=None, household_id=None)
-        user = repos.users.get_one(settings._DEFAULT_EMAIL, "email")
+        user = session.query(User).filter(User.email == settings._DEFAULT_EMAIL).one_or_none()
         if user is None:
             print("no default administrator account, nothing to do", flush=True)
         elif not CredentialsProvider.verify_password(DEFAULT_PASSWORD, user.password):
             print("default administrator has a custom password, left untouched", flush=True)
         else:
+            # One transaction: password, email and username change together or not at all, so an
+            # interrupted run leaves the default account (and the default password) intact for the retry.
+            user.update_password(hash_password(new_password))
             user.email = os.environ["ADMIN_EMAIL"]
             user.username = os.environ["ADMIN_USERNAME"]
             user.full_name = "Administrator"
-            repos.users.update(user.id, user)
-            repos.users.update_password(user.id, hash_password(new_password))
+            session.commit()
             print("default administrator replaced", flush=True)
 {{- end }}

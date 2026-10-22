@@ -26,3 +26,20 @@ helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | 
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
+
+{{/* Environment shared by the bootstrap init container and Mealie: database and seeding settings. */}}
+{{- define "chart.initEnv" -}}
+- name: DEFAULT_GROUP
+  value: {{ .Values.config.defaultGroup | quote }}
+- name: DEFAULT_HOUSEHOLD
+  value: {{ .Values.config.defaultHousehold | quote }}
+{{- with .Values.database.existingSecret }}
+- name: DB_ENGINE
+  value: postgres
+- name: POSTGRES_URL_OVERRIDE
+  valueFrom:
+    secretKeyRef:
+      name: {{ . }}
+      key: {{ $.Values.database.urlKey }}
+{{- end }}
+{{- end }}
