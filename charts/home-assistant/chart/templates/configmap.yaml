@@ -116,7 +116,12 @@ data:
             users = json.load(open(os.path.join(CONFIG, ".storage", "auth")))["data"]["users"]
         except (OSError, ValueError, KeyError, TypeError):
             return []
-        return [u["id"] for u in users if u.get("is_owner") and not u.get("system_generated") and u.get("is_active", True)]
+        if not isinstance(users, list):
+            return []
+        return [u["id"] for u in users
+                if isinstance(u, dict) and isinstance(u.get("id"), str) and u["id"]
+                and u.get("is_owner") is True and u.get("system_generated") is not True
+                and u.get("is_active", True) is True]
     def attested():
         try:
             uid = open(ATT).read().strip()
@@ -192,6 +197,7 @@ data:
             unready()
             wait = 3
         except Exception as e:
+            unready()
             print("onboarding failed: %s" % type(e).__name__, flush=True)
             wait = 10
         time.sleep(wait)
