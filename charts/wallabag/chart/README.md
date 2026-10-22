@@ -8,7 +8,7 @@ Wallabag is a self-hosted read-it-later service: save a web page with one click,
 - Reader view with tags, tagging rules, highlights and notes, search, starred and archived lists
 - Import from Pocket, Instapaper, Pinboard, Firefox, Chrome, Readability and Wallabag exports; export to EPUB, MOBI, PDF, CSV, JSON, TXT and XML
 - RSS feeds of your unread, starred and archived articles
-- Official Android and iOS apps, plus many third-party readers, through the REST API
+- The Wallabag Android app and many third-party readers (including iOS ones) through the REST API
 - Several users, each with their own library
 
 ## Perfect for
@@ -19,7 +19,9 @@ Anyone who collects long reads and wants them in their own library: one place, s
 
 - **Sign-in.** Wallabag 2.6 has no single sign-on (OpenID Connect). Everything is behind the Emporium login, then you sign in to Wallabag with its own account. The administrator ("Users management") creates the accounts; self-registration is off.
 - **Administrator.** Emporium creates the administrator before Wallabag serves its first request, with the username, email and password from the install form (password generated into the app's Secret if you leave it empty). The built-in `wallabag` / `wallabag` account that a stock Wallabag install creates does not exist.
-- **Mobile apps and browser extensions.** Create an API client under "API clients management" (`/developer`) and enter its id and secret, your username and your password in the app. These calls use `/oauth/v2/token` and `/api/*`, which skip the Emporium login; Wallabag authenticates them with OAuth bearer tokens. `/api/info` and `/api/version` are public (version and whether registration is open); `POST /api/user` answers 403 while registration is off. The browser authorization flow `/oauth/v2/auth` and `/developer` stay behind the Emporium login.
+- **Mobile apps and browser extensions.** Create an API client under "API clients management" (`/developer`) and enter its id and secret, your username and your password in the app. These calls use `/oauth/v2/token` and `/api/*`, which skip the Emporium login; Wallabag authenticates them with OAuth bearer tokens. `/api/info` and `/api/version` are public (version and whether registration is open); registration through the API (`PUT /api/user`) answers 403 while registration is off. The browser authorization flow `/oauth/v2/auth` and `/developer` stay behind the Emporium login.
+- **Known limitation: no throttling on `/oauth/v2/token`.** Neither Wallabag nor the chart rate-limits the token endpoint, which bypasses the Emporium login. A caller needs valid OAuth client credentials (an id and secret created in `/developer`, never anonymous), but anyone holding one can try passwords for any Wallabag user. Use strong passwords, delete API clients you no longer use, and rotate a client whose secret leaked.
+- **Default account.** A database that already contains an enabled `wallabag` user (for example a restored stock install) gets that account disabled at the next start unless the administrator username is `wallabag`.
 - **Feeds.** `/feed/*` skips the Emporium login so feed readers can fetch your RSS feeds; each feed URL contains a secret token you can regenerate in your Wallabag settings.
 - **Public share links** (`/share/...`) stay behind the Emporium login.
 - **Not included.** Large imports run in the web request (the asynchronous Redis/RabbitMQ workers are not deployed), and Wallabag cannot send email (password resets and email two-factor codes), so an administrator resets forgotten passwords.

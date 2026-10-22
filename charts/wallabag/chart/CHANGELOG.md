@@ -8,3 +8,4 @@
 - Encryption key and downloaded images on a volume (`data` storage integration).
 - Not included: the Redis/RabbitMQ import workers and outgoing mail.
 - Tested on Emporium 0.5.0-rc.12 (2026-10-22, run 447280): install, local administrator login, default wallabag/wallabag refused, OAuth token and API with bearer, skip paths, uninstall without leftovers.
+- Setup init container: the default-account check now runs before every successful exit (existing installs too), and an interrupted install is completed without a schema reset. README: API registration is PUT /api/user, token endpoint throttling documented as a known limitation.

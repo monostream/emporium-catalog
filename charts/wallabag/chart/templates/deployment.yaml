@@ -99,6 +99,13 @@ spec:
                 -U "$SYMFONY__ENV__DATABASE_USER" -d "$SYMFONY__ENV__DATABASE_NAME"; }
               console() { php -d memory_limit=512M bin/console --env=prod "$@"; }
               echo "database connection encrypted: $(q 'select ssl from pg_stat_ssl where pid = pg_backend_pid()')"
+              # Never leave the public account wallabag / wallabag usable: before every successful exit.
+              guard() {
+                if [ "$ADMIN_USERNAME" != wallabag ] && [ "$(q "select count(*) from wallabag_user where username = 'wallabag' and enabled")" != 0 ]; then
+                  q "update wallabag_user set enabled = false where username = 'wallabag'" >/dev/null
+                  echo "the default account wallabag existed and was disabled; the pod restarts once" >&2; exit 1
+                fi
+              }
               users=-1
               if [ "$(q "select to_regclass('public.wallabag_user') is not null")" = t ]; then
                 users=$(q 'select count(*) from wallabag_user')
@@ -107,23 +114,24 @@ spec:
               fi
               if [ "$users" = -1 ]; then
                 echo "fresh database: installing Wallabag"
+                # questions: reset the database? (no), create an administrator? (yes), username, password, email
                 answers="no yes"
               elif [ "$users" = 0 ]; then
-                echo "schema without users (interrupted install): rebuilding the schema"
-                answers="no yes yes"
+                echo "schema without users (interrupted install): completing it without touching the schema"
+                console doctrine:migrations:migrate --no-interaction
+                # questions: reset the database? (no), reset the schema? (no), create an administrator? (yes), ...
+                answers="no no yes"
               else
                 echo "existing installation: migrating"
                 console doctrine:migrations:migrate --no-interaction
+                guard
+                echo "setup done"
                 exit 0
               fi
-              # install questions: reset the database? [reset the schema?] create an admin? username, password, email
               # shellcheck disable=SC2086
               { printf '%s\n' $answers; printf '%s\n' "$ADMIN_USERNAME" "$ADMIN_PASSWORD" "$ADMIN_EMAIL"; } | console wallabag:install
               [ "$(q "select count(*) from wallabag_user where username = :'u'")" = 1 ] || { echo "administrator was not created" >&2; exit 1; }
-              if [ "$ADMIN_USERNAME" != wallabag ] && [ "$(q "select count(*) from wallabag_user where username = 'wallabag'")" != 0 ]; then
-                q "update wallabag_user set enabled = false where username = 'wallabag'" >/dev/null
-                echo "the default account wallabag exists; it was disabled" >&2; exit 1
-              fi
+              guard
               echo "setup done"
           env:
             {{- include "wallabag.commonEnv" . | nindent 12 }}
