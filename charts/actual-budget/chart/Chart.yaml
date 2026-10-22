@@ -2,7 +2,7 @@ apiVersion: v2
 name: actual-budget
 description: Local-first personal finance and budgeting app with a sync server
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "26.10.0"
 home: https://actualbudget.org/
 icon: https://raw.githubusercontent.com/actualbudget/actual/master/packages/docs/static/img/logo.svg

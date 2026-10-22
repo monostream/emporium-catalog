@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- Image repository is written without the `docker.io/` prefix (same image, Docker Hub is the default registry) so `emporium chart updates` can track the upstream releases; no change in behavior.
+
 # 0.1.0
 - First release: Actual Budget sync server 26.10.0 (official `actualbudget/actual-server` image).
 - Budgets and the account database (SQLite) live on the `data` storage integration (2Gi default, grow-only), so the uninstall keep/delete choice applies; data is kept by default.
