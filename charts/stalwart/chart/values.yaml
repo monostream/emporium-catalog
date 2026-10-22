@@ -4,7 +4,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 image:
-  repository: docker.io/stalwartlabs/stalwart
+  repository: stalwartlabs/stalwart
   tag: "v0.16.27"
   pullPolicy: IfNotPresent
 
