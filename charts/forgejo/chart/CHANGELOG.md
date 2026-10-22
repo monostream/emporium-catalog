@@ -1,3 +1,9 @@
+# 0.2.1
+
+Published on 22 October 2026
+
+- forgejo from 17.2.0 to 17.3.1 (Forgejo 15.0.10)
+
 # 0.2.0
 
 Published on 20 October 2026
