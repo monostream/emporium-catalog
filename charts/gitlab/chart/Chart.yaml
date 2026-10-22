@@ -2,8 +2,8 @@ apiVersion: v2
 name: gitlab
 description: A single plattform to experience and share frustration with other developers
 type: application
-version: 0.2.86
-appVersion: "v19.4.1"
+version: 0.3.0
+appVersion: "v19.5.0"
 home: https://gitlab.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/gitlab/gitlab_icon_2.svg
 sources:
@@ -16,11 +16,36 @@ keywords:
   - Issue Tracking
 dependencies:
   - name: gitlab
-    version: 10.4.1
+    version: 10.5.0
     repository: https://charts.gitlab.io/
+  - name: rustfs
+    version: 1.0.3
+    repository: https://charts.rustfs.com
+  - name: valkey
+    version: 0.12.0
+    repository: https://valkey.io/valkey-helm/
 annotations:
   icon: assets/icon.svg
   displayName: GitLab
   licenses: MIT
   category: Developer Tools
   oidcRedirectPaths: /users/auth/openid_connect/callback
+  emporium.build/postgres: |
+    database: gitlabhq_production
+    owner: gitlab
+    version: "18"
+    extensions: [amcheck, btree_gist, pg_trgm, plpgsql]
+    storage: 20Gi
+    instances: 1
+    parameters:
+      max_connections: "400"
+      shared_buffers: 1GB
+      work_mem: 8MB
+      maintenance_work_mem: 64MB
+      statement_timeout: "60000"
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        memory: 2Gi

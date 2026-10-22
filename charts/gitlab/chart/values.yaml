@@ -1,21 +1,234 @@
-authentik:
-  name:
-  label:
-  args:
-    name:
-    scope:
-    response_type:
-    issuer:
-    discovery:
-    client_auth_method:
-    send_scope_to_token_endpoint:
-    pkce:
-    client_options:
-      identifier:
-      secret:
-      redirect_uri:
-      gitlab:
-        groups_attribute:
-        admin_groups:
+## Defaults of the Emporium wrapper around the upstream GitLab chart.
+## Settings that depend on the release (hostnames, secret names, the database
+## and the OIDC client) are set by values.emporium.yaml.
 
-gitlab: {}
+## Settings of the wrapper's own templates
+emporium:
+  ## Sign-in through Emporium's identity provider (Logto), set by values.emporium.yaml
+  oidc:
+    issuer: ""
+    clientId: ""
+    clientSecret: ""
+    redirectUri: ""
+    label: Emporium
+
+  ## Creates an instance runner in GitLab and hands its token to the bundled
+  ## GitLab Runner (registration tokens are deprecated).
+  runnerSetup:
+    enabled: true
+    description: emporium
+    ## How long the setup Job waits for GitLab to come up
+    activeDeadlineSeconds: 7200
+    ## Resources of the container that runs `gitlab-rails runner`
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1Gi
+      limits:
+        memory: 2Gi
+
+  ## Buckets created in RustFS. They must match the buckets configured below.
+  objectStorage:
+    region: us-east-1
+    buckets:
+      - git-lfs
+      - gitlab-artifacts
+      - gitlab-uploads
+      - gitlab-packages
+      - gitlab-mr-diffs
+      - gitlab-terraform-state
+      - gitlab-ci-secure-files
+      - gitlab-dependency-proxy
+      - gitlab-agent-plan-content
+      - gitlab-ci-catalog-bundles
+      - gitlab-pages
+      - gitlab-backups
+      - tmp
+      - registry
+      - runner-cache
+
+  images:
+    ## kubectl image of GitLab's cloud native images; the tag defaults to the
+    ## chart's appVersion
+    kubectl:
+      repository: registry.gitlab.com/gitlab-org/build/cng/kubectl
+      tag: ""
+    ## Images of the runner setup Job, the same as the toolbox uses. The
+    ## toolbox repository gets the edition appended (-ce or -ee); the tags
+    ## default to the chart's appVersion.
+    gitlabBase:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-base
+      tag: ""
+    toolbox:
+      repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox
+      tag: ""
+    awsCli:
+      repository: docker.io/amazon/aws-cli
+      tag: "2.38.2"
+
+global:
+  edition: ce
+
+  emporium:
+    ## Users with this Logto role become GitLab administrators when they sign
+    ## in; users without it lose administrator rights on their next sign-in.
+    ## Global so that the webservice pods can roll when it changes.
+    adminRole: emporium-admin
+
+  hosts:
+    https: true
+
+  ## Emporium exposes apps through Ingress objects; the cluster converts them
+  ## for its own gateway, so the bundled Envoy Gateway stays off.
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureEnvoy: false
+    configureCertmanager: false
+
+  ingress:
+    enabled: true
+    configureCertmanager: false
+    # "none" omits ingressClassName so the cluster default IngressClass is used
+    class: none
+    ## Every ingress names its own TLS secret (issued through the
+    ## kubernetes.io/tls-acme annotation). A non-empty tls map tells upstream
+    ## that TLS is handled; left empty, every pod mounts the CA of a
+    ## self-signed wildcard certificate (<release>-wildcard-tls-ca) that
+    ## nothing creates, and the pods hang in Init. Extra CAs go into
+    ## global.certificates.customCAs.
+    tls:
+      enabled: true
+
+  appConfig:
+    omniauth:
+      enabled: true
+      autoSignInWithProvider: openid_connect
+      allowSingleSignOn: [openid_connect]
+      blockAutoCreatedUsers: false
+      autoLinkUser: [openid_connect]
+      syncProfileFromProvider: [openid_connect]
+      syncProfileAttributes: [email]
+
+    ## All object types share one S3 connection to the bundled RustFS
+    object_store:
+      enabled: true
+      proxy_download: true
+    terraformState:
+      enabled: true
+    ciSecureFiles:
+      enabled: true
+    dependencyProxy:
+      enabled: true
+
+  redis:
+    auth:
+      enabled: true
+      key: default
+
+gitlab:
+  installCertmanager: false
+  certmanager:
+    installCRDs: false
+
+  nginx-ingress:
+    enabled: false
+
+  prometheus:
+    install: false
+
+  gitlab:
+    gitlab-shell:
+      enabled: false
+
+    kas:
+      ingress:
+        enabled: true
+        tls:
+          secretName: gitlab-kas-tls
+
+    webservice:
+      ingress:
+        tls:
+          secretName: gitlab-webservice-tls
+      ## Maps the Logto admin role to GitLab's admin flag on sign-in. The
+      ## volume is named after the initializer's checksum, so a change rolls
+      ## the pods (a subPath mount never sees ConfigMap updates).
+      extraVolumes: |
+        - name: emporium-rails-{{ include "gitlab.emporium.adminSyncChecksum" . }}
+          configMap:
+            name: {{ .Release.Name }}-emporium-rails
+      extraVolumeMounts: |
+        - name: emporium-rails-{{ include "gitlab.emporium.adminSyncChecksum" . }}
+          mountPath: /srv/gitlab/config/initializers/zz_emporium_admin_sync.rb
+          subPath: emporium_admin_sync.rb
+          readOnly: true
+
+  registry:
+    ingress:
+      tls:
+        secretName: gitlab-registry-tls
+    storage:
+      key: registry
+      ## RustFS is only reachable inside the cluster, so the registry serves
+      ## blobs itself instead of redirecting clients to the object storage.
+      redirect:
+        disable: true
+
+  gitlab-runner:
+    install: true
+    runners:
+      ## Privileged job containers (e.g. Docker-in-Docker) give every job
+      ## root on the node. The instance runner takes untagged jobs from every
+      ## project, so this stays off unless the installation trusts all of them.
+      ## Not an upstream key; read by the config template below.
+      privileged: false
+      config: |
+        [[runners]]
+          [runners.kubernetes]
+            image = "ubuntu:24.04"
+            privileged = {{ eq (toString .Values.runners.privileged) "true" }}
+          [runners.cache]
+            Type = "s3"
+            Path = "gitlab-runner"
+            Shared = true
+            [runners.cache.s3]
+              ServerAddress = "{{ .Release.Name }}-rustfs-svc:9000"
+              BucketName = "runner-cache"
+              BucketLocation = "us-east-1"
+              Insecure = true
+
+## S3 compatible object storage for GitLab (replaces the removed bundled MinIO)
+rustfs:
+  mode:
+    standalone:
+      enabled: true
+    distributed:
+      enabled: false
+  ingress:
+    enabled: false
+  storageclass:
+    # empty: the cluster's default StorageClass
+    name: ""
+    dataStorageSize: 20Gi
+  config:
+    rustfs:
+      console_enable: "false"
+      # log to stdout instead of a separate logs volume
+      obs_log_directory: ""
+      obs_environment: production
+
+## Redis compatible store for GitLab (replaces the removed bundled Redis)
+valkey:
+  auth:
+    enabled: true
+    usersExistingSecret: "{{ .Release.Name }}-valkey-auth"
+    aclUsers:
+      default:
+        permissions: "~* &* +@all"
+  dataStorage:
+    enabled: true
+    requestedSize: 2Gi
+  ## The data volume is ReadWriteOnce, so the old pod has to stop before the
+  ## new one can mount it
+  deploymentStrategy: Recreate
