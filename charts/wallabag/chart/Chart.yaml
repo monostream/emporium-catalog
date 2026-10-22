@@ -1,0 +1,25 @@
+apiVersion: v2
+name: wallabag
+description: "Self-hosted read-it-later service: save web pages, read them clean and offline, tag, annotate and export them"
+type: application
+version: 0.1.0
+appVersion: "2.6.14"
+home: https://wallabag.org/
+icon: https://raw.githubusercontent.com/wallabag/wallabag/master/web/img/logo-square.svg
+sources:
+  - https://github.com/wallabag/wallabag
+  - https://github.com/wallabag/docker
+keywords:
+  - Read it later
+  - Bookmarks
+  - Articles
+annotations:
+  icon: assets/icon.svg
+  displayName: Wallabag
+  category: Reading
+  licenses: MIT
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"
