@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.clickhouseName" . }}
+  labels:
+    {{- include "chart.labelsFor" (dict "root" . "component" "clickhouse") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - { name: http, port: 8123, targetPort: http }
+    - { name: native, port: 9000, targetPort: native }
+  selector:
+    {{- include "chart.selectorFor" (dict "root" . "component" "clickhouse") | nindent 4 }}
+---
+{{- if not .Values.clickhouse.persistence.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "chart.clickhouseName" . }}
+  labels:
+    {{- include "chart.labelsFor" (dict "root" . "component" "clickhouse") | nindent 4 }}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: {{ .Values.clickhouse.persistence.size | quote }}
+  {{- with .Values.clickhouse.persistence.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.clickhouseName" . }}
+  labels:
+    {{- include "chart.labelsFor" (dict "root" . "component" "clickhouse") | nindent 4 }}
+spec:
+  # ClickHouse runs as a single node; the data volume is ReadWriteOnce.
+  replicas: 1
+  serviceName: {{ include "chart.clickhouseName" . }}
+  selector:
+    matchLabels:
+      {{- include "chart.selectorFor" (dict "root" . "component" "clickhouse") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/clickhouse-configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "chart.labelsFor" (dict "root" . "component" "clickhouse") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.clickhouse.podSecurityContext | nindent 8 }}
+      containers:
+        - name: clickhouse
+          image: "{{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}"
+          imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.clickhouse.securityContext | nindent 12 }}
+          env:
+            - name: CLICKHOUSE_USER
+              value: {{ .Values.clickhouse.user | quote }}
+            {{- include "chart.secretEnv" (list "CLICKHOUSE_PASSWORD" .Values.secrets.existingSecret "CLICKHOUSE_PASSWORD") | nindent 12 }}
+            - name: CLICKHOUSE_DB
+              value: default
+          ports:
+            - { name: http, containerPort: 8123 }
+            - { name: native, containerPort: 9000 }
+          startupProbe:
+            httpGet: { path: /ping, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: /ping, port: http }
+          livenessProbe:
+            httpGet: { path: /ping, port: http }
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.clickhouse.resources | nindent 12 }}
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/clickhouse }
+            - { name: logs, mountPath: /var/log/clickhouse-server }
+            {{- range list "logs.xml" "ipv4-only.xml" "low-resources.xml" }}
+            - { name: config, mountPath: "/etc/clickhouse-server/config.d/{{ . }}", subPath: {{ . }}, readOnly: true }
+            {{- end }}
+            - { name: config, mountPath: /etc/clickhouse-server/users.d/default-profile-low-resources-overrides.xml, subPath: default-profile-low-resources-overrides.xml, readOnly: true }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "chart.clickhouseClaim" . }}
+        - name: logs
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ include "chart.clickhouseName" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
