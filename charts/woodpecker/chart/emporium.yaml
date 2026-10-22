@@ -71,9 +71,8 @@ inputs:
     section: pipelines
   MaxWorkflows:
     label: Parallel workflows
-    description: Workflows the agent runs at the same time.
+    description: Workflows the agent runs at the same time. Empty uses the profile value (Small 2, Medium 6).
     type: integer
-    default: 2
     min: 1
     max: 50
     path: agent.maxWorkflows

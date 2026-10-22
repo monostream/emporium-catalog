@@ -88,6 +88,18 @@ spec:
             # ReadWriteMany is the Woodpecker default; most block-storage classes only offer ReadWriteOnce.
             - name: WOODPECKER_BACKEND_K8S_STORAGE_RWX
               value: {{ .Values.agent.workspaceRWX | quote }}
+            {{- if not .Values.agent.workspaceRWX }}
+            # A ReadWriteOnce volume attaches to one node: keep the steps of one workflow on the same node
+            # (matchLabelKeys on the per-workflow task-uuid label; Kubernetes 1.31+).
+            - name: WOODPECKER_BACKEND_K8S_POD_AFFINITY
+              value: |
+                podAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    - labelSelector: {}
+                      matchLabelKeys:
+                        - woodpecker-ci.org/task-uuid
+                      topologyKey: kubernetes.io/hostname
+            {{- end }}
             - name: WOODPECKER_MAX_WORKFLOWS
               value: {{ .Values.agent.maxWorkflows | quote }}
             - name: WOODPECKER_AGENT_CONFIG_FILE
