@@ -2,7 +2,7 @@ apiVersion: v2
 name: collabora
 description: Collabora Online Development Edition - the office suite (documents, spreadsheets, presentations) that Nextcloud and other WOPI hosts embed in the browser
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "26.04.5.1.1"
 home: https://www.collaboraonline.com/code/
 icon: https://www.collaboraonline.com/wp-content/uploads/2023/06/cropped-collabora-symbols-300.png
