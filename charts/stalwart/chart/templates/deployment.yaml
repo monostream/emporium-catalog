@@ -1,0 +1,152 @@
+{{- $fullname := include "chart.fullname" . }}
+{{- $image := printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # RocksDB allows one process on the volume: never two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/provision: {{ include (print $.Template.BasePath "/provision-configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init
+          image: {{ $image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command: ["/bin/sh", "-c", "mkdir -p /var/lib/stalwart/etc /var/lib/stalwart/data"]
+          resources:
+            requests: { cpu: 5m, memory: 16Mi }
+            limits: { memory: 64Mi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/stalwart }
+      containers:
+        - name: stalwart
+          image: {{ $image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          # The administrator password is delivered by reference and joined to the
+          # username here, because Stalwart reads "<user>:<password>" from one variable.
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export STALWART_RECOVERY_ADMIN="${ADMIN_USERNAME}:${ADMIN_PASSWORD}"
+              CFG=/var/lib/stalwart/etc/config.json
+              if [ ! -f "$CFG" ]; then
+                # Bootstrap mode: the provision container completes the setup through the
+                # API, Stalwart writes config.json and has to be restarted to leave bootstrap mode.
+                /usr/local/bin/stalwart --config "$CFG" &
+                pid=$!
+                trap 'kill -TERM $pid' TERM INT
+                while [ ! -f "$CFG" ] && kill -0 $pid 2>/dev/null; do sleep 2; done
+                sleep 5
+                kill -TERM $pid 2>/dev/null
+                wait $pid
+                trap - TERM INT
+              fi
+              exec /usr/local/bin/stalwart --config "$CFG"
+          env:
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- with .Values.config.publicUrl }}
+            - name: STALWART_PUBLIC_URL
+              value: {{ . | quote }}
+            {{- end }}
+          ports:
+            - { name: http, containerPort: {{ .Values.service.httpPort }} }
+            - { name: smtp, containerPort: 25 }
+            - { name: smtps, containerPort: 465 }
+            - { name: submission, containerPort: 587 }
+            - { name: imap, containerPort: 143 }
+            - { name: imaps, containerPort: 993 }
+            - { name: pop3, containerPort: 110 }
+            - { name: pop3s, containerPort: 995 }
+            - { name: sieve, containerPort: 4190 }
+          startupProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            tcpSocket: { port: http }
+          # The mail listeners only exist after the first-start setup, so the pod becomes
+          # ready when Stalwart runs in normal mode.
+          readinessProbe:
+            tcpSocket: { port: smtp }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/stalwart }
+            - { name: tmp, mountPath: /tmp }
+        - name: provision
+          image: {{ $image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command: ["/bin/sh", "/provision/provision.sh"]
+          env:
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            - name: SERVER_HOSTNAME
+              value: {{ default .Values.ingress.host .Values.config.serverHostname | quote }}
+            - name: DEFAULT_DOMAIN
+              value: {{ .Values.config.defaultDomain | quote }}
+            - name: HTTP_PORT
+              value: {{ .Values.service.httpPort | quote }}
+          resources:
+            requests: { cpu: 5m, memory: 16Mi }
+            limits: { memory: 64Mi }
+          volumeMounts:
+            - { name: provision, mountPath: /provision }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-data" $fullname) .Values.persistence.existingClaim }}
+        - name: tmp
+          emptyDir: {}
+        - name: provision
+          configMap:
+            name: {{ $fullname }}-provision
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

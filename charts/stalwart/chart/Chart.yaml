@@ -1,0 +1,25 @@
+apiVersion: v2
+name: stalwart
+description: All-in-one mail and collaboration server (SMTP, IMAP, JMAP, CalDAV, CardDAV, WebDAV)
+type: application
+version: 0.1.0
+appVersion: "v0.16.27"
+home: https://stalw.art/
+icon: https://raw.githubusercontent.com/stalwartlabs/stalwart/main/img/logo-red.svg
+sources:
+  - https://github.com/stalwartlabs/stalwart
+keywords:
+  - Mail server
+  - SMTP
+  - IMAP
+  - JMAP
+  - CalDAV
+annotations:
+  icon: assets/icon.svg
+  displayName: Stalwart Mail Server
+  category: Communication
+  licenses: AGPL-3.0-only
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+  emporiumVersion: "0.5.0"
