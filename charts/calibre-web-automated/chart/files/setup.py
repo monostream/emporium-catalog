@@ -39,17 +39,20 @@ def chown_tree(path):
 
 
 def create_db():
-    """Returns True when app.db was created now."""
-    if os.path.exists(DB):
-        return False
-    log("app.db is missing, creating it")
+    """Runs the image's own non-serving init (cps.py -d): it creates app.db when it is missing and
+    otherwise applies the app's schema migrations, which the OIDC columns below depend on.
+    Returns True when app.db was created now."""
+    created = not os.path.exists(DB)
+    log("creating app.db" if created else "app.db exists, applying the app's migrations")
     env = dict(os.environ, CALIBRE_DBPATH=CONFIG, HOME=CONFIG)
     res = subprocess.run(
         ["/lsiopy/bin/python3", os.path.join(APP_DIR, "cps.py"), "-d"],
         cwd=APP_DIR, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=300)
-    if not os.path.exists(DB):
-        log("could not create app.db:\n" + res.stdout.decode(errors="replace")[-2000:])
+    if not os.path.exists(DB) or res.returncode != 0:
+        log("init failed (exit %s):\n%s" % (res.returncode, res.stdout.decode(errors="replace")[-2000:]))
         sys.exit(1)
+    if not created:
+        return False
     con = sqlite3.connect(DB)
     # Same step as the image's own init: point Calibre-Web at the bundled kepubify.
     con.execute("update settings set config_kepubifypath='/usr/bin/kepubify' "
@@ -105,7 +108,7 @@ def configure_oidc(con):
             con.execute("insert into oauthProvider (provider_name, active) values (?, 0)", (name,))
     row = con.execute("select id from oauthProvider where provider_name='generic'").fetchone()
     values = (client_id, secret, issuer + "/.well-known/openid-configuration",
-              "openid profile email", "preferred_username", "sub",
+              "openid profile email", "sub", "sub",
               os.environ.get("OIDC_BUTTON", "Emporium"))
     if row:
         con.execute("update oauthProvider set oauth_client_id=?, oauth_client_secret=?, metadata_url=?, "
@@ -115,8 +118,10 @@ def configure_oidc(con):
         con.execute("insert into oauthProvider (oauth_client_id, oauth_client_secret, metadata_url, "
                     "scope, username_mapper, email_mapper, login_button, active, provider_name) "
                     "values (?,?,?,?,?,?,?,1,'generic')", values)
-    # The email column is unique and Emporium users usually have no email (the claim is then
-    # empty), so the stable subject id is used as the account's email value.
+    # Username and email both come from the stable subject id. CWA links an incoming login to an
+    # existing local account with the same username, so a name chosen by the user (preferred_username)
+    # could take over the local administrator; subject ids are random and never collide with local
+    # names. The email column is also unique and Emporium users usually have no email.
     # login type 2 = OAuth (the standard login form stays available)
     con.execute("update settings set config_login_type=2, config_oauth_redirect_host=?", (host,))
     con.commit()

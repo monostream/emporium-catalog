@@ -29,9 +29,10 @@ integrations:
     type: ingress
     access: { default: authenticated }
     # Reader apps and e-readers reach the app with their own credentials:
-    # OPDS (HTTP basic auth), the Kobo sync (token in the path) and the KOReader sync.
+    # OPDS (HTTP basic auth) and the Kobo sync (token in the path). The KOReader sync (/kosync)
+    # stays behind the Emporium login: upstream has no brute-force protection on it.
     # The rest of the app stays behind the Emporium login.
-    skipPaths: [/opds/*, /kobo/*, /kosync/*]
+    skipPaths: [/opds/*, /kobo/*]
     # Callback of Calibre-Web's generic OpenID Connect provider.
     redirectPaths: [/login/generic/authorized]
     bind:
