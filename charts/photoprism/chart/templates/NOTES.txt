@@ -1,0 +1,17 @@
+PhotoPrism is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start creates the database, give it a minute.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with "Continue with Emporium": your PhotoPrism account is created at your first visit, named like your Emporium username, with the role "{{ .Values.oidc.newUserRole }}". Members of the Emporium role {{ .Values.oidc.emporiumAdminRole }} become administrators at every sign-in.
+Community Edition has no regular "user" role: a guest sees only albums shared with the account (Library > Albums > Share) and cannot browse the library.
+{{- end }}
+
+Local administrator "{{ .Values.admin.username }}": the password is in the Secret {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- if .Values.oidc.autoLogin }}
+With automatic sign-in on, the local administrator logs in at https://{{ .Values.ingress.host }}/library/login?nosso
+{{- end }}
+
+Photos: upload in the web app, or sync with WebDAV (https://{{ .Values.ingress.host }}/originals/ with an app password of the account, see Settings > Account > Apps and Devices), then index under Library > Index.
+Files placed on the "originals" volume (mounted at /photoprism/originals) are indexed too. The database is SQLite on the "storage" volume: one instance only, and indexing gets slower for libraries of several hundred thousand files.
+Share links (/s/...), the PhotoPrism API (/api/v1/...) and WebDAV (/originals/, /import/) skip the Emporium login and are protected by PhotoPrism itself.

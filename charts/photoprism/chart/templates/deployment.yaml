@@ -1,0 +1,156 @@
+{{- $fullname := include "chart.fullname" . }}
+{{- $oidc := and .Values.oidc.enabled (ne (.Values.oidc.existingSecret | toString) "") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # SQLite on a ReadWriteOnce volume: two versions must not run side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: photoprism
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # The image's /init (s6-overlay) needs root; start the server directly as the pod user.
+          command: ["/opt/photoprism/bin/photoprism", "start"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.config.timezone | quote }}
+            - name: HOME
+              value: /tmp
+            # The pod already runs as a non-root user: no chown/chmod at start.
+            - name: PHOTOPRISM_DISABLE_CHOWN
+              value: "true"
+            - name: PHOTOPRISM_HTTP_HOST
+              value: "0.0.0.0"
+            - name: PHOTOPRISM_HTTP_PORT
+              value: {{ .Values.service.port | quote }}
+            {{- with .Values.ingress.host }}
+            - name: PHOTOPRISM_SITE_URL
+              value: {{ printf "https://%s/" . | quote }}
+            {{- end }}
+            # TLS ends at the ingress; the proxy headers come from the cluster network.
+            - name: PHOTOPRISM_DISABLE_TLS
+              value: "true"
+            - name: PHOTOPRISM_TRUSTED_PROXY
+              value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.0/8,::1"
+            # Never public mode: every request needs a login.
+            - name: PHOTOPRISM_AUTH_MODE
+              value: "password"
+            - name: PHOTOPRISM_DATABASE_DRIVER
+              value: "sqlite"
+            - name: PHOTOPRISM_STORAGE_PATH
+              value: /photoprism/storage
+            - name: PHOTOPRISM_ORIGINALS_PATH
+              value: /photoprism/originals
+            - name: PHOTOPRISM_IMPORT_PATH
+              value: /photoprism/storage/import
+            - name: PHOTOPRISM_TEMP_PATH
+              value: /tmp/photoprism
+            - name: PHOTOPRISM_WORKERS
+              value: {{ .Values.indexing.workers | quote }}
+            - name: PHOTOPRISM_ADMIN_USER
+              value: {{ .Values.admin.username | quote }}
+            {{- with .Values.admin.existingSecret }}
+            - name: PHOTOPRISM_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- if $oidc }}
+            - name: PHOTOPRISM_OIDC_URI
+              value: {{ .Values.oidc.issuer | quote }}
+            - name: PHOTOPRISM_OIDC_CLIENT
+              value: {{ .Values.oidc.clientId | quote }}
+            - name: PHOTOPRISM_OIDC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.existingSecret }}
+                  key: {{ .Values.oidc.clientSecretKey }}
+            - name: PHOTOPRISM_OIDC_PROVIDER
+              value: "Emporium"
+            - name: PHOTOPRISM_OIDC_SCOPES
+              value: "openid profile email roles"
+            - name: PHOTOPRISM_OIDC_REGISTER
+              value: "true"
+            - name: PHOTOPRISM_OIDC_ROLE
+              value: {{ .Values.oidc.newUserRole | quote }}
+            - name: PHOTOPRISM_OIDC_GROUP_CLAIM
+              value: "roles"
+            - name: PHOTOPRISM_OIDC_GROUP_ROLE
+              value: {{ printf "%s=admin" .Values.oidc.emporiumAdminRole | quote }}
+            - name: PHOTOPRISM_OIDC_USERNAME
+              value: "preferred_username"
+            - name: PHOTOPRISM_OIDC_REDIRECT
+              value: {{ .Values.oidc.autoLogin | quote }}
+            - name: PHOTOPRISM_OIDC_WEBDAV
+              value: {{ .Values.oidc.webdav | quote }}
+            {{- end }}
+            {{- range $k, $v := .Values.config.extraEnv }}
+            - name: PHOTOPRISM_{{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The first start creates and migrates the database.
+          startupProbe:
+            httpGet: { path: /api/v1/status, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            httpGet: { path: /api/v1/status, port: http }
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet: { path: /api/v1/status, port: http }
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: storage
+              mountPath: /photoprism/storage
+            - name: originals
+              mountPath: /photoprism/originals
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.storage.existingClaim | default (printf "%s-storage" $fullname) }}
+        - name: originals
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.originals.existingClaim | default (printf "%s-originals" $fullname) }}
+        - name: tmp
+          emptyDir:
+            sizeLimit: 2Gi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
