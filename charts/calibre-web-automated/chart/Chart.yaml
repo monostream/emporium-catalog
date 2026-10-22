@@ -1,0 +1,26 @@
+apiVersion: v2
+name: calibre-web-automated
+description: Self-hosted ebook library with a web reader, OPDS and Kobo/KOReader sync, and automatic import and conversion of new books
+type: application
+version: 0.1.0
+appVersion: "v4.0.8"
+home: https://github.com/crocodilestick/Calibre-Web-Automated
+icon: https://raw.githubusercontent.com/crocodilestick/Calibre-Web-Automated/main/README_images/CWA-logo-round-dark.svg
+sources:
+  - https://github.com/crocodilestick/Calibre-Web-Automated
+keywords:
+  - Ebooks
+  - Calibre
+  - OPDS
+  - Kobo
+annotations:
+  icon: assets/icon.svg
+  displayName: Calibre-Web Automated
+  category: Media
+  licenses: GPL-3.0-only
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

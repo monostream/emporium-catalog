@@ -1,0 +1,84 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: crocodilestick/calibre-web-automated
+  tag: "v4.0.8"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8083
+
+config:
+  timezone: UTC
+  # The linuxserver image starts as root and runs the app as this user and group.
+  puid: 1000
+  pgid: 1000
+
+# Local administrator. The default account (admin / admin123) is replaced by the setup
+# init container before the app starts, so the default password is never served.
+admin:
+  username: cwa-admin
+  # Secret and key holding the administrator password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# OpenID Connect. Calibre-Web keeps its providers in app.db; the init container writes them.
+oidc:
+  enabled: false
+  # Issuer URL of the provider (discovery at <issuer>/.well-known/openid-configuration).
+  issuer: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  buttonText: Emporium
+
+persistence:
+  # Claim for /config (app.db, settings, logs, import history). Emporium creates it.
+  config:
+    existingClaim: ""
+    size: 2Gi
+  # Claim for the Calibre library (metadata.db and the book files), mounted at /calibre-library.
+  library:
+    existingClaim: ""
+    size: 20Gi
+  # Claim for the ingest folder, mounted at /cwa-book-ingest. Books dropped here are imported.
+  ingest:
+    existingClaim: ""
+    size: 5Gi
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 768Mi
+  limits:
+    memory: 2Gi
+
+# The s6 init of the linuxserver image needs root with a few capabilities to prepare the
+# volumes and to drop to puid/pgid for the app.
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
