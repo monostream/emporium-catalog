@@ -21,7 +21,7 @@ inputs:
     path: oidc.newUserRole
   NewUserWebDAV:
     label: WebDAV for new single sign-on accounts
-    description: "Default for accounts created at the first single sign-on: may they use WebDAV (to sync from other apps)? It is only a default for new accounts. Changing it later does not touch existing accounts: grant or revoke WebDAV per account in PhotoPrism (Settings > Users, or `photoprism users mod <name> --webdav=true|false`). Guests cannot use WebDAV whatever the setting."
+    description: "Default for accounts created at the first single sign-on: may they use WebDAV (to sync from other apps)? It is only a default for new accounts. Changing it later does not touch existing accounts: grant or revoke WebDAV per account with `photoprism users mod --webdav=true <name>` (or `--webdav=false <name>`) inside the pod. Guests cannot use WebDAV whatever the setting."
     type: boolean
     default: false
     path: oidc.webdav

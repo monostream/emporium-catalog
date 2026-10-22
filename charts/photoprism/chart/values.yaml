@@ -40,8 +40,6 @@ oidc:
   newUserRole: guest
   # Members of this Emporium role become PhotoPrism administrators.
   emporiumAdminRole: emporium-admin
-  # Members of this Emporium role (and not of the admin role) are guests.
-  emporiumUserRole: emporium-user
   webdav: false
 
 persistence:

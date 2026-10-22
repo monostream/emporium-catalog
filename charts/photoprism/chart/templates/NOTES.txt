@@ -2,7 +2,7 @@ PhotoPrism is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }
 
 {{- if .Values.oidc.enabled }}
 
-Sign in with "Continue with Emporium": your PhotoPrism account is created at your first visit, named like your Emporium username, with the role "{{ .Values.oidc.newUserRole }}". The role follows the Emporium roles at every sign-in: members of {{ .Values.oidc.emporiumAdminRole }} are administrators, members of {{ .Values.oidc.emporiumUserRole }} only are guests.
+Sign in with "Continue with Emporium": your PhotoPrism account is created at your first visit, named like your Emporium username, with the role "{{ .Values.oidc.newUserRole }}". Members of the Emporium role {{ .Values.oidc.emporiumAdminRole }} become administrators at their sign-in. Removing that role does NOT demote the PhotoPrism account: demote it by hand with `photoprism users mod --role=guest <name>` (kubectl -n {{ .Release.Namespace }} exec deploy/{{ .Release.Name }}-photoprism -c photoprism -- photoprism users mod --role=guest <name>).
 Community Edition has no regular "user" role: a guest sees only albums shared with the account (Library > Albums > Share) and cannot browse the library.
 {{- end }}
 
