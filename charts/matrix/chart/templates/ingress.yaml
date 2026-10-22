@@ -21,16 +21,7 @@ spec:
     - host: {{ .Values.ingress.host | quote }}
       http:
         paths:
-          # Matrix client, media and admin APIs, the SSO pages, and (federation on) server discovery.
-          {{- range (list "/_matrix" "/_synapse" "/.well-known/matrix") }}
-          - path: {{ . }}
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "chart.synapseName" $ }}
-                port:
-                  name: http
-          {{- end }}
+          # Element's nginx forwards /_matrix, /_synapse and /.well-known/matrix to Synapse.
           - path: /
             pathType: Prefix
             backend:

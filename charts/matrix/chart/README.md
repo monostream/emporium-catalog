@@ -18,7 +18,7 @@ Teams, families and communities who want their own private chat server with encr
 
 - **Sign-in.** Open the address and choose "Continue with Emporium". Your Matrix id is `@<emporium username>:<host>`. Emporium (Logto) usernames become Matrix ids; an account created another way with the same name blocks that user's single sign-on.
 - **Administrator.** Synapse cannot make administrators from single sign-on. Create the first one with the registration shared secret (generated at install, held in the app's Secret); registration stays closed. The command is printed after install:
-  `kubectl exec deploy/<release>-synapse -- register_new_matrix_user -u admin -a -c /config/homeserver.yaml http://localhost:8008`.
+  `kubectl exec deploy/<release>-synapse -- register_new_matrix_user -u admin -a -c /config/homeserver.yaml http://localhost:8008` (it reads the secret from the mounted file; no `-k` needed; it asks for the password if you leave out `-p`).
   That account signs in with its password in Element (password login is on by default) and can then promote others from the Synapse admin API.
 - **Emporium login.** The Element page itself is behind the Emporium login (set the access to public if anyone should open it). `/_matrix`, `/_synapse` and `/.well-known/matrix` skip it, because Matrix apps, bridges and other servers authenticate there with tokens, and the single sign-on callback returns there.
 - **Server name.** The Matrix server name is the host name of the install. It becomes part of every user id and room id, so it cannot be changed later; reinstall to use another host.

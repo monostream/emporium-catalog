@@ -16,3 +16,48 @@ data:
       "room_directory" (dict "servers" (list .Values.synapse.serverName))
     }}
     {{- $cfg | toPrettyJson | nindent 4 }}
+  # Element's nginx also forwards the Matrix paths to Synapse, so the Ingress has a single "/" path
+  # (Emporium's login proxy cannot route several path prefixes to different backends).
+  default.conf.template: |
+    server {
+        listen       ${ELEMENT_WEB_PORT};
+        listen  [::]:${ELEMENT_WEB_PORT};
+        server_name  localhost;
+
+        root   /usr/share/nginx/html;
+        index  index.html;
+
+        location = /index.html {
+            add_header Cache-Control "no-cache";
+        }
+        location = /version {
+            add_header Cache-Control "no-cache";
+        }
+        location /i18n/ {
+            add_header Cache-Control "no-cache";
+        }
+        location /usercontent/ {
+            add_header Cache-Control "no-cache";
+        }
+        # covers config.json and config.hostname.json requests as it is prefix.
+        location /config {
+            root /tmp/element-web-config;
+            add_header Cache-Control "no-cache";
+        }
+        location /modules {
+            alias /modules;
+        }
+
+        location ~ ^/(_matrix|_synapse|\.well-known/matrix)(/|$) {
+            proxy_pass http://{{ include "chart.synapseName" . }}:8008;
+            proxy_http_version 1.1;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+            proxy_buffering off;
+            proxy_read_timeout 300s;
+            client_max_body_size {{ .Values.synapse.maxUploadSize }};
+        }
+
+        error_page   500 502 503 504  /50x.html;
+    }
