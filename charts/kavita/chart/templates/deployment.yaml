@@ -1,0 +1,199 @@
+{{- $fullname := include "chart.fullname" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # SQLite on a ReadWriteOnce volume: two versions must not run side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/setup: {{ include (print $.Template.BasePath "/setup-configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        # Kavita reads its OpenID Connect provider and its token key from appsettings.json only.
+        # The file is rendered on every start into a memory emptyDir from secrets delivered by
+        # reference. Kavita itself still persists both values on the config volume (the client
+        # secret in its SQLite database, the token key in its backups), see the README.
+        - name: appsettings
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -eu
+              esc() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
+              {
+                printf '{\n  "TokenKey": "%s",\n  "Port": %s,\n  "IpAddresses": "",\n  "BaseUrl": "/",\n  "Cache": 75' "$(esc "$TOKEN_KEY")" "$PORT"
+                if [ -n "${OIDC_AUTHORITY:-}" ] && [ -n "${OIDC_CLIENT_SECRET:-}" ]; then
+                  printf ',\n  "OpenIdConnectSettings": {\n    "Authority": "%s",\n    "ClientId": "%s",\n    "Secret": "%s",\n    "CustomScopes": []\n  }' \
+                    "$(esc "$OIDC_AUTHORITY")" "$(esc "$OIDC_CLIENT_ID")" "$(esc "$OIDC_CLIENT_SECRET")"
+                fi
+                printf '\n}\n'
+              } > /work/appsettings.json
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            {{- with .Values.token.existingSecret }}
+            - name: TOKEN_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.token.secretKey }}
+            {{- end }}
+            {{- if and .Values.oidc.enabled .Values.oidc.existingSecret }}
+            - name: OIDC_AUTHORITY
+              value: {{ .Values.oidc.authority | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .Values.oidc.clientId | quote }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.existingSecret }}
+                  key: {{ .Values.oidc.clientSecretKey }}
+            {{- end }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: appsettings
+              mountPath: /work
+      containers:
+        - name: kavita
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.config.timezone | quote }}
+            - name: HOME
+              value: /tmp
+            - name: DOTNET_BUNDLE_EXTRACT_BASE_DIR
+              value: /tmp/.net
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The first start creates and migrates the database.
+          startupProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet: { path: /api/health, port: http }
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /kavita/config
+            - name: appsettings
+              mountPath: /kavita/config/appsettings.json
+              subPath: appsettings.json
+            - name: library
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+        - name: setup
+          image: "{{ .Values.setup.image.repository }}:{{ .Values.setup.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python3", "-I", "-B", "/scripts/setup.py"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: KAVITA_URL
+              value: {{ printf "http://127.0.0.1:%v" .Values.service.port | quote }}
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            - name: OIDC_ENABLED
+              value: {{ ternary "1" "0" (and .Values.oidc.enabled (ne (.Values.oidc.existingSecret | toString) "")) | quote }}
+            - name: OIDC_AUTO_LOGIN
+              value: {{ ternary "1" "0" .Values.oidc.autoLogin | quote }}
+            - name: LIBRARY_DIR
+              value: /data
+            - name: MARKER
+              value: /kavita/config/.emporium-setup-done
+            - name: APPLIED_MARKER
+              value: /kavita/config/.emporium-settings-applied
+            - name: READY_FILE
+              value: /status/ready
+          # The pod, and so the Service endpoint, is ready only after the administrator exists:
+          # until then anybody who reaches the UI could register the first administrator.
+          readinessProbe:
+            exec:
+              command: ["test", "-f", "/status/ready"]
+            periodSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.setup.resources | nindent 12 }}
+          volumeMounts:
+            - name: status
+              mountPath: /status
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: config
+              mountPath: /kavita/config
+            - name: library
+              mountPath: /data
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.config.existingClaim | default (printf "%s-config" $fullname) }}
+        - name: library
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.library.existingClaim | default (printf "%s-library" $fullname) }}
+        - name: appsettings
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+        - name: status
+          emptyDir:
+            sizeLimit: 1Mi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: scripts
+          configMap:
+            name: {{ $fullname }}-setup
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
