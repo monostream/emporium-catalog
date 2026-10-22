@@ -1,13 +1,17 @@
 {{- /* WOPI host allowlist: coolwsd reads aliasgroup<N> as "scheme://host-regex:port". */ -}}
 {{- $hosts := list }}
 {{- if .Values.wopi.zone }}
-{{- $hosts = append $hosts (printf "[^/.]+\\.%s" (regexQuoteMeta .Values.wopi.zone)) }}
+{{- $hosts = append $hosts (printf ".*\\.%s" (regexQuoteMeta .Values.wopi.zone)) }}
 {{- end }}
 {{- range splitList "," (default "" .Values.wopi.hosts) }}
 {{- $h := trimPrefix "https://" (trim .) }}
 {{- if $h }}
 {{- $hosts = append $hosts (regexQuoteMeta $h) }}
 {{- end }}
+{{- end }}
+{{- /* Fail closed: with no host at all, one group that matches nothing (coolwsd then refuses every WOPI host). */ -}}
+{{- if not $hosts }}
+{{- $hosts = list "wopi-hosts-not-configured\\.invalid" }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -42,6 +46,9 @@ spec:
           args:
             - --o:ssl.enable=false
             - --o:ssl.termination=true
+            # CODE 26.04 ignores the groups from the environment unless the mode is set
+            # explicitly; with the default "first" the first WOPI host to connect wins.
+            - --o:storage.wopi.alias_groups[@mode]=groups
             {{- with .Values.ingress.host }}
             - --o:server_name={{ . }}
             {{- end }}

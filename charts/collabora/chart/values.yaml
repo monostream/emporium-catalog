@@ -50,8 +50,8 @@ resources:
   limits:
     memory: 3Gi
 
-# coolwsd forks one jailed process per document. The jail needs chroot, mknod
-# and chown; the binaries carry file capabilities, which needs
+# coolwsd forks one jailed process per document. The jail helper needs chroot,
+# chown and fowner; its binaries carry file capabilities, which needs
 # allowPrivilegeEscalation. The root filesystem stays writable for the jails.
 podSecurityContext:
   runAsNonRoot: true
@@ -65,7 +65,7 @@ securityContext:
   readOnlyRootFilesystem: false
   capabilities:
     drop: [ALL]
-    add: [CHOWN, FOWNER, MKNOD, SYS_CHROOT]
+    add: [CHOWN, FOWNER, SYS_CHROOT]
 
 nodeSelector: {}
 tolerations: []
