@@ -1,3 +1,13 @@
+# 0.2.1
+
+Published on 22 October 2026
+
+- docker from 29.9.1 to 29.9.2
+- Code Server from v4.140.0 to v4.141.0
+- Docker CLI from v29.8.2 to v29.9.2
+- Docker Buildx from v0.37.2 to v0.38.1
+- Helm CLI from v4.3.0 to v4.3.1
+
 # 0.2.0
 
 Published on 20 October 2026
