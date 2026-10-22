@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labelsFor" (dict "root" . "component" "web") | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    {{- include "chart.selectorFor" (dict "root" . "component" "web") | nindent 4 }}

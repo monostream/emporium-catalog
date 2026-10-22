@@ -1,0 +1,14 @@
+[
+  {
+    "provider": "chart",
+    "name": "langfuse",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "imageTagPaths": [
+      "web.image.tag",
+      "worker.image.tag"
+    ],
+    "appVersionMapping": "value:web.image.tag",
+    "changelogPath": "./chart"
+  }
+]

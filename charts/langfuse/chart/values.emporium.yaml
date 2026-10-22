@@ -1,0 +1,39 @@
+config:
+  baseUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+secrets:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+oidc:
+  enabled: true
+  issuer: {{ .Emporium.Integrations.sso.Issuer | quote }}
+  clientId: {{ .Emporium.Integrations.sso.ClientID | quote }}
+  existingSecret: {{ .Emporium.Integrations.sso.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+{{- with .Emporium.Integrations.db }}
+database:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  name: {{ .Database | quote }}
+  username: {{ .Username | quote }}
+  passwordSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+  caSecret: {{ .CASecretName | quote }}
+{{- end }}
+{{- with .Emporium.Integrations.cache }}
+redis:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}
+{{- with .Emporium.Integrations.files }}
+s3:
+  endpoint: {{ .Endpoint | quote }}
+  region: {{ .Region | quote }}
+  bucket: {{ first .Buckets | quote }}
+  forcePathStyle: {{ .PathStyle | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  accessKeyKey: {{ .AccessKeyKey | quote }}
+  secretKeyKey: {{ .SecretKeyKey | quote }}
+{{- end }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

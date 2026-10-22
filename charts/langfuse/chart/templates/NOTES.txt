@@ -1,0 +1,14 @@
+Langfuse is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start applies the database migrations and takes a few minutes.
+{{- if .Values.oidc.enabled }}
+
+Sign in with "{{ .Values.oidc.providerName }}" on the login page. The Emporium account needs an email address.
+{{- if eq .Values.auth.disableSignup "false" }} Your Langfuse account is created at your first sign-in and joins the "{{ .Values.init.orgName }}" organization as {{ .Values.auth.defaultOrgRole }}.{{ end }}
+{{- end }}
+{{- if .Values.secrets.existingSecret }}
+
+Bootstrap administrator: {{ .Values.init.userEmail }}. The password and the initial project API keys are in the Secret
+{{ .Values.secrets.existingSecret }} (keys LANGFUSE_INIT_USER_PASSWORD, LANGFUSE_INIT_PROJECT_PUBLIC_KEY, LANGFUSE_INIT_PROJECT_SECRET_KEY):
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.secrets.existingSecret }} -o jsonpath='{.data.LANGFUSE_INIT_USER_PASSWORD}' | base64 -d
+{{- end }}
+
+SDKs and OpenTelemetry exporters send to https://{{ .Values.ingress.host }}/api/public with the project's API keys; that path bypasses the Emporium login.

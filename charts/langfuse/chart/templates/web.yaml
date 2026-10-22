@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.webName" . }}
+  labels:
+    {{- include "chart.labelsFor" (dict "root" . "component" "web") | nindent 4 }}
+spec:
+  replicas: 1
+  # The web container migrates PostgreSQL and ClickHouse at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorFor" (dict "root" . "component" "web") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labelsFor" (dict "root" . "component" "web") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        # ClickHouse needs a moment on a cold start; the migrations need it.
+        - name: wait-clickhouse
+          image: "{{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}"
+          imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -c
+            - until wget -q -O /dev/null --tries=1 http://{{ include "chart.clickhouseName" . }}:8123/ping; do echo waiting for ClickHouse; sleep 3; done
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 64Mi }
+      containers:
+        - name: web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: HOME
+              value: /tmp
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            - name: PORT
+              value: "3000"
+            {{- include "chart.commonEnv" . | nindent 12 }}
+            {{- include "chart.secretEnv" (list "NEXTAUTH_SECRET" .Values.secrets.existingSecret "NEXTAUTH_SECRET") | nindent 12 }}
+            # Media uploads (images, audio) go from the SDK to a presigned URL on the S3 endpoint.
+            - name: LANGFUSE_S3_MEDIA_UPLOAD_INTERNAL_ENDPOINT
+              value: {{ .Values.s3.endpoint | quote }}
+            - name: LANGFUSE_DEFAULT_ORG_ID
+              value: {{ .Values.init.orgId | quote }}
+            - name: LANGFUSE_DEFAULT_ORG_ROLE
+              value: {{ .Values.auth.defaultOrgRole | quote }}
+            - name: LANGFUSE_INIT_ORG_ID
+              value: {{ .Values.init.orgId | quote }}
+            - name: LANGFUSE_INIT_ORG_NAME
+              value: {{ .Values.init.orgName | quote }}
+            - name: LANGFUSE_INIT_PROJECT_ID
+              value: {{ .Values.init.projectId | quote }}
+            - name: LANGFUSE_INIT_PROJECT_NAME
+              value: {{ .Values.init.projectName | quote }}
+            {{- include "chart.secretEnv" (list "LANGFUSE_INIT_PROJECT_PUBLIC_KEY" .Values.secrets.existingSecret "LANGFUSE_INIT_PROJECT_PUBLIC_KEY") | nindent 12 }}
+            {{- include "chart.secretEnv" (list "LANGFUSE_INIT_PROJECT_SECRET_KEY" .Values.secrets.existingSecret "LANGFUSE_INIT_PROJECT_SECRET_KEY") | nindent 12 }}
+            - name: LANGFUSE_INIT_USER_EMAIL
+              value: {{ .Values.init.userEmail | quote }}
+            - name: LANGFUSE_INIT_USER_NAME
+              value: {{ .Values.init.userName | quote }}
+            {{- include "chart.secretEnv" (list "LANGFUSE_INIT_USER_PASSWORD" .Values.secrets.existingSecret "LANGFUSE_INIT_USER_PASSWORD") | nindent 12 }}
+            # No newsletter prompt after the first sign-in.
+            - name: LANGFUSE_DISABLE_SIGNUP_ONBOARDING
+              value: "true"
+            - name: AUTH_DISABLE_SIGNUP
+              value: {{ .Values.auth.disableSignup | quote }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .issuer }}
+            - name: AUTH_CUSTOM_NAME
+              value: {{ .providerName | quote }}
+            - name: AUTH_CUSTOM_CLIENT_ID
+              value: {{ .clientId | quote }}
+            {{- include "chart.secretEnv" (list "AUTH_CUSTOM_CLIENT_SECRET" .existingSecret .clientSecretKey) | nindent 12 }}
+            - name: AUTH_CUSTOM_ISSUER
+              value: {{ .issuer | quote }}
+            # Logto signs ID tokens with ES384.
+            - name: AUTH_CUSTOM_ID_TOKEN_SIGNED_RESPONSE_ALG
+              value: {{ .idTokenAlg | quote }}
+            # An account created with a password (the administrator) is linked to the SSO login with the same email.
+            - name: AUTH_CUSTOM_ALLOW_ACCOUNT_LINKING
+              value: {{ .allowAccountLinking | quote }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 3000
+          # PostgreSQL and ClickHouse migrations run before the server listens.
+          startupProbe:
+            httpGet: { path: /api/public/health, port: http }
+            periodSeconds: 5
+            failureThreshold: 120
+          livenessProbe:
+            httpGet: { path: /api/public/health, port: http }
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet: { path: /api/public/ready, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+          volumeMounts:
+            - { name: db-ca, mountPath: /etc/db-ca, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+            - { name: next-cache, mountPath: /app/web/.next/cache }
+      volumes:
+        {{- include "chart.dbCaVolume" . | nindent 8 }}
+        - name: tmp
+          emptyDir: {}
+        - name: next-cache
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
