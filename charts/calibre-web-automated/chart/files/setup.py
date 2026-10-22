@@ -75,9 +75,11 @@ def check_admin_username(username):
     alphanumeric characters) and CWA matches an incoming login to an existing account by username
     (exact, case-sensitive) and then by e-mail. A local name containing '-', '_' or '.' can never
     equal a subject id, so such names are required; a name shaped like a subject id is refused."""
-    if re.fullmatch(r"[a-z0-9]{12}", username) or not re.search(r"[._-]", username):
-        log("the administrator username must contain '-', '_' or '.' (so it can never equal a "
-            "single sign-on subject id) and must not look like one")
+    if (re.fullmatch(r"[a-z0-9]{12}", username) or not re.search(r"[._-]", username)
+            or not 2 <= len(username) <= 32
+            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", username)):
+        log("the administrator username must be 2-32 characters of letters, digits, '.', '_', '-', start with a "
+            "letter or digit and contain '-', '_' or '.' (so it can never equal a single sign-on subject id)")
         sys.exit(1)
 
 
