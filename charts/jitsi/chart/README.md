@@ -22,3 +22,5 @@ Teams and organisations that want private meetings with colleagues, customers or
 - **Who can create and join meetings.** Jitsi has no single sign-on of its own. This chart puts the Emporium login in front: only signed-in Emporium users can open the page, create a room and join. The first person in a room is its moderator. To let people outside Emporium join, set the access of the app to "public" at install; then anybody who knows the address can also start rooms, so keep the lobby switched on and use room passwords. There is no setting that lets guests join but not create rooms.
 - **No data to back up.** Meetings are not recorded or stored; the internal passwords are generated at install.
 - Recording, live streaming and dial-in need extra services (Jibri, Jigasi) and are not included.
+- Icon: the official Jitsi logo (jitsi-meet `images/favicon.svg`, Apache-2.0).
+- The images need privilege escalation with a few capabilities (CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID) for their s6-overlay init; the services run as uid 1000.
