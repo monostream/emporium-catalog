@@ -1,11 +1,24 @@
-# 0.0.78
+# 0.2.0
 
 Published on 20 October 2026
 
-- Respect the access policy chosen in Emporium. With 'Public' access the chart no longer fails to render (duplicate `emporium.build/auth-skip-paths`); with other policies only the API and the Git smart-HTTP and LFS endpoints skip the Emporium login (no longer repository pages under `.git` URLs), and Forgejo itself requires sign-in, so public repositories are not served anonymously.
-- With 'Authenticated' or 'Admins' access, LFS objects of public repositories can still be downloaded without sign-in (Forgejo serves them without checking it). A download needs the object's 64-character id, which only the repository, behind sign-in, reveals.
-- With 'Authenticated' or 'Admins' access, the runner can no longer fetch actions hosted on this Forgejo, because it fetches them without credentials. Workflows must use actions from a public source (`DEFAULT_ACTIONS_URL`) or public mirrors.
-- Drop the group-based admin sync of the Emporium OAuth source (the old `authentik Admins` group). Logging in with an account linked to the only admin no longer fails with "can not delete the last admin user". Admins are managed in Forgejo itself; upgrading clears the old admin group setting.
+- Requires Emporium v0.5.0 (`emporium.yaml`); PostgreSQL is the `postgres` postgres integration (CloudNativePG cluster `<release>-postgres` as in 0.1.0, PostgreSQL 17, SSL_MODE require).
+- Fixed: Logto logins of the only admin failed with a 500. The oauth source no longer syncs admins from a group claim (it was the Authentik group "authentik Admins"); the setting is cleared on upgrade. Admins are granted in Forgejo; the `roles` scope is requested.
+- The local admin ("Admin username", "Admin password") is read from the per-app Secret instead of plain values; the password is generated when left empty.
+- The OIDC client secret is read from the per-app Secret instead of plain values.
+- Fixed: with access public the ingress carried `emporium.build/auth-skip-paths` twice. The chart sets no `emporium.build/auth-*` annotations; `/api/*` and the Git smart-HTTP/LFS paths are `skipPaths` of the ingress integration.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; `ROOT_URL` follows the hostname.
+- Repository data is the `data` storage integration (30Gi default, grow-only) instead of the chart's `gitea-shared-storage` claim, so the uninstall keep/delete choice applies.
+- Profiles small and medium; default resources for Forgejo.
+
+# 0.1.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17); the password comes from the CloudNativePG app secret. Forgejo chart 17 no longer bundles PostgreSQL or Redis, so DB_TYPE=postgres had no database and installs could not start. Requires Emporium v0.5.0.
+- Removed the Enable High Availability field: the Redis cluster and postgresql-ha it switched on no longer exist in the Forgejo chart. Cache and queue stay in-process (memory, level).
+- Actions are enabled ([actions] ENABLED; the key was misspelled)
+- Connects to PostgreSQL with SSL_MODE require (CloudNativePG always serves TLS)
 
 # 0.0.76
 

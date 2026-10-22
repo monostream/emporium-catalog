@@ -1,32 +1,15 @@
 app:
-  domain: "https://{{ .Emporium.Integrations.DNS.Hostname }}"
-  zone: "https://{{ .Emporium.Integrations.DNS.Zone }}"
-
-oidc:
-  issuerUrl: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-  clientId: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-  clientSecret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-
-storage:
-  data:
-    enabled: true
-    existingClaim: "{{ .Emporium.Integrations.Storage.Claims.Data.Name }}"
+  domain: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+  zone: {{ printf "https://%s" .Emporium.Integrations.web.Zone | quote }}
 
 ingress:
   enabled: true
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
-    emporium.build/disable-glass: "true"
-    emporium.build/auth-skip-paths: '*'
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
   hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: {{ .Emporium.Name }}-tls
-      hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

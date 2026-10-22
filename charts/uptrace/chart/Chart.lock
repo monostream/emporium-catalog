@@ -1,9 +1,0 @@
-dependencies:
-- name: uptrace
-  repository: https://charts.uptrace.dev
-  version: 2.0.2
-- name: postgresql
-  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 16.7.27
-digest: sha256:f0559961b07999b7ee8a3feb92180e85047e0120476ffbc30f77f1dd964b48b1
-generated: "2026-10-07T00:07:16.193726+02:00"

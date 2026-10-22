@@ -1,0 +1,53 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Local administrator, description: "Grocy has its own accounts and login page behind the Emporium login. This account is created at the first start; it replaces Grocy's well-known default admin/admin before the first request is served." }
+
+inputs:
+  Timezone:
+    label: Time zone
+    description: IANA time zone name, for example Europe/Berlin. Grocy shows and computes stock, due and calendar dates in it.
+    type: string
+    default: UTC
+    path: timezone
+    section: general
+  AdminPassword:
+    label: Administrator password
+    description: At least 8 printable ASCII characters without spaces. Leave empty to generate one (stored in the app's Secret). Used only while the account still has Grocy's default password; change it later in Grocy. The username is "admin".
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[\x21-\x7E]{8,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The REST API (/api/*, used by Grocy's own pages, companion apps and Home Assistant)
+    # authenticates with the Grocy session cookie or a GROCY-API-KEY header.
+    skipPaths: [/api/*]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  config:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: storage.config.existingClaim
+
+components:
+  app:
+    label: Grocy
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database and uploads live on a single volume" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household
+    values: profiles/small.yaml

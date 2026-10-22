@@ -1,0 +1,146 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/formbricks/formbricks
+  tag: "6.1.0"
+  pullPolicy: IfNotPresent
+
+# Formbricks Hub (feedback record API and background worker), required by Formbricks 6.
+hub:
+  image:
+    repository: ghcr.io/formbricks/hub
+    tag: "0.14.0"
+  # Pinned together with the Formbricks release (docker/docker-compose.yml upstream).
+  # Hub needs the pgvector extension in the application database.
+
+# Cube semantic layer behind the analytics charts (Formbricks' own build, without Cube Store).
+cube:
+  image:
+    repository: ghcr.io/formbricks/cube
+    tag: "1.7.50-1"
+
+# SpiceDB authorization engine; Formbricks 6 has no fallback without it.
+spicedb:
+  image:
+    repository: authzed/spicedb
+    tag: "v1.52.0"
+  # Namespace of the authorization model inside SpiceDB.
+  systemKey: formbricks
+
+config:
+  # Public URL of the instance (WEBAPP_URL, BETTER_AUTH_URL), e.g. https://forms.example.com
+  baseUrl: ""
+  logLevel: info
+  # Turn on once mail is configured: verification emails for new accounts and password reset.
+  emailVerification: false
+  passwordReset: false
+  # Opt out of Formbricks' anonymous usage telemetry.
+  telemetryDisabled: true
+
+# First administrator, created at install (see README). The password is in the secret below.
+admin:
+  name: Administrator
+  email: ""
+
+# Secret holding the generated keys: ADMIN_PASSWORD, BETTER_AUTH_SECRET, ENCRYPTION_KEY, CRON_SECRET,
+# HUB_API_KEY, CUBEJS_API_SECRET, AUTHZED_TOKEN.
+secrets:
+  existingSecret: ""
+
+# PostgreSQL (CloudNativePG, with the pgvector extension) from Emporium's postgres integration.
+database:
+  # Secret holding a postgresql:// URL (sslmode=require) under urlKey, plus the parts below for Cube.
+  existingSecret: ""
+  urlKey: DATABASE_URL
+  host: ""
+  port: 5432
+  name: ""
+  username: ""
+  # Secret and key holding the database password.
+  passwordSecret: ""
+  passwordKey: password
+  # Secret holding the CA that signed the server certificate (trusted by the Node.js processes).
+  caSecret: ""
+  caKey: ca.crt
+
+# Redis (BullMQ jobs, cache, rate limits, sessions).
+redis:
+  existingSecret: ""
+  urlKey: url
+
+# S3 compatible storage for uploaded files and survey images (optional).
+objectStorage:
+  enabled: false
+  endpoint: ""
+  region: ""
+  bucket: ""
+  existingSecret: ""
+  accessKeyKey: accessKey
+  secretKeyKey: secretKey
+  # Path style addressing for in-cluster storage.
+  forcePathStyle: true
+
+# Outgoing mail (optional).
+smtp:
+  enabled: false
+  host: ""
+  port: 587
+  username: ""
+  from: ""
+  existingSecret: ""
+  passwordKey: password
+
+# Additional environment variables for the Formbricks container.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 1536Mi
+hubResources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+hubWorkerResources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+cubeResources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+spicedbResources:
+  requests:
+    cpu: 25m
+    memory: 96Mi
+  limits:
+    memory: 384Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

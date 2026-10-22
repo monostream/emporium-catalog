@@ -1,0 +1,25 @@
+apiVersion: v2
+name: stirling-pdf
+description: Self-hosted PDF toolbox - merge, split, convert, compress, sign, redact and more (MIT, ultra-lite build)
+type: application
+version: 0.1.0
+appVersion: "3.2.0"
+home: https://www.stirlingpdf.com/
+icon: https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/app/core/src/main/resources/static/favicon.svg
+sources:
+  - https://github.com/Stirling-Tools/Stirling-PDF
+keywords:
+  - PDF
+  - Documents
+  - Conversion
+annotations:
+  icon: assets/icon.svg
+  displayName: Stirling-PDF
+  category: Productivity
+  licenses: MIT
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

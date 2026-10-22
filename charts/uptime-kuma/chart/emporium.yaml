@@ -1,0 +1,28 @@
+apiVersion: emporium.build/v1
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Push monitors authenticate with their own token in the URL.
+    skipPaths: [/api/push/*]
+    bind:
+      IngressClassName: ingress.className
+  data:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+
+components:
+  app:
+    label: Uptime Kuma
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database on a ReadWriteOnce volume" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to about a hundred monitors
+    values: profiles/small.yaml

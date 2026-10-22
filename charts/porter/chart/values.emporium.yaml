@@ -1,25 +1,6 @@
 porter:
   server:
-    url: https://{{ .Emporium.Integrations.DNS.Hostname }}
+    url: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
 
-    additionalEnv:
-      FEATURE_FLAG_CLIENT: database
-
-  ingress:
-    enabled: true
-
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-
-    hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
-        paths:
-          - /
-
-    tls:
-      - secretName: porter-cert-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
+ingress:
+  enabled: true

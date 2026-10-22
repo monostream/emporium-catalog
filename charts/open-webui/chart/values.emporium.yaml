@@ -1,0 +1,18 @@
+config:
+  baseUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+  ollamaBaseUrl: {{ input "OllamaBaseUrl" }}
+secret:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+admin:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+oidc:
+  enabled: true
+  providerUrl: {{ .Emporium.Integrations.sso.ConfigurationEndpoint | quote }}
+  clientId: {{ .Emporium.Integrations.sso.ClientID | quote }}
+  existingSecret: {{ .Emporium.Integrations.sso.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+database:
+  existingSecret: {{ .Emporium.Integrations.db.EnvSecretName | quote }}
+  urlKey: DATABASE_URL
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

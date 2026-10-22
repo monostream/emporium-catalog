@@ -1,0 +1,134 @@
+{{- $secret := required "supabase.secret.jwt.secretRef names the Secret the keys Job fills" .Values.supabase.secret.jwt.secretRef -}}
+{{- if ne .Values.supabase.secret.smtp.secretRef $secret }}
+{{- fail "supabase.secret.smtp.secretRef must equal supabase.secret.jwt.secretRef: the keys Job fills both" }}
+{{- end }}
+{{- $name := printf "%s-supabase-keys" .Release.Name | trunc 52 | trimSuffix "-" -}}
+{{- $script := .Files.Get "files/keys.py" -}}
+# The keys Secret, made by Helm so the Job only needs get/update on it. The
+# manifest carries no data: Helm's patches never touch what the Job wrote, and
+# the Secret is deleted with the release.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keys
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+data:
+  keys.py: |
+    {{- $script | nindent 4 }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [secrets]
+    resourceNames: [{{ $secret | quote }}]
+    verbs: [get, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name }}
+    namespace: {{ .Release.Namespace }}
+---
+# A plain Job, not a hook. It runs on every install and upgrade (the name carries
+# the release revision, so Helm replaces the previous one) and writes only what
+# changed: the API keys once, the SMTP credentials when they differ.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-%d" $name .Release.Revision }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+    app.kubernetes.io/name: supabase-keys
+spec:
+  backoffLimit: 6
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        {{- include "wrapper.labels" . | nindent 8 }}
+        app.kubernetes.io/name: supabase-keys
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: {{ $name }}
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: keys
+          image: "{{ .Values.keys.image.repository }}:{{ .Values.keys.image.tag }}"
+          imagePullPolicy: {{ .Values.keys.image.pullPolicy }}
+          command: [python3, -I, /scripts/keys.py]
+          env:
+            - name: SECRET_NAME
+              value: {{ $secret | quote }}
+            - name: JWT_SECRET
+              {{- if .Values.keys.jwtSecret.name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keys.jwtSecret.name | quote }}
+                  key: {{ .Values.keys.jwtSecret.key | quote }}
+              {{- else }}
+              value: {{ .Values.supabase.secret.jwt.secret | quote }}
+              {{- end }}
+            - name: SMTP_USERNAME
+              value: {{ .Values.keys.smtp.username | quote }}
+            {{- with .Values.keys.smtp.passwordSecret }}
+            {{- if .name }}
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .name | quote }}
+                  key: {{ required "keys.smtp.passwordSecret.key" .key | quote }}
+            {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.keys.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: script
+          configMap:
+            name: {{ $name }}

@@ -1,0 +1,157 @@
+{{- $image := printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # One writer for the configuration and the SQLite database: never two pods at once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/init: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      # Home Assistant discovers devices with mDNS/SSDP/DHCP/Bluetooth broadcasts that do not
+      # cross the pod network; hostNetwork is off on purpose.
+      hostNetwork: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: prepare
+          image: {{ $image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python3, /emporium-init/prepare.py]
+          env:
+            - name: TRUSTED_PROXIES
+              value: {{ .Values.http.trustedProxies | quote }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - { name: init, mountPath: /emporium-init, readOnly: true }
+            - { name: config, mountPath: /config }
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 128Mi }
+      containers:
+        - name: home-assistant
+          image: {{ $image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            {{- if .Values.recorder.enabled }}
+            # Built at runtime: user and password come from the database Secret by reference.
+            - name: HA_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.recorder.existingSecret }}
+                  key: {{ .Values.recorder.usernameKey }}
+            - name: HA_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.recorder.existingSecret }}
+                  key: {{ .Values.recorder.passwordKey }}
+            - name: HA_DB_URL
+              value: {{ printf "postgresql://$(HA_DB_USER):$(HA_DB_PASSWORD)@%s:%v/%s?sslmode=verify-full&sslrootcert=/etc/ha-postgres-ca/ca.crt" .Values.recorder.host .Values.recorder.port .Values.recorder.database | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The first start installs integrations' Python requirements and can take minutes.
+          startupProbe:
+            httpGet: { path: /manifest.json, port: http }
+            periodSeconds: 10
+            failureThreshold: 90
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 30
+            failureThreshold: 6
+          # No traffic until the owner exists and the sidecar proved it can log in as the owner.
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -f /status/ready && python3 -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:{{ .Values.service.port }}/manifest.json',timeout=3)"
+            periodSeconds: 3
+            timeoutSeconds: 5
+          volumeMounts:
+            - { name: config, mountPath: /config }
+            - { name: status, mountPath: /status, readOnly: true }
+            {{- if .Values.recorder.enabled }}
+            - { name: postgres-ca, mountPath: /etc/ha-postgres-ca, readOnly: true }
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        # Creates the owner account through the onboarding API (see values.yaml, admin).
+        - name: onboard
+          image: {{ $image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python3, -u, /emporium-init/onboard.py]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            - name: ADMIN_NAME
+              value: {{ .Values.admin.name | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret | default "home-assistant-admin-secret-not-configured" }}
+                  key: {{ .Values.admin.passwordKey }}
+          volumeMounts:
+            - { name: init, mountPath: /emporium-init, readOnly: true }
+            - { name: status, mountPath: /status }
+            - { name: config, mountPath: /config }
+          resources:
+            {{- toYaml .Values.onboard.resources | nindent 12 }}
+      volumes:
+        - name: init
+          configMap:
+            name: {{ include "chart.fullname" . }}-init
+        - name: status
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+        {{- if .Values.recorder.enabled }}
+        - name: postgres-ca
+          secret:
+            secretName: {{ .Values.recorder.caSecret | quote }}
+            items:
+              - { key: ca.crt, path: ca.crt }
+        {{- end }}
+        - name: config
+          {{- if .Values.storage.config.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.config.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

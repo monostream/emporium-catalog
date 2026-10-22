@@ -1,0 +1,87 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Local administrator, description: "Miniflux creates this account at the first start. Use it when single sign-on is unavailable and to make other users administrators." }
+
+inputs:
+  PollingFrequency:
+    label: Refresh interval (minutes)
+    description: How often Miniflux checks each feed for new entries.
+    type: integer
+    default: 60
+    min: 5
+    max: 1440
+    path: config.pollingFrequency
+  SsoUserCreation:
+    label: Create accounts at the first single sign-on
+    description: 'Every Emporium user who signs in with "Sign in with Emporium" gets a Miniflux account. Off: only accounts already linked to an Emporium login can use SSO; an administrator creates the account with a password, the user signs in with it once and links it under Settings > "Link my Emporium account".'
+    type: boolean
+    default: true
+    path: oidc.userCreation
+  AdminUsername:
+    label: Administrator username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    # Miniflux 2.3.4 accepts letters, digits, "_", "-", "@" and "."; anything else stops the first start.
+    pattern: '^[A-Za-z0-9_.@-]{3,64}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Administrator password
+    description: 6-72 printable ASCII characters without spaces. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Miniflux.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    # Miniflux refuses passwords under 6 bytes, and bcrypt over 72 bytes; either stops the first start.
+    # ASCII only, so characters == bytes.
+    pattern: '^[\x21-\x7E]{6,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Miniflux REST API, Fever and Google Reader clients authenticate with their own
+    # tokens or passwords; shared entries (/share/<code>) are public links, and the
+    # static assets they load (/stylesheets, /js, /icon, /feed-icon: Miniflux's own
+    # isStaticAssetRoute list) must be public too.
+    skipPaths: [/v1/*, /fever/*, /reader/*, /accounts/ClientLogin*, /share/*, /stylesheets/*, /js/*, /icon/*, /feed-icon/*]
+    # Miniflux's own OpenID Connect login.
+    redirectPaths: [/oauth2/oidc/callback]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  db:
+    type: postgres
+    database: miniflux
+    owner: miniflux
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    # lib/pq: sslmode=require encrypts and accepts the CloudNativePG certificate without a CA file.
+    secretKeys:
+      DATABASE_URL: uri-sslmode-require
+
+components:
+  app:
+    label: Miniflux
+    resources: resources
+    replicas: { fixed: 1, reason: "The feed scheduler and the database migrations run in every Miniflux pod" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few hundred feeds
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

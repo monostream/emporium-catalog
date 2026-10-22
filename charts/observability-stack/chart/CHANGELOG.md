@@ -1,3 +1,61 @@
+# 0.2.0
+
+Published on 21 October 2026
+
+- Grafana signs in with Emporium (generic OAuth against the `oidc` integration, callback `/login/generic_oauth`, PKCE, client secret by reference). Emporium administrators (role `emporium-admin`) become Grafana admins, everybody else a Viewer.
+- Grafana redirects straight to the Emporium login (`auto_login`). The local admin account stays available at `/login?disableAutoLogin=true`.
+- Logging out lands on the local login form (`signout_redirect_url`), so auto login does not sign the user straight back in.
+- The admin role is the values key `prometheus.grafana.emporiumAdminRole` (default `emporium-admin`; must match Emporium's `identity.logto.adminRole`). A missing `roles` claim gives a Viewer.
+- Upgrade warning: Grafana's storage is an emptyDir and this upgrade rolls the Grafana pod. Dashboards, users and datasources created by hand in the UI are lost (provisioned ones come back). Export them first.
+- Anonymous access is off: every user now has a real identity and role. Before, anyone behind the Emporium login was an anonymous Viewer.
+
+# 0.1.4
+
+Published on 20 October 2026
+
+- Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.8, 2026-10-20: install, Grafana Tempo datasource healthy, uninstall removes the namespace).
+
+# 0.1.3
+
+Published on 20 October 2026
+
+- Fixed: the Grafana Tempo datasource pointed at port 3100; the Tempo service listens on 3200. Trace links from Loki logs now open in Tempo.
+- Uninstall deletes the Tempo volume: its StatefulSet now has `persistentVolumeClaimRetentionPolicy.whenDeleted: Delete` (was retained, which left the PVC and kept the namespace). Loki and Prometheus are set the same way. Data to keep across a reinstall goes through Emporium's retained data.
+
+# 0.1.2
+
+Published on 20 October 2026
+
+- Installs in namespaces with PodSecurity "baseline": by default Alloy streams pod logs through the Kubernetes API (`loki.source.kubernetes`, each Alloy pod reads the pods on its own node) and mounts no hostPath volume. Before, Alloy always mounted the node's `/var/log` and the install was rejected under "baseline".
+- New input "Read logs from the nodes" (`NodeLogCollection`, default off) restores the previous behaviour: Alloy reads `/var/log/pods` on each node through a hostPath mount. It needs a namespace with PodSecurity "privileged".
+- The "Enable Prometheus" description states that node-exporter (host network, host PID, hostPath) needs a namespace with PodSecurity "privileged".
+
+# 0.1.1
+
+Published on 20 October 2026
+
+- Smaller gallery screenshots (re-encoded, max width 1600 px) so the packaged chart fits the Helm release record.
+
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- kube-prometheus-stack from 92.0.0 to 92.10.1, alloy from 1.13.0 to 1.14.0 (loki 7.3.0 and tempo 1.24.4 are current).
+- Grafana ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode (was `grafana-<release>-tls`).
+- Grafana admin user and password are inputs in the per-app Secret (password generated at install) instead of a `lookup`-kept random value.
+- Fixed: "Tempo retention" reached a dead key (`tempo.retention`); it now sets `tempo.tempo.retention`. Its format is a Go duration (`168h`), default 7 days as documented before.
+- Storage sizes for Prometheus, Loki and Tempo are fixed after install (StatefulSet volume templates).
+- The Loki canary DaemonSet and Helm test are disabled.
+- Default resources for every workload.
+
+# 0.0.329
+
+Published on 19 October 2026
+
+- Default install (Prometheus disabled) renders again: control-plane ServiceMonitors, kubelet, kube-state-metrics, Alertmanager and default rules now follow PrometheusEnabled
+- Loki storage size description states the real default (50Gi)
+
 # 0.0.327
 
 Published on 7 October 2026

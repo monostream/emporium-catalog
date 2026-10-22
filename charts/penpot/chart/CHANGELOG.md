@@ -1,3 +1,26 @@
+# 1.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- PostgreSQL is provided by Emporium's postgres integration (CloudNativePG, PostgreSQL 17, integration `postgres`, TLS verified against the cluster CA) instead of the bundled Bitnami postgresql subchart. Existing installs start with an empty database; the data in the old bundled database is not migrated (see the installed-app migration blueprint).
+- Redis is provided by Emporium's redis integration (Valkey 8.1, cache mode) instead of the bundled Bitnami redis subchart.
+- Uploaded assets and files live in Emporium's object storage (S3, bucket `penpot`) instead of the 50Gi `<release>` volume. Existing assets are not copied; keep the old volume before upgrading (see MIGRATION.md).
+- The "API Secret Key" input is now a generated secret delivered from the per-app Secret (was a plaintext value; the chart's built-in fallback key is gone).
+- New inputs "Allow registration" and "Allow password login".
+- SMTP is optional; without it email verification is turned off. The SMTP password is read from the per-app Secret (the plaintext `penpot-secret` Secret is gone); the OIDC client secret is read by reference too.
+- The frontend uses the image's own nginx configuration (port 8080) instead of a chart-provided one that listened on port 80, and the exporter renders through the internal frontend Service instead of the public URL.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; uploads up to 350 MiB pass the ingress.
+- Default resources for backend, frontend and exporter (none before); `small` and `medium` profiles.
+- Removed the GitHub, GitLab, Google and LDAP login options (never set by Emporium) and the forced co-scheduling of all pods on one node.
+
+# 1.1.0
+
+Published on 19 October 2026
+
+- PostgreSQL is provided by Emporium's native Postgres integration (CloudNativePG, PostgreSQL 17) instead of the bundled Bitnami postgresql subchart; the Postgres Password field is gone and credentials come from the CloudNativePG app secret. Requires Emporium v0.5.0. Existing data in the bundled database is not migrated.
+- SMTP username and password are no longer swapped in penpot-secret
+
 # 1.0.73
 
 Published on 7 October 2026

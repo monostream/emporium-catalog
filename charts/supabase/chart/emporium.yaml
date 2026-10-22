@@ -1,0 +1,220 @@
+apiVersion: emporium.build/v1
+
+# Documented exception to the postgres integration: Supabase runs its own
+# supabase/postgres database (custom image, ~50 extensions, preload libraries,
+# several service roles created at init as superuser). See MIGRATION.md.
+
+sections:
+  - id: general
+    label: General
+  - id: auth
+    label: Authentication
+    description: How the users of your app sign up and sign in (Supabase Auth).
+  - id: secrets
+    label: Keys and passwords
+    description: Generated at install. Set one only to reuse a value, for example the database password of kept data.
+
+integrations:
+  # One host: Studio at "/" behind the Emporium login, the Supabase APIs
+  # (protected by Supabase's own anon/service_role keys) skip it.
+  web:
+    type: ingress
+    access: { default: admins }
+    skipPaths:
+      - /auth/v1/*
+      - /rest/v1/*
+      - /graphql/v1
+      - /graphql/v1/*
+      - /realtime/v1/*
+      - /storage/v1/*
+      - /functions/v1/*
+      - /sso/saml/*
+      - /.well-known/oauth-authorization-server
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  # Sends sign-up confirmations, magic links and password resets. Without it,
+  # new users are confirmed automatically.
+  mail:
+    type: smtp
+    required: false
+  # Database volume: the data directory and, at its root, the pgsodium root key.
+  db:
+    type: storage
+    size: { default: 8Gi, growOnly: true }
+    bind:
+      ClaimName: supabase.persistence.db.existingClaim
+  # Uploaded files (Storage API, S3 backend).
+  files:
+    type: objectStorage
+    buckets: [supabase]
+    size: 10Gi
+  # Edge Functions code (shared with Studio's function editor).
+  functions:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: supabase.persistence.functions.existingClaim
+  # SQL snippets saved in Studio.
+  snippets:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: supabase.persistence.snippets.existingClaim
+
+inputs:
+  SiteUrl:
+    label: Site URL
+    description: URL of your app; Auth redirects here after sign-in and in emails. Defaults to the Supabase URL.
+    type: string
+    pattern: '^(https?://.+)?$'
+    section: auth
+  AdditionalRedirectUrls:
+    label: Additional redirect URLs
+    description: Comma-separated URLs (wildcards allowed) Auth may redirect to besides the site URL.
+    type: string
+    section: auth
+  DisableSignup:
+    label: Disable sign-ups
+    description: Only users you invite or create can sign in.
+    type: boolean
+    default: false
+    section: auth
+  OpenAiApiKey:
+    label: OpenAI API key
+    description: Enables Studio's AI assistant. Leave "none" to keep it off.
+    type: secret
+    default: none
+    section: general
+    ref: { namePath: supabase.secret.dashboard.secretRef, key: SUPABASE_OPENAI_API_KEY }
+  JwtSecret:
+    label: JWT secret
+    description: Signs user sessions and the anon and service_role API keys. Fixed after install.
+    type: secret
+    generate: { length: 64, charset: alnum }
+    installOnly: true
+    section: secrets
+    ref: { namePath: keys.jwtSecret.name, key: SUPABASE_JWT_SECRET }
+  DbName:
+    label: Database name
+    description: Fixed; Supabase uses the postgres database. Upstream reads the name from the database Secret.
+    type: secret
+    default: postgres
+    pattern: '^postgres$'
+    section: secrets
+    ref: { namePath: supabase.secret.db.secretRef, key: SUPABASE_DB_NAME }
+  DbPassword:
+    label: Database password
+    description: Password of the postgres and Supabase service roles. Letters, digits and . _ ~ - only (it goes into connection URLs unencoded).
+    type: secret
+    generate: { length: 32, charset: alnum }
+    pattern: '^[A-Za-z0-9._~-]{16,}$'
+    installOnly: true
+    section: secrets
+    ref: { namePath: supabase.secret.db.secretRef, key: SUPABASE_DB_PASSWORD }
+  RealtimeSecretKeyBase:
+    label: Realtime secret key base
+    type: secret
+    generate: { length: 64, charset: alnum }
+    installOnly: true
+    section: secrets
+    ref: { namePath: supabase.secret.realtime.secretRef, key: SUPABASE_REALTIME_SECRET_KEY_BASE }
+  RealtimeDbEncKey:
+    label: Realtime encryption key
+    description: Exactly 16 characters (AES-128).
+    type: secret
+    generate: { length: 16, charset: alnum }
+    pattern: '^.{16}$'
+    installOnly: true
+    section: secrets
+    ref: { namePath: supabase.secret.realtime.secretRef, key: SUPABASE_REALTIME_DB_ENC_KEY }
+  MetaCryptoKey:
+    label: Postgres Meta encryption key
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: secrets
+    ref: { namePath: supabase.secret.meta.secretRef, key: SUPABASE_META_CRYPTO_KEY }
+  S3ProtocolKeyId:
+    label: S3 protocol access key ID
+    description: For S3 clients talking to /storage/v1/s3.
+    type: secret
+    generate: { length: 32, charset: hex }
+    section: secrets
+    ref: { namePath: supabase.secret.s3.secretRef, key: SUPABASE_S3_PROTOCOL_KEY_ID }
+  S3ProtocolSecret:
+    label: S3 protocol secret access key
+    type: secret
+    generate: { length: 64, charset: hex }
+    section: secrets
+    ref: { namePath: supabase.secret.s3.secretRef, key: SUPABASE_S3_PROTOCOL_SECRET }
+  DashboardUsername:
+    label: Kong dashboard username
+    description: Basic auth of Kong's internal dashboard route (Studio is reached directly).
+    type: secret
+    generate: { length: 16, charset: alnum }
+    section: secrets
+    ref: { namePath: supabase.secret.dashboard.secretRef, key: SUPABASE_DASHBOARD_USERNAME }
+  DashboardPassword:
+    label: Kong dashboard password
+    type: secret
+    generate: { length: 32, charset: alnum }
+    section: secrets
+    ref: { namePath: supabase.secret.dashboard.secretRef, key: SUPABASE_DASHBOARD_PASSWORD }
+
+components:
+  db:
+    label: PostgreSQL
+    resources: supabase.deployment.db.resources
+    replicas: { fixed: 1, reason: "Single database instance on a ReadWriteOnce volume" }
+  kong:
+    label: API gateway (Kong)
+    resources: supabase.deployment.kong.resources
+    replicas: { path: supabase.deployment.kong.replicaCount, min: 1, max: 3 }
+  auth:
+    label: Auth (GoTrue)
+    resources: supabase.deployment.auth.resources
+    replicas: { path: supabase.deployment.auth.replicaCount, min: 1, max: 3 }
+  rest:
+    label: REST API (PostgREST)
+    resources: supabase.deployment.rest.resources
+    replicas: { path: supabase.deployment.rest.replicaCount, min: 1, max: 3 }
+  realtime:
+    label: Realtime
+    resources: supabase.deployment.realtime.resources
+    replicas: { fixed: 1, reason: "Realtime clustering is not configured" }
+    enabled: supabase.deployment.realtime.enabled
+  storage:
+    label: Storage API
+    resources: supabase.deployment.storage.resources
+    replicas: { path: supabase.deployment.storage.replicaCount, min: 1, max: 3 }
+  meta:
+    label: Postgres Meta
+    resources: supabase.deployment.meta.resources
+    replicas: { path: supabase.deployment.meta.replicaCount, min: 1, max: 2 }
+  studio:
+    label: Studio
+    resources: supabase.deployment.studio.resources
+    replicas: { fixed: 1, reason: "Snippets and functions on ReadWriteOnce volumes" }
+  functions:
+    label: Edge Functions
+    resources: supabase.deployment.functions.resources
+    replicas: { fixed: 1, reason: "Functions on a ReadWriteOnce volume shared with Studio" }
+    enabled: supabase.deployment.functions.enabled
+  keys:
+    label: Key and SMTP secret writer (Job)
+    resources: keys.resources
+    match: { kind: Job, name: "*supabase-keys*" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Development and small apps
+    values: profiles/small.yaml
+  medium:
+    label: Medium
+    description: Production apps with moderate traffic
+    values: profiles/medium.yaml

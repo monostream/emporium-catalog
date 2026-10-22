@@ -1,0 +1,32 @@
+{{- /*
+Headplane 0.7 configuration. Secrets (cookie secret, OIDC client secret, headscale API key)
+are not rendered here: they come from the HEADPLANE_* environment overrides in the Deployment.
+*/ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-headplane
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    server:
+      host: "0.0.0.0"
+      port: {{ .Values.web.service.port }}
+      # Public URL without the /admin prefix; also the base of the OIDC redirect URI (<base_url>/admin/oidc/callback).
+      base_url: {{ .Values.app.domain | quote }}
+      cookie_secure: {{ hasPrefix "https://" .Values.app.domain }}
+      data_path: /var/lib/headplane
+    headscale:
+      url: {{ printf "http://%s:%v" (include "chart.fullname" .) .Values.service.port | quote }}
+      public_url: {{ .Values.app.domain | quote }}
+      config_path: /etc/headscale/config.yaml
+    {{- if .Values.oidc.issuerUrl }}
+    oidc:
+      issuer: {{ .Values.oidc.issuerUrl | quote }}
+      client_id: {{ .Values.oidc.clientId | quote }}
+      use_pkce: true
+      scope: "openid email profile"
+      # true keeps the API key login on the Headplane login page as the break-glass path.
+      disable_api_key_login: {{ .Values.web.disableApiKeyLogin }}
+    {{- end }}

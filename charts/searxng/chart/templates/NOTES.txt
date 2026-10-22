@@ -1,0 +1,7 @@
+SearXNG is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Access is controlled by the Emporium login; SearXNG has no accounts of its own.
+{{- if .Values.config.jsonApi }}
+The JSON API (/search?format=json) is enabled. Other apps in the cluster can call
+http://{{ include "chart.fullname" . }}.{{ .Release.Namespace }}.svc/search?format=json&q=... directly.
+{{- end }}

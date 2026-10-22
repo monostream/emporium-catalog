@@ -1,0 +1,7 @@
+# npm install and the VitePress build need the memory; serving needs almost nothing.
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    memory: 1536Mi

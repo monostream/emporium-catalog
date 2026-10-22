@@ -1,20 +1,13 @@
 ingress:
   enabled: true
-
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: letsencrypt-staging
-
+  # One rule per host: the main host, then the extra hosts second and third.
   hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+    {{- range .Emporium.Integrations.ingress.AllHosts }}
+    - host: {{ . | quote }}
       paths:
         - path: /
           pathType: Prefix
-
+    {{- end }}
   tls:
-   - secretName: {{ .Emporium.Name }}-tls
-     hosts:
-       - {{ .Emporium.Integrations.DNS.Hostname }}
+    - secretName: {{ .Emporium.Integrations.ingress.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.ingress.AllHosts | toJson }}

@@ -6,6 +6,24 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "ghost.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "ghost.chart" -}}
@@ -33,33 +51,38 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Emulates the behaviour of common.names.fullname in the ghost dependency chart.
+Create the name of the service account to use
 */}}
-{{- define "ghost.fullname" -}}
-{{- if .Values.ghost.fullnameOverride -}}
-{{- .Values.ghost.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- $name := default "ghost" .Values.ghost.nameOverride -}}
-{{- if contains $name .Release.Name -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
+{{- define "ghost.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "ghost.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
 
 {{/*
-Emulates the behaviour of common.names.fullname in the mysql dependency chart.
+MySQL: name and selector labels.
 */}}
-{{- define "mysql.fullname" -}}
-{{- if .Values.ghost.mysql.fullnameOverride -}}
-{{- .Values.ghost.mysql.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- $name := default "mysql" .Values.ghost.mysql.nameOverride -}}
-{{- if contains $name .Release.Name -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
+{{- define "ghost.mysql.fullname" -}}
+{{- printf "%s-mysql" (include "ghost.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "ghost.mysql.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "ghost.name" . }}-mysql
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "ghost.mysql.labels" -}}
+helm.sh/chart: {{ include "ghost.chart" . }}
+{{ include "ghost.mysql.selectorLabels" . }}
+app.kubernetes.io/component: database
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Secret holding the MySQL passwords (the per-app Secret under Emporium).
+*/}}
+{{- define "ghost.mysql.secretName" -}}
+{{- required "mysql.auth.existingSecret is required (Secret with the MySQL user and root passwords)" .Values.mysql.auth.existingSecret }}
+{{- end }}

@@ -1,1 +1,32 @@
-forgejo: {}
+forgejo:
+  strategy:
+    type: Recreate
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      memory: 1Gi
+
+  ingress:
+    className: ""
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+  persistence:
+    claimName: gitea-shared-storage
+
+  deployment:
+    env: []
+
+  gitea:
+    admin:
+      # Emporium points existingSecret at the per-app Secret (keys username, password).
+      existingSecret: ""
+      username: ""
+      passwordMode: keepUpdated
+    oauth: []
+    additionalConfigFromEnvs: []

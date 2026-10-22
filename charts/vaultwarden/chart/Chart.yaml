@@ -2,7 +2,7 @@ apiVersion: v2
 name: vaultwarden
 description: Lightweight, self-hosted vault for secure password management—privacy, control, and peace of mind at your fingertips.
 type: application
-version: 0.1.20
+version: 0.3.1
 appVersion: "1.37.4"
 home: https://github.com/dani-garcia/vaultwarden
 icon: https://github.com/dani-garcia/vaultwarden/blob/main/resources/vaultwarden-icon-white.svg?raw=true
@@ -14,5 +14,7 @@ annotations:
   icon: assets/icon.svg
   displayName: vaultwarden
   licenses: AGPL-3.0 license
-  category: Utilities
+  category: Security
   gallery: ""
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

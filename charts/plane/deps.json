@@ -7,7 +7,9 @@
     "imageTagPaths": [
       "api.image.tag",
       "space.image.tag",
-      "web.image.tag"
+      "web.image.tag",
+      "admin.image.tag",
+      "live.image.tag"
     ],
     "appVersionMapping": "value:api.image.tag",
     "changelogPath": "./chart"

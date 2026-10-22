@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: miniflux
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: LISTEN_ADDR
+              value: {{ printf "0.0.0.0:%v" .Values.service.port | quote }}
+            - name: RUN_MIGRATIONS
+              value: "1"
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: POLLING_FREQUENCY
+              value: {{ .Values.config.pollingFrequency | quote }}
+            {{- with .Values.config.baseUrl }}
+            - name: BASE_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            {{- with .Values.admin.existingSecret }}
+            - name: CREATE_ADMIN
+              value: "1"
+            - name: ADMIN_USERNAME
+              value: {{ $.Values.admin.username | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .discoveryEndpoint }}
+            - name: OAUTH2_PROVIDER
+              value: oidc
+            - name: OAUTH2_OIDC_DISCOVERY_ENDPOINT
+              value: {{ .discoveryEndpoint | quote }}
+            - name: OAUTH2_OIDC_PROVIDER_NAME
+              value: {{ .providerName | quote }}
+            - name: OAUTH2_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: OAUTH2_REDIRECT_URL
+              value: {{ printf "%s/oauth2/oidc/callback" $.Values.config.baseUrl | quote }}
+            - name: OAUTH2_USER_CREATION
+              value: {{ ternary "1" "0" .userCreation | quote }}
+            {{- with .existingSecret }}
+            - name: OAUTH2_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # Migrations run before Miniflux listens.
+          startupProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+          # /readyz also checks the database connection.
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

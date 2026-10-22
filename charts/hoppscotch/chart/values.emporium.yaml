@@ -1,0 +1,16 @@
+app:
+  baseUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+database:
+  existingSecret: {{ .Emporium.Integrations.db.EnvSecretName | quote }}
+  urlKey: DATABASE_URL
+{{- with .Emporium.Integrations.mail }}
+mail:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  username: {{ .Username | quote }}
+  from: {{ .From | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

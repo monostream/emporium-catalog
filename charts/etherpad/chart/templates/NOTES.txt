@@ -1,0 +1,10 @@
+Etherpad is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Open the address, type a pad name and start writing; share the pad's address to work together.
+Access is controlled by the Emporium login (change it under the app's access settings to share pads with people outside Emporium).
+{{- if .Values.admin.existingSecret }}
+
+The /admin page (settings, plugins) uses the user "admin". The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}

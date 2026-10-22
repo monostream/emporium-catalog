@@ -1,0 +1,114 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: storage, label: ClickHouse storage }
+  - { id: security, label: Security, description: Generated at install. }
+
+inputs:
+  AdminEmail:
+    label: Admin email
+    description: Login of the Uptrace admin user (owner of the "Emporium" organization).
+    type: string
+    required: true
+    pattern: '^[^@\s]+@[^@\s]+$'
+  AdminPassword:
+    label: Admin password
+    description: Password of the Uptrace admin user, 8 or more characters (letters, digits and ._~!@%^&*()+=-). Uptrace resets it to this value on every start.
+    type: secret
+    required: true
+    # Uptrace substitutes ${VAR} into its YAML config before parsing it, so
+    # characters with a YAML meaning (quotes, ':', '#') would break the file.
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._~!@%^&*()+=-]{7,127}$'
+    ref: { namePath: secrets.existingSecret, key: UPTRACE_ADMIN_PASSWORD }
+  ClickHouseDiskSize:
+    label: ClickHouse disk size
+    description: Volume for spans, logs and metrics.
+    type: byteSize
+    default: 10Gi
+    min: 5Gi
+    growOnly: true
+    section: storage
+    path: clickhouse.persistence.size
+  ClickHouseStorageClass:
+    label: ClickHouse storage class
+    description: Empty uses the cluster default.
+    type: storageClass
+    installOnly: true
+    section: storage
+    path: clickhouse.persistence.storageClassName
+  ServiceSecret:
+    label: Service secret
+    description: Signs sessions and tokens; changing it signs everyone out.
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: secrets.existingSecret, key: UPTRACE_SECRET }
+  ProjectToken1:
+    label: Uptrace project token
+    description: DSN token of the "Uptrace" project (self-monitoring).
+    type: secret
+    section: security
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: secrets.existingSecret, key: UPTRACE_TOKEN_PROJECT1 }
+  ProjectToken2:
+    label: Emporium project token
+    description: DSN token of the "Emporium" project.
+    type: secret
+    section: security
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: secrets.existingSecret, key: UPTRACE_TOKEN_PROJECT2 }
+  ClickHousePassword:
+    label: ClickHouse password
+    type: secret
+    section: security
+    installOnly: true
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: secrets.existingSecret, key: CLICKHOUSE_PASSWORD }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # OTLP/HTTP ingestion (/v1/traces, /v1/metrics, /v1/logs) authenticates
+    # with the project DSN token.
+    skipPaths: [/v1/*]
+  postgres:
+    type: postgres
+    database: uptrace
+    owner: uptrace
+    version: "17"
+    storage: { default: 8Gi, growOnly: true }
+  redis:
+    type: redis
+    mode: cache
+    maxMemory: 128Mi
+  mail:
+    type: smtp
+    required: false
+
+components:
+  uptrace:
+    label: Uptrace
+    resources: uptrace.uptrace.resources
+    replicas: { fixed: 1, reason: "Seeds users and projects and runs alerting on start" }
+    match: { kind: StatefulSet, name: "*uptrace*" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+  redis:
+    label: Redis
+    integration: redis
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A handful of services, a few GB of telemetry per day
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }
+
+options:
+  requiredCRDs:
+    - clickhouseinstallations.clickhouse.altinity.com

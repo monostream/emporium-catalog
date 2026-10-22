@@ -1,0 +1,12 @@
+Actual Budget is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+{{- if .Values.oidc.enabled }}
+
+Click "Sign in with OpenID" on the login page.
+The first account that signs in becomes the owner and administrator (Server administration).
+The install is restricted to Emporium administrators: sign in once as the intended owner, then set the access to "authenticated" so other users can sign in.
+{{- if .Values.oidc.autoCreate }} Every later Emporium user gets a regular account at the first sign-in.{{ else }} Later users must be added by the owner first (username = Emporium username).{{ end }}
+Your Actual username is your Emporium username.
+{{- end }}
+
+Budgets live on the data volume. Installed through Emporium, the keep/delete choice at uninstall applies; with plain Helm the chart-created volume is kept (delete the claim by hand).

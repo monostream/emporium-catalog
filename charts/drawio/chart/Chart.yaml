@@ -2,8 +2,8 @@ apiVersion: v2
 name: drawio
 description: Online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams.
 type: application
-version: 0.1.88
-appVersion: "32.2.0"
+version: 0.2.0
+appVersion: "32.5.5"
 home: https://www.drawio.com/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_icon_2.svg
 sources:
@@ -22,3 +22,4 @@ annotations:
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_1.webp
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/drawio/drawio_gallery_2.webp
+  emporiumVersion: "0.5.0"

@@ -1,1 +1,83 @@
-neuvector: {}
+neuvector:
+  # Dedicated ServiceAccounts per component instead of binding the cluster roles to the
+  # namespace's "default" ServiceAccount.
+  leastPrivilege: true
+
+  controller:
+    # One controller on a ReadWriteOnce volume (upstream default: 3 on ReadWriteMany).
+    replicas: 1
+    pvc:
+      enabled: true
+      # Use an existing claim instead of creating "neuvector-data" (Emporium binds its storage integration here).
+      existingClaim: false
+      accessModes:
+        - ReadWriteOnce
+      capacity: 10Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 768Mi
+      limits:
+        memory: 2Gi
+    secret:
+      data:
+        # Drop the upstream default (admin with an empty password): the controller generates the
+        # admin password into the neuvector-bootstrap-secret Secret on first start.
+        userinitcfg.yaml: null
+    certupgrader:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+
+  enforcer:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+
+  manager:
+    env:
+      # Plain HTTP behind the cluster ingress (no backend-protocol annotation needed).
+      ssl: false
+    ingress:
+      ingressClassName: ""
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+
+  cve:
+    scanner:
+      replicas: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 512Mi
+        limits:
+          memory: 2Gi
+    updater:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 128Mi
+    adapter:
+      enabled: false
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+
+  containerd:
+    enabled: true
+    path: /var/run/containerd/containerd.sock

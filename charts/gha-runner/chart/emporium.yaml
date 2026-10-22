@@ -1,0 +1,46 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  GitHubURL:
+    label: GitHub URL
+    description: URL of the repository, organization or enterprise the runners register with, e.g. https://github.com/my-org.
+    type: string
+    required: true
+    pattern: "^https://\\S+$"
+    path: gha-runner-scale-set.githubConfigUrl
+  GitHubPAT:
+    label: GitHub personal access token
+    description: Token the controller registers runners with. Stored in the app's Secret, so the field stays blank after install.
+    type: secret
+    required: true
+    ref: { namePath: gha-runner-scale-set.githubConfigSecret, key: github_token }
+  RunnerScaleSetName:
+    label: Runner scale set name
+    description: Name of the runner scale set; workflows select it with runs-on.
+    type: string
+    required: true
+    installOnly: true
+    pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+    path: gha-runner-scale-set.runnerScaleSetName
+  MaxRunners:
+    label: Maximum runners
+    description: Upper limit of runners the scale set starts at the same time.
+    type: integer
+    default: 5
+    min: 1
+    max: 100
+    path: gha-runner-scale-set.maxRunners
+
+components:
+  controller:
+    label: Controller
+    resources: gha-runner-scale-set-controller.resources
+    replicas: { fixed: 1, reason: "Leader-elected controller" }
+    match: { kind: Deployment, name: "*gha-rs-controller*" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: One controller; runners start on demand
+    values: profiles/small.yaml

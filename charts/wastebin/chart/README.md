@@ -9,7 +9,7 @@ Share code and text instantly with this fast, secure, and privacy-focused pasteb
 - **🎨 Beautiful Code**: Syntax highlighting for 20+ programming languages with 8 stunning themes
 - **📱 Mobile Friendly**: QR codes for easy mobile access to your pastes
 - **💾 Smart Storage**: Automatic zstd compression saves space while maintaining speed
-- **🌈 Customizable**: Choose from 8 beautiful themes (ayu, base16ocean, catppuccin, coldark, gruvbox, monokai, onehalf, solarized)
+- **🌈 Customizable**: Choose from 9 beautiful themes (ayu, base16ocean, catppuccin, coldark, gruvbox, monokai, onehalf, rosepine, solarized)
 - **🔐 Privacy First**: Self-hosted solution - your data stays on your infrastructure
 - **⚡ Lightweight**: Single binary with low memory footprint
 - **🗃️ Persistent**: SQLite database ensures your pastes are safely stored

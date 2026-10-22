@@ -1,0 +1,72 @@
+# Base configuration. Renders on its own; Emporium fills the host through
+# emporium.yaml (bind) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+# Collabora Online Development Edition (CODE): MPL-2.0 source, official image,
+# runs as the unprivileged user 1001.
+image:
+  repository: docker.io/collabora/code
+  tag: "26.04.5.1.1"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 9980
+
+# Which WOPI hosts (Nextcloud, ownCloud, ...) may open documents. Collabora
+# refuses every other host: this list is the access control of the service.
+wopi:
+  # Allow every app below the Emporium zone (https://<sub>.<zone>); filled by Emporium.
+  zone: ""
+  # Extra WOPI host names, comma separated, for example "cloud.example.com".
+  hosts: ""
+
+admin:
+  username: admin
+  # Secret holding the admin console password (delivered by Emporium).
+  existingSecret: ""
+  passwordKey: password
+
+# Additional coolwsd command line options, one per entry (e.g. --o:per_document.max_concurrency=4).
+extraArgs: []
+# Additional environment variables.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+  # Editing sessions are long-lived websockets; the proxy must not cut them.
+  timeoutSeconds: 3600
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    memory: 3Gi
+
+# coolwsd forks one jailed process per document. The jail helper needs chroot,
+# chown and fowner; its binaries carry file capabilities, which needs
+# allowPrivilegeEscalation. The root filesystem stays writable for the jails.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: true
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, FOWNER, SYS_CHROOT]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

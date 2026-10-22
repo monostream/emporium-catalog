@@ -6,14 +6,20 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-password:
 service:
   type: ClusterIP
   port: 80
 persistence:
-  enabled: false
+  enabled: true
+  # Use an existing claim instead of creating one (Emporium binds its storage integration here).
+  existingClaim: ""
+  storageClass: ""
   accessMode: ReadWriteOnce
-  size: 8Gi
+  size: 20Gi
+rbac:
+  # true: the workspace's ServiceAccount is bound to cluster-admin (kubectl/helm against the whole
+  # cluster). false: it gets the built-in "admin" role in its own namespace only.
+  clusterAdmin: true
 gpu:
   nvidiaEnabled: false
   runtimeClass: "nvidia"
@@ -22,7 +28,6 @@ ingress:
   # Leave empty to use the cluster default IngressClass
   ingressClassName: ""
   annotations: {}
-  # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
       paths:
@@ -32,11 +37,22 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-resources: {}
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    memory: 4Gi
 nodeSelector: {}
 tolerations: []
 affinity: {}
 docker:
   repository: docker
   pullPolicy: Always
-  tag: 29.8.2
+  tag: 29.9.1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 4Gi

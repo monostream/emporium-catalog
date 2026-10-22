@@ -1,0 +1,96 @@
+replicaCount: 1
+
+image:
+  repository: nginxdemos/hello
+  pullPolicy: IfNotPresent
+  tag: 0.4-plain-text
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    memory: 64Mi
+
+# PostgreSQL connection, set by Emporium's postgres integration (bind in emporium.yaml).
+# Empty existingSecret: no database check (plain helm template).
+postgres:
+  host: ""
+  port: 5432
+  database: ""
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
+  sslMode: require
+  image:
+    repository: postgres
+    tag: 17.11-alpine
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+# Redis connection, set by the optional redis integration; empty host: no Redis.
+redis:
+  host: ""
+  port: 6379
+  existingSecret: ""
+  passwordKey: ""
+
+# Claim mounted at /data, set by the optional data storage integration; empty: no volume.
+persistence:
+  existingClaim: ""
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

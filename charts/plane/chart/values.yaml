@@ -1,102 +1,180 @@
-# Default values for plane.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Default values for plane (Community Edition).
+# Emporium fills the connection values (database, redis, object storage, secrets,
+# ingress, SMTP) in values.emporium.yaml; outside Emporium set them yourself.
 
-replicaCount: 1
+# Backend: Django API, Celery worker, Celery beat and the migration Job share this image.
 api:
-  service:
-    type: ClusterIP
-    port: 8000
   image:
     repository: makeplane/plane-backend
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
-space:
+  replicaCount: 1
+  # Gunicorn workers per API pod; each needs about 300 MiB.
+  gunicornWorkers: 1
   service:
-    type: ClusterIP
-    port: 4000
-  image:
-    repository: makeplane/plane-space
-    pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    port: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+worker:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+# Celery beat schedules periodic tasks; it must run exactly once.
+beat:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 192Mi
+    limits:
+      memory: 384Mi
+
+migrator:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
 web:
-  service:
-    type: ClusterIP
-    port: 3000
   image:
     repository: makeplane/plane-frontend
     pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
     tag: ""
+  replicaCount: 1
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+space:
+  image:
+    repository: makeplane/plane-space
+    pullPolicy: IfNotPresent
+    tag: ""
+  replicaCount: 1
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
+
+admin:
+  image:
+    repository: makeplane/plane-admin
+    pullPolicy: IfNotPresent
+    tag: ""
+  replicaCount: 1
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+# Real-time collaboration server for Pages.
+live:
+  image:
+    repository: makeplane/plane-live
+    pullPolicy: IfNotPresent
+    tag: ""
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+app:
+  # Seeds the instance setting "allow sign-ups" on the first start; change it later in /god-mode.
+  enableSignup: false
+  # Maximum upload size in bytes (Plane default 5 MiB). The ingress body limit follows it.
+  fileSizeLimit: 5242880
+
+# Secret holding SECRET_KEY and LIVE_SERVER_SECRET_KEY.
+secrets:
+  existingSecret: ""
+
+# PostgreSQL database (the CloudNativePG app secret in Emporium).
+database:
+  host: ""
+  port: 5432
+  name: plane
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
+  uriKey: uri
+
+# Redis for the Django cache and the live server. urlKey holds a redis:// URL including the password.
+redis:
+  existingSecret: ""
+  urlKey: REDIS_URL
+
+# Separate Redis for the Celery broker (the API flushes the cache Redis at every start).
+queue:
+  existingSecret: ""
+  urlKey: QUEUE_URL
+
+# S3 bucket for uploads, served through the ingress at /<bucket>.
+objectStorage:
+  endpoint: ""
+  region: us-east-1
+  bucket: uploads
+  # In-cluster Service of the S3 endpoint (ingress backend for /<bucket>).
+  serviceName: ""
+  servicePort: 9000
+  existingSecret: ""
+  accessKeyKey: ""
+  secretKeyKey: ""
+
 smtp:
   enabled: false
-  host:
-  username:
-  password:
-  port:
-  from:
+  host: ""
+  port: 587
+  username: ""
+  from: ""
+  # Implicit TLS (port 465) instead of STARTTLS.
+  useSSL: false
+  existingSecret: ""
+  passwordKey: ""
+
 ingress:
   enabled: false
   className: ""
   annotations: {}
-  host:
+  host: ""
   tls:
-    secretName: plane-tls
-    host:
-postgresql:
-  auth:
-    database: plane
-redis:
-  architecture: standalone
-  replica:
-    persistence:
-      enabled: false
-    replicaCount: 0
-minio:
-  defaultBuckets: uploads:download
+    secretName: ""
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 podAnnotations: {}
 podLabels: {}
 podSecurityContext: {}
-# fsGroup: 2000
-
 securityContext: {}
-# capabilities:
-#   drop:
-#   - ALL
-# readOnlyRootFilesystem: true
-# runAsNonRoot: true
-# runAsUser: 1000
-
-resources: {}
-# We usually recommend not to specify default resources and to leave this as a conscious
-# choice for the user. This also increases chances charts run on environments with little
-# resources, such as Minikube. If you do want to specify resources, uncomment the following
-# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-# limits:
-#   cpu: 100m
-#   memory: 128Mi
-# requests:
-#   cpu: 100m
-#   memory: 128Mi
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
 nodeSelector: {}
 tolerations: []
 affinity: {}

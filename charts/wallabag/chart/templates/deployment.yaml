@@ -1,0 +1,220 @@
+{{- define "wallabag.dbEnv" -}}
+{{- with .Values.database.existingSecret }}
+{{- range $k := list "HOST" "PORT" "NAME" "USER" "PASSWORD" }}
+- name: SYMFONY__ENV__DATABASE_{{ $k }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ $.Values.database.existingSecret }}
+      key: SYMFONY__ENV__DATABASE_{{ $k }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- define "wallabag.commonEnv" -}}
+- name: SYMFONY__ENV__DATABASE_DRIVER
+  value: pdo_pgsql
+- name: PGSSLMODE
+  value: {{ .Values.config.databaseSslMode | quote }}
+- name: SYMFONY__ENV__LOCALE
+  value: {{ .Values.config.locale | quote }}
+- name: SYMFONY__ENV__SERVER_NAME
+  value: {{ .Values.config.serverName | quote }}
+# Self-registration stays off: the administrator creates the users.
+- name: SYMFONY__ENV__FOSUSER_REGISTRATION
+  value: "false"
+{{- with .Values.config.baseUrl }}
+- name: SYMFONY__ENV__DOMAIN_NAME
+  value: {{ . | quote }}
+{{- end }}
+{{- with .Values.secrets.existingSecret }}
+- name: SYMFONY__ENV__SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ . }}
+      key: {{ $.Values.secrets.appSecretKey }}
+{{- end }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run before start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        # The volume is mounted through subPaths, which kubelet creates as root.
+        - name: prepare-volume
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [sh, -c]
+          args:
+            - mkdir -p /vol/data /vol/images && chown 65534:65534 /vol/data /vol/images
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+              add: [CHOWN, DAC_OVERRIDE, FOWNER]
+          volumeMounts:
+            - { name: data, mountPath: /vol }
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 64Mi }
+        # Creates or migrates the database schema and the administrator before Wallabag
+        # serves anything. "wallabag:install" would create the public account wallabag /
+        # wallabag when run non-interactively, so it is fed the administrator from the
+        # Secret instead, and the script refuses to continue when the default account exists.
+        - name: setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [sh, -c]
+          args:
+            - |
+              set -eu
+              cd /var/www/wallabag
+              envsubst < /etc/wallabag/parameters.template.yml > app/config/parameters.yml
+              i=0
+              until nc -z "$SYMFONY__ENV__DATABASE_HOST" "$SYMFONY__ENV__DATABASE_PORT"; do
+                i=$((i+1)); [ "$i" -le 150 ] || { echo "database is not reachable" >&2; exit 1; }
+                sleep 2
+              done
+              export PGPASSWORD="$SYMFONY__ENV__DATABASE_PASSWORD"
+              q() { printf '%s\n' "$1" | psql -qAt -v ON_ERROR_STOP=1 -v u="${ADMIN_USERNAME:-}" \
+                -h "$SYMFONY__ENV__DATABASE_HOST" -p "$SYMFONY__ENV__DATABASE_PORT" \
+                -U "$SYMFONY__ENV__DATABASE_USER" -d "$SYMFONY__ENV__DATABASE_NAME"; }
+              console() { php -d memory_limit=512M bin/console --env=prod "$@"; }
+              echo "database connection encrypted: $(q 'select ssl from pg_stat_ssl where pid = pg_backend_pid()')"
+              # "wallabag" is the stock account name: it is never a valid administrator (guard() below disables it).
+              case "$ADMIN_USERNAME" in
+                ""|*[!A-Za-z0-9_.-]*) echo "the administrator username may only contain letters, digits, _ . -" >&2; exit 1 ;;
+              esac
+              case "$(printf '%s' "$ADMIN_USERNAME" | tr 'A-Z' 'a-z')" in
+                wallabag) echo "the administrator username must not be wallabag" >&2; exit 1 ;;
+              esac
+              # Never leave the public account wallabag / wallabag usable: before every successful exit.
+              guard() {
+                if [ "$(q "select count(*) from wallabag_user where username_canonical = 'wallabag' and enabled")" != 0 ]; then
+                  q "update wallabag_user set enabled = false where username_canonical = 'wallabag'" >/dev/null
+                  echo "the default account wallabag existed and was disabled" >&2
+                fi
+              }
+              users=-1
+              if [ "$(q "select to_regclass('public.wallabag_user') is not null")" = t ]; then
+                users=$(q 'select count(*) from wallabag_user')
+              elif [ "$(q "select count(*) from pg_tables where schemaname = 'public'")" != 0 ]; then
+                echo "the database is not empty and not a Wallabag database" >&2; exit 1
+              fi
+              if [ "$users" = -1 ]; then
+                echo "fresh database: installing Wallabag"
+                # questions: reset the database? (no), create an administrator? (yes), username, password, email
+                answers="no yes"
+              elif [ "$users" = 0 ]; then
+                echo "schema without users (interrupted install): completing it without touching the schema"
+                console doctrine:migrations:migrate --no-interaction
+                # questions: reset the database? (no), reset the schema? (no), create an administrator? (yes), ...
+                answers="no no yes"
+              else
+                echo "existing installation: migrating"
+                console doctrine:migrations:migrate --no-interaction
+                guard
+                echo "setup done"
+                exit 0
+              fi
+              # shellcheck disable=SC2086
+              { printf '%s\n' $answers; printf '%s\n' "$ADMIN_USERNAME" "$ADMIN_PASSWORD" "$ADMIN_EMAIL"; } | console wallabag:install
+              [ "$(q "select count(*) from wallabag_user where username = :'u'")" = 1 ] || { echo "administrator was not created" >&2; exit 1; }
+              guard
+              echo "setup done"
+          env:
+            {{- include "wallabag.commonEnv" . | nindent 12 }}
+            {{- include "wallabag.dbEnv" . | nindent 12 }}
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 768Mi }
+      containers:
+        - name: wallabag
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "wallabag.commonEnv" . | nindent 12 }}
+            {{- include "wallabag.dbEnv" . | nindent 12 }}
+            - name: PHP_MEMORY_LIMIT
+              value: {{ .Values.config.phpMemoryLimit | quote }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+          # The image runs "composer install" and rebuilds the cache before nginx starts.
+          startupProbe:
+            httpGet: { path: /api/info, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 20
+          # /api/info reads the settings table, so it needs the database.
+          readinessProbe:
+            httpGet: { path: /api/info, port: http }
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - { name: data, mountPath: /var/www/wallabag/data, subPath: data }
+            - { name: data, mountPath: /var/www/wallabag/web/assets/images, subPath: images }
+      volumes:
+        - name: data
+          {{- if .Values.storage.data.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.data.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

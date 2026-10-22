@@ -1,0 +1,10 @@
+config:
+  taskWorkers: 1
+  threadsPerWorker: 1
+  webserverWorkers: 1
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    memory: 3Gi

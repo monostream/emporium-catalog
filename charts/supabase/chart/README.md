@@ -19,3 +19,16 @@ Integrated Storage Capabilities
 Supabase also includes storage capabilities, enabling you to store and serve large files like images and videos. It provides a simple, unified API to manage your storage needs efficiently.
 
 In summary, Supabase is more than just a Firebase alternative. It's a comprehensive backend service that offers a suite of integrated tools to empower developers. From its real-time PostgreSQL database to its auto-generated APIs, authentication services, and storage capabilities, Supabase provides you with everything you need to build and scale your web or mobile applications.
+
+Good to know
+
+- Studio (the dashboard) sits behind your Emporium login; the Supabase APIs (`/rest/v1`, `/auth/v1`, `/storage/v1`, `/realtime/v1`, `/functions/v1`, `/graphql/v1`) on the same address are protected by Supabase's own API keys.
+- The anon and service_role keys are generated at install and stored in the Secret `supabase-keys` in the app's namespace (`anonKey`, `serviceKey`). Keep the data when uninstalling and they come back with it on reinstall.
+- Supabase brings its own PostgreSQL (the `supabase/postgres` image with its extensions and roles) instead of the shared Emporium PostgreSQL service.
+
+Good to know
+
+- Studio (the dashboard) sits behind your Emporium login; the Supabase APIs (`/rest/v1`, `/auth/v1`, `/storage/v1`, `/realtime/v1`, `/functions/v1`, `/graphql/v1`) on the same address are protected by Supabase's own API keys.
+- Studio shows the anon and service_role keys under Project Settings, API. They are signed with a JWT secret generated at install.
+- Uploaded files go to an S3 object storage that Emporium provides with the app.
+- Supabase brings its own PostgreSQL (the `supabase/postgres` image with its extensions and roles) instead of the shared Emporium PostgreSQL service.

@@ -1,3 +1,40 @@
+# 0.3.1
+
+Published on 21 October 2026
+
+- Category: Productivity (was Utilities).
+
+# 0.3.0
+- Optional single sign-on with Emporium (OIDC), off by default: new inputs "Single sign-on with Emporium" and "Enterprise license key". n8n only offers OIDC SSO with an Enterprise license. With both unset local email login works as before.
+- When on, n8n gets `N8N_SSO_OIDC_LOGIN_ENABLED`, `N8N_SSO_OIDC_CLIENT_ID`, `N8N_SSO_OIDC_DISCOVERY_ENDPOINT`, `N8N_SSO_MANAGED_BY_ENV` and the client secret by Secret reference; the callback `/rest/sso/oidc/callback` is registered with the Emporium login.
+- With single sign-on off the chart sets `N8N_SSO_MANAGED_BY_ENV=true` with OIDC and SAML login disabled: n8n stores env-managed SSO settings in its database, so turning the input off again must actively disable the login. Side effect: SSO settings in the n8n UI are managed by the chart (read-only) and SAML is disabled.
+- Known edge case: if the license expired while OIDC was the persisted login method, turning single sign-on off does not reset it (n8n resets the method only at start-up while it still reads `oidc`), and non-owner password logins are rejected. Recovery: re-add a valid license key, then turn single sign-on off; or set the `userManagement.authenticationMethod` row of the `settings` table to `email` and restart n8n (see README).
+- The `sso` integration is always declared, because the oidc provider cannot be optional: a Logto client is created for every install, unused unless single sign-on is on.
+- No role mapping: n8n reads the instance role from a claim (`n8n_instance_role`) or from rules configured in the n8n UI; Emporium admins are not mapped automatically.
+
+# 0.2.1
+- Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.5, 2026-10-20).
+
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- n8n from 2.36.8 to 2.43.8 (image pinned in the chart; the 8gears chart 2.1.1 is still the latest).
+- Optional PostgreSQL through Emporium's postgres integration (CloudNativePG, PostgreSQL 17, verified TLS against the cluster CA), off by default; without it n8n keeps SQLite on the data volume.
+- Data volume is the `data` storage integration (8Gi default, grow-only); the input "Storage Size" is removed.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
+- Webhook, form and MCP trigger endpoints skip the Emporium login so external systems can call them; the editor stays behind it.
+- `WEBHOOK_URL`, `N8N_EDITOR_BASE_URL`, `N8N_HOST` and `N8N_PROXY_HOPS` are set, so webhook URLs shown in the editor use the public hostname.
+- Default resources (100m CPU / 384Mi requested, 1Gi limit); container drops all capabilities.
+
+# 0.1.37
+
+Published on 19 October 2026
+
+- Ingress paths use the object form (path, pathType) that n8n chart 2.x expects; the chart failed to render before
+- Persistence moved to main.persistence (n8n chart 2.x); the StorageSize volume was not created and data lived in an emptyDir
+
 # 0.1.35
 
 Published on 7 October 2026

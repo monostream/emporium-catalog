@@ -1,0 +1,89 @@
+{{- if and .Values.mail.host .Values.app.adminEmail }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-onboard
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  onboard.mjs: |
+    // Completes the Hoppscotch onboarding once: e-mail sign-in through the SMTP
+    // server of the Emporium smtp integration. Hoppscotch keeps these settings in
+    // its database; the first POST makes the backend restart itself.
+    import fs from "node:fs";
+    const base = `http://127.0.0.1:${process.env.PORT}/backend/v1/onboarding`;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM } = process.env;
+    const auth = SMTP_USER
+      ? `${encodeURIComponent(SMTP_USER)}:${encodeURIComponent(SMTP_PASSWORD ?? "")}@`
+      : "";
+    const url = `${SMTP_PORT === "465" ? "smtps" : "smtp"}://${auth}${SMTP_HOST}:${SMTP_PORT}`;
+    const { ADMIN_EMAIL } = process.env;
+    const { createRequire } = await import("node:module");
+    const { Pool } = createRequire("/dist/backend/package.json")("pg");
+    // sslmode=require semantics (encrypted, certificate not verified), as the CloudNativePG certificate has no public CA.
+    const dbUrl = new URL(process.env.DATABASE_URL);
+    dbUrl.searchParams.delete("sslmode");
+    const db = new Pool({ connectionString: dbUrl.toString(), ssl: { rejectUnauthorized: false }, max: 1 });
+    // Once a user exists Hoppscotch refuses to re-run the onboarding, so the
+    // designated administrator is created right after it. The sign-in request
+    // creates the account the regular way (its mail may fail, the account stays).
+    let tries = 0;
+    async function ensureAdmin() {
+      const one = async (sql, args = []) => Number((await db.query(sql, args)).rows[0].count);
+      if ((await one('select count(*) from "User" where "isAdmin"')) > 0) return true;
+      // Hoppscotch matches e-mail addresses case-insensitively; so does this.
+      const find = 'select count(*) from "User" where lower(email) = lower($1)';
+      if ((await one(find, [ADMIN_EMAIL])) === 0) {
+        const res = await fetch(`http://127.0.0.1:${process.env.PORT}/backend/v1/auth/signin?origin=app`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email: ADMIN_EMAIL }),
+        }).catch((e) => ({ status: `no answer (${e.name})` }));
+        // A failed mail (500) still leaves the account behind; only the lookup below decides.
+        if ((await one(find, [ADMIN_EMAIL])) === 0 && tries++ % 10 === 0) {
+          console.error(`administrator ${ADMIN_EMAIL} does not exist and the sign-in request answered ${res.status}; the pod stays not ready. Is e-mail sign-in enabled for this database (Admin > Settings)?`);
+        }
+      }
+      const r = await db.query('update "User" set "isAdmin" = true where lower(email) = lower($1)', [ADMIN_EMAIL]);
+      if (r.rowCount > 0) console.log("administrator account ready");
+      return r.rowCount > 0;
+    }
+    let announced = false;
+    for (;;) {
+      try {
+        const res = await fetch(`${base}/status`);
+        if (res.ok) {
+          const status = await res.json();
+          if (status.onboardingCompleted) {
+            if (!announced) console.log("onboarding already completed");
+            announced = true;
+            if (await ensureAdmin()) {
+              // The pod only becomes Ready (and gets traffic) once this file exists.
+              fs.writeFileSync("/status/ready", "ok");
+              await sleep(600000);
+              continue;
+            }
+            await sleep(3000);
+            continue;
+          }
+          const post = await fetch(`${base}/config`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              VITE_ALLOWED_AUTH_PROVIDERS: "EMAIL",
+              MAILER_SMTP_ENABLE: "true",
+              MAILER_USE_CUSTOM_CONFIGS: "false",
+              MAILER_SMTP_URL: url,
+              MAILER_ADDRESS_FROM: SMTP_FROM,
+            }),
+          });
+          console.log(`onboarding request answered ${post.status}`);
+        }
+      } catch (e) {
+        // backend not up yet, or restarting
+        if (!/fetch failed|ECONNREFUSED/.test(String(e.message))) console.error("retry:", e.code ?? e.name, String(e.message).split("\n")[0].slice(0, 160));
+      }
+      await sleep(5000);
+    }
+{{- end }}

@@ -7,18 +7,43 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 oidc:
-  issuerUrl:
-  clientId:
-  clientSecret:
+  issuerUrl: ""
+  clientId: ""
+  # Secret and key holding the OIDC client secret (Emporium: the per-app Secret).
+  existingSecret: ""
+  clientSecretKey: ""
+  # Optional restriction of who may register nodes through headscale OIDC. Empty = every user
+  # of the identity provider (default). Headscale also supports allowed_groups, but it reads a
+  # `groups` claim that Logto does not issue (Emporium roles are in the `roles` claim).
+  allowedDomains: []
+  allowedUsers: []
+
+# Secret holding COOKIE_SECRET (32 characters) for the Headplane UI (Emporium: the per-app Secret).
+cookie:
+  existingSecret: ""
+
+job:
+  image: alpine/k8s:1.31.4
+
 web:
   image:
     repository: ghcr.io/tale/headplane
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: "0.7.1"
+  resources:
+    requests:
+      cpu: 20m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
   service:
     type: ClusterIP
     port: 3000
+  # Hide the Headscale API key login on the Headplane login page. Off by default: the API key
+  # (created with `kubectl exec ... headscale apikeys create`) is the break-glass login when the
+  # identity provider is down, and only someone with cluster access can mint one.
+  disableApiKeyLogin: false
 app:
   image:
     repository: headscale/headscale
@@ -56,11 +81,13 @@ app:
       auto_update_enabled: true
       update_frequency: 24h
     disable_check_updates: false
-    ephemeral_node_inactivity_timeout: 30m
+    node:
+      ephemeral:
+        inactivity_timeout: 30m
 
     database:
       type: sqlite
-      debug: true
+      debug: false
       gorm:
         prepare_stmt: true
         parameterized_queries: true
@@ -104,14 +131,19 @@ app:
     unix_socket_permission: "0770"
     logtail:
       enabled: true
-    randomize_client_port: false
 
     oidc:
       only_start_if_oidc_is_available: true
       issuer: {{ .Values.oidc.issuerUrl }}
       client_id: {{ .Values.oidc.clientId }}
-      client_secret: {{ .Values.oidc.clientSecret }}
-      scope: ["openid", "profile", "email", "custom"]
+      # client_secret comes from the HEADSCALE_OIDC_CLIENT_SECRET environment variable.
+      scope: ["openid", "profile", "email"]
+      {{- with .Values.oidc.allowedDomains }}
+      allowed_domains: {{ toJson . }}
+      {{- end }}
+      {{- with .Values.oidc.allowedUsers }}
+      allowed_users: {{ toJson . }}
+      {{- end }}
 storage:
   data:
     enabled: true
@@ -153,7 +185,7 @@ ingress:
     - host: chart-example.local
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

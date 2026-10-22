@@ -1,1 +1,35 @@
-n8n: {}
+n8n:
+  image:
+    repository: n8nio/n8n
+    tag: "2.43.8"
+
+  ingress:
+    className: ""
+
+  main:
+    config:
+      # Behind the cluster ingress (one proxy hop); n8n trusts X-Forwarded-* from it.
+      N8N_PROXY_HOPS: 1
+      N8N_PROTOCOL: https
+    # Env entries rendered as `- name: <key>` plus the value map (secretKeyRef etc.).
+    extraEnv: {}
+    # Name of the Secret holding N8N_LICENSE_ACTIVATION_KEY (set by Emporium from the LicenseKey input).
+    licenseSecretName: ""
+    persistence:
+      enabled: true
+      type: dynamic
+      # Use an existing claim instead of creating one (Emporium binds its storage integration here).
+      existingClaim: ""
+      size: 8Gi
+    extraVolumes: []
+    extraVolumeMounts: []
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: [ALL]
+    resources:
+      requests:
+        cpu: 100m
+        memory: 384Mi
+      limits:
+        memory: 1Gi

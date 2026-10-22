@@ -1,0 +1,203 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-init
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  # Copied to /config/emporium.yaml at every start; configuration.yaml includes it as a package.
+  emporium.yaml: |
+    # Managed by the Emporium chart: overwritten at every start.
+    {{- if .Values.recorder.enabled }}
+    recorder:
+      db_url: !env_var HA_DB_URL
+    {{- else }}
+    {}
+    {{- end }}
+  configuration.yaml: |
+    # Created by the Emporium chart at the first start. Edit freely; the chart never overwrites it.
+    default_config:
+
+    homeassistant:
+      packages:
+        emporium: !include emporium.yaml
+
+    frontend:
+      themes: !include_dir_merge_named themes
+
+    automation: !include automations.yaml
+    script: !include scripts.yaml
+    scene: !include scenes.yaml
+  prepare.py: |
+    # Runs before Home Assistant starts, as root, in the configuration volume.
+    import copy, json, os, shutil, sys
+    from ipaddress import ip_network
+    os.chdir("/config")
+    shutil.copyfile("/emporium-init/emporium.yaml", "emporium.yaml")
+    if not os.path.exists("configuration.yaml"):
+        shutil.copyfile("/emporium-init/configuration.yaml", "configuration.yaml")
+        for name, empty in (("automations.yaml", "[]"), ("scripts.yaml", "{}"), ("scenes.yaml", "[]")):
+            if not os.path.exists(name):
+                open(name, "w").write(empty + "\n")
+        os.makedirs("themes", exist_ok=True)
+        print("created configuration.yaml")
+    elif "emporium.yaml" not in open("configuration.yaml").read():
+        print("WARNING: configuration.yaml does not include emporium.yaml (only needed for the PostgreSQL recorder)", file=sys.stderr)
+
+    # Home Assistant 2026.10 keeps the HTTP server settings in .storage/http (the http: YAML key is
+    # migrated once as an unconfirmed trial that is reverted after five minutes, which would drop the
+    # proxy settings and answer 400 Bad Request behind the ingress). Write them as the stable
+    # configuration before the first start and on every start; other stored settings are kept.
+    proxies = []
+    for item in os.environ["TRUSTED_PROXIES"].split(","):
+        item = item.strip()
+        if item:
+            proxies.append(str(ip_network(item, strict=False)))
+    os.makedirs(".storage", exist_ok=True)
+    path = ".storage/http"
+    try:
+        original = json.load(open(path))
+        original["data"]["stable"]
+    except (OSError, ValueError, KeyError, TypeError):
+        original = None
+    if original is None:
+        doc = {"version": 2, "minor_version": 2, "key": "http", "data": {
+            "stable": {
+                "server_port": 8123,
+                "cors_allowed_origins": ["https://cast.home-assistant.io"],
+                "login_attempts_threshold": 10,
+                "ip_ban_enabled": True,
+                "ssl_profile": "modern",
+                "use_x_frame_options": True,
+                "created_at": "2026-01-01T00:00:00+00:00",
+                "error": None,
+                "error_message": None,
+            },
+            "pending": None, "yaml_migration_done": True}}
+    else:
+        doc = copy.deepcopy(original)
+        doc["data"]["yaml_migration_done"] = True
+    # Only the chart-owned fields change; a staged (pending) configuration is kept, with the same fields.
+    for slot in ("stable", "pending"):
+        if isinstance(doc["data"].get(slot), dict):
+            doc["data"][slot]["use_x_forwarded_for"] = True
+            doc["data"][slot]["trusted_proxies"] = proxies
+    if doc != original:
+        json.dump(doc, open(path + ".tmp", "w"), indent=2)
+        os.replace(path + ".tmp", path)
+        print("HTTP settings written: trusted proxies", ", ".join(proxies))
+  onboard.py: |
+    # Owner bootstrap with a persisted attestation. At the first install it creates the owner through
+    # the onboarding API, proves the account is ours by logging in with the generated password and
+    # writes /config/.emporium/owner-verified (the owner's user id). /status/ready, which the readiness
+    # probe waits for, exists only while HA answers and the attested user is still an owner in
+    # .storage/auth. Onboarding complete without a matching attestation (someone else won the race,
+    # or the attested owner is gone): never ready, clear error. Later starts read the files; no login.
+    import json, os, time, urllib.request, urllib.error
+    BASE = os.environ.get("HA_BASE", "http://127.0.0.1:{{ .Values.service.port }}")
+    READY = os.environ.get("READY_FILE", "/status/ready")
+    CONFIG = os.environ.get("CONFIG_DIR", "/config")
+    ATT = os.path.join(CONFIG, ".emporium", "owner-verified")
+    def call(path, body=None):
+        data = json.dumps(body).encode() if body is not None else None
+        req = urllib.request.Request(BASE + path, data=data, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return json.load(r)
+    def ha_up():
+        try:
+            urllib.request.urlopen(BASE + "/manifest.json", timeout=5).read()
+            return True
+        except urllib.error.HTTPError:
+            return True
+        except (urllib.error.URLError, OSError):
+            return False
+    def owners():
+        try:
+            users = json.load(open(os.path.join(CONFIG, ".storage", "auth")))["data"]["users"]
+        except (OSError, ValueError, KeyError, TypeError):
+            return []
+        if not isinstance(users, list):
+            return []
+        return [u["id"] for u in users
+                if isinstance(u, dict) and isinstance(u.get("id"), str) and u["id"]
+                and u.get("is_owner") is True and u.get("system_generated", False) is False
+                and u.get("is_active", True) is True]
+    def attested():
+        try:
+            uid = open(ATT).read().strip()
+        except OSError:
+            return None
+        return uid if uid and uid in owners() else None
+    def owner_login():
+        cid = BASE + "/"
+        f = call("/auth/login_flow", {"client_id": cid, "handler": ["homeassistant", None], "redirect_uri": cid})
+        try:
+            r = call("/auth/login_flow/" + f["flow_id"], {"client_id": cid, "username": os.environ["ADMIN_USERNAME"], "password": os.environ["ADMIN_PASSWORD"]})
+        except urllib.error.HTTPError:
+            return False
+        return r.get("type") == "create_entry"
+    def unready():
+        try:
+            os.remove(READY)
+        except OSError:
+            pass
+    def ready():
+        if not os.path.exists(READY):
+            open(READY, "w").write("ok")
+            print("owner attested, pod ready", flush=True)
+    def attest():
+        # the auth store is saved with a short delay
+        for _ in range(20):
+            o = owners()
+            if len(o) == 1:
+                os.makedirs(os.path.dirname(ATT), mode=0o700, exist_ok=True)
+                open(ATT, "w").write(o[0])
+                os.chmod(ATT, 0o600)
+                return True
+            time.sleep(1)
+        return False
+    def onboarding_open():
+        try:
+            return not any(s.get("step") == "user" and s.get("done") for s in call("/api/onboarding"))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:  # all onboarding steps are complete
+                return False
+            raise
+    unready()
+    last_error = 0
+    while True:
+        wait = 5
+        try:
+            if not ha_up():
+                unready()
+                wait = 3
+            elif attested():
+                ready()
+            else:
+                unready()
+                if onboarding_open():
+                    call("/api/onboarding/users", {
+                        "client_id": BASE + "/",
+                        "name": os.environ["ADMIN_NAME"],
+                        "username": os.environ["ADMIN_USERNAME"],
+                        "password": os.environ["ADMIN_PASSWORD"],
+                        "language": "en",
+                    })
+                    print("owner account created", flush=True)
+                    if owner_login() and attest():
+                        print("owner verified and attested", flush=True)
+                        ready()
+                    else:
+                        print("ERROR: the owner could not be verified; the pod stays unready", flush=True)
+                        wait = 30
+                elif time.time() - last_error > 60:
+                    last_error = time.time()
+                    print("ERROR: onboarding is complete but there is no valid owner attestation (someone else created the owner, or the attested owner no longer exists). The pod stays unready. Recovery: delete the app's configuration volume and install again, or, if you know the owner account is yours, write its user id from /config/.storage/auth into /config/.emporium/owner-verified (see the README).", flush=True)
+        except (urllib.error.URLError, OSError, ValueError):
+            unready()
+            wait = 3
+        except Exception as e:
+            unready()
+            print("onboarding failed: %s" % type(e).__name__, flush=True)
+            wait = 10
+        time.sleep(wait)

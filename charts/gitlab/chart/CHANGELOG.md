@@ -1,3 +1,39 @@
+# 0.4.2
+
+Published on 21 October 2026
+
+- A first OpenID Connect sign-in is linked to an existing GitLab account with the same email only when Logto reports `email_verified: true` (GitLab itself does not check it). Users already linked keep signing in as before.
+- Documented that `global.emporium.adminRole` is the Logto role name in the `roles` claim and cannot come from the oidc integration's `AdminScope` (the API scope `admin`).
+
+# 0.4.1
+
+Published on 20 October 2026
+
+- Fixed the ingress `skipPaths` for Git over HTTP: one comma-free regex covering clone, push and LFS (`info/refs`, `git-upload-pack`, `git-receive-pack`, `info/lfs/`, `gitlab-lfs/objects/`) with or without `.git`; UI paths such as `/-/blob/...` still go through Glass.
+
+# 0.4.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`); profiles `small` (default, one pod per service, no agent server) and `medium`.
+- PostgreSQL is the `postgres` integration (CloudNativePG cluster `<release>-postgres`, PostgreSQL 18, as in 0.3.0).
+- Redis is Emporium's `redis` integration (Valkey `<release>-redis`) instead of the bundled Valkey chart; object storage is the `objects` integration (RustFS `<release>-objects`, buckets created by Emporium) instead of the bundled RustFS chart and bucket Job. Existing installs start with empty Redis and object storage; see MIGRATION.md before uninstalling a 0.3.x install.
+- Email through the optional `mail` SMTP integration (password by reference).
+- The registry and the agent server have their own ingress integrations `registry` and `kas` (no glass: they authenticate with GitLab tokens), each with its own subdomain chosen at install (were `registry.<host>` and `kas.<host>`).
+- TLS secrets, ingress class and annotations come from the ingress integrations; the paths GitLab authenticates itself are `skipPaths`. The nginx-only kas gRPC Ingress is off; agents connect over WebSocket.
+- Removed the Object Storage Size field (now the size of the `objects` integration); Repository Storage Size can no longer change after the install.
+
+# 0.3.0
+
+Published on 19 October 2026
+
+- gitlab from 10.4.1 to 10.5.0 (GitLab 19.5.0)
+- Sign-in through Emporium's identity provider (Logto); members of the emporium-admin role become GitLab administrators automatically
+- PostgreSQL from Emporium's CloudNativePG integration (PostgreSQL 18) instead of the removed bundled PostgreSQL
+- Valkey replaces the removed bundled Redis, RustFS replaces the removed bundled MinIO; buckets are created automatically
+- The bundled GitLab Runner is registered automatically with a runner authentication token; its CI jobs run unprivileged unless the new Privileged CI Jobs setting is on
+- Breaking: data of 0.2.x installations is not migrated
+
 # 0.2.86
 
 Published on 19 October 2026

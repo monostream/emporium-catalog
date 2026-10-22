@@ -4,7 +4,10 @@
     "name": "porter",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:porter",
-    "changelogPath": "./chart"
+    "appVersionMapping": "value:porter.image.tag",
+    "changelogPath": "./chart",
+    "imageTagPaths": [
+      "porter.image.tag"
+    ]
   }
 ]

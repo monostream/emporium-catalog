@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-spicedb
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" . "component" "spicedb") | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "chart.componentSelectorLabels" (dict "ctx" . "component" "spicedb") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.componentLabels" (dict "ctx" . "component" "spicedb") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: spicedb
+          image: {{ include "chart.spicedbImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: [serve]
+          securityContext:
+            runAsUser: 65532
+            runAsGroup: 65532
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: SPICEDB_DATASTORE_ENGINE
+              value: postgres
+            {{- include "chart.databaseUrlEnv" (dict "ctx" . "name" "SPICEDB_DATASTORE_CONN_URI") | nindent 12 }}
+            - name: SPICEDB_GRPC_PRESHARED_KEY
+              valueFrom:
+                {{- include "chart.secretRef" (dict "ctx" . "key" "AUTHZED_TOKEN") | nindent 16 }}
+            - name: SPICEDB_LOG_FORMAT
+              value: json
+            - name: SPICEDB_LOG_LEVEL
+              value: info
+            - name: SPICEDB_TELEMETRY_ENDPOINT
+              value: ""
+          ports:
+            - name: grpc
+              containerPort: 50051
+          # The datastore is migrated by the Formbricks pod before it first serves.
+          startupProbe:
+            grpc: { port: 50051 }
+            periodSeconds: 5
+            failureThreshold: 120
+          livenessProbe:
+            grpc: { port: 50051 }
+          readinessProbe:
+            grpc: { port: 50051 }
+          resources:
+            {{- toYaml .Values.spicedbResources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

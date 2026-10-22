@@ -1,0 +1,92 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: network, label: Reverse proxy }
+  - { id: admin, label: Owner account, description: "Home Assistant has its own accounts behind the Emporium login (it has no single sign-on in the core). The owner account is created by the chart at the first start and the pod becomes Ready only once it is verified, so the Service and ingress route nothing before. Someone who reaches the pod IP directly in the first seconds could still claim it; the pod then stays unready (fail closed) and a NetworkPolicy that isolates the pod is the mitigation." }
+
+inputs:
+  Timezone:
+    label: Time zone
+    description: IANA time zone name, for example Europe/Berlin. Used by the container; you can set the time zone and location of your home in Home Assistant itself (Settings > System > General).
+    type: string
+    default: UTC
+    path: timezone
+    section: general
+  TrustedProxies:
+    label: Trusted proxies
+    description: Comma-separated IP addresses or CIDR ranges of the reverse proxies in front of Home Assistant (the cluster's pod network). Home Assistant answers 400 Bad Request to requests that arrive through a proxy it does not trust. The default covers the private ranges every Kubernetes pod network uses; narrow it to your pod CIDR if you want.
+    type: string
+    default: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fd00::/8"
+    required: true
+    pattern: '^[0-9A-Fa-f:.,/ ]+$'
+    path: http.trustedProxies
+    section: network
+  AdminUsername:
+    label: Owner username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    pattern: '^[a-z0-9._-]{3,32}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Owner password
+    description: At least 8 printable ASCII characters without spaces. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Home Assistant.
+    type: secret
+    installOnly: true
+    generate: { length: 24, charset: alnum }
+    pattern: '^[\x21-\x7E]{8,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Home Assistant authenticates these itself: the REST API and webhooks (long-lived tokens,
+    # webhook ids), the websocket handshake (/api/websocket carries an access token) and the
+    # OAuth-style login flow of the companion apps and integrations (/auth/*). The static
+    # files below are only what the /auth/authorize login page loads.
+    skipPaths: [/api/*, /auth/*, /static/*, /frontend_latest/*, /frontend_es5/*, /manifest.json]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  config:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: storage.config.existingClaim
+  db:
+    type: postgres
+    required: false
+    database: homeassistant
+    owner: homeassistant
+    version: "17"
+    storage: { default: 10Gi, growOnly: true }
+    # The connection URL is built at runtime (sslmode=verify-full with the integration's CA).
+
+components:
+  app:
+    label: Home Assistant
+    resources: resources
+    replicas: { fixed: 1, reason: "The configuration, SQLite history and device state live on a single volume" }
+  onboard:
+    label: Owner bootstrap
+    parent: app
+    resources: onboard.resources
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household, a few dozen devices
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

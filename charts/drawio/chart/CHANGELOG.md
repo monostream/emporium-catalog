@@ -1,3 +1,16 @@
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- drawio from 32.2.0 to 32.5.5.
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode. Default access is `authenticated`.
+- No inputs (there were none before).
+- `DRAWIO_BASE_URL` is the app's own URL (it fell back to `http://localhost:8080`, which broke viewer, lightbox and embed links).
+- The Content-Security-Policy no longer allows the retired Emporium 0.4 panel host.
+- Default resources (50m CPU / 256Mi requested, 768Mi limit) and a `small` profile; replicas are editable (1-3).
+- Runs as the image's tomcat user (UID 1001) with no capabilities; the HPA template and autoscaling values are gone.
+
 # 0.1.87
 
 Published on 6 October 2026

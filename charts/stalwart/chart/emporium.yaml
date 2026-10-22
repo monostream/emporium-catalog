@@ -1,0 +1,76 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administrator, description: "Stalwart accepts this account at any time. It signs in to the web administration, where you create mail domains and accounts." }
+
+inputs:
+  DefaultDomain:
+    label: Mail domain
+    description: The first mail domain (the part after @ in your addresses). Creating the DNS records (MX, SPF, DKIM, DMARC) is up to you, see the README.
+    type: string
+    default: example.org
+    required: true
+    installOnly: true
+    pattern: '^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$'
+    path: config.defaultDomain
+  AdminUsername:
+    label: Administrator username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    # Stalwart lowercases the user name of every login, so a name with capitals could never sign in.
+    pattern: '^[a-z0-9][a-z0-9._-]{1,31}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret). The running server keeps the password it started with; to rotate it, update the Secret and restart the pod.
+    type: secret
+    installOnly: true
+    generate: { length: 24, charset: alnum }
+    pattern: '^[0-9A-Za-z]{12,128}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Exact discovery and client-configuration paths only (no wildcards: glass matches a path without
+    # a trailing "*" exactly). Not skipped: /jmap/* and /dav/* (POST /jmap/ also dispatches the
+    # management methods, and the administrator can use Basic auth there), /auth/* (/auth/register
+    # accepts administrator credentials and creates OAuth clients) and /api/*. No wildcard either,
+    # because Stalwart bans an address that requests a scan path such as /x.php: behind the proxy
+    # that address is the ingress, so one anonymous request would ban everybody.
+    skipPaths:
+      - /.well-known/jmap
+      - /.well-known/openid-configuration
+      - /.well-known/oauth-authorization-server
+      - /.well-known/autoconfig/mail/config-v1.1.xml
+      - /mail/config-v1.1.xml
+      - /autodiscover/autodiscover.xml
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  data:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+
+components:
+  app:
+    label: Stalwart
+    resources: resources
+    replicas: { fixed: 1, reason: "RocksDB on a ReadWriteOnce volume; one process owns the mail store" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few mailboxes
+    values: profiles/small.yaml

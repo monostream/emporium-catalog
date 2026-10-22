@@ -1,14 +1,6 @@
 {{- if .Values.frontend.ingress.enabled -}}
-{{- $gitVersion := .Capabilities.KubeVersion.GitVersion -}}
 {{- $fullName := include "penpot.fullname" . -}}
-{{- $svcPort := .Values.frontend.service.port -}}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -20,34 +12,30 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.frontend.ingress.tls }}
-  tls:
-  {{- range .Values.frontend.ingress.tls }}
-    - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
+  {{- with .Values.frontend.ingress.className }}
+  ingressClassName: {{ . | quote }}
   {{- end }}
-{{- end }}
+  {{- with .Values.frontend.ingress.tls }}
+  tls:
+    {{- range . }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName | quote }}
+    {{- end }}
+  {{- end }}
   rules:
-  {{- range .Values.frontend.ingress.hosts }}
+    {{- range .Values.frontend.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
-{{ if semverCompare ">=1.19-0" $gitVersion }}
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: {{ $svcPort }}
-{{ else }}
-          - path: /
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
-{{- end }}
-  {{- end }}
+                  number: {{ $.Values.frontend.service.port }}
+    {{- end }}
 {{- end }}

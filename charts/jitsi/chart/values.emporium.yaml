@@ -1,0 +1,4 @@
+config:
+  publicUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

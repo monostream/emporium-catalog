@@ -1,0 +1,114 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - id: media
+    label: Media (videobridge)
+    description: "Audio and video do not travel through the HTTPS address. The videobridge needs a UDP port that the participants' browsers can reach, and the public IP address it is reached under. Without both, meetings open and chat works, but nobody sees or hears anybody outside the cluster network."
+  - { id: internal, label: Internal credentials, description: "Passwords the Jitsi components use among themselves. Generated at install; nobody signs in with them." }
+
+inputs:
+  EnableLobby:
+    label: Lobby for moderators
+    description: "Moderators can switch on a lobby, so participants wait until they are let in."
+    type: boolean
+    default: true
+    path: config.enableLobby
+  EnablePrejoin:
+    label: Pre-join screen
+    description: "Participants check camera, microphone and name before they enter the room."
+    type: boolean
+    default: true
+    path: config.enablePrejoin
+  EnableWelcomePage:
+    label: Welcome page
+    description: "The start page where a room name is typed. Off: rooms are only reachable by their link."
+    type: boolean
+    default: true
+    path: config.enableWelcomePage
+  JvbExposure:
+    label: Videobridge media port
+    description: "How the UDP media port is made reachable. ClusterIP: not at all (meetings only work for participants inside the cluster network). NodePort: UDP on every node (the port below must be 30000-32767). LoadBalancer: a UDP load balancer on the port below. HostPort: UDP on the node the pod runs on (the port below on that node)."
+    type: enum
+    options: [ClusterIP, NodePort, LoadBalancer, HostPort]
+    default: ClusterIP
+    section: media
+    path: jvb.exposure
+  JvbPort:
+    label: Media UDP port
+    description: "The UDP port browsers connect to. 10000 is the Jitsi default; use 30000-32767 with NodePort. Open it in your firewall."
+    type: integer
+    default: 10000
+    min: 1024
+    max: 65535
+    section: media
+    path: jvb.port
+  JvbAdvertiseIPs:
+    label: Public IP address of the videobridge
+    description: "The address browsers send media to (JVB_ADVERTISE_IPS): the load balancer, node or router IP that forwards the UDP port above. Several addresses are separated by commas. Leave empty only when everybody is inside the cluster network."
+    type: string
+    default: ""
+    pattern: '^$|^[0-9a-fA-F:.]+(#[0-9]{1,5})?(,[0-9a-fA-F:.]+(#[0-9]{1,5})?)*$'
+    section: media
+    path: jvb.advertiseIPs
+  JicofoAuthPassword:
+    label: Focus account password
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: internal
+    ref: { namePath: secrets.existingSecret, keyPath: secrets.jicofoAuthPasswordKey }
+  JicofoComponentSecret:
+    label: Focus component secret
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: internal
+    ref: { namePath: secrets.existingSecret, keyPath: secrets.jicofoComponentSecretKey }
+  JvbAuthPassword:
+    label: Videobridge account password
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: internal
+    ref: { namePath: secrets.existingSecret, keyPath: secrets.jvbAuthPasswordKey }
+
+integrations:
+  web:
+    type: ingress
+    # Jitsi has no user accounts of its own in this chart: the Emporium login decides who can
+    # open the page, create a room and join. Set the access to "public" at install to let
+    # people outside Emporium join (then anybody with the address can also create rooms).
+    access: { default: authenticated }
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+
+components:
+  core:
+    label: Meeting server (web, XMPP, focus)
+    resources: web.resources
+    replicas: { fixed: 1, reason: "Conference state lives in the memory of one Prosody" }
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: core } }
+  prosody:
+    label: XMPP server (Prosody)
+    parent: core
+    resources: prosody.resources
+  jicofo:
+    label: Conference focus (Jicofo)
+    parent: core
+    resources: jicofo.resources
+  jvb:
+    label: Videobridge
+    resources: jvb.resources
+    replicas: { fixed: 1, reason: "One media port and public address per videobridge" }
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: jvb } }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Meetings of up to about 10 participants
+    values: profiles/small.yaml

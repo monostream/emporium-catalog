@@ -1,0 +1,74 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administrator, description: "Calibre-Web Automated ships with the account admin / admin123. The chart replaces it before the app starts, so it is never served. Emporium users sign in with single sign-on and get a regular account." }
+
+inputs:
+  AdminUsername:
+    label: Local administrator username
+    description: "Break-glass account that replaces the default \"admin\" account at the first start. It is not linked to single sign-on. The name must contain a dash, underscore or dot (for example cwa-admin): single sign-on accounts are named by a 12-character lowercase alphanumeric subject id and CWA would link such a login to a local account of the same name."
+    type: string
+    default: cwa-admin
+    required: true
+    installOnly: true
+    # 2-32 characters, starts with a letter or digit, contains at least one of . _ - (RE2 has no
+    # lookahead, so the position of the first separator is enumerated).
+    pattern: '^[A-Za-z0-9](?:[A-Za-z0-9]{0}[._-][A-Za-z0-9._-]{0,30}|[A-Za-z0-9]{1}[._-][A-Za-z0-9._-]{0,29}|[A-Za-z0-9]{2}[._-][A-Za-z0-9._-]{0,28}|[A-Za-z0-9]{3}[._-][A-Za-z0-9._-]{0,27}|[A-Za-z0-9]{4}[._-][A-Za-z0-9._-]{0,26}|[A-Za-z0-9]{5}[._-][A-Za-z0-9._-]{0,25}|[A-Za-z0-9]{6}[._-][A-Za-z0-9._-]{0,24}|[A-Za-z0-9]{7}[._-][A-Za-z0-9._-]{0,23}|[A-Za-z0-9]{8}[._-][A-Za-z0-9._-]{0,22}|[A-Za-z0-9]{9}[._-][A-Za-z0-9._-]{0,21}|[A-Za-z0-9]{10}[._-][A-Za-z0-9._-]{0,20}|[A-Za-z0-9]{11}[._-][A-Za-z0-9._-]{0,19}|[A-Za-z0-9]{12}[._-][A-Za-z0-9._-]{0,18}|[A-Za-z0-9]{13}[._-][A-Za-z0-9._-]{0,17}|[A-Za-z0-9]{14}[._-][A-Za-z0-9._-]{0,16}|[A-Za-z0-9]{15}[._-][A-Za-z0-9._-]{0,15}|[A-Za-z0-9]{16}[._-][A-Za-z0-9._-]{0,14}|[A-Za-z0-9]{17}[._-][A-Za-z0-9._-]{0,13}|[A-Za-z0-9]{18}[._-][A-Za-z0-9._-]{0,12}|[A-Za-z0-9]{19}[._-][A-Za-z0-9._-]{0,11}|[A-Za-z0-9]{20}[._-][A-Za-z0-9._-]{0,10}|[A-Za-z0-9]{21}[._-][A-Za-z0-9._-]{0,9}|[A-Za-z0-9]{22}[._-][A-Za-z0-9._-]{0,8}|[A-Za-z0-9]{23}[._-][A-Za-z0-9._-]{0,7}|[A-Za-z0-9]{24}[._-][A-Za-z0-9._-]{0,6}|[A-Za-z0-9]{25}[._-][A-Za-z0-9._-]{0,5}|[A-Za-z0-9]{26}[._-][A-Za-z0-9._-]{0,4}|[A-Za-z0-9]{27}[._-][A-Za-z0-9._-]{0,3}|[A-Za-z0-9]{28}[._-][A-Za-z0-9._-]{0,2}|[A-Za-z0-9]{29}[._-][A-Za-z0-9._-]{0,1}|[A-Za-z0-9]{30}[._-][A-Za-z0-9._-]{0,0})$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Local administrator password
+    description: Used to sign in as the local administrator. Leave empty to generate one (stored in the app's Secret). It replaces the default password at the first start only; if you change it in the app later, the Secret value is no longer valid.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[0-9A-Za-z]{6,128}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Reader apps and e-readers reach the app with their own credentials:
+    # OPDS (HTTP basic auth) and the Kobo sync (token in the path). The KOReader sync (/kosync)
+    # stays behind the Emporium login: upstream has no brute-force protection on it.
+    # The rest of the app stays behind the Emporium login.
+    skipPaths: [/opds/*, /kobo/*]
+    # Callback of Calibre-Web's generic OpenID Connect provider.
+    redirectPaths: [/login/generic/authorized]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  config:
+    type: storage
+    size: { default: 2Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.config.existingClaim
+  library:
+    type: storage
+    size: { default: 20Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.library.existingClaim
+  ingest:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.ingest.existingClaim
+
+components:
+  app:
+    label: Calibre-Web Automated
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite databases (app.db, Calibre metadata.db) on ReadWriteOnce volumes" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few thousand books
+    values: profiles/small.yaml

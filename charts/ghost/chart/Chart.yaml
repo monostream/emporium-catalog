@@ -1,21 +1,17 @@
 apiVersion: v2
 name: ghost
 description: Publishing platform designed to create SEO-optimized blogs, magazines, websites and news sites.
-version: 1.0.151
-appVersion: 6.0.5
-dependencies:
-  - name: ghost
-    version: 25.0.4
-    repository: oci://bitnamicharts.docker.pkg.emporium.rocks
+type: application
+version: 1.1.3
+appVersion: "6.71.0"
 home: https://ghost.org/
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_icon_2.svg
 sources:
   - https://github.com/TryGhost/Ghost
+  - https://github.com/docker-library/ghost
 maintainers:
-  - name: Ghost Foundation © 2023
+  - name: Ghost Foundation
     url: https://ghost.org/
-  - name: VMware, Inc.
-    url: https://github.com/bitnami/charts
 keywords:
   - Blog
   - Magazine
@@ -24,9 +20,10 @@ keywords:
 annotations:
   icon: assets/icon.svg
   displayName: Ghost
-  category: CMS
-  licenses: Apache-2.0
+  category: Content
+  licenses: MIT
   gallery: |
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_1.jpg
     https://raw.githubusercontent.com/monostream/test-charts/main/assets/ghost/ghost_gallery_2.jpg
-  emporiumVersion: v0.3.0
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.4 2026-10-20"

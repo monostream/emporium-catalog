@@ -1,0 +1,13 @@
+Kavita is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start creates the database and the administrator, give it a minute.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with the "Sign in with Emporium" button: your Kavita account is created at your first visit, named like your Emporium username, and needs an e-mail address on your Emporium account.
+Accounts are regular readers. The local administrator makes them administrators under Settings > Users.
+{{- end }}
+
+Local administrator "{{ .Values.admin.username }}": the password is in the Secret {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+
+Library files go to the "library" volume, mounted at /data in the pod. The "Books" library reads /data/books (put files in sub-folders, e.g. /data/books/<author>/<book>.epub); add comics or manga as libraries on /data/comics or /data/manga.
+Reader apps use OPDS: https://{{ .Values.ingress.host }}/api/opds/<your API key> (Kavita > User settings > Account). The OPDS and KOReader sync paths skip the Emporium login.

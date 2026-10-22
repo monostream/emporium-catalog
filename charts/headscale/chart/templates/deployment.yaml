@@ -13,10 +13,12 @@ spec:
       {{- include "chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/headscale-config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/headplane-config: {{ include (print $.Template.BasePath "/configmap-headplane.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "chart.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -48,6 +50,14 @@ spec:
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.app.image.pullPolicy }}
           args: ["serve"]
+          {{- if .Values.oidc.existingSecret }}
+          env:
+            - name: HEADSCALE_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.existingSecret | quote }}
+                  key: {{ .Values.oidc.clientSecretKey | quote }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -67,36 +77,30 @@ spec:
           image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.web.image.pullPolicy }}
           env:
-          - name: HEADSCALE_URL
-            value: 'http://{{ include "chart.fullname" . }}:{{ .Values.service.port }}'
-          - name: OIDC_CLIENT_ID
-            value: '{{ .Values.oidc.clientId }}'
-          - name: OIDC_CLIENT_SECRET
-            value: '{{ .Values.oidc.clientSecret }}'
-          - name: OIDC_ISSUER
-            value: '{{ .Values.oidc.issuerUrl }}'
-          - name: COOKIE_SECURE
-            value: 'false'
-          - name: DISABLE_API_KEY_LOGIN
-            value: 'true'
-          - name: HEADSCALE_INTEGRATION
-            value: 'kubernetes'
-          - name: DEBUG
-            value: 'true'
-          - name: ROOT_API_KEY
+          # Headplane 0.7 reads /etc/headplane/config.yaml; the HEADPLANE_* variables below
+          # override it and carry the secrets by reference.
+          {{- with .Values.cookie.existingSecret }}
+          - name: HEADPLANE_SERVER__COOKIE_SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ include "chart.fullname" . }}-root-api-key
-                key: ROOT_API_KEY            
-          - name: COOKIE_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: {{ include "chart.fullname" . }}-root-api-key
+                name: {{ . | quote }}
                 key: COOKIE_SECRET
-          - name: POD_NAME
+          {{- end }}
+          {{- if .Values.oidc.existingSecret }}
+          - name: HEADPLANE_OIDC__CLIENT_SECRET
             valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
+              secretKeyRef:
+                name: {{ .Values.oidc.existingSecret | quote }}
+                key: {{ .Values.oidc.clientSecretKey | quote }}
+          {{- end }}
+          - name: HEADPLANE_HEADSCALE__API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.fullname" . }}-root-api-key
+                key: ROOT_API_KEY
+                # Filled by the post-install job once headscale runs. Without it Headplane starts with OIDC disabled
+                # (API key login only); the job rolls the pod once the key exists.
+                optional: true
           ports:
             - name: web
               containerPort: {{ .Values.web.service.port }}
@@ -104,11 +108,17 @@ spec:
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
           volumeMounts:
-            - mountPath: /data
+            - mountPath: /var/lib/headplane
               name: data
+              subPath: headplane
             - name: config
               mountPath: /etc/headscale
+            - name: headplane-config
+              mountPath: /etc/headplane
       volumes:
+      - name: headplane-config
+        configMap:
+          name: {{ template "chart.fullname" . }}-headplane
       - name: headscale-socket
         emptyDir: {}
       - name: config

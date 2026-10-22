@@ -1,0 +1,27 @@
+apiVersion: v2
+name: grocy
+description: ERP for your kitchen and household with stock, shopping lists, recipes, chores and meal plans
+type: application
+version: 0.1.0
+appVersion: "4.7.1"
+home: https://grocy.info/
+icon: https://raw.githubusercontent.com/grocy/grocy/master/public/img/icon.svg
+sources:
+  - https://github.com/grocy/grocy
+  - https://github.com/linuxserver/docker-grocy
+keywords:
+  - Groceries
+  - Household
+  - Inventory
+  - Recipes
+annotations:
+  icon: assets/icon.svg
+  displayName: Grocy
+  category: Home
+  licenses: MIT
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-22"

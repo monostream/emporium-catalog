@@ -1,0 +1,17 @@
+{{- range $c := list (dict "name" "app" "suffix" "" "port" 3000 "svc" 80) (dict "name" "hub" "suffix" "-hub" "port" 8080 "svc" 8080) (dict "name" "cube" "suffix" "-cube" "port" 4000 "svc" 4000) (dict "name" "spicedb" "suffix" "-spicedb" "port" 50051 "svc" 50051) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.fullname" $ }}{{ $c.suffix }}
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" $ "component" $c.name) | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: {{ ternary "http" "grpc" (ne $c.name "spicedb") }}
+      port: {{ $c.svc }}
+      targetPort: {{ $c.port }}
+  selector:
+    {{- include "chart.componentSelectorLabels" (dict "ctx" $ "component" $c.name) | nindent 4 }}
+{{- end }}

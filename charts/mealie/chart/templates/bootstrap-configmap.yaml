@@ -1,0 +1,51 @@
+{{- if .Values.admin.existingSecret }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-bootstrap
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  bootstrap.py: |
+    """Init container: make sure Mealie's default administrator never has its public password.
+
+    Mealie seeds changeme@example.com / MyPassword into an empty database and has no setting for
+    it. This runs before Mealie serves, on every pod start, directly against the database:
+      1. Mealie's own database init (migrations and seeding), the same call the app makes;
+      2. if the default-email account exists and its password hash still verifies against the
+         public default, replace password, email and username in ONE transaction; otherwise do
+         nothing. No HTTP, no login attempts, no state.
+    """
+    import os
+    import sys
+
+    from mealie.core.config import get_app_settings
+    from mealie.core.security.providers.credentials_provider import CredentialsProvider
+    from mealie.core.security.security import hash_password
+    from mealie.db.db_setup import session_context
+    from mealie.db.init_db import main as init_database
+    from mealie.db.models.users.users import User
+
+    DEFAULT_PASSWORD = "MyPassword"
+    new_password = os.environ["ADMIN_PASSWORD"]
+    if len(new_password) < 8:
+        sys.exit("administrator password must have at least 8 characters (Mealie minimum)")
+
+    init_database()
+    settings = get_app_settings()
+    with session_context() as session:
+        user = session.query(User).filter(User.email == settings._DEFAULT_EMAIL).one_or_none()
+        if user is None:
+            print("no default administrator account, nothing to do", flush=True)
+        elif not CredentialsProvider.verify_password(DEFAULT_PASSWORD, user.password):
+            print("default administrator has a custom password, left untouched", flush=True)
+        else:
+            # One transaction: password, email and username change together or not at all, so an
+            # interrupted run leaves the default account (and the default password) intact for the retry.
+            user.update_password(hash_password(new_password))
+            user.email = os.environ["ADMIN_EMAIL"]
+            user.username = os.environ["ADMIN_USERNAME"]
+            user.full_name = "Administrator"
+            session.commit()
+            print("default administrator replaced", flush=True)
+{{- end }}

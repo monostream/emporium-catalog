@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: vikunja
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "vikunja.env" . | nindent 12 }}
+            {{- with .Values.secrets.existingSecret }}
+            - name: VIKUNJA_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.jwtKey }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .authUrl }}
+            - name: VIKUNJA_AUTH_OPENID_ENABLED
+              value: "true"
+            - name: {{ printf "VIKUNJA_AUTH_OPENID_PROVIDERS_%s_NAME" (upper .providerKey) }}
+              value: {{ .providerName | quote }}
+            - name: {{ printf "VIKUNJA_AUTH_OPENID_PROVIDERS_%s_AUTHURL" (upper .providerKey) }}
+              value: {{ .authUrl | quote }}
+            - name: {{ printf "VIKUNJA_AUTH_OPENID_PROVIDERS_%s_CLIENTID" (upper .providerKey) }}
+              value: {{ .clientId | quote }}
+            - name: {{ printf "VIKUNJA_AUTH_OPENID_PROVIDERS_%s_USERNAMEFALLBACK" (upper .providerKey) }}
+              value: {{ .usernameFallback | quote }}
+            - name: {{ printf "VIKUNJA_AUTH_OPENID_PROVIDERS_%s_EMAILFALLBACK" (upper .providerKey) }}
+              value: {{ .emailFallback | quote }}
+            {{- with .existingSecret }}
+            - name: {{ printf "VIKUNJA_AUTH_OPENID_PROVIDERS_%s_CLIENTSECRET" (upper $.Values.oidc.providerKey) }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # Database migrations run before Vikunja listens.
+          startupProbe:
+            httpGet: { path: /api/v1/info, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          # /api/v1/info does not touch the database.
+          livenessProbe:
+            httpGet: { path: /api/v1/info, port: http }
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+          volumeMounts:
+            - name: files
+              mountPath: /app/vikunja/files
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: files
+          {{- if .Values.storage.files.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.files.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

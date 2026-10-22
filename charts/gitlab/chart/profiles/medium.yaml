@@ -1,0 +1,86 @@
+## Teams of about 100 to 500 users: autoscaled web and Sidekiq pods, four
+## Puma workers per web pod, agent server and metrics exporter on.
+global:
+  kas:
+    enabled: true
+
+gitlab:
+  gitlab:
+    webservice:
+      minReplicas: 2
+      maxReplicas: 4
+      ## about 1.25 GB per Puma worker
+      workerProcesses: 4
+      resources:
+        requests:
+          cpu: "1"
+          memory: 5Gi
+        limits:
+          memory: 6Gi
+      workhorse:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+          limits:
+            memory: 1Gi
+    sidekiq:
+      minReplicas: 1
+      maxReplicas: 2
+      concurrency: 20
+      resources:
+        requests:
+          cpu: 900m
+          memory: 2Gi
+        limits:
+          memory: 4Gi
+    gitaly:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          memory: 4Gi
+    kas:
+      minReplicas: 1
+      maxReplicas: 2
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+    toolbox:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 350Mi
+        limits:
+          memory: 2Gi
+    gitlab-exporter:
+      enabled: true
+      resources:
+        requests:
+          cpu: 75m
+          memory: 100Mi
+        limits:
+          memory: 256Mi
+
+  registry:
+    hpa:
+      minReplicas: 1
+      maxReplicas: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 1Gi
+
+  gitlab-runner:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi

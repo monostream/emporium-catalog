@@ -1,0 +1,86 @@
+{{- $u := .Values.uptrace.uptrace }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "uptrace.labels" . | nindent 4 }}
+spec:
+  replicas: {{ $u.replicaCount }}
+  serviceName: {{ include "chart.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "uptrace.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ toYaml $u.config | sha256sum }}
+      labels:
+        {{- include "uptrace.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "chart.fullname" . }}
+      {{- with .Values.uptrace.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: uptrace
+          {{- with .Values.uptrace.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ $u.image.repository }}:{{ $u.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ $u.image.pullPolicy }}
+          # Uptrace substitutes ${VAR} into its config file before parsing the
+          # YAML. Secrets that may contain YAML syntax (the SMTP password) are
+          # turned into a single-quoted YAML scalar here, at runtime, so they
+          # never pass through Helm values or argv. The entrypoint is replaced
+          # because the image's entrypoint.sh runs with `set -x`.
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              if [ -n "${SMTP_PASSWORD:-}" ]; then
+                cr=$(printf '\r')
+                case "$SMTP_PASSWORD" in
+                  *"
+              "*|*"$cr"*) echo "the SMTP password contains a line break (LF or CR), which Uptrace's config cannot hold" >&2; exit 1 ;;
+                esac
+                SMTP_PASSWORD_YAML="'$(printf '%s' "$SMTP_PASSWORD" | sed "s/'/''/g")'"
+                export SMTP_PASSWORD_YAML
+              fi
+              unset SMTP_PASSWORD
+              exec /uptrace --config=/etc/uptrace/config.yml serve
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: grpc
+              containerPort: 4317
+              protocol: TCP
+          {{- with $u.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            tcpSocket:
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml $u.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/uptrace/config.yml
+              subPath: uptrace.yml
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "chart.fullname" . }}
