@@ -46,17 +46,29 @@ integrations:
     # The Emporium login protects the administration and everything else; respondents
     # reach published surveys and their assets through the paths below without an account.
     # Survey routes (path URL format, index.php in the URL):
-    #   /index.php/<survey id>        short survey link
-    #   /index.php/survey/...         survey runtime, ajax, token and result pages
-    #   /index.php/uploader/...       file upload questions
-    #   /index.php/captcha/...        captcha images (survey security)
+    #   /index.php/<survey id>         short survey link
+    #   /index.php/survey/...          survey runtime, ajax, token and result pages
+    #   /index.php/uploader/...        file upload questions
+    #   /index.php/verification/image  captcha image
+    #   /index.php/register/...        participant registration
+    #   /index.php/printanswers/...    print own answers
+    #   /index.php/optin/... optout/...  invitation opt-in / opt-out
+    #   /index.php/statistics_user/... public statistics
     # Static files: /assets, /themes, /upload, /tmp/assets, /third_party, /scripts, /styles-public.
+    # Yii lets a request pick another controller with an "r" query parameter or "/r/" path segment
+    # after a URL rule matched, which would bypass these prefixes: the pod's Apache refuses every
+    # request that carries one (files/block-route-param.conf).
     access: { default: authenticated }
     skipPaths:
       - "regex(^/index\\.php/[0-9]+(/.*)?$)"
       - /index.php/survey/*
       - /index.php/uploader/*
-      - /index.php/captcha/*
+      - /index.php/verification/image
+      - /index.php/register/*
+      - /index.php/printanswers/*
+      - /index.php/optin/*
+      - /index.php/optout/*
+      - /index.php/statistics_user/*
       - /assets/*
       - /themes/*
       - /upload/*

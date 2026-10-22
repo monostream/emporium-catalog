@@ -17,7 +17,7 @@ spec:
       labels:
         {{- include "chart.labels" . | nindent 8 }}
       annotations:
-        checksum/php: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -40,6 +40,8 @@ spec:
         - name: limesurvey
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # Installs with a throwaway password and sets the real one in-process (see files/start.sh).
+          command: [sh, /scripts/start.sh]
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
@@ -60,7 +62,7 @@ spec:
               value: {{ .Values.admin.name | quote }}
             - name: ADMIN_EMAIL
               value: {{ .Values.admin.email | quote }}
-            - name: ADMIN_PASSWORD
+            - name: ADMIN_BOOTSTRAP_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.admin.existingSecret | default "limesurvey-secret-not-configured" }}
@@ -93,6 +95,8 @@ spec:
             httpGet: { path: /index.php/admin/authentication/sa/login, port: http }
           volumeMounts:
             - { name: upload, mountPath: /var/www/html/upload }
+            - { name: scripts, mountPath: /scripts, readOnly: true }
+            - { name: apache, mountPath: /etc/apache2/conf-enabled/zz-emporium-block-route-param.conf, subPath: zz-emporium-block-route-param.conf, readOnly: true }
             - { name: php, mountPath: /usr/local/etc/php/conf.d/zz-limesurvey.ini, subPath: zz-limesurvey.ini, readOnly: true }
             {{- if .Values.database.caSecret }}
             - { name: db-ca, mountPath: /etc/limesurvey/postgres, readOnly: true }
@@ -107,6 +111,13 @@ spec:
             items:
               - { key: ca.crt, path: ca.crt }
         {{- end }}
+        - name: scripts
+          configMap:
+            name: {{ include "chart.fullname" . }}-init
+            defaultMode: 0555
+        - name: apache
+          configMap:
+            name: {{ include "chart.fullname" . }}-apache
         - name: php
           configMap:
             name: {{ include "chart.fullname" . }}-php
