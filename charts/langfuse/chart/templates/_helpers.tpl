@@ -67,7 +67,7 @@ The CloudNativePG server certificate is verified against its CA (Prisma: sslmode
   value: {{ .Values.database.username | quote }}
 {{ include "chart.secretEnv" (list "DATABASE_PASSWORD" .Values.database.passwordSecret .Values.database.passwordKey) }}
 - name: DATABASE_ARGS
-  value: {{ ternary (printf "sslmode=require&sslcert=/etc/db-ca/%s" .Values.database.caKey) "sslmode=require" (not (empty .Values.database.caSecret)) | quote }}
+  value: {{ ternary (printf "sslmode=require&sslaccept=strict&sslcert=/etc/db-ca/%s" .Values.database.caKey) "sslmode=require&sslaccept=strict" (not (empty .Values.database.caSecret)) | quote }}
 - name: CLICKHOUSE_URL
   value: {{ printf "http://%s:8123" (include "chart.clickhouseName" .) | quote }}
 - name: CLICKHOUSE_MIGRATION_URL

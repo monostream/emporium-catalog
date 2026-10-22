@@ -8,3 +8,4 @@
 - `/api/public/*` (SDK ingestion, OpenTelemetry, REST API) skips the Emporium login and authenticates with project API keys.
 - Telemetry off; no enterprise-licensed features enabled.
 - Tested on Emporium 0.5.0-rc.12 (2026-10-21): install, SSO login with a new Emporium user (account created in the "Emporium" organization), bootstrap administrator login, trace ingestion through the skipped `/api/public/*` path, uninstall without leftovers.
+- Review fixes (re-verified on 0.5.0-rc.12): PostgreSQL TLS now `sslaccept=strict` (a wrong CA is rejected, verified on the live pod); only the key-authenticated `/api/public/*` routes skip the Emporium login, `/api/public/health` and `/ready` stay behind it; NetworkPolicy limits ClickHouse to the web and worker pods; `deps.json` points at `web.image.tag` and `worker.image.tag`.

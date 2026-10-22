@@ -100,9 +100,43 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
-    # The Langfuse SDKs, OpenTelemetry exporters and the public REST/MCP API
-    # authenticate with the project's API keys (basic auth), not a browser session.
-    skipPaths: ["/api/public/*"]
+    # The Langfuse SDKs, OpenTelemetry exporters and the public REST/MCP API authenticate with the
+    # project's API keys (basic auth), not a browser session. Listed one by one (4.67.0 routes) so
+    # /api/public/health and /api/public/ready, which need no key and report status, stay behind the login.
+    skipPaths:
+      - "/api/public/annotation-queues*"
+      - "/api/public/comments*"
+      - "/api/public/dataset-items*"
+      - "/api/public/dataset-run-items*"
+      - "/api/public/datasets*"
+      - "/api/public/events*"
+      - "/api/public/experiment-items*"
+      - "/api/public/experiments*"
+      - "/api/public/feedback*"
+      - "/api/public/generations*"
+      - "/api/public/ingestion*"
+      - "/api/public/integrations*"
+      - "/api/public/llm-connections*"
+      - "/api/public/mcp*"
+      - "/api/public/media*"
+      - "/api/public/metrics*"
+      - "/api/public/models*"
+      - "/api/public/observations*"
+      - "/api/public/organizations*"
+      - "/api/public/otel*"
+      - "/api/public/projects*"
+      - "/api/public/prompts*"
+      - "/api/public/scim*"
+      - "/api/public/score-configs*"
+      - "/api/public/scores*"
+      - "/api/public/sessions*"
+      - "/api/public/skills*"
+      - "/api/public/slack*"
+      - "/api/public/spans*"
+      - "/api/public/traces*"
+      - "/api/public/unstable*"
+      - "/api/public/v2*"
+      - "/api/public/v3*"
     # Langfuse's own OpenID Connect login (NextAuth provider "custom").
     redirectPaths: [/api/auth/callback/custom]
     bind:

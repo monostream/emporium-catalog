@@ -5,7 +5,7 @@ fullnameOverride: ""
 
 web:
   image:
-    repository: docker.io/langfuse/langfuse
+    repository: langfuse/langfuse
     tag: "4.67.0"
     pullPolicy: IfNotPresent
   resources:
@@ -17,7 +17,7 @@ web:
 
 worker:
   image:
-    repository: docker.io/langfuse/langfuse-worker
+    repository: langfuse/langfuse-worker
     tag: "4.67.0"
     pullPolicy: IfNotPresent
   resources:
@@ -29,7 +29,7 @@ worker:
 
 clickhouse:
   image:
-    repository: docker.io/clickhouse/clickhouse-server
+    repository: clickhouse/clickhouse-server
     tag: "25.12.9.61-alpine"
     pullPolicy: IfNotPresent
   user: langfuse
