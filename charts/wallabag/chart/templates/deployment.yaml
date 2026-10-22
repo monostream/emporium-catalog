@@ -100,6 +100,9 @@ spec:
               console() { php -d memory_limit=512M bin/console --env=prod "$@"; }
               echo "database connection encrypted: $(q 'select ssl from pg_stat_ssl where pid = pg_backend_pid()')"
               # "wallabag" is the stock account name: it is never a valid administrator (guard() below disables it).
+              case "$ADMIN_USERNAME" in
+                ""|*[!A-Za-z0-9_.-]*) echo "the administrator username may only contain letters, digits, _ . -" >&2; exit 1 ;;
+              esac
               case "$(printf '%s' "$ADMIN_USERNAME" | tr 'A-Z' 'a-z')" in
                 wallabag) echo "the administrator username must not be wallabag" >&2; exit 1 ;;
               esac

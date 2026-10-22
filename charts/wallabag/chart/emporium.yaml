@@ -19,7 +19,7 @@ inputs:
     required: true
     installOnly: true
     # Any 3-64 characters of [A-Za-z0-9_.-] except "wallabag" in any letter case (the stock account name; RE2 has no lookahead).
-    pattern: '^([A-Za-z0-9_.-]{3,7}|[A-Za-z0-9_.-]{9,64}|[^wW][A-Za-z0-9_.-]{7}|[A-Za-z0-9_.-][^aA][A-Za-z0-9_.-]{6}|[A-Za-z0-9_.-][A-Za-z0-9_.-][^lL][A-Za-z0-9_.-]{5}|[A-Za-z0-9_.-][A-Za-z0-9_.-][A-Za-z0-9_.-][^lL][A-Za-z0-9_.-]{4}|[A-Za-z0-9_.-][A-Za-z0-9_.-][A-Za-z0-9_.-][A-Za-z0-9_.-][^aA][A-Za-z0-9_.-]{3}|[A-Za-z0-9_.-]{5}[^bB][A-Za-z0-9_.-]{2}|[A-Za-z0-9_.-]{6}[^aA][A-Za-z0-9_.-]|[A-Za-z0-9_.-]{7}[^gG])$'
+    pattern: '^([A-Za-z0-9_.-]{3,7}|[A-Za-z0-9_.-]{9,64}|[A-VX-Za-vx-z0-9_.\-][A-Za-z0-9_.-]{7}|[A-Za-z0-9_.-]{1}[B-Zb-z0-9_.\-][A-Za-z0-9_.-]{6}|[A-Za-z0-9_.-]{2}[A-KM-Za-km-z0-9_.\-][A-Za-z0-9_.-]{5}|[A-Za-z0-9_.-]{3}[A-KM-Za-km-z0-9_.\-][A-Za-z0-9_.-]{4}|[A-Za-z0-9_.-]{4}[B-Zb-z0-9_.\-][A-Za-z0-9_.-]{3}|[A-Za-z0-9_.-]{5}[AC-Zac-z0-9_.\-][A-Za-z0-9_.-]{2}|[A-Za-z0-9_.-]{6}[B-Zb-z0-9_.\-][A-Za-z0-9_.-]{1}|[A-Za-z0-9_.-]{7}[A-FH-Za-fh-z0-9_.\-])$'
     section: admin
     path: admin.username
   AdminEmail:

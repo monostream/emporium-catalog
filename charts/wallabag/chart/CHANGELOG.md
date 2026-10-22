@@ -10,3 +10,4 @@
 - Tested on Emporium 0.5.0-rc.12 (2026-10-22, run 447280): install, local administrator login, default wallabag/wallabag refused, OAuth token and API with bearer, skip paths, uninstall without leftovers.
 - Setup init container: the default-account check now runs before every successful exit (existing installs too), and an interrupted install is completed without a schema reset. README: API registration is PUT /api/user, token endpoint throttling documented as a known limitation.
 - The administrator username `wallabag` is rejected (input pattern and setup script); the default-account check no longer has an exemption and matches the canonical username.
+- The administrator username is limited to [A-Za-z0-9_.-] in the input pattern (positive classes only, no newline or punctuation variants of wallabag) and in the setup script.
