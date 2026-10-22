@@ -1,0 +1,26 @@
+apiVersion: v2
+name: limesurvey
+description: Online survey tool with 30+ question types, conditional logic, quotas and statistics
+type: application
+version: 0.1.0
+appVersion: "7.5.1"
+home: https://www.limesurvey.org/
+icon: https://raw.githubusercontent.com/LimeSurvey/LimeSurvey/master/themes/admin/Sea_Green/images/logo.svg
+sources:
+  - https://github.com/LimeSurvey/LimeSurvey
+  - https://github.com/martialblog/docker-limesurvey
+keywords:
+  - Survey
+  - Forms
+  - Questionnaire
+annotations:
+  icon: assets/icon.svg
+  displayName: LimeSurvey
+  category: Analytics
+  licenses: GPL-2.0-or-later
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-22"

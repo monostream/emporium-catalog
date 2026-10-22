@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # The first start installs and later starts migrate the database; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        # A new volume hides the themes and sample files that ship in the image's upload
+        # directory; copy them in once (existing files are never overwritten).
+        - name: seed-upload
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [sh, -ec, "cp -rn /var/www/html/upload/. /seed/"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - { name: upload, mountPath: /seed }
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 128Mi }
+      containers:
+        - name: limesurvey
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # Installs with a throwaway password and sets the real one in-process (see files/start.sh).
+          command: [sh, /scripts/start.sh]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "chart.dbEnv" . | nindent 12 }}
+            {{- include "chart.dbTLSEnv" . | nindent 12 }}
+            - name: LISTEN_PORT
+              value: {{ .Values.service.port | quote }}
+            {{- with .Values.ingress.host }}
+            # TLS ends at the ingress: make LimeSurvey build https links for its own host.
+            - name: HOST_INFO
+              value: {{ printf "https://%s" . | quote }}
+            - name: PUBLIC_URL
+              value: {{ printf "https://%s" . | quote }}
+            {{- end }}
+            - name: ADMIN_USER
+              value: {{ .Values.admin.username | quote }}
+            - name: ADMIN_NAME
+              value: {{ .Values.admin.name | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            - name: ADMIN_BOOTSTRAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret | default "limesurvey-secret-not-configured" }}
+                  key: {{ .Values.admin.passwordKey }}
+            - name: ENCRYPT_SECRET_BOX_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret | default "limesurvey-secret-not-configured" }}
+                  key: {{ .Values.admin.encryptionKeyKey }}
+            - name: ENCRYPT_NONCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret | default "limesurvey-secret-not-configured" }}
+                  key: {{ .Values.admin.encryptionNonceKey }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The entrypoint installs the database on the first start (a minute or two).
+          startupProbe:
+            httpGet: { path: /index.php/admin/authentication/sa/login, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          # Does not depend on the database.
+          livenessProbe:
+            tcpSocket: { port: http }
+          readinessProbe:
+            httpGet: { path: /index.php/admin/authentication/sa/login, port: http }
+          volumeMounts:
+            - { name: upload, mountPath: /var/www/html/upload }
+            - { name: scripts, mountPath: /scripts, readOnly: true }
+            - { name: apache, mountPath: /etc/apache2/conf-enabled/zz-emporium-block-route-param.conf, subPath: zz-emporium-block-route-param.conf, readOnly: true }
+            - { name: php, mountPath: /usr/local/etc/php/conf.d/zz-limesurvey.ini, subPath: zz-limesurvey.ini, readOnly: true }
+            {{- if .Values.database.caSecret }}
+            - { name: db-ca, mountPath: /etc/limesurvey/postgres, readOnly: true }
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        {{- if .Values.database.caSecret }}
+        - name: db-ca
+          secret:
+            secretName: {{ .Values.database.caSecret }}
+            items:
+              - { key: ca.crt, path: ca.crt }
+        {{- end }}
+        - name: scripts
+          configMap:
+            name: {{ include "chart.fullname" . }}-init
+            defaultMode: 0555
+        - name: apache
+          configMap:
+            name: {{ include "chart.fullname" . }}-apache
+        - name: php
+          configMap:
+            name: {{ include "chart.fullname" . }}-php
+        - name: upload
+          {{- if .Values.storage.upload.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.upload.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
