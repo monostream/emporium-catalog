@@ -1,0 +1,17 @@
+PhotoPrism is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start creates the database, give it a minute.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with "Continue with Emporium": your PhotoPrism account is created at your first visit, named like your Emporium username, with the role "{{ .Values.oidc.newUserRole }}". Members of the Emporium role {{ .Values.oidc.emporiumAdminRole }} become administrators at their sign-in. Removing that role does NOT demote the PhotoPrism account: demote it by hand with `photoprism users mod --role=guest <name>` (kubectl -n {{ .Release.Namespace }} exec deploy/{{ include "chart.fullname" . }} -c photoprism -- photoprism users mod --role=guest <name>).
+Community Edition has no regular "user" role: a guest sees only albums shared with the account (Library > Albums > Share) and cannot browse the library.
+{{- end }}
+
+Local administrator "{{ .Values.admin.username }}": the password is in the Secret {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- if .Values.oidc.autoLogin }}
+With automatic sign-in on, PhotoPrism shows its login form (for the local administrator) after signing out or when the single sign-on round trip fails.
+{{- end }}
+
+Photos: upload in the web app, or sync with WebDAV (https://{{ .Values.ingress.host }}/originals/ with an app password of an administrator account, see Settings > Account > Apps and Devices; guests cannot use WebDAV), then index under Library > Index.
+Files placed on the "originals" volume (mounted at /photoprism/originals) are indexed too. The database is SQLite on the "storage" volume: one instance only, and indexing gets slower for libraries of several hundred thousand files.
+This app is public at the ingress: PhotoPrism's own login is the gate (its login limiter allows a burst of 10 failed attempts, then one per minute), and "Continue with Emporium" is the recommended login. Share links (/s/...) work for anonymous visitors; give sensitive ones a password or an expiry.
