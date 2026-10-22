@@ -22,7 +22,7 @@ if ($password === 'admin') {
 // to reverse-proxy login (trusting a header that clients can send on the skipped /api/* paths) or disable
 // authentication. Remove such override files, then check the effective result below.
 const CHART_OWNED = ['AUTH_CLASS', 'DISABLE_AUTH', 'MODE', 'REVERSE_PROXY_AUTH_HEADER', 'REVERSE_PROXY_AUTH_USE_ENV',
-    'LDAP_ADDRESS', 'LDAP_BASE_DN', 'LDAP_BIND_DN', 'LDAP_BIND_PW', 'LDAP_DOMAIN', 'LDAP_USER_FILTER', 'LDAP_UID_ATTRIBUTE'];
+    'LDAP_ADDRESS', 'LDAP_BASE_DN', 'LDAP_BIND_DN', 'LDAP_BIND_PW', 'LDAP_DOMAIN', 'LDAP_USER_FILTER', 'LDAP_UID_ATTR'];
 foreach (CHART_OWNED as $name) {
     $f = GROCY_DATAPATH . '/settingoverrides/' . $name . '.txt';
     if (is_file($f)) {
@@ -31,6 +31,29 @@ foreach (CHART_OWNED as $name) {
             exit(1);
         }
         echo "removed persisted settings override $name.txt (chart-owned security setting)\n";
+    }
+}
+
+// The web runtime also gets environment from PHP-FPM pool files on the volume (the image includes
+// /config/php/*.conf, with clear_env = no). Strip GROCY_* and FILE__* env lines so they cannot inject
+// settings that this check does not see.
+foreach (glob('/config/php/*.conf') ?: [] as $conf) {
+    $lines = file($conf);
+    if ($lines === false) {
+        fwrite(STDERR, "cannot read $conf\n");
+        exit(1);
+    }
+    $kept = [];
+    foreach ($lines as $line) {
+        if (preg_match('/^\s*env\s*\[\s*(GROCY_|FILE__)/i', $line)) {
+            echo "removed env line for " . trim(strstr($line, '=', true) ?: $line) . " from $conf (chart-owned)\n";
+            continue;
+        }
+        $kept[] = $line;
+    }
+    if (count($kept) !== count($lines) && file_put_contents($conf, implode('', $kept)) === false) {
+        fwrite(STDERR, "cannot rewrite $conf\n");
+        exit(1);
     }
 }
 

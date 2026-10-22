@@ -1,3 +1,10 @@
+{{- /* Grocy settings (also via linuxserver FILE__ expansion) go through chart inputs or the Grocy UI, never extraEnv:
+       the init container can only check what it can see. */ -}}
+{{- range .Values.extraEnv }}
+{{- if or (hasPrefix "GROCY_" (toString .name)) (hasPrefix "FILE__" (toString .name)) }}
+{{- fail (printf "extraEnv %q is not allowed: names starting with GROCY_ or FILE__ would bypass the chart's authentication checks" .name) }}
+{{- end }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

@@ -32,8 +32,8 @@ storage:
 # IANA time zone of the container (stock dates, due dates and the calendar use it).
 timezone: UTC
 
-# Additional environment variables. Grocy reads every setting of config-dist.php as
-# GROCY_<NAME>, e.g. GROCY_CURRENCY, GROCY_CULTURE, GROCY_DEFAULT_LOCALE, GROCY_ENTRY_PAGE.
+# Additional environment variables for the container (for example PUID, PGID). Names starting
+# with GROCY_ or FILE__ are rejected: Grocy settings go through chart inputs or the Grocy UI.
 extraEnv: []
 
 # Filled by Emporium through the `web` ingress integration.
