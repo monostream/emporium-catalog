@@ -131,7 +131,6 @@ integrations:
       - "/api/public/scores*"
       - "/api/public/sessions*"
       - "/api/public/skills*"
-      - "/api/public/slack*"
       - "/api/public/spans*"
       - "/api/public/traces*"
       - "/api/public/unstable*"
