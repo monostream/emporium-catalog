@@ -28,17 +28,24 @@ data:
     // Once a user exists Hoppscotch refuses to re-run the onboarding, so the
     // designated administrator is created right after it. The sign-in request
     // creates the account the regular way (its mail may fail, the account stays).
+    let tries = 0;
     async function ensureAdmin() {
-      const count = async (where) => Number((await db.query(`select count(*) from "User" ${where}`)).rows[0].count);
-      if ((await count('where "isAdmin"')) > 0) return true;
-      if ((await count("")) === 0) {
-        await fetch(`http://127.0.0.1:${process.env.PORT}/backend/v1/auth/signin?origin=app`, {
+      const one = async (sql, args = []) => Number((await db.query(sql, args)).rows[0].count);
+      if ((await one('select count(*) from "User" where "isAdmin"')) > 0) return true;
+      // Hoppscotch matches e-mail addresses case-insensitively; so does this.
+      const find = 'select count(*) from "User" where lower(email) = lower($1)';
+      if ((await one(find, [ADMIN_EMAIL])) === 0) {
+        const res = await fetch(`http://127.0.0.1:${process.env.PORT}/backend/v1/auth/signin?origin=app`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ email: ADMIN_EMAIL }),
-        }).catch(() => {});
+        }).catch((e) => ({ status: `no answer (${e.name})` }));
+        // A failed mail (500) still leaves the account behind; only the lookup below decides.
+        if ((await one(find, [ADMIN_EMAIL])) === 0 && tries++ % 10 === 0) {
+          console.error(`administrator ${ADMIN_EMAIL} does not exist and the sign-in request answered ${res.status}; the pod stays not ready. Is e-mail sign-in enabled for this database (Admin > Settings)?`);
+        }
       }
-      const r = await db.query('update "User" set "isAdmin" = true where email = $1', [ADMIN_EMAIL]);
+      const r = await db.query('update "User" set "isAdmin" = true where lower(email) = lower($1)', [ADMIN_EMAIL]);
       if (r.rowCount > 0) console.log("administrator account ready");
       return r.rowCount > 0;
     }
