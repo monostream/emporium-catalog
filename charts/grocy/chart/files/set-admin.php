@@ -45,7 +45,9 @@ foreach (glob('/config/php/*.conf') ?: [] as $conf) {
     }
     $kept = [];
     foreach ($lines as $line) {
-        if (preg_match('/^\s*env\s*\[\s*(GROCY_|FILE__)/i', $line)) {
+        // Normalise like PHP-FPM's ini parser would see it: drop quotes and whitespace, ignore case.
+        $norm = strtolower(preg_replace('/[\s"\']+/', '', $line));
+        if (strncmp($norm, 'env[', 4) === 0 && (strpos($norm, 'grocy_') !== false || strpos($norm, 'file__') !== false)) {
             echo "removed env line for " . trim(strstr($line, '=', true) ?: $line) . " from $conf (chart-owned)\n";
             continue;
         }
