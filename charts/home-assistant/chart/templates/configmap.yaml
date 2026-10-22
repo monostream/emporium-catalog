@@ -87,20 +87,42 @@ data:
         os.replace(path + ".tmp", path)
         print("HTTP settings written: trusted proxies", ", ".join(proxies))
   onboard.py: |
-    # Creates the owner through the onboarding API and proves the account is ours by logging in with
-    # the generated password through the auth flow. Only then it writes /status/ready, which the
-    # readiness probe waits for: the Service routes nothing before. If the owner was created by
-    # someone else the login fails, the file is never written and the pod stays unready.
+    # Owner bootstrap with a persisted attestation. At the first install it creates the owner through
+    # the onboarding API, proves the account is ours by logging in with the generated password and
+    # writes /config/.emporium/owner-verified (the owner's user id). /status/ready, which the readiness
+    # probe waits for, exists only while HA answers and the attested user is still an owner in
+    # .storage/auth. Onboarding complete without a matching attestation (someone else won the race,
+    # or the attested owner is gone): never ready, clear error. Later starts read the files; no login.
     import json, os, time, urllib.request, urllib.error
-    BASE = "http://127.0.0.1:{{ .Values.service.port }}"
-    READY = "/status/ready"
+    BASE = os.environ.get("HA_BASE", "http://127.0.0.1:{{ .Values.service.port }}")
+    READY = os.environ.get("READY_FILE", "/status/ready")
+    CONFIG = os.environ.get("CONFIG_DIR", "/config")
+    ATT = os.path.join(CONFIG, ".emporium", "owner-verified")
     def call(path, body=None):
         data = json.dumps(body).encode() if body is not None else None
         req = urllib.request.Request(BASE + path, data=data, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=10) as r:
             return json.load(r)
-    def user_done():
-        return any(s.get("step") == "user" and s.get("done") for s in call("/api/onboarding"))
+    def ha_up():
+        try:
+            urllib.request.urlopen(BASE + "/manifest.json", timeout=5).read()
+            return True
+        except urllib.error.HTTPError:
+            return True
+        except (urllib.error.URLError, OSError):
+            return False
+    def owners():
+        try:
+            users = json.load(open(os.path.join(CONFIG, ".storage", "auth")))["data"]["users"]
+        except (OSError, ValueError, KeyError, TypeError):
+            return []
+        return [u["id"] for u in users if u.get("is_owner") and not u.get("system_generated") and u.get("is_active", True)]
+    def attested():
+        try:
+            uid = open(ATT).read().strip()
+        except OSError:
+            return None
+        return uid if uid and uid in owners() else None
     def owner_login():
         cid = BASE + "/"
         f = call("/auth/login_flow", {"client_id": cid, "handler": ["homeassistant", None], "redirect_uri": cid})
@@ -114,14 +136,41 @@ data:
             os.remove(READY)
         except OSError:
             pass
-    verified = False
-    while True:
-        wait = 60
+    def ready():
+        if not os.path.exists(READY):
+            open(READY, "w").write("ok")
+            print("owner attested, pod ready", flush=True)
+    def attest():
+        # the auth store is saved with a short delay
+        for _ in range(20):
+            o = owners()
+            if len(o) == 1:
+                os.makedirs(os.path.dirname(ATT), mode=0o700, exist_ok=True)
+                open(ATT, "w").write(o[0])
+                os.chmod(ATT, 0o600)
+                return True
+            time.sleep(1)
+        return False
+    def onboarding_open():
         try:
-            if verified:
-                call("/api/onboarding")  # still the same Home Assistant process?
+            return not any(s.get("step") == "user" and s.get("done") for s in call("/api/onboarding"))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:  # all onboarding steps are complete
+                return False
+            raise
+    unready()
+    last_error = 0
+    while True:
+        wait = 5
+        try:
+            if not ha_up():
+                unready()
+                wait = 3
+            elif attested():
+                ready()
             else:
-                if not user_done():
+                unready()
+                if onboarding_open():
                     call("/api/onboarding/users", {
                         "client_id": BASE + "/",
                         "name": os.environ["ADMIN_NAME"],
@@ -130,15 +179,16 @@ data:
                         "language": "en",
                     })
                     print("owner account created", flush=True)
-                if owner_login():
-                    open(READY, "w").write("ok")
-                    verified = True
-                    print("owner verified, pod ready", flush=True)
-                else:
-                    print("ERROR: the onboarding was completed by someone else (the generated owner password does not log in); the pod stays unready. Delete the configuration volume or the app and install again.", flush=True)
-                    wait = 30
+                    if owner_login() and attest():
+                        print("owner verified and attested", flush=True)
+                        ready()
+                    else:
+                        print("ERROR: the owner could not be verified; the pod stays unready", flush=True)
+                        wait = 30
+                elif time.time() - last_error > 60:
+                    last_error = time.time()
+                    print("ERROR: onboarding is complete but there is no valid owner attestation (someone else created the owner, or the attested owner no longer exists). The pod stays unready. Recovery: delete the app's configuration volume and install again, or, if you know the owner account is yours, write its user id from /config/.storage/auth into /config/.emporium/owner-verified (see the README).", flush=True)
         except (urllib.error.URLError, OSError, ValueError):
-            verified = False
             unready()
             wait = 3
         except Exception as e:

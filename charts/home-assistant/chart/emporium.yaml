@@ -3,7 +3,7 @@ apiVersion: emporium.build/v1
 sections:
   - { id: general, label: General }
   - { id: network, label: Reverse proxy }
-  - { id: admin, label: Owner account, description: "Home Assistant has its own accounts behind the Emporium login (it has no single sign-on in the core). The owner account is created at the first start, before anyone can open the onboarding page, so nobody else can claim the installation." }
+  - { id: admin, label: Owner account, description: "Home Assistant has its own accounts behind the Emporium login (it has no single sign-on in the core). The owner account is created by the chart at the first start and the pod becomes Ready only once it is verified, so the Service and ingress route nothing before. Someone who reaches the pod IP directly in the first seconds could still claim it; the pod then stays unready (fail closed) and a NetworkPolicy that isolates the pod is the mitigation." }
 
 inputs:
   Timezone:

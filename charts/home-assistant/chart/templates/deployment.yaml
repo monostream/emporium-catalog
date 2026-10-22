@@ -118,6 +118,7 @@ spec:
           volumeMounts:
             - { name: init, mountPath: /emporium-init, readOnly: true }
             - { name: status, mountPath: /status }
+            - { name: config, mountPath: /config }
           resources:
             {{- toYaml .Values.onboard.resources | nindent 12 }}
       volumes:
