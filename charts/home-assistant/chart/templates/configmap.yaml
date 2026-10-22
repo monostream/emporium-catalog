@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-init
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  # Copied to /config/emporium.yaml at every start; configuration.yaml includes it as a package.
+  emporium.yaml: |
+    # Managed by the Emporium chart: overwritten at every start.
+    {{- if .Values.recorder.existingSecret }}
+    recorder:
+      db_url: !env_var HA_DB_URL
+    {{- else }}
+    {}
+    {{- end }}
+  configuration.yaml: |
+    # Created by the Emporium chart at the first start. Edit freely; the chart never overwrites it.
+    default_config:
+
+    homeassistant:
+      packages:
+        emporium: !include emporium.yaml
+
+    frontend:
+      themes: !include_dir_merge_named themes
+
+    automation: !include automations.yaml
+    script: !include scripts.yaml
+    scene: !include scenes.yaml
+  prepare.py: |
+    # Runs before Home Assistant starts, as root, in the configuration volume.
+    import json, os, shutil, sys
+    from ipaddress import ip_network
+    os.chdir("/config")
+    shutil.copyfile("/emporium-init/emporium.yaml", "emporium.yaml")
+    if not os.path.exists("configuration.yaml"):
+        shutil.copyfile("/emporium-init/configuration.yaml", "configuration.yaml")
+        for name, empty in (("automations.yaml", "[]"), ("scripts.yaml", "{}"), ("scenes.yaml", "[]")):
+            if not os.path.exists(name):
+                open(name, "w").write(empty + "\n")
+        os.makedirs("themes", exist_ok=True)
+        print("created configuration.yaml")
+    elif "emporium.yaml" not in open("configuration.yaml").read():
+        print("WARNING: configuration.yaml does not include emporium.yaml (only needed for the PostgreSQL recorder)", file=sys.stderr)
+
+    # Home Assistant 2026.10 keeps the HTTP server settings in .storage/http (the http: YAML key is
+    # migrated once as an unconfirmed trial that is reverted after five minutes, which would drop the
+    # proxy settings and answer 400 Bad Request behind the ingress). Write them as the stable
+    # configuration before the first start and on every start; other stored settings are kept.
+    proxies = []
+    for item in os.environ["TRUSTED_PROXIES"].split(","):
+        item = item.strip()
+        if item:
+            proxies.append(str(ip_network(item, strict=False)))
+    os.makedirs(".storage", exist_ok=True)
+    path = ".storage/http"
+    try:
+        doc = json.load(open(path))
+        stable = doc["data"]["stable"]
+    except (OSError, ValueError, KeyError, TypeError):
+        doc = None
+        stable = {
+            "server_port": 8123,
+            "cors_allowed_origins": ["https://cast.home-assistant.io"],
+            "login_attempts_threshold": -1,
+            "ip_ban_enabled": True,
+            "ssl_profile": "modern",
+            "use_x_frame_options": True,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "error": None,
+            "error_message": None,
+        }
+    stable["use_x_forwarded_for"] = True
+    stable["trusted_proxies"] = proxies
+    new = {"version": 2, "minor_version": 2, "key": "http",
+           "data": {"stable": stable, "pending": None, "yaml_migration_done": True}}
+    if doc != new:
+        json.dump(new, open(path + ".tmp", "w"), indent=2)
+        os.replace(path + ".tmp", path)
+        print("HTTP settings written: trusted proxies", ", ".join(proxies))
+  onboard.py: |
+    # Creates the owner through the onboarding API before anybody else can, then keeps
+    # watching (a restored or wiped volume is onboarded again with the same account).
+    import json, os, sys, time, urllib.request, urllib.error
+    BASE = "http://127.0.0.1:{{ .Values.service.port }}"
+    def call(path, body=None):
+        data = json.dumps(body).encode() if body is not None else None
+        req = urllib.request.Request(BASE + path, data=data, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return json.load(r)
+    def user_done():
+        steps = call("/api/onboarding")
+        return any(s.get("step") == "user" and s.get("done") for s in steps)
+    while True:
+        wait = 300
+        try:
+            if user_done():
+                pass
+            else:
+                call("/api/onboarding/users", {
+                    "client_id": BASE + "/",
+                    "name": os.environ["ADMIN_NAME"],
+                    "username": os.environ["ADMIN_USERNAME"],
+                    "password": os.environ["ADMIN_PASSWORD"],
+                    "language": "en",
+                })
+                print("owner account created", flush=True)
+        except (urllib.error.URLError, OSError, ValueError):
+            wait = 3
+        except Exception as e:
+            print("onboarding failed: %s" % type(e).__name__, flush=True)
+            wait = 10
+        time.sleep(wait)

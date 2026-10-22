@@ -1,0 +1,9 @@
+admin:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+{{- with .Emporium.Integrations.db }}
+recorder:
+  existingSecret: {{ .EnvSecretName | quote }}
+  urlKey: HA_DB_URL
+{{- end }}
