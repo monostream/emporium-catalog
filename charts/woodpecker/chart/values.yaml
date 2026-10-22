@@ -5,7 +5,7 @@ fullnameOverride: ""
 
 server:
   image:
-    repository: docker.io/woodpeckerci/woodpecker-server
+    repository: woodpeckerci/woodpecker-server
     tag: "v3.19.0"
     pullPolicy: IfNotPresent
   # Public URL of the instance (WOODPECKER_HOST).
@@ -24,7 +24,7 @@ server:
 
 agent:
   image:
-    repository: docker.io/woodpeckerci/woodpecker-agent
+    repository: woodpeckerci/woodpecker-agent
     tag: "v3.19.0"
     pullPolicy: IfNotPresent
   # Workflows the agent runs at the same time (WOODPECKER_MAX_WORKFLOWS).

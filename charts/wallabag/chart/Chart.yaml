@@ -2,7 +2,7 @@ apiVersion: v2
 name: wallabag
 description: "Self-hosted read-it-later service: save web pages, read them clean and offline, tag, annotate and export them"
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "2.6.14"
 home: https://wallabag.org/
 icon: https://raw.githubusercontent.com/wallabag/wallabag/master/web/img/logo-square.svg

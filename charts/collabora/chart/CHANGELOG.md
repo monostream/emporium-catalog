@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- Image repository is written without the `docker.io/` prefix (same image, Docker Hub is the default registry) so `emporium chart updates` can track the upstream releases; no change in behavior.
+
 # 0.1.0
 
 - New chart: Collabora Online Development Edition (CODE) 26.04.5.1.1, official `collabora/code` image (MPL-2.0), requires Emporium v0.5.0.

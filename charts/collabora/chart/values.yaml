@@ -6,7 +6,7 @@ fullnameOverride: ""
 # Collabora Online Development Edition (CODE): MPL-2.0 source, official image,
 # runs as the unprivileged user 1001.
 image:
-  repository: docker.io/collabora/code
+  repository: collabora/code
   tag: "26.04.5.1.1"
   pullPolicy: IfNotPresent
 

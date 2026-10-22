@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- freshrss from 1.30.3 to 1.30.4 (patch release; the 1.30.4 image is now published).
+
 # 0.1.0
 
 - New chart: FreshRSS 1.30.3 (official Debian image `freshrss/freshrss`; 1.30.4 had no image yet), requires Emporium v0.5.0.

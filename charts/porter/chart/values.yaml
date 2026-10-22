@@ -1,5 +1,7 @@
 porter:
   image:
+    # Same repository as the subchart default; set so `emporium chart updates` can resolve the image.
+    repository: porter1/porter
     # porter1/porter v0.53.0 (the upstream chart's default) was never published; v0.52.56 is the
     # last self-hosted release.
     tag: v0.52.56
