@@ -1,0 +1,83 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: docker.io/stalwartlabs/stalwart
+  tag: "v0.16.27"
+  pullPolicy: IfNotPresent
+
+# Public URL of the web administration and the JMAP / DAV endpoints
+# (STALWART_PUBLIC_URL), e.g. https://mail.example.com
+config:
+  publicUrl: ""
+  # Host name of the mail server (SMTP greeting, TLS names). Defaults to the web host.
+  serverHostname: ""
+  # First mail domain, created at the first start.
+  defaultDomain: example.org
+  # How long an address stays banned after too many failed logins, abuse or scans (minutes).
+  # Stalwart's own default is "forever".
+  banPeriodMinutes: 60
+
+# Administrator (STALWART_RECOVERY_ADMIN=<username>:<password>). The account works
+# at any time, also when the directory is empty; it is how you sign in to the web admin.
+admin:
+  username: admin
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+service:
+  # HTTP port behind the Emporium ingress (web admin, JMAP, DAV, discovery).
+  httpPort: 8080
+
+# Mail protocol ports (SMTP, submission, IMAP, POP3, ManageSieve). Off by default:
+# a cluster-internal Service only. See the README before exposing them.
+mail:
+  service:
+    enabled: false
+    type: ClusterIP
+    annotations: {}
+    # Set to Local to keep client addresses (spam filter, rate limits) on LoadBalancer/NodePort.
+    externalTrafficPolicy: ""
+
+persistence:
+  # Claim for /var/lib/stalwart (RocksDB with mail, settings and the config.json). Emporium creates it.
+  existingClaim: ""
+  size: 10Gi
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 1Gi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 2000
+  runAsGroup: 2000
+  fsGroup: 2000
+  seccompProfile:
+    type: RuntimeDefault
+# The binary carries the file capability cap_net_bind_service (mail ports below 1024);
+# the kernel refuses to start it when that capability is missing from the bounding set.
+securityContext:
+  allowPrivilegeEscalation: true
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+    add: [NET_BIND_SERVICE]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
