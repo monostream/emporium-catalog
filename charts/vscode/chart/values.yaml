@@ -49,7 +49,7 @@ affinity: {}
 docker:
   repository: docker
   pullPolicy: Always
-  tag: 29.9.2
+  tag: 29.9.1
   resources:
     requests:
       cpu: 100m
