@@ -1,0 +1,16 @@
+Jitsi Meet is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Open the address, type a room name and start the meeting. Who can open the page is decided by the
+Emporium access setting of this app (default: signed-in Emporium users only).
+
+Audio and video use UDP port {{ .Values.jvb.port }} on the videobridge, not the HTTPS address.
+{{- if eq .Values.jvb.exposure "ClusterIP" }}
+It is NOT reachable from outside the cluster (media port exposure: ClusterIP): the page and the chat
+work, but participants outside the cluster network will not see or hear each other.
+Set the media port exposure (NodePort, LoadBalancer or HostPort) and the public IP address of the
+videobridge in the install settings, and open the UDP port in your firewall.
+{{- else if not .Values.jvb.advertiseIPs }}
+No public IP address is set (JVB_ADVERTISE_IPS): browsers outside the cluster cannot reach the videobridge.
+{{- else }}
+Advertised address: {{ .Values.jvb.advertiseIPs }}, UDP {{ .Values.jvb.port }} ({{ .Values.jvb.exposure }}).
+{{- end }}

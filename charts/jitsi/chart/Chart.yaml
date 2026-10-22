@@ -1,0 +1,24 @@
+apiVersion: v2
+name: jitsi
+description: Secure, self-hosted video conferencing (Jitsi Meet) with a Jitsi Videobridge
+type: application
+version: 0.1.0
+appVersion: "stable-11248"
+home: https://jitsi.org/jitsi-meet/
+icon: https://raw.githubusercontent.com/jitsi/jitsi-meet/master/images/favicon.svg
+sources:
+  - https://github.com/jitsi/docker-jitsi-meet
+  - https://github.com/jitsi/jitsi-meet
+keywords:
+  - Video conferencing
+  - WebRTC
+  - Meetings
+annotations:
+  icon: assets/icon.svg
+  displayName: Jitsi Meet
+  category: Communication
+  licenses: Apache-2.0
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+  emporiumVersion: "0.5.0"
