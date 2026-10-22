@@ -5,6 +5,7 @@ database:
   port: {{ .Emporium.Integrations.db.Port | quote }}
   name: {{ .Emporium.Integrations.db.Database | quote }}
   existingSecret: {{ .Emporium.Integrations.db.SecretName | quote }}
+  caSecret: {{ .Emporium.Integrations.db.CASecretName | quote }}
   usernameKey: {{ .Emporium.Integrations.db.UsernameKey | quote }}
   passwordKey: {{ .Emporium.Integrations.db.PasswordKey | quote }}
 ingress:

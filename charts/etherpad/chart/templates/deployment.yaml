@@ -81,6 +81,13 @@ spec:
               value: {{ .port | quote }}
             - name: DB_NAME
               value: {{ .name | quote }}
+            # TLS with the server certificate and host name verified (node-postgres turns
+            # PGSSLMODE into ssl: true); the CloudNativePG CA is added to Node's trust store.
+            # node-postgres ignores PGSSLROOTCERT.
+            - name: PGSSLMODE
+              value: verify-full
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/etherpad-db-ca/ca.crt
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -108,8 +115,23 @@ spec:
             httpGet: { path: /health, port: http }
           readinessProbe:
             httpGet: { path: /health, port: http }
+          {{- if .Values.database.caSecret }}
+          volumeMounts:
+            - name: db-ca
+              mountPath: /etc/etherpad-db-ca
+              readOnly: true
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.database.caSecret }}
+      volumes:
+        - name: db-ca
+          secret:
+            secretName: {{ .Values.database.caSecret }}
+            items:
+              - key: ca.crt
+                path: ca.crt
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

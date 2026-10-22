@@ -5,10 +5,10 @@ Etherpad is a real-time collaborative editor: several people type in the same do
 ## Features
 
 - Live co-editing with author colours, chat and a full revision history with a time slider
-- Rich text, lists, headings and fonts; import and export as HTML, text, Word and OpenDocument
+- Rich text, lists, headings and fonts; import and export as HTML, plain text and Word (DOCX)
 - Every pad has its own address: start a new document by typing a name, share it by sending the link
 - Read-only links for guests and an `/admin` page for settings, plugins and pad management
-- Stores all pads in PostgreSQL, managed by Emporium
+- Stores all pads in PostgreSQL, managed by Emporium, over a TLS connection verified with the database's CA
 
 ## Perfect for
 

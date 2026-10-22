@@ -36,6 +36,8 @@ database:
   port: 5432
   name: ""
   existingSecret: ""
+  # Secret with the CA of the database server under ca.crt (TLS is verified with it).
+  caSecret: ""
   usernameKey: username
   passwordKey: password
 
