@@ -1,0 +1,185 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: First administrator, description: "Created at install, so nobody else can claim the first account through the public survey paths." }
+  - { id: security, label: Security, description: "Generated at install and delivered to the pods by reference. Changing the encryption key makes stored secrets unreadable." }
+
+inputs:
+  AdminName:
+    label: Administrator name
+    type: string
+    default: Administrator
+    required: true
+    installOnly: true
+    section: admin
+    path: admin.name
+  AdminEmail:
+    label: Administrator email
+    description: Formbricks account that owns the organisation. Its password is generated into the app's Secret (key ADMIN_PASSWORD) unless you set one; you can change it in Formbricks. No mail is sent.
+    type: string
+    required: true
+    installOnly: true
+    pattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    section: admin
+    path: admin.email
+  AdminPassword:
+    label: Administrator password
+    description: At least 8 characters with upper and lower case letters and a number. Leave empty to generate one.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: ADMIN_PASSWORD }
+  AuthSecret:
+    label: Session secret
+    description: Signs session cookies and invitation tokens.
+    type: secret
+    section: security
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, key: BETTER_AUTH_SECRET }
+  EncryptionKey:
+    label: Encryption key
+    description: Encrypts two-factor secrets and single-use survey links (64 hexadecimal characters). Do not change it later.
+    type: secret
+    section: security
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, key: ENCRYPTION_KEY }
+  CronSecret:
+    label: Cron secret
+    description: Authenticates the scheduled job endpoints.
+    type: secret
+    section: security
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, key: CRON_SECRET }
+  HubApiKey:
+    label: Hub API key
+    description: Shared by Formbricks and the Hub service.
+    type: secret
+    section: security
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, key: HUB_API_KEY }
+  CubeSecret:
+    label: Analytics secret
+    description: Signs the queries Formbricks sends to the Cube analytics service.
+    type: secret
+    section: security
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, key: CUBEJS_API_SECRET }
+  AuthorizationToken:
+    label: Authorization service token
+    description: Preshared key of the SpiceDB authorization service.
+    type: secret
+    section: security
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, key: AUTHZED_TOKEN }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Respondents never sign in: link surveys (/s, /c, /p), the SDK and survey client API
+    # (/api/v1/client, /api/v2/client), the management APIs (API key), public uploads
+    # and the static files those pages load must be reachable without the Emporium login.
+    skipPaths:
+      - /s/*
+      - /c/*
+      - /p/*
+      - /i/*
+      - /api/v1/client/*
+      - /api/v2/client/*
+      - /api/v1/management/*
+      - /api/v2/*
+      - /api/v3/*
+      - /storage/*
+      - /health
+      - /_next/*
+      - /js/*
+      - /css/*
+      - /images/*
+      - /fonts/*
+      - /icons/*
+      - /animated-bgs/*
+      - /image-backgrounds/*
+      - /smiley-icons/*
+      - /star-icons/*
+      - /favicon/*
+      - /favicon.ico
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  db:
+    required: true
+    type: postgres
+    database: formbricks
+    owner: formbricks
+    version: "17"
+    # Hub stores embeddings as pgvector halfvec; pgcrypto for gen_random_uuid helpers.
+    extensions: [vector, pgcrypto]
+    storage: { default: 5Gi, growOnly: true }
+    # Prisma, pgx (Hub, SpiceDB): sslmode=require encrypts and accepts the CloudNativePG certificate.
+    secretKeys:
+      DATABASE_URL: uri-sslmode-require
+  # BullMQ job queues, rate limits and sessions; queued jobs must survive a restart.
+  cache:
+    required: true
+    type: redis
+    mode: persistent
+    size: 1Gi
+    maxMemory: 256Mi
+  # Uploaded files and survey images; without it file upload questions are unavailable.
+  files:
+    type: objectStorage
+    required: false
+    buckets: [formbricks]
+    size: 5Gi
+  mail:
+    type: smtp
+    required: false
+
+components:
+  app:
+    label: Formbricks
+    resources: resources
+    replicas: { fixed: 1, reason: "Migrations and the background job worker run in the web process" }
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: app } }
+  hub:
+    label: Hub
+    resources: hubResources
+    replicas: { fixed: 1, reason: "Part of the Formbricks release, sized for one instance" }
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: hub } }
+  hubworker:
+    label: Hub worker
+    resources: hubWorkerResources
+    parent: hub
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: hub-worker } }
+  cube:
+    label: Analytics (Cube)
+    resources: cubeResources
+    replicas: { fixed: 1, reason: "Cube runs with its in-memory cache, which supports one replica" }
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: cube } }
+  spicedb:
+    label: Authorization (SpiceDB)
+    resources: spicedbResources
+    replicas: { fixed: 1, reason: "One instance serves a single-node installation" }
+    match: { kind: Deployment, matchLabels: { app.kubernetes.io/component: spicedb } }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team running surveys with up to a few thousand responses a month
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
