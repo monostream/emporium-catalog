@@ -1,0 +1,83 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administrator, description: "The local administrator is created by the app's setup at the first start, so nobody can claim it from the browser. Emporium users sign in with single sign-on and get a regular account." }
+
+inputs:
+  AutoLogin:
+    label: Sign in automatically
+    description: Send visitors straight to the Emporium sign-in instead of showing the Kavita login page with its "Sign in with Emporium" button. The local administrator can still sign in at /login?skipAutoLogin=true.
+    type: boolean
+    default: false
+    path: oidc.autoLogin
+  AdminUsername:
+    label: Local administrator username
+    description: Break-glass account created at the first start. Pick a name no Emporium user has, because a local account with the same username as an Emporium user blocks that user's single sign-on.
+    type: string
+    default: kavita-admin
+    required: true
+    installOnly: true
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Local administrator password
+    description: Used to sign in as the local administrator. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it in Kavita afterwards.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[0-9A-Za-z]{6,128}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  TokenKey:
+    label: Session signing key
+    description: Signs the tokens Kavita issues to logged-in users and apps. Leave empty to generate one.
+    type: secret
+    generate: { length: 128, charset: alnum }
+    section: admin
+    ref: { namePath: token.existingSecret, keyPath: token.secretKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Reader apps reach the OPDS catalogue (/api/opds/<key>/...) and the KOReader sync
+    # (/api/koreader/<key>/...) with the per-user API key that is part of the path.
+    # The rest of /api and the web app stay behind the Emporium login.
+    skipPaths: [/api/opds/*, /api/koreader/*]
+    # Single sign-on callbacks of Kavita's OpenID Connect client.
+    redirectPaths: [/signin-oidc, /signout-callback-oidc]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  config:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.config.existingClaim
+  library:
+    type: storage
+    size: { default: 20Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.library.existingClaim
+
+components:
+  app:
+    label: Kavita
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database and library scans on ReadWriteOnce volumes" }
+  setup:
+    label: Setup
+    parent: app
+    resources: setup.resources
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few thousand books and comics
+    values: profiles/small.yaml
