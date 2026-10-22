@@ -50,7 +50,6 @@ spec:
           readinessProbe:
             httpGet: { path: /, port: http }
           volumeMounts:
-            {{- include "chart.scratch" "web" | nindent 12 }}
             - { name: web-config, mountPath: /config }
             - { name: web-storage, mountPath: /storage }
           resources:
@@ -80,7 +79,6 @@ spec:
           readinessProbe:
             tcpSocket: { port: xmpp }
           volumeMounts:
-            {{- include "chart.scratch" "prosody" | nindent 12 }}
             - { name: prosody-config, mountPath: /config }
             - { name: prosody-data, mountPath: /var/lib/prosody }
             - { name: prosody-plugins, mountPath: /prosody-plugins-custom }
@@ -97,17 +95,10 @@ spec:
             - { name: JICOFO_MAX_MEMORY, value: {{ .Values.jicofo.maxMemory | quote }} }
             {{- include "chart.secretEnv" (dict "root" . "env" "JICOFO_AUTH_PASSWORD" "key" .Values.secrets.jicofoAuthPasswordKey) | nindent 12 }}
           volumeMounts:
-            {{- include "chart.scratch" "jicofo" | nindent 12 }}
             - { name: jicofo-config, mountPath: /config }
           resources:
             {{- toYaml .Values.jicofo.resources | nindent 12 }}
       volumes:
-        - { name: web-run, emptyDir: {} }
-        - { name: web-tmp, emptyDir: {} }
-        - { name: prosody-run, emptyDir: {} }
-        - { name: prosody-tmp, emptyDir: {} }
-        - { name: jicofo-run, emptyDir: {} }
-        - { name: jicofo-tmp, emptyDir: {} }
         - { name: web-config, emptyDir: {} }
         - { name: web-storage, emptyDir: {} }
         - { name: prosody-config, emptyDir: {} }

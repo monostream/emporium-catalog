@@ -60,13 +60,10 @@ spec:
           readinessProbe:
             httpGet: { path: /about/health, port: health }
           volumeMounts:
-            {{- include "chart.scratch" "jvb" | nindent 12 }}
             - { name: jvb-config, mountPath: /config }
           resources:
             {{- toYaml .Values.jvb.resources | nindent 12 }}
       volumes:
-        - { name: jvb-run, emptyDir: {} }
-        - { name: jvb-tmp, emptyDir: {} }
         - { name: jvb-config, emptyDir: {} }
       {{- with .Values.nodeSelector }}
       nodeSelector:

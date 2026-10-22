@@ -31,11 +31,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ printf "%s/%s:%s" .root.Values.image.registry .name (.root.Values.image.tag | default .root.Chart.AppVersion) }}
 {{- end }}
 
-{{/* Writable scratch volumes: the images run with a read-only root filesystem. */}}
-{{- define "chart.scratch" -}}
-- {name: {{ . }}-run, mountPath: /run}
-- {name: {{ . }}-tmp, mountPath: /tmp}
-{{- end }}
 
 {{- define "chart.secretEnv" -}}
 {{- with .root.Values.secrets.existingSecret }}

@@ -81,11 +81,15 @@ podSecurityContext:
   fsGroup: 1000
   seccompProfile:
     type: RuntimeDefault
+# The s6-overlay init of the Jitsi images starts as uid 1000 and uses a setuid helper
+# (s6-overlay-suexec) to own /run; that needs privilege escalation and these few capabilities.
+# The services themselves run as uid 1000.
 securityContext:
-  allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: true
+  readOnlyRootFilesystem: false
   capabilities:
     drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
 
 nodeSelector: {}
 tolerations: []
