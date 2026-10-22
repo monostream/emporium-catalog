@@ -1,3 +1,9 @@
+# 0.1.77
+
+Published on 22 October 2026
+
+- Node.js from 20 (EOL) to 24.22.1 (October 2026 security release)
+
 # 0.1.76
 
 Published on 19 October 2026
