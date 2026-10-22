@@ -1,0 +1,10 @@
+Grocy is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Open it after signing in to Emporium, then sign in to Grocy itself as "{{ .Values.admin.username }}".
+{{- if .Values.admin.existingSecret }}
+The password is in the Secret {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+Other people get their own Grocy accounts under the user menu > Manage users. The REST API
+(/api/*) skips the Emporium login and uses Grocy's own session or API key (user menu > Manage API keys).
