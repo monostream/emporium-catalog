@@ -1,0 +1,15 @@
+Wallabag is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Wallabag has no single sign-on: after the Emporium login you sign in to Wallabag itself.
+{{- if .Values.admin.existingSecret }}
+
+Administrator: "{{ .Values.admin.username }}". The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+The administrator creates the other users under "Users management"; self-registration is off.
+{{- end }}
+
+Mobile apps and browser extensions: create an API client under "API clients management"
+(/developer) and enter the client id and secret, your username and password in the app.
+/api/*, /oauth/v2/token and /feed/* bypass the Emporium login; they are protected by Wallabag's
+own OAuth tokens and per-user feed tokens.
