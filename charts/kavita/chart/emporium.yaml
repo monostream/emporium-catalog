@@ -13,7 +13,7 @@ inputs:
     path: oidc.autoLogin
   AdminUsername:
     label: Local administrator username
-    description: Break-glass account created at the first start. Pick a name no Emporium user has, because a local account with the same username as an Emporium user blocks that user's single sign-on.
+    description: Break-glass account created at the first start. It is not linked to single sign-on; pick a name no Emporium user has to avoid confusion.
     type: string
     default: kavita-admin
     required: true
@@ -23,7 +23,7 @@ inputs:
     path: admin.username
   AdminPassword:
     label: Local administrator password
-    description: Used to sign in as the local administrator. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it in Kavita afterwards.
+    description: Used to sign in as the local administrator. Leave empty to generate one (stored in the app's Secret). It sets the password when the account is created. If you change it in Kavita later, the chart stops managing the account's settings and the Secret value is no longer valid.
     type: secret
     generate: { length: 24, charset: alnum }
     pattern: '^[0-9A-Za-z]{6,128}$'

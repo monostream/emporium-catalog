@@ -25,8 +25,9 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         # Kavita reads its OpenID Connect provider and its token key from appsettings.json only.
-        # The file is rendered on every start into an emptyDir, so the client secret and the
-        # token key (both delivered by reference) never end up on the data volume.
+        # The file is rendered on every start into a memory emptyDir from secrets delivered by
+        # reference. Kavita itself still persists both values on the config volume (the client
+        # secret in its SQLite database, the token key in its backups), see the README.
         - name: appsettings
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -141,9 +142,20 @@ spec:
               value: /data
             - name: MARKER
               value: /kavita/config/.emporium-setup-done
+            - name: READY_FILE
+              value: /status/ready
+          # The pod, and so the Service endpoint, is ready only after the administrator exists:
+          # until then anybody who reaches the UI could register the first administrator.
+          readinessProbe:
+            exec:
+              command: ["test", "-f", "/status/ready"]
+            periodSeconds: 3
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.setup.resources | nindent 12 }}
           volumeMounts:
+            - name: status
+              mountPath: /status
             - name: scripts
               mountPath: /scripts
               readOnly: true
@@ -161,6 +173,9 @@ spec:
         - name: appsettings
           emptyDir:
             medium: Memory
+            sizeLimit: 1Mi
+        - name: status
+          emptyDir:
             sizeLimit: 1Mi
         - name: tmp
           emptyDir:

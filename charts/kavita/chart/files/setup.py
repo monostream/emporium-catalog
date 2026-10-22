@@ -7,6 +7,11 @@ Idempotent. Talks to Kavita on localhost, never through the ingress.
      statistics off, optional auto-login)
   3. on the very first run creates a default Book library and makes it the
      default library of new single sign-on accounts
+  4. writes READY_FILE (a per-pod emptyDir); the pod's readiness probe tests it,
+     so the Service gets no endpoint before the administrator exists
+If the administrator exists but the Secret's password no longer works (it was
+changed in Kavita), the account is taken over by its owner: setup only reports
+ready and leaves the settings alone.
 Credentials come from the environment; nothing is printed except status lines.
 """
 import json
@@ -23,6 +28,7 @@ OIDC = os.environ.get("OIDC_ENABLED") == "1"
 AUTO_LOGIN = os.environ.get("OIDC_AUTO_LOGIN") == "1"
 LIBRARY_DIR = os.environ.get("LIBRARY_DIR", "/data/library")
 MARKER = os.environ.get("MARKER", "/config/.emporium-setup-done")
+READY_FILE = os.environ.get("READY_FILE", "/status/ready")
 DEFAULT_ROLES = ["Login", "Pleb", "Download"]
 
 
@@ -65,10 +71,13 @@ def wait_ready():
 
 
 def sign_in():
+    """Returns a token, or None when an administrator exists but our password no longer works."""
     try:
         return call("POST", "/api/account/login", {"username": USER, "password": PASSWORD})["token"]
     except RuntimeError:
         pass
+    if call("GET", "/api/admin/exists") is True:
+        return None
     # Unknown user: this is the first start, register the first administrator.
     # Kavita refuses the call as soon as any administrator exists.
     call("POST", "/api/account/register", {"username": USER, "password": PASSWORD})
@@ -104,6 +113,9 @@ def first_run(token, settings):
 def apply():
     wait_ready()
     token = sign_in()
+    if token is None:
+        log("the administrator exists and its password was changed: leaving the settings to its owner")
+        return
     settings = call("GET", "/api/settings", token=token)
     before = json.dumps(settings, sort_keys=True)
 
@@ -140,13 +152,18 @@ def apply():
 
 
 def main():
-    for attempt in range(10):
+    attempt = 0
+    while True:
+        attempt += 1
         try:
             apply()
             break
-        except Exception as e:  # keep the sidecar alive, retry a few times
-            log("attempt %d failed: %s" % (attempt + 1, e))
+        except Exception as e:  # stay unready and retry
+            log("attempt %d failed: %s" % (attempt, e))
             time.sleep(30)
+    with open(READY_FILE, "w") as f:
+        f.write("ready\n")
+    log("ready")
     while True:
         time.sleep(3600)
 
