@@ -34,6 +34,8 @@ spec:
               value: {{ .Values.service.port | quote }}
             - name: ACTUAL_DATA_DIR
               value: /data
+            # Seconds for OpenID sessions (Actual counts minutes for password sessions,
+            # which is why password login is not in the allowed methods above).
             - name: ACTUAL_TOKEN_EXPIRATION
               value: {{ mul (int .Values.config.tokenDays) 86400 | quote }}
             - name: ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB
@@ -47,7 +49,7 @@ spec:
             - name: ACTUAL_LOGIN_METHOD
               value: openid
             - name: ACTUAL_ALLOWED_LOGIN_METHODS
-              value: openid,password
+              value: openid
             - name: ACTUAL_OPENID_DISCOVERY_URL
               value: {{ .discoveryUrl | quote }}
             - name: ACTUAL_OPENID_PROVIDER_NAME

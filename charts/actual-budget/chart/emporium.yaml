@@ -9,7 +9,7 @@ inputs:
     path: oidc.autoCreate
   TokenDays:
     label: Session lifetime (days)
-    description: How long an Actual session token stays valid. Tokens of API clients skip the Emporium login, so this also bounds their access after an Emporium account is disabled; disable the Actual account for immediate revocation.
+    description: How long an Actual session token stays valid. Applies to single sign-on sessions (password login is switched off). Tokens of API clients skip the Emporium login, so this also bounds their access after an Emporium account is disabled; disable the Actual account for immediate revocation.
     type: integer
     default: 30
     min: 1
