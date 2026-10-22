@@ -1,0 +1,6 @@
+admin:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+database:
+  existingSecret: {{ .Emporium.Integrations.db.EnvSecretName | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

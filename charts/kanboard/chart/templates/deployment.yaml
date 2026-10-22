@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/init: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if and .Values.admin.existingSecret .Values.database.existingSecret }}
+      initContainers:
+        # Migrates an empty database and replaces the default admin/admin password
+        # before the web server starts.
+        - name: set-admin
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [php85, /init/set-admin.php]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            {{- include "chart.dbEnv" . | nindent 12 }}
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret }}
+                  key: {{ .Values.admin.passwordKey }}
+            - name: DATA_DIR
+              value: /var/www/app/data
+          volumeMounts:
+            - { name: init, mountPath: /init, readOnly: true }
+            - { name: data, mountPath: /var/www/app/data }
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+      {{- end }}
+      containers:
+        - name: kanboard
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: LOG_DRIVER
+              value: stderr
+            # Kanboard's own header login is off; it is not enabled behind Emporium.
+            - name: REVERSE_PROXY_AUTH
+              value: "false"
+            {{- if .Values.database.existingSecret }}
+            {{- include "chart.dbEnv" . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          startupProbe:
+            httpGet: { path: /healthcheck.php, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          # Does not depend on the database.
+          livenessProbe:
+            tcpSocket: { port: http }
+          # healthcheck.php runs SELECT 1 against the database.
+          readinessProbe:
+            httpGet: { path: /healthcheck.php, port: http }
+          volumeMounts:
+            - { name: data, mountPath: /var/www/app/data }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: init
+          configMap:
+            name: {{ include "chart.fullname" . }}-init
+        - name: data
+          {{- if .Values.storage.files.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.files.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

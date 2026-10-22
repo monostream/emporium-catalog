@@ -1,0 +1,72 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: kanboard/kanboard
+  tag: "v1.2.56"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+
+# Local administrator. Kanboard creates admin/admin when it migrates an empty
+# database; an init container replaces that password before Kanboard serves
+# a request (only while it is still the default).
+admin:
+  username: admin
+  # Secret and key holding the administrator password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  # Secret holding the connection pieces under the keys below.
+  existingSecret: ""
+  keys:
+    username: DB_USERNAME
+    password: DB_PASSWORD
+    hostname: DB_HOSTNAME
+    port: DB_PORT
+    name: DB_NAME
+
+storage:
+  files:
+    # PersistentVolumeClaim for attachments (/var/www/app/data). Empty: emptyDir.
+    existingClaim: ""
+
+# Additional environment variables (see https://docs.kanboard.org/v1/admin/config/).
+# Only variables listed in the image's php-fpm env.conf reach Kanboard.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    memory: 384Mi
+
+# The image starts as root (nginx binds port 80, the entrypoint chowns the data
+# directory, nginx and php-fpm then drop to the nginx user), so it cannot run as non-root.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, SETUID, SETGID, NET_BIND_SERVICE, DAC_OVERRIDE, FOWNER]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
