@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-server
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  # Database migrations run at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.serverSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: server
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: WOODPECKER_LOG_LEVEL
+              value: {{ .Values.server.logLevel | quote }}
+            - name: WOODPECKER_DISABLE_VERSION_CHECK
+              value: "true"
+            - name: WOODPECKER_ADMIN
+              value: {{ .Values.server.admins | quote }}
+            - name: WOODPECKER_OPEN
+              value: {{ .Values.server.open | quote }}
+            {{- with .Values.server.host }}
+            - name: WOODPECKER_HOST
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.secrets.name }}
+            - name: WOODPECKER_AGENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.agentSecretKey }}
+            {{- end }}
+            {{- with .Values.forge }}
+            {{- $f := upper .type }}
+            - name: {{ printf "WOODPECKER_%s" $f }}
+              value: "true"
+            {{- with .url }}
+            - name: {{ printf "WOODPECKER_%s_URL" $f }}
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .clientId }}
+            - name: {{ printf "WOODPECKER_%s_CLIENT" $f }}
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with $.Values.secrets.name }}
+            - name: {{ printf "WOODPECKER_%s_SECRET" $f }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.forgeSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: WOODPECKER_DATABASE_DRIVER
+              value: postgres
+            - name: WOODPECKER_DATABASE_DATASOURCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8000
+            - name: grpc
+              containerPort: 9000
+          # Database migrations run before the server listens.
+          startupProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/woodpecker
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

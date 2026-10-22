@@ -1,0 +1,137 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: forge, label: Forge, description: "Woodpecker has no generic OpenID Connect login: people sign in with the forge that hosts their repositories, through an OAuth2 application you create there. Callback URL of that application: https://<host of this app>/authorize." }
+  - { id: pipelines, label: Pipelines }
+
+inputs:
+  ForgeType:
+    label: Forge
+    type: enum
+    options: [forgejo, gitea, gitlab, github]
+    default: forgejo
+    required: true
+    section: forge
+  ForgeURL:
+    label: Forge URL
+    description: Public base URL of the forge, for example https://git.example.com. Woodpecker and the pipeline pods reach it at this address.
+    type: string
+    required: true
+    pattern: '^https?://[^\s/]+[^\s]*$'
+    section: forge
+  ForgeClientID:
+    label: OAuth2 client ID
+    description: Client ID of the OAuth2 application in the forge. Its redirect URI is https://<host of this app>/authorize.
+    type: string
+    required: true
+    section: forge
+  ForgeSecret:
+    label: OAuth2 client secret
+    type: secret
+    required: true
+    section: forge
+    ref: { namePath: secrets.name, keyPath: secrets.forgeSecretKey, key: ForgeSecret }
+  Admins:
+    label: Administrators
+    description: Forge usernames (comma separated) that administer Woodpecker. They also activate repositories.
+    type: string
+    required: true
+    pattern: '^[^\s,]+(,[^\s,]+)*$'
+    path: server.admins
+    section: forge
+  Open:
+    label: Everyone on the forge may log in
+    description: Off means only the administrators above and members you add can log in. Turn on for a forge only your team uses.
+    type: boolean
+    default: false
+    path: server.open
+    section: forge
+  AgentSecret:
+    label: Agent secret
+    description: Shared secret of server and agent. Generated.
+    type: secret
+    generate: { length: 48, charset: alnum }
+    ref: { namePath: secrets.name, keyPath: secrets.agentSecretKey, key: AgentSecret }
+    section: pipelines
+  WorkspaceVolumeSize:
+    label: Workspace volume per pipeline
+    description: Size of the temporary volume each pipeline run shares between its steps.
+    type: byteSize
+    default: 10Gi
+    min: 1Gi
+    path: agent.workspaceVolumeSize
+    section: pipelines
+  WorkspaceRWX:
+    label: ReadWriteMany workspace volumes
+    description: Turn on only when the default storage class supports ReadWriteMany. Off uses ReadWriteOnce volumes, which most block storage offers.
+    type: boolean
+    default: false
+    path: agent.workspaceRWX
+    section: pipelines
+  MaxWorkflows:
+    label: Parallel workflows
+    description: Workflows the agent runs at the same time. Empty uses the profile value (Small 2, Medium 6).
+    type: integer
+    min: 1
+    max: 50
+    path: agent.maxWorkflows
+    section: pipelines
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Forge webhooks and badges are called without an Emporium session; the OAuth2
+    # callback must not depend on the glass session either. Everything else needs the login.
+    skipPaths:
+      - /api/hook*
+      - /authorize*
+      - /api/badges/*
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  postgres:
+    type: postgres
+    database: woodpecker
+    owner: woodpecker
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    # pgx: sslmode=require encrypts and accepts the CloudNativePG certificate without a CA file.
+    secretKeys:
+      DATABASE_URL: uri-sslmode-require
+  agentdata:
+    type: storage
+    size: { default: 256Mi, growOnly: true }
+    bind:
+      ClaimName: agent.persistence.claimName
+
+components:
+  server:
+    label: Woodpecker server
+    resources: server.resources
+    replicas: { fixed: 1, reason: "The scheduler and the agent connection live in one server process" }
+  agent:
+    label: Pipeline agent
+    resources: agent.resources
+    replicas: { fixed: 1, reason: "The agent id is kept on a ReadWriteOnce volume" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team, a few pipelines at a time
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }
+  medium:
+    label: Medium
+    description: Many repositories, up to six parallel workflows
+    values: profiles/medium.yaml
+    integrations:
+      postgres: { instances: 1 }

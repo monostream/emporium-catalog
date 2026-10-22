@@ -1,0 +1,11 @@
+Woodpecker CI is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Sign in with your {{ .Values.forge.type }} account ({{ .Values.forge.url }}). Users {{ .Values.server.admins }} are administrators{{ if .Values.server.open }}; every other forge user may log in too{{ else }}; other users must be allowed by an administrator{{ end }}.
+The OAuth2 application in the forge needs the redirect URI
+  https://{{ .Values.ingress.host }}/authorize
+
+Pipelines run as pods in the namespace {{ .Release.Namespace }} (Kubernetes backend). The agent may only
+create pods, volumes and secrets in this namespace.
+
+Webhooks from the forge (/api/hook) and badges (/api/badges) skip the Emporium login; every
+other page needs it.
