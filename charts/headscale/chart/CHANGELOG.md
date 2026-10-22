@@ -1,3 +1,10 @@
+# 0.2.3
+
+Published on 22 October 2026
+
+- headscale from v0.29.4 to v0.29.5
+- headplane from 0.7.1 to 0.8.1
+
 # 0.2.2
 
 Published on 21 October 2026
