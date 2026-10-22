@@ -30,10 +30,16 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [php, /emporium-init/set-admin.php]
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.initSecurityContext | nindent 12 }}
           env:
             - name: GROCY_DATAPATH
               value: /config/data
+            # Same settings as the web container: the script checks the effective configuration.
+            - name: GROCY_AUTH_CLASS
+              value: Grocy\Middleware\Auth\DefaultAuthMiddleware
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
             - name: TZ
               value: {{ .Values.timezone | quote }}
             - name: ADMIN_PASSWORD
@@ -56,7 +62,8 @@ spec:
           env:
             - name: TZ
               value: {{ .Values.timezone | quote }}
-            # Grocy's header (reverse proxy) login is not enabled: see the README.
+            # Grocy's header (reverse proxy) login is not enabled: see the README. The init container
+            # removes persisted overrides of this setting and refuses to start if the effective value differs.
             - name: GROCY_AUTH_CLASS
               value: Grocy\Middleware\Auth\DefaultAuthMiddleware
             {{- with .Values.extraEnv }}

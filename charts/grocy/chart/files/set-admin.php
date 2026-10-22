@@ -17,6 +17,23 @@ if ($password === 'admin') {
     exit(1);
 }
 
+// Security settings are chart-owned. Grocy reads every setting from (1) data/settingoverrides/<NAME>.txt,
+// (2) the environment (GROCY_<NAME>), (3) config.php, in that order, so a restored volume could switch
+// to reverse-proxy login (trusting a header that clients can send on the skipped /api/* paths) or disable
+// authentication. Remove such override files, then check the effective result below.
+const CHART_OWNED = ['AUTH_CLASS', 'DISABLE_AUTH', 'MODE', 'REVERSE_PROXY_AUTH_HEADER', 'REVERSE_PROXY_AUTH_USE_ENV',
+    'LDAP_ADDRESS', 'LDAP_BASE_DN', 'LDAP_BIND_DN', 'LDAP_BIND_PW', 'LDAP_DOMAIN', 'LDAP_USER_FILTER', 'LDAP_UID_ATTRIBUTE'];
+foreach (CHART_OWNED as $name) {
+    $f = GROCY_DATAPATH . '/settingoverrides/' . $name . '.txt';
+    if (is_file($f)) {
+        if (!unlink($f)) {
+            fwrite(STDERR, "cannot remove the settings override $f\n");
+            exit(1);
+        }
+        echo "removed persisted settings override $name.txt (chart-owned security setting)\n";
+    }
+}
+
 // Same first-start layout the image creates (config.php from config-dist.php).
 if (!is_dir(GROCY_DATAPATH) && !mkdir(GROCY_DATAPATH, 0775, true)) {
     fwrite(STDERR, "cannot create " . GROCY_DATAPATH . "\n");
@@ -29,6 +46,14 @@ if (!is_file(GROCY_DATAPATH . '/config.php')) {
 require_once '/app/www/packages/autoload.php';
 require_once GROCY_DATAPATH . '/config.php';
 require_once '/app/www/config-dist.php';
+
+// Effective settings, evaluated by Grocy's own Setting() code exactly as the application does
+// (overrides, then GROCY_* environment, then config.php, then config-dist.php).
+if (GROCY_AUTH_CLASS !== 'Grocy\\Middleware\\Auth\\DefaultAuthMiddleware' || GROCY_MODE !== 'production' || GROCY_DISABLE_AUTH !== false) {
+    fwrite(STDERR, "refusing to start: effective settings are not default authentication, production mode and authentication enabled "
+        . "(check config.php and GROCY_* environment variables)\n");
+    exit(1);
+}
 
 use Grocy\Services\DatabaseMigrationService;
 use Grocy\Services\DatabaseService;

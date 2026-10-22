@@ -4,10 +4,11 @@ nameOverride: ""
 fullnameOverride: ""
 
 # Grocy publishes no container image. linuxserver.io builds the de facto standard one
-# (nginx + PHP, s6); the tag follows the Grocy release.
+# (nginx + PHP, s6).
 image:
   repository: lscr.io/linuxserver/grocy
-  tag: "4.7.1"
+  # Tested build (linuxserver rebuilds the same Grocy version as -lsN) pinned by digest. Update by hand.
+  tag: "v4.7.1-ls346@sha256:d63bffe9afb2ef1a23fa7ce0749cdaeba9c169fb644b16eed270884a1b2f4ac9"
   pullPolicy: IfNotPresent
 
 service:
@@ -63,6 +64,14 @@ securityContext:
   capabilities:
     drop: [ALL]
     add: [CHOWN, SETUID, SETGID, NET_BIND_SERVICE, DAC_OVERRIDE, FOWNER]
+
+# Init container: only runs PHP on the /config volume (which the web container later chowns to
+# its own user), so it needs no ownership, identity or socket capabilities.
+initSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [DAC_OVERRIDE]
 
 nodeSelector: {}
 tolerations: []
