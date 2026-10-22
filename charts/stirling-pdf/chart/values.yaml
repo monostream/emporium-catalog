@@ -6,8 +6,8 @@ fullnameOverride: ""
 # The ultra-lite image is built from the MIT-licensed core only (no proprietary
 # login/SSO/audit module) and has no LibreOffice, OCR or Calibre.
 image:
-  repository: docker.io/stirlingtools/stirling-pdf
-  tag: "3.2.0"
+  repository: stirlingtools/stirling-pdf
+  tag: "3.2.1"
   # Image flavour appended to the tag: ultra-lite (MIT core only). The default
   # and -fat images contain the proprietary module; do not switch without a licence.
   variant: ultra-lite

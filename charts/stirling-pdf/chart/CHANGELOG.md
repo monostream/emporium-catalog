@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- stirling-pdf from 3.2.0 to 3.2.1 (patch release; image repository is written without the `docker.io/` prefix, same image, so `emporium chart updates` can track it).
+
 # 0.1.0
 
 - New chart: Stirling-PDF 3.2.0, official `stirlingtools/stirling-pdf` image, ultra-lite variant (MIT core only, no proprietary login/SSO module), requires Emporium v0.5.0.
