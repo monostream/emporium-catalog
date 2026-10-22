@@ -131,6 +131,11 @@ spec:
                   name: {{ .Values.mail.existingSecret }}
                   key: {{ .Values.mail.passwordKey }}
             {{- end }}
+          # No traffic until the onboarding and the administrator account are done.
+          readinessProbe:
+            exec:
+              command: ["test", "-f", "/status/ready"]
+            periodSeconds: 3
           resources:
             requests:
               cpu: 5m
@@ -140,9 +145,12 @@ spec:
           volumeMounts:
             - { name: onboard, mountPath: /onboard, readOnly: true }
             - { name: tmp, mountPath: /tmp }
+            - { name: status, mountPath: /status }
         {{- end }}
       volumes:
         - name: tmp
+          emptyDir: {}
+        - name: status
           emptyDir: {}
         {{- if and .Values.mail.host .Values.app.adminEmail }}
         - name: onboard

@@ -10,6 +10,7 @@ data:
     // Completes the Hoppscotch onboarding once: e-mail sign-in through the SMTP
     // server of the Emporium smtp integration. Hoppscotch keeps these settings in
     // its database; the first POST makes the backend restart itself.
+    import fs from "node:fs";
     const base = `http://127.0.0.1:${process.env.PORT}/backend/v1/onboarding`;
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM } = process.env;
@@ -50,7 +51,12 @@ data:
           if (status.onboardingCompleted) {
             if (!announced) console.log("onboarding already completed");
             announced = true;
-            if (await ensureAdmin()) { await sleep(600000); continue; }
+            if (await ensureAdmin()) {
+              // The pod only becomes Ready (and gets traffic) once this file exists.
+              fs.writeFileSync("/status/ready", "ok");
+              await sleep(600000);
+              continue;
+            }
             await sleep(3000);
             continue;
           }
