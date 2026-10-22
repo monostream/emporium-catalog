@@ -1,3 +1,9 @@
+# 0.4.3
+
+Published on 22 October 2026
+
+- gitlab from 10.5.0 to 10.5.1
+
 # 0.4.2
 
 Published on 21 October 2026
