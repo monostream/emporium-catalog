@@ -120,7 +120,7 @@ data:
             return []
         return [u["id"] for u in users
                 if isinstance(u, dict) and isinstance(u.get("id"), str) and u["id"]
-                and u.get("is_owner") is True and u.get("system_generated") is not True
+                and u.get("is_owner") is True and u.get("system_generated", False) is False
                 and u.get("is_active", True) is True]
     def attested():
         try:
