@@ -1,0 +1,13 @@
+Calibre-Web Automated is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start prepares the Calibre library, give it a couple of minutes.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with the "{{ .Values.oidc.buttonText }}" button: your account is created at your first visit, named like your Emporium username.
+Accounts are regular users. The local administrator makes them administrators under Admin > Edit users.
+{{- end }}
+
+Local administrator "{{ .Values.admin.username }}": the password is in the Secret {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+
+Add books by copying them into the ingest volume (/cwa-book-ingest in the pod, for example with `kubectl cp`) or by uploading them in the web UI; new files are imported, converted and added to the library automatically.
+Reader apps use OPDS: https://{{ .Values.ingress.host }}/opds with a username and password of an app account. The OPDS, Kobo and KOReader sync paths skip the Emporium login.

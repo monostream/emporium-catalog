@@ -1,0 +1,71 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administrator, description: "Calibre-Web Automated ships with the account admin / admin123. The chart replaces it before the app starts, so it is never served. Emporium users sign in with single sign-on and get a regular account." }
+
+inputs:
+  AdminUsername:
+    label: Local administrator username
+    description: Break-glass account that replaces the default "admin" account at the first start. It is not linked to single sign-on; pick a name no Emporium user has, because a local account with the same name as an Emporium user blocks that user's single sign-on.
+    type: string
+    default: cwa-admin
+    required: true
+    installOnly: true
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Local administrator password
+    description: Used to sign in as the local administrator. Leave empty to generate one (stored in the app's Secret). It replaces the default password at the first start only; if you change it in the app later, the Secret value is no longer valid.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[0-9A-Za-z]{6,128}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Reader apps and e-readers reach the app with their own credentials:
+    # OPDS (HTTP basic auth), the Kobo sync (token in the path) and the KOReader sync.
+    # The rest of the app stays behind the Emporium login.
+    skipPaths: [/opds/*, /kobo/*, /kosync/*]
+    # Callback of Calibre-Web's generic OpenID Connect provider.
+    redirectPaths: [/login/generic/authorized]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  config:
+    type: storage
+    size: { default: 2Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.config.existingClaim
+  library:
+    type: storage
+    size: { default: 20Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.library.existingClaim
+  ingest:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.ingest.existingClaim
+
+components:
+  app:
+    label: Calibre-Web Automated
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite databases (app.db, Calibre metadata.db) on ReadWriteOnce volumes" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team, a few thousand books
+    values: profiles/small.yaml
