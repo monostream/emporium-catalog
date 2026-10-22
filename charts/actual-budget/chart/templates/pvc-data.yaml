@@ -1,0 +1,19 @@
+{{- if not .Values.storage.data.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "chart.fullname" . }}-data
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.data.size | quote }}
+  {{- with .Values.storage.data.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+{{- end }}

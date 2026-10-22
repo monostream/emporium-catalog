@@ -1,0 +1,62 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  UserCreation:
+    label: Create accounts at the first single sign-on
+    description: Every Emporium user who signs in gets a regular Actual account (own budgets). Off means the owner adds users in Server administration first. The first user to sign in is always the owner.
+    type: boolean
+    default: true
+    path: oidc.autoCreate
+  TokenDays:
+    label: Session lifetime (days)
+    description: How long an Actual session token stays valid. Applies to single sign-on sessions (password login is switched off). Tokens of API clients skip the Emporium login, so this also bounds their access after an Emporium account is disabled; disable the Actual account for immediate revocation.
+    type: integer
+    default: 30
+    min: 1
+    max: 365
+    path: config.tokenDays
+  UploadLimit:
+    label: Largest budget file (MB)
+    description: Upper limit for a synced budget file.
+    type: integer
+    default: 50
+    min: 10
+    max: 1000
+    path: config.uploadLimitMB
+
+integrations:
+  web:
+    type: ingress
+    # Admins only until the owner has signed in: Actual makes the FIRST identity that
+    # signs in the owner and administrator. Switch the access to "authenticated" in the
+    # app's settings afterwards so the other Emporium users can sign in.
+    access: { default: admins }
+    # Sync clients (for example the Actual API) call the sync server with their own
+    # Actual session token. Bootstrap, login and admin endpoints stay behind the login.
+    skipPaths: [/sync/*, /account/validate]
+    # Actual's own OpenID Connect login.
+    redirectPaths: [/openid/callback]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 2Gi, growOnly: true }
+    bind: { ClaimName: storage.data.existingClaim }
+
+components:
+  app:
+    label: Actual Budget
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database and budget files on a ReadWriteOnce volume" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household or a small team
+    values: profiles/small.yaml
