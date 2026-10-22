@@ -1,0 +1,102 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+synapse:
+  image:
+    repository: ghcr.io/element-hq/synapse
+    tag: "v1.163.0"
+    pullPolicy: IfNotPresent
+  # Matrix server name = public host name (server_name). It is part of every user id
+  # (@alice:host) and cannot change after the first start. Filled from the ingress.
+  serverName: ""
+  # Public base URL, https://<host>.
+  publicBaseUrl: ""
+  # Let other Matrix servers talk to this one (listener + /.well-known/matrix/server).
+  federation: false
+  # Password login next to single sign-on (break-glass administrator).
+  passwordLogin: true
+  logLevel: INFO
+  maxUploadSize: 50M
+  # Secret holding macaroon, form and registration secrets, and its keys.
+  secrets:
+    existingSecret: ""
+    macaroonKey: MACAROON_SECRET_KEY
+    formKey: FORM_SECRET
+    registrationKey: REGISTRATION_SHARED_SECRET
+  # Media store and signing key volume.
+  persistence:
+    existingClaim: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
+
+# PostgreSQL through the postgres integration (CloudNativePG).
+database:
+  host: ""
+  port: 5432
+  name: synapse
+  user: synapse
+  existingSecret: ""
+  passwordKey: password
+
+# Single sign-on (Synapse oidc_providers).
+oidc:
+  enabled: false
+  providerName: Emporium
+  issuer: ""
+  clientId: ""
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  # Emporium (Logto) usernames are the Matrix user ids.
+  # Never link an SSO login to a Matrix account that was created another way.
+  allowExistingUsers: false
+
+element:
+  image:
+    repository: ghcr.io/element-hq/element-web
+    tag: "v1.12.32"
+    pullPolicy: IfNotPresent
+  brand: Element
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+synapsePodSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 991
+  runAsGroup: 991
+  fsGroup: 991
+  seccompProfile:
+    type: RuntimeDefault
+elementPodSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
