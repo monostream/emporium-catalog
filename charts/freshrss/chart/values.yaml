@@ -6,7 +6,7 @@ fullnameOverride: ""
 image:
   # The Debian image: the Alpine image has no usable OpenID Connect module.
   repository: freshrss/freshrss
-  tag: "1.30.3"
+  tag: "1.30.4"
   pullPolicy: IfNotPresent
 
 service:
