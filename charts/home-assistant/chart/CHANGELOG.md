@@ -6,3 +6,10 @@
 - The owner account is created through the onboarding API by a sidecar as soon as Home Assistant answers, with a generated password delivered by Secret reference.
 - Optional recorder database on the Emporium PostgreSQL (CloudNativePG) integration.
 - Behind the Emporium login (`access: authenticated`); `/api/*` and `/auth/*` skip it because Home Assistant authenticates them itself.
+
+# 0.1.0 review fixes (same version, not yet released)
+
+- Readiness gate: the pod is Ready only after the onboard sidecar has created the owner and logged in with the generated password; owner bootstrap done by someone else leaves the pod unready.
+- Recorder over PostgreSQL uses `sslmode=verify-full` with the integration CA; the URL is built at runtime from Secret references.
+- `.storage/http` writer deep-copies, changes only `use_x_forwarded_for` and `trusted_proxies` (stable and pending), keeps pending state; new stores get `login_attempts_threshold: 10`.
+- `AdminPassword` is install-only; the onboard sidecar is a `parent` component.

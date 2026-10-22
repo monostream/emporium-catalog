@@ -35,6 +35,7 @@ inputs:
     label: Owner password
     description: At least 8 printable ASCII characters without spaces. Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Home Assistant.
     type: secret
+    installOnly: true
     generate: { length: 24, charset: alnum }
     pattern: '^[\x21-\x7E]{8,72}$'
     section: admin
@@ -66,15 +67,17 @@ integrations:
     owner: homeassistant
     version: "17"
     storage: { default: 10Gi, growOnly: true }
-    # psycopg2 (libpq): sslmode=require encrypts and accepts the CloudNativePG certificate without a CA file.
-    secretKeys:
-      HA_DB_URL: uri-sslmode-require
+    # The connection URL is built at runtime (sslmode=verify-full with the integration's CA).
 
 components:
   app:
     label: Home Assistant
     resources: resources
     replicas: { fixed: 1, reason: "The configuration, SQLite history and device state live on a single volume" }
+  onboard:
+    label: Owner bootstrap
+    parent: app
+    resources: onboard.resources
   db:
     label: PostgreSQL
     integration: db

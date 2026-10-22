@@ -8,7 +8,7 @@ data:
   # Copied to /config/emporium.yaml at every start; configuration.yaml includes it as a package.
   emporium.yaml: |
     # Managed by the Emporium chart: overwritten at every start.
-    {{- if .Values.recorder.existingSecret }}
+    {{- if .Values.recorder.enabled }}
     recorder:
       db_url: !env_var HA_DB_URL
     {{- else }}
@@ -30,7 +30,7 @@ data:
     scene: !include scenes.yaml
   prepare.py: |
     # Runs before Home Assistant starts, as root, in the configuration volume.
-    import json, os, shutil, sys
+    import copy, json, os, shutil, sys
     from ipaddress import ip_network
     os.chdir("/config")
     shutil.copyfile("/emporium-init/emporium.yaml", "emporium.yaml")
@@ -56,57 +56,90 @@ data:
     os.makedirs(".storage", exist_ok=True)
     path = ".storage/http"
     try:
-        doc = json.load(open(path))
-        stable = doc["data"]["stable"]
+        original = json.load(open(path))
+        original["data"]["stable"]
     except (OSError, ValueError, KeyError, TypeError):
-        doc = None
-        stable = {
-            "server_port": 8123,
-            "cors_allowed_origins": ["https://cast.home-assistant.io"],
-            "login_attempts_threshold": -1,
-            "ip_ban_enabled": True,
-            "ssl_profile": "modern",
-            "use_x_frame_options": True,
-            "created_at": "2026-01-01T00:00:00+00:00",
-            "error": None,
-            "error_message": None,
-        }
-    stable["use_x_forwarded_for"] = True
-    stable["trusted_proxies"] = proxies
-    new = {"version": 2, "minor_version": 2, "key": "http",
-           "data": {"stable": stable, "pending": None, "yaml_migration_done": True}}
-    if doc != new:
-        json.dump(new, open(path + ".tmp", "w"), indent=2)
+        original = None
+    if original is None:
+        doc = {"version": 2, "minor_version": 2, "key": "http", "data": {
+            "stable": {
+                "server_port": 8123,
+                "cors_allowed_origins": ["https://cast.home-assistant.io"],
+                "login_attempts_threshold": 10,
+                "ip_ban_enabled": True,
+                "ssl_profile": "modern",
+                "use_x_frame_options": True,
+                "created_at": "2026-01-01T00:00:00+00:00",
+                "error": None,
+                "error_message": None,
+            },
+            "pending": None, "yaml_migration_done": True}}
+    else:
+        doc = copy.deepcopy(original)
+        doc["data"]["yaml_migration_done"] = True
+    # Only the chart-owned fields change; a staged (pending) configuration is kept, with the same fields.
+    for slot in ("stable", "pending"):
+        if isinstance(doc["data"].get(slot), dict):
+            doc["data"][slot]["use_x_forwarded_for"] = True
+            doc["data"][slot]["trusted_proxies"] = proxies
+    if doc != original:
+        json.dump(doc, open(path + ".tmp", "w"), indent=2)
         os.replace(path + ".tmp", path)
         print("HTTP settings written: trusted proxies", ", ".join(proxies))
   onboard.py: |
-    # Creates the owner through the onboarding API before anybody else can, then keeps
-    # watching (a restored or wiped volume is onboarded again with the same account).
-    import json, os, sys, time, urllib.request, urllib.error
+    # Creates the owner through the onboarding API and proves the account is ours by logging in with
+    # the generated password through the auth flow. Only then it writes /status/ready, which the
+    # readiness probe waits for: the Service routes nothing before. If the owner was created by
+    # someone else the login fails, the file is never written and the pod stays unready.
+    import json, os, time, urllib.request, urllib.error
     BASE = "http://127.0.0.1:{{ .Values.service.port }}"
+    READY = "/status/ready"
     def call(path, body=None):
         data = json.dumps(body).encode() if body is not None else None
         req = urllib.request.Request(BASE + path, data=data, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=10) as r:
             return json.load(r)
     def user_done():
-        steps = call("/api/onboarding")
-        return any(s.get("step") == "user" and s.get("done") for s in steps)
-    while True:
-        wait = 300
+        return any(s.get("step") == "user" and s.get("done") for s in call("/api/onboarding"))
+    def owner_login():
+        cid = BASE + "/"
+        f = call("/auth/login_flow", {"client_id": cid, "handler": ["homeassistant", None], "redirect_uri": cid})
         try:
-            if user_done():
-                pass
+            r = call("/auth/login_flow/" + f["flow_id"], {"client_id": cid, "username": os.environ["ADMIN_USERNAME"], "password": os.environ["ADMIN_PASSWORD"]})
+        except urllib.error.HTTPError:
+            return False
+        return r.get("type") == "create_entry"
+    def unready():
+        try:
+            os.remove(READY)
+        except OSError:
+            pass
+    verified = False
+    while True:
+        wait = 60
+        try:
+            if verified:
+                call("/api/onboarding")  # still the same Home Assistant process?
             else:
-                call("/api/onboarding/users", {
-                    "client_id": BASE + "/",
-                    "name": os.environ["ADMIN_NAME"],
-                    "username": os.environ["ADMIN_USERNAME"],
-                    "password": os.environ["ADMIN_PASSWORD"],
-                    "language": "en",
-                })
-                print("owner account created", flush=True)
+                if not user_done():
+                    call("/api/onboarding/users", {
+                        "client_id": BASE + "/",
+                        "name": os.environ["ADMIN_NAME"],
+                        "username": os.environ["ADMIN_USERNAME"],
+                        "password": os.environ["ADMIN_PASSWORD"],
+                        "language": "en",
+                    })
+                    print("owner account created", flush=True)
+                if owner_login():
+                    open(READY, "w").write("ok")
+                    verified = True
+                    print("owner verified, pod ready", flush=True)
+                else:
+                    print("ERROR: the onboarding was completed by someone else (the generated owner password does not log in); the pod stays unready. Delete the configuration volume or the app and install again.", flush=True)
+                    wait = 30
         except (urllib.error.URLError, OSError, ValueError):
+            verified = False
+            unready()
             wait = 3
         except Exception as e:
             print("onboarding failed: %s" % type(e).__name__, flush=True)

@@ -12,8 +12,8 @@ service:
   port: 8123
 
 # Owner account. Home Assistant's onboarding page lets whoever opens it first create the owner;
-# a sidecar creates it through the onboarding API as soon as Home Assistant answers, so the
-# password below is the only way in. Skipped when the instance is already onboarded.
+# a sidecar creates it through the onboarding API as soon as Home Assistant answers and the pod
+# is Ready only after the sidecar has logged in with the generated password (readiness gate).
 admin:
   username: admin
   # Name shown in Home Assistant.
@@ -26,10 +26,26 @@ http:
   # Comma-separated reverse proxies whose X-Forwarded-For Home Assistant trusts.
   trustedProxies: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fd00::/8"
 
-# Recorder database. Empty existingSecret: SQLite in the config volume.
+# Recorder database. Not enabled: SQLite in the config volume. The URL is built at runtime from
+# the Secret (user, password by reference) with sslmode=verify-full and the CA of the database.
 recorder:
+  enabled: false
+  host: ""
+  port: 5432
+  database: ""
   existingSecret: ""
-  urlKey: HA_DB_URL
+  usernameKey: username
+  passwordKey: password
+  caSecret: ""
+
+# Owner bootstrap sidecar.
+onboard:
+  resources:
+    requests:
+      cpu: 5m
+      memory: 24Mi
+    limits:
+      memory: 96Mi
 
 storage:
   # PersistentVolumeClaim for /config (configuration, .storage, SQLite history). Empty: emptyDir.

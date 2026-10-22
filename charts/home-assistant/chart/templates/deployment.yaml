@@ -51,12 +51,20 @@ spec:
           env:
             - name: TZ
               value: {{ .Values.timezone | quote }}
-            {{- if .Values.recorder.existingSecret }}
-            - name: HA_DB_URL
+            {{- if .Values.recorder.enabled }}
+            # Built at runtime: user and password come from the database Secret by reference.
+            - name: HA_DB_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.recorder.existingSecret }}
-                  key: {{ .Values.recorder.urlKey }}
+                  key: {{ .Values.recorder.usernameKey }}
+            - name: HA_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.recorder.existingSecret }}
+                  key: {{ .Values.recorder.passwordKey }}
+            - name: HA_DB_URL
+              value: {{ printf "postgresql://$(HA_DB_USER):$(HA_DB_PASSWORD)@%s:%v/%s?sslmode=verify-full&sslrootcert=/etc/ha-postgres-ca/ca.crt" .Values.recorder.host .Values.recorder.port .Values.recorder.database | quote }}
             {{- end }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
@@ -73,10 +81,21 @@ spec:
             tcpSocket: { port: http }
             periodSeconds: 30
             failureThreshold: 6
+          # No traffic until the owner exists and the sidecar proved it can log in as the owner.
           readinessProbe:
-            httpGet: { path: /manifest.json, port: http }
+            exec:
+              command:
+                - sh
+                - -c
+                - test -f /status/ready && python3 -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:{{ .Values.service.port }}/manifest.json',timeout=3)"
+            periodSeconds: 3
+            timeoutSeconds: 5
           volumeMounts:
             - { name: config, mountPath: /config }
+            - { name: status, mountPath: /status, readOnly: true }
+            {{- if .Values.recorder.enabled }}
+            - { name: postgres-ca, mountPath: /etc/ha-postgres-ca, readOnly: true }
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         # Creates the owner account through the onboarding API (see values.yaml, admin).
@@ -98,13 +117,24 @@ spec:
                   key: {{ .Values.admin.passwordKey }}
           volumeMounts:
             - { name: init, mountPath: /emporium-init, readOnly: true }
+            - { name: status, mountPath: /status }
           resources:
-            requests: { cpu: 5m, memory: 24Mi }
-            limits: { memory: 96Mi }
+            {{- toYaml .Values.onboard.resources | nindent 12 }}
       volumes:
         - name: init
           configMap:
             name: {{ include "chart.fullname" . }}-init
+        - name: status
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+        {{- if .Values.recorder.enabled }}
+        - name: postgres-ca
+          secret:
+            secretName: {{ .Values.recorder.caSecret | quote }}
+            items:
+              - { key: ca.crt, path: ca.crt }
+        {{- end }}
         - name: config
           {{- if .Values.storage.config.existingClaim }}
           persistentVolumeClaim:
