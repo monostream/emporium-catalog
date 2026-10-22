@@ -1,0 +1,106 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: admin, label: Administrator, description: "LimeSurvey has its own accounts. This administrator is created at the first start; the password is generated and kept in the app's Secret." }
+
+inputs:
+  AdminPassword:
+    label: Administrator password
+    description: Password of the LimeSurvey administrator (user "admin"). Leave empty to generate one (stored in the app's Secret). Used only to create the account at the first start; change it later in LimeSurvey.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    installOnly: true
+    pattern: '^[A-Za-z0-9]{12,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  AdminEmail:
+    label: Administrator email
+    description: Email address of the LimeSurvey administrator (used for notifications and password resets). Used only to create the account at the first start.
+    type: string
+    default: admin@limesurvey.invalid
+    installOnly: true
+    section: admin
+    path: admin.email
+  EncryptionKey:
+    label: Data encryption key
+    description: Key for LimeSurvey's optional encryption of survey responses and participant data (64 hex characters). Generated once; losing it makes encrypted data unreadable.
+    type: secret
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    pattern: '^[0-9a-f]{64}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.encryptionKeyKey }
+  EncryptionNonce:
+    label: Data encryption nonce
+    description: Nonce for LimeSurvey's data encryption (48 hex characters). Generated once, never changes.
+    type: secret
+    generate: { length: 48, charset: hex }
+    installOnly: true
+    pattern: '^[0-9a-f]{48}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.encryptionNonceKey }
+
+integrations:
+  web:
+    type: ingress
+    # The Emporium login protects the administration and everything else; respondents
+    # reach published surveys and their assets through the paths below without an account.
+    # Survey routes (path URL format, index.php in the URL):
+    #   /index.php/<survey id>        short survey link
+    #   /index.php/survey/...         survey runtime, ajax, token and result pages
+    #   /index.php/uploader/...       file upload questions
+    #   /index.php/captcha/...        captcha images (survey security)
+    # Static files: /assets, /themes, /upload, /tmp/assets, /third_party, /scripts, /styles-public.
+    access: { default: authenticated }
+    skipPaths:
+      - "regex(^/index\\.php/[0-9]+(/.*)?$)"
+      - /index.php/survey/*
+      - /index.php/uploader/*
+      - /index.php/captcha/*
+      - /assets/*
+      - /themes/*
+      - /upload/*
+      - /tmp/assets/*
+      - /third_party/*
+      - /scripts/*
+      - /styles-public/*
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  upload:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: storage.upload.existingClaim
+  db:
+    type: postgres
+    database: limesurvey
+    owner: limesurvey
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    secretKeys:
+      DB_USERNAME: username
+      DB_PASSWORD: password
+      DB_HOSTNAME: host
+      DB_PORT: port
+      DB_NAME: dbname
+
+components:
+  app:
+    label: LimeSurvey
+    resources: resources
+    replicas: { fixed: 1, reason: "Uploaded files live on a single volume and the image writes its configuration at start" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team running surveys with up to a few thousand responses
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
