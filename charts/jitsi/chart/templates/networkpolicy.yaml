@@ -1,0 +1,57 @@
+{{- if .Values.networkPolicy.enabled }}
+# Meeting server pod: XMPP only from this release's videobridge; the web port only from the
+# Emporium login proxy (glass) of this release and from the ingress gateway. Prosody's HTTP port
+# (5280) is used by the web container over localhost only and is not exposed at all.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: core
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "chart.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: jvb
+      ports:
+        - { protocol: TCP, port: 5222 }
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: glass
+        {{- with .Values.networkPolicy.ingressFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - { protocol: TCP, port: 8000 }
+---
+# Videobridge pod: media (UDP) from anywhere, the HTTP port (health, stats) only from this release.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "chart.fullname" . }}-jvb
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: jvb
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - { protocol: UDP, port: {{ include "chart.jvbPort" . }} }
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "chart.selectorLabels" . | nindent 14 }}
+      ports:
+        - { protocol: TCP, port: 8080 }
+{{- end }}

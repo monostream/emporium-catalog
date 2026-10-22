@@ -49,6 +49,19 @@ jvb:
     requests: { cpu: 250m, memory: 512Mi }
     limits: { memory: 1280Mi }
 
+# Network isolation (needs a CNI that enforces NetworkPolicy, e.g. Cilium).
+# Prosody (XMPP, port 5222) and the videobridge HTTP port are NOT meant to be reached by other
+# workloads: anybody who reaches Prosody could join conferences without the Emporium login.
+networkPolicy:
+  enabled: true
+  # Who may reach the web port besides the Emporium login proxy (glass) of this release:
+  # the pods of the ingress controller / gateway. Default: the Envoy gateway of Emporium
+  # clusters (namespace network-system). Add the namespace of your own ingress controller here.
+  ingressFrom:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: network-system
+
 # Filled by Emporium through the `web` ingress integration.
 ingress:
   enabled: true
