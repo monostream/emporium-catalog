@@ -5,6 +5,14 @@ sections:
   - { id: security, label: Security, description: "Hoppscotch encrypts the SMTP password and the OAuth client secrets in its database with this key." }
 
 inputs:
+  AdminEmail:
+    label: Administrator e-mail
+    description: The Hoppscotch administrator. The account is created at the first start, so nobody else can claim the administrator role or change the sign-in setup. Sign in with this address; the sign-in link is sent there.
+    type: string
+    required: true
+    pattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    section: general
+    path: app.adminEmail
   DataEncryptionKey:
     label: Data encryption key
     description: Exactly 32 characters. Leave empty to generate one. Changing it later makes the stored settings unreadable, so it can only be set at install.

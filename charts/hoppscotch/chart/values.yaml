@@ -15,6 +15,8 @@ service:
 app:
   # Public URL of the instance, e.g. https://hoppscotch.example.com
   baseUrl: ""
+  # E-mail address of the administrator, created at the first start.
+  adminEmail: ""
   # Secret and key holding the 32 character data encryption key.
   existingSecret: ""
   dataEncryptionKeyKey: DataEncryptionKey

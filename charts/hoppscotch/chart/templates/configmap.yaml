@@ -1,4 +1,4 @@
-{{- if .Values.mail.host }}
+{{- if and .Values.mail.host .Values.app.adminEmail }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,6 +17,30 @@ data:
       ? `${encodeURIComponent(SMTP_USER)}:${encodeURIComponent(SMTP_PASSWORD ?? "")}@`
       : "";
     const url = `${SMTP_PORT === "465" ? "smtps" : "smtp"}://${auth}${SMTP_HOST}:${SMTP_PORT}`;
+    const { ADMIN_EMAIL } = process.env;
+    const { createRequire } = await import("node:module");
+    const { Pool } = createRequire("/dist/backend/package.json")("pg");
+    // sslmode=require semantics (encrypted, certificate not verified), as the CloudNativePG certificate has no public CA.
+    const dbUrl = new URL(process.env.DATABASE_URL);
+    dbUrl.searchParams.delete("sslmode");
+    const db = new Pool({ connectionString: dbUrl.toString(), ssl: { rejectUnauthorized: false }, max: 1 });
+    // Once a user exists Hoppscotch refuses to re-run the onboarding, so the
+    // designated administrator is created right after it. The sign-in request
+    // creates the account the regular way (its mail may fail, the account stays).
+    async function ensureAdmin() {
+      const count = async (where) => Number((await db.query(`select count(*) from "User" ${where}`)).rows[0].count);
+      if ((await count('where "isAdmin"')) > 0) return true;
+      if ((await count("")) === 0) {
+        await fetch(`http://127.0.0.1:${process.env.PORT}/backend/v1/auth/signin?origin=app`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email: ADMIN_EMAIL }),
+        }).catch(() => {});
+      }
+      const r = await db.query('update "User" set "isAdmin" = true where email = $1', [ADMIN_EMAIL]);
+      if (r.rowCount > 0) console.log("administrator account ready");
+      return r.rowCount > 0;
+    }
     let announced = false;
     for (;;) {
       try {
@@ -26,7 +50,8 @@ data:
           if (status.onboardingCompleted) {
             if (!announced) console.log("onboarding already completed");
             announced = true;
-            await sleep(600000);
+            if (await ensureAdmin()) { await sleep(600000); continue; }
+            await sleep(3000);
             continue;
           }
           const post = await fetch(`${base}/config`, {
@@ -44,6 +69,7 @@ data:
         }
       } catch (e) {
         // backend not up yet, or restarting
+        if (!/fetch failed|ECONNREFUSED/.test(String(e.message))) console.error("retry:", e.code ?? e.name, String(e.message).split("\n")[0].slice(0, 160));
       }
       await sleep(5000);
     }

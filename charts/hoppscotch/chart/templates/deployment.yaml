@@ -18,7 +18,7 @@ spec:
     metadata:
       labels:
         {{- include "chart.labels" . | nindent 8 }}
-      {{- if .Values.mail.host }}
+      {{- if and .Values.mail.host .Values.app.adminEmail }}
       annotations:
         checksum/onboard: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       {{- end }}
@@ -94,14 +94,26 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - { name: tmp, mountPath: /tmp }
-        {{- if .Values.mail.host }}
+        {{- if and .Values.mail.host .Values.app.adminEmail }}
         - name: onboard
           image: {{ $img | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command: ["node", "/onboard/onboard.mjs"]
+          workingDir: /dist/backend
           env:
+            - name: HOME
+              value: /tmp
+            - name: ADMIN_EMAIL
+              value: {{ .Values.app.adminEmail | quote }}
+            {{- with .Values.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
             - name: PORT
               value: {{ $port | quote }}
             - name: SMTP_HOST
@@ -127,11 +139,12 @@ spec:
               memory: 96Mi
           volumeMounts:
             - { name: onboard, mountPath: /onboard, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
         {{- end }}
       volumes:
         - name: tmp
           emptyDir: {}
-        {{- if .Values.mail.host }}
+        {{- if and .Values.mail.host .Values.app.adminEmail }}
         - name: onboard
           configMap:
             name: {{ include "chart.fullname" . }}-onboard
