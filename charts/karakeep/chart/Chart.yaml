@@ -2,8 +2,8 @@ apiVersion: v2
 name: karakeep
 description: Self-hosted bookmark manager with full-page archives, full-text search and optional AI tagging
 type: application
-version: 0.1.0
-appVersion: "0.34.0"
+version: 0.1.1
+appVersion: "0.34.1"
 home: https://karakeep.app/
 icon: https://raw.githubusercontent.com/karakeep-app/karakeep/main/apps/web/public/icons/logo-icon.svg
 sources:

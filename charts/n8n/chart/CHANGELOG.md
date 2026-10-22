@@ -1,3 +1,9 @@
+# 0.3.2
+
+Published on 22 October 2026
+
+- n8n from 2.43.8 to 2.44.6 (the Docker `latest` track; 2.45.x is the pre-release `next` track).
+
 # 0.3.1
 
 Published on 21 October 2026

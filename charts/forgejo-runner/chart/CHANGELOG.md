@@ -1,3 +1,11 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- docker from 29.9.1 to 29.9.2
+- kubectl from v1.35.9 to v1.37.1
+- The runner image is pulled from data.forgejo.org (the official registry); the image `registry` values are gone, `image.repository` now carries the full path. The dind tag is `29.9.2` and the template adds `-dind`.
+
 # 0.1.0
 
 Published on 20 October 2026

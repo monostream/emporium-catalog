@@ -5,7 +5,7 @@ image:
   repository: ghost
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "6.71.0"
+  tag: "6.72.0"
 
 imagePullSecrets: []
 nameOverride: ""

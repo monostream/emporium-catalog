@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- karakeep from 0.34.0 to 0.34.1
+
 # 0.1.0
 
 - New chart: Karakeep 0.34.0 (official images `ghcr.io/karakeep-app/karakeep`, `ghcr.io/karakeep-app/karakeep-chrome`, `getmeili/meilisearch`), requires Emporium v0.5.0.

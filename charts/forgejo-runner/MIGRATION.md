@@ -39,8 +39,8 @@ Nothing besides the `-config` Secret above, which Helm already keeps. Runner and
 - forgejo runner 13.2.0 (from 3.3.0). `register` is deprecated upstream but still works; the
   daemon reads `.runner` from its working directory (`--config /data/.runner` removed: it passed
   the registration file as the configuration file).
-- Docker image `docker:29.9.1-dind` (0.0.70 used `docker:29.8.2`, which has no dockerd).
+- Docker image `docker:29.9.2-dind` (0.0.70 used `docker:29.8.2`, which has no dockerd).
 - The dockerd socket belongs to group 1000 (the runner image's group; was 0), and only the dind
   container is privileged.
-- Hook: `registry.k8s.io/kubectl:v1.35.9` applies the generated Secret (`kubectl apply
+- Hook: `registry.k8s.io/kubectl:v1.37.1` applies the generated Secret (`kubectl apply
   --server-side`); `docker.io/bitnami/kubectl` no longer pulls.

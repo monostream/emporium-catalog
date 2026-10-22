@@ -32,7 +32,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: make-config-writeable
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [ "/bin/cp", "/etc/runner/.runner", "/data/.runner" ]
           securityContext:
@@ -48,7 +48,7 @@ spec:
         - name: runner
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           # reads .runner from the working directory /data
           command: ["/bin/forgejo-runner", "daemon"]
@@ -66,7 +66,7 @@ spec:
         - name: dind
           securityContext:
             {{- toYaml .Values.dind.securityContext | nindent 12 }}
-          image: "{{ .Values.dind.image.registry }}/{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}"
+          image: "{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}-dind"
           imagePullPolicy: {{ .Values.dind.image.pullPolicy }}
           resources:
             {{- toYaml .Values.dind.resources | nindent 12 }}

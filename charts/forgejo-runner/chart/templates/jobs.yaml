@@ -95,7 +95,7 @@ spec:
         # Registers the runner unless the Secret already holds a .runner file, then writes
         # the Secret manifest for the next container.
         - name: generate-config
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - sh
@@ -140,7 +140,7 @@ spec:
               mountPath: /tmp
       containers:
         - name: upload-config
-          image: "{{ .Values.kubectl.image.registry }}/{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}"
+          image: "{{ .Values.kubectl.image.repository }}:{{ .Values.kubectl.image.tag }}"
           imagePullPolicy: {{ .Values.kubectl.image.pullPolicy }}
           args: ["apply", "--server-side", "--force-conflicts", "--field-manager=forgejo-runner-config", "--filename=/data/secret.yaml"]
           securityContext:
