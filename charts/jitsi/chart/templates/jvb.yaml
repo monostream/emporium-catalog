@@ -1,0 +1,79 @@
+# Jitsi Videobridge: relays audio and video between the participants.
+# Media travels over UDP and never through the HTTPS ingress; see jvb.exposure in values.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-jvb
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jvb
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: jvb
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        app.kubernetes.io/component: jvb
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: jvb
+          image: {{ include "chart.image" (dict "root" . "name" "jvb") | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - { name: TZ, value: {{ .Values.config.timezone | quote }} }
+            - { name: XMPP_SERVER, value: {{ printf "%s-xmpp" (include "chart.fullname" .) | quote }} }
+            - { name: JVB_PORT, value: {{ include "chart.jvbPort" . | quote }} }
+            - { name: VIDEOBRIDGE_MAX_MEMORY, value: {{ .Values.jvb.maxMemory | quote }} }
+            {{- with .Values.jvb.advertiseIPs }}
+            - { name: JVB_ADVERTISE_IPS, value: {{ . | quote }} }
+            # The public address is configured; do not ask an external STUN server for it.
+            - { name: JVB_DISABLE_STUN, value: "true" }
+            {{- end }}
+            {{- include "chart.secretEnv" (dict "root" . "env" "JVB_AUTH_PASSWORD" "key" .Values.secrets.jvbAuthPasswordKey) | nindent 12 }}
+          ports:
+            - name: media
+              containerPort: {{ include "chart.jvbPort" . }}
+              protocol: UDP
+              {{- if eq .Values.jvb.exposure "HostPort" }}
+              hostPort: {{ include "chart.jvbPort" . }}
+              {{- end }}
+            - { name: health, containerPort: 8080 }
+          startupProbe:
+            httpGet: { path: /about/health, port: health }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /about/health, port: health }
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /about/health, port: health }
+          volumeMounts:
+            - { name: jvb-config, mountPath: /config }
+          resources:
+            {{- toYaml .Values.jvb.resources | nindent 12 }}
+      volumes:
+        - { name: jvb-config, emptyDir: {} }
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
