@@ -1,0 +1,15 @@
+admin:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+{{- with .Emporium.Integrations.db }}
+recorder:
+  enabled: true
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  database: {{ .Database | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  usernameKey: {{ .UsernameKey | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+  caSecret: {{ .CASecretName | quote }}
+{{- end }}

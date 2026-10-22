@@ -1,0 +1,11 @@
+Home Assistant is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start takes a few minutes.
+
+Open it after signing in to Emporium, then sign in to Home Assistant itself as "{{ .Values.admin.username }}".
+{{- if .Values.admin.existingSecret }}
+The password is in the Secret {{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+Devices must be reachable over IP from the cluster. Automatic discovery (mDNS, SSDP, DHCP, Bluetooth, USB)
+does not work in a pod; add integrations by hostname or address.
+{{ if .Values.recorder.existingSecret }}History is stored in the PostgreSQL database of this app.{{ else }}History is stored in SQLite on the configuration volume.{{ end }}
