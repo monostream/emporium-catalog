@@ -9,6 +9,7 @@ data:
     upload_max_filesize = {{ .Values.php.uploadMaxFilesize }}
     post_max_size = {{ .Values.php.postMaxSize }}
     memory_limit = {{ .Values.php.memoryLimit }}
+    auto_prepend_file = /scripts/route-guard.php
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -23,6 +24,8 @@ data:
 {{ .Files.Get "files/post.sh" | indent 4 }}
   set-admin.php: |
 {{ .Files.Get "files/set-admin.php" | indent 4 }}
+  route-guard.php: |
+{{ .Files.Get "files/route-guard.php" | indent 4 }}
 ---
 apiVersion: v1
 kind: ConfigMap
