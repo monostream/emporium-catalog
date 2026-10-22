@@ -26,6 +26,7 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: glass
+              app.kubernetes.io/instance: {{ include "chart.fullname" . }}-glass
         {{- with .Values.networkPolicy.ingressFrom }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
