@@ -12,6 +12,10 @@ spec:
       {{- include "codespace.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        # The image tag (appVersion) is reused when only bundled tools change,
+        # so roll the pod on every chart upgrade to pull the rebuilt image.
+        emporium.rocks/chart-version: {{ .Chart.Version | quote }}
       labels:
         {{- include "codespace.selectorLabels" . | nindent 8 }}
     spec:
