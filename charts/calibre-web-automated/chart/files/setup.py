@@ -10,6 +10,7 @@
 Everything is idempotent and safe to repeat at every start.
 """
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -69,6 +70,17 @@ def create_db():
     return True
 
 
+def check_admin_username(username):
+    """Single sign-on accounts are named by the provider's subject id (Logto: 12 lowercase
+    alphanumeric characters) and CWA matches an incoming login to an existing account by username
+    (exact, case-sensitive) and then by e-mail. A local name containing '-', '_' or '.' can never
+    equal a subject id, so such names are required; a name shaped like a subject id is refused."""
+    if re.fullmatch(r"[a-z0-9]{12}", username) or not re.search(r"[._-]", username):
+        log("the administrator username must contain '-', '_' or '.' (so it can never equal a "
+            "single sign-on subject id) and must not look like one")
+        sys.exit(1)
+
+
 def replace_default_admin(con):
     username = os.environ.get("ADMIN_USERNAME", "").strip()
     password = os.environ.get("ADMIN_PASSWORD", "")
@@ -84,6 +96,7 @@ def replace_default_admin(con):
     if username.lower() in taken:
         log("the administrator username is already used by another account")
         sys.exit(1)
+    check_admin_username(username)
     uid = default_rows[0][0]
     con.execute("update user set name=?, password=? where id=?",
                 (username, generate_password_hash(password), uid))
@@ -120,8 +133,11 @@ def configure_oidc(con):
                     "values (?,?,?,?,?,?,?,1,'generic')", values)
     # Username and email both come from the stable subject id. CWA links an incoming login to an
     # existing local account with the same username, so a name chosen by the user (preferred_username)
-    # could take over the local administrator; subject ids are random and never collide with local
-    # names. The email column is also unique and Emporium users usually have no email.
+    # could take over the local administrator. Subject ids are 12 lowercase alphanumeric characters,
+    # so a local account whose name contains '-', '_' or '.' cannot equal one (the break-glass
+    # administrator is required to; see check_admin_username). Accounts created later in the CWA UI
+    # are not checked and should follow the same rule. The email fallback uses the subject id too.
+    # The email column is also unique and Emporium users usually have no email.
     # login type 2 = OAuth (the standard login form stays available)
     con.execute("update settings set config_login_type=2, config_oauth_redirect_host=?", (host,))
     con.commit()

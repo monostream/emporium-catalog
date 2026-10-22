@@ -7,12 +7,12 @@ sections:
 inputs:
   AdminUsername:
     label: Local administrator username
-    description: Break-glass account that replaces the default "admin" account at the first start. It is not linked to single sign-on; pick a name no Emporium user has, because a local account with the same name as an Emporium user blocks that user's single sign-on.
+    description: "Break-glass account that replaces the default \"admin\" account at the first start. It is not linked to single sign-on. The name must contain a dash, underscore or dot (for example cwa-admin): single sign-on accounts are named by a 12-character lowercase alphanumeric subject id and CWA would link such a login to a local account of the same name."
     type: string
     default: cwa-admin
     required: true
     installOnly: true
-    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$'
+    pattern: '^[A-Za-z0-9][A-Za-z0-9]{0,30}[._-][A-Za-z0-9._-]{0,30}$'
     section: admin
     path: admin.username
   AdminPassword:
