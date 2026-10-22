@@ -5,9 +5,10 @@
     "repo": "./chart",
     "allowPrerelease": false,
     "imageTagPaths": [
-      "image.tag"
+      "server.image.tag",
+      "agent.image.tag"
     ],
-    "appVersionMapping": "value:image.tag",
+    "appVersionMapping": "value:server.image.tag",
     "changelogPath": "./chart"
   }
 ]

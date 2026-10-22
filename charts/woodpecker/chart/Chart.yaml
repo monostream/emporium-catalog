@@ -2,7 +2,7 @@ apiVersion: v2
 name: woodpecker
 description: Simple yet powerful CI/CD engine with great extensibility
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "3.19.0"
 home: https://woodpecker-ci.org/
 icon: https://raw.githubusercontent.com/woodpecker-ci/woodpecker/main/docs/static/img/logo.svg
