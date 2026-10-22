@@ -4,7 +4,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 image:
-  repository: docker.io/wallabag/wallabag
+  repository: wallabag/wallabag
   tag: "2.6.14"
   pullPolicy: IfNotPresent
 
