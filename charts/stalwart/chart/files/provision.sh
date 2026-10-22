@@ -7,6 +7,7 @@
 # The response of the setup call contains a generated password for admin@<domain>; it is
 # never printed or stored (the administrator from the chart's Secret is the way in).
 set -u
+MARKER=/var/lib/stalwart/etc/.emporium-provisioned
 BASE="http://127.0.0.1:${HTTP_PORT}"
 AUTH="${ADMIN_USERNAME}:${ADMIN_PASSWORD}"
 jmap() { curl -s -m 30 -u "$AUTH" -H 'Content-Type: application/json' "$BASE/jmap" -d "$1"; }
@@ -25,18 +26,18 @@ while true; do
       esac
       ;;
     *'"notFound":["singleton"]'*)
-      # Failed logins are counted per client address, and Stalwart sees the ingress as the client
-      # of web requests: without a ban period, 100 failures in a day would ban the proxy for good.
-      # Set a period (1 h) only while none is configured, so later changes in the web admin stay.
-      sec=$(jmap "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Security/get\",{\"accountId\":\"$acc\",\"ids\":[\"singleton\"]},\"c1\"]]}")
-      case "$sec" in
-        *'"authBanPeriod":'[0-9]*) echo "ban period already configured" ;;
-        *'"list":['*)
-          r=$(jmap "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Security/set\",{\"accountId\":\"$acc\",\"update\":{\"singleton\":{\"authBanPeriod\":${BAN_PERIOD_MS},\"abuseBanPeriod\":${BAN_PERIOD_MS},\"loiterBanPeriod\":${BAN_PERIOD_MS},\"scanBanPeriod\":${BAN_PERIOD_MS}}}},\"c1\"]]}")
-          case "$r" in *'"updated"'*) echo "ban period set to ${BAN_PERIOD_MS} ms" ;; *) echo "ban period failed: $(echo "$r" | head -c 300)"; sleep 10; continue ;; esac ;;
-        *) echo "unexpected security answer: $(echo "$sec" | head -c 200)"; sleep 10; continue ;;
+      # Normal mode. The security defaults are changed once, at the first start; the marker on the
+      # volume keeps later restarts from touching anything an administrator changed since.
+      if [ -f "$MARKER" ]; then echo "already provisioned; nothing to do"; break; fi
+      # Behind the ingress every web request comes from the proxy address, so an address ban can
+      # only ever hit the proxy: give bans an expiry (failed logins can only come from behind the
+      # Emporium login) and drop the scan paths that ban the address on a single request (/x.php).
+      r=$(jmap "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Security/set\",{\"accountId\":\"$acc\",\"update\":{\"singleton\":{\"authBanPeriod\":${BAN_PERIOD_MS},\"abuseBanPeriod\":${BAN_PERIOD_MS},\"loiterBanPeriod\":${BAN_PERIOD_MS},\"scanBanPeriod\":${BAN_PERIOD_MS},\"scanBanPaths\":{}}}},\"c1\"]]}")
+      case "$r" in
+        *'"updated"'*) touch "$MARKER" && echo "security defaults set (ban period ${BAN_PERIOD_MS} ms, no scan paths); marker written"; break ;;
+        *) echo "security settings failed: $(echo "$r" | head -c 300)" ;;
       esac
-      echo "configured; nothing to do"; break ;;
+      ;;
     *) echo "unexpected answer: $(echo "$cur" | head -c 200)" ;;
   esac
   sleep 10

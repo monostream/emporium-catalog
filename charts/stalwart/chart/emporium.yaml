@@ -38,11 +38,19 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
-    # Discovery and client configuration only. /jmap/* and /dav/* are NOT skipped: POST /jmap/
-    # also dispatches the management methods (x:Account/set, x:SystemSettings/set) and the
-    # administrator can use Basic auth there, so skipping it would let any admin credential
-    # manage the server without an Emporium session. /api/discover/<account> is not skipped either.
-    skipPaths: [/.well-known/*, /autodiscover/*, /mail/config-v1.1.xml, /auth/*]
+    # Exact discovery and client-configuration paths only (no wildcards: glass matches a path without
+    # a trailing "*" exactly). Not skipped: /jmap/* and /dav/* (POST /jmap/ also dispatches the
+    # management methods, and the administrator can use Basic auth there), /auth/* (/auth/register
+    # accepts administrator credentials and creates OAuth clients) and /api/*. No wildcard either,
+    # because Stalwart bans an address that requests a scan path such as /x.php: behind the proxy
+    # that address is the ingress, so one anonymous request would ban everybody.
+    skipPaths:
+      - /.well-known/jmap
+      - /.well-known/openid-configuration
+      - /.well-known/oauth-authorization-server
+      - /.well-known/autoconfig/mail/config-v1.1.xml
+      - /mail/config-v1.1.xml
+      - /autodiscover/autodiscover.xml
     bind:
       Hostname: ingress.host
       Annotations: ingress.annotations

@@ -10,3 +10,5 @@
 - JMAP (`/jmap/*`), DAV (`/dav/*`) and `/api/discover` are not skipped: `POST /jmap/` also serves the management methods. Only discovery/client-configuration paths skip the Emporium login.
 - Ban period (1 h) set in the first-start setup, so failed logins cannot ban the ingress address for good.
 - Administrator username lowercase only; `AdminPassword` is install-only (rotation: Secret update plus pod restart).
+- `skipPaths` are six exact discovery paths: `/auth/*` and all wildcards removed (`/auth/register` accepts administrator credentials; a scan path such as `/x.php` under a wildcard banned the ingress address).
+- First-start setup removes the HTTP scan-path bans and writes its security defaults once (marker `etc/.emporium-provisioned` on the volume).
