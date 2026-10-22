@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Etherpad keeps the pad editing sessions in memory; never run two pods side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: etherpad
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            - name: TRUST_PROXY
+              value: "true"
+            - name: LOGLEVEL
+              value: {{ .Values.config.loglevel | quote }}
+            - name: TITLE
+              value: {{ .Values.config.title | quote }}
+            # Updates are managed by Emporium, not by the in-app notifier.
+            - name: UPDATES_TIER
+              value: "off"
+            {{- with .Values.config.defaultPadText }}
+            - name: DEFAULT_PAD_TEXT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.config.baseUrl }}
+            - name: PUBLIC_URL
+              value: {{ . | quote }}
+            - name: SSO_ISSUER
+              value: {{ . | quote }}
+            - name: ADMIN_REDIRECT
+              value: {{ printf "%s/admin/" . | quote }}
+            - name: USER_REDIRECT
+              value: {{ printf "%s/" . | quote }}
+            {{- end }}
+            {{- with .Values.sso.existingSecret }}
+            - name: ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.sso.adminSecretKey }}
+            - name: USER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.sso.userSecretKey }}
+            {{- end }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- with .Values.database }}
+            {{- if .existingSecret }}
+            - name: DB_TYPE
+              value: postgres
+            - name: DB_HOST
+              value: {{ .host | quote }}
+            - name: DB_PORT
+              value: {{ .port | quote }}
+            - name: DB_NAME
+              value: {{ .name | quote }}
+            # TLS with the server certificate and host name verified (node-postgres turns
+            # PGSSLMODE into ssl: true); the CloudNativePG CA is added to Node's trust store.
+            # node-postgres ignores PGSSLROOTCERT.
+            - name: PGSSLMODE
+              value: verify-full
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/etherpad-db-ca/ca.crt
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .existingSecret }}
+                  key: {{ .usernameKey }}
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .existingSecret }}
+                  key: {{ .passwordKey }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The database schema is created at the first start.
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+          {{- if .Values.database.caSecret }}
+          volumeMounts:
+            - name: db-ca
+              mountPath: /etc/etherpad-db-ca
+              readOnly: true
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.database.caSecret }}
+      volumes:
+        - name: db-ca
+          secret:
+            secretName: {{ .Values.database.caSecret }}
+            items:
+              - key: ca.crt
+                path: ca.crt
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
