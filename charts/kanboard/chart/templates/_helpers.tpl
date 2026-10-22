@@ -39,3 +39,16 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
       key: {{ $key }}
 {{- end }}
 {{- end }}
+
+{{/* libpq TLS settings; PHP-FPM only forwards them because of the php-fpm env file in the ConfigMap. */}}
+{{- define "chart.dbTLSEnv" -}}
+{{- if .Values.database.caSecret }}
+- name: PGSSLMODE
+  value: {{ .Values.database.sslMode | quote }}
+- name: PGSSLROOTCERT
+  value: /etc/kanboard/postgres/ca.crt
+{{- else }}
+- name: PGSSLMODE
+  value: require
+{{- end }}
+{{- end }}

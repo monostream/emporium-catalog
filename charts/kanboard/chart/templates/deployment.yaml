@@ -22,8 +22,26 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if and .Values.admin.existingSecret .Values.database.existingSecret }}
       initContainers:
+        # PHP-FPM only forwards the environment variables listed in the image's env.conf.
+        # Copy it and add the libpq TLS settings, then mount the copy into the web container.
+        - name: fpm-env
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -ec
+            - |
+              cp /etc/php85/php-fpm.d/env.conf /fpm/env.conf
+              printf '\n%s\n' 'env[PGSSLMODE] = $PGSSLMODE' 'env[PGSSLROOTCERT] = $PGSSLROOTCERT' >> /fpm/env.conf
+              grep -q 'env\[PGSSLROOTCERT\]' /fpm/env.conf
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - { name: fpm, mountPath: /fpm }
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 64Mi }
         # Migrates an empty database and replaces the default admin/admin password
         # before the web server starts.
         - name: set-admin
@@ -34,22 +52,23 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
             {{- include "chart.dbEnv" . | nindent 12 }}
-            - name: ADMIN_USERNAME
-              value: {{ .Values.admin.username | quote }}
+            {{- include "chart.dbTLSEnv" . | nindent 12 }}
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.admin.existingSecret }}
+                  name: {{ .Values.admin.existingSecret | default "kanboard-admin-secret-not-configured" }}
                   key: {{ .Values.admin.passwordKey }}
             - name: DATA_DIR
               value: /var/www/app/data
           volumeMounts:
             - { name: init, mountPath: /init, readOnly: true }
+            {{- if .Values.database.caSecret }}
+            - { name: db-ca, mountPath: /etc/kanboard/postgres, readOnly: true }
+            {{- end }}
             - { name: data, mountPath: /var/www/app/data }
           resources:
             requests: { cpu: 50m, memory: 64Mi }
             limits: { memory: 256Mi }
-      {{- end }}
       containers:
         - name: kanboard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "v%s" .Chart.AppVersion) }}"
@@ -62,9 +81,8 @@ spec:
             # Kanboard's own header login is off; it is not enabled behind Emporium.
             - name: REVERSE_PROXY_AUTH
               value: "false"
-            {{- if .Values.database.existingSecret }}
             {{- include "chart.dbEnv" . | nindent 12 }}
-            {{- end }}
+            {{- include "chart.dbTLSEnv" . | nindent 12 }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -83,9 +101,22 @@ spec:
             httpGet: { path: /healthcheck.php, port: http }
           volumeMounts:
             - { name: data, mountPath: /var/www/app/data }
+            - { name: fpm, mountPath: /etc/php85/php-fpm.d/env.conf, subPath: env.conf, readOnly: true }
+            {{- if .Values.database.caSecret }}
+            - { name: db-ca, mountPath: /etc/kanboard/postgres, readOnly: true }
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
+        {{- if .Values.database.caSecret }}
+        - name: db-ca
+          secret:
+            secretName: {{ .Values.database.caSecret }}
+            items:
+              - { key: ca.crt, path: ca.crt }
+        {{- end }}
+        - name: fpm
+          emptyDir: {}
         - name: init
           configMap:
             name: {{ include "chart.fullname" . }}-init

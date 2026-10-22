@@ -11,11 +11,11 @@ image:
 service:
   port: 80
 
-# Local administrator. Kanboard creates admin/admin when it migrates an empty
-# database; an init container replaces that password before Kanboard serves
-# a request (only while it is still the default).
+# Local administrator. Kanboard creates the account "admin" with the password "admin"
+# when it migrates an empty database; an init container replaces that password before
+# Kanboard serves a request (only while it is still the default). The init container
+# always runs and fails (pod does not start) when the Secret reference is missing.
 admin:
-  username: admin
   # Secret and key holding the administrator password.
   existingSecret: ""
   passwordKey: ADMIN_PASSWORD
@@ -30,6 +30,9 @@ database:
     hostname: DB_HOSTNAME
     port: DB_PORT
     name: DB_NAME
+  # libpq TLS mode and the Secret (key ca.crt) with the server CA. verify-full needs the CA.
+  sslMode: verify-full
+  caSecret: ""
 
 storage:
   files:
@@ -45,7 +48,9 @@ ingress:
   enabled: true
   className: ""
   host: ""
-  annotations: {}
+  # Kanboard accepts uploads up to 32 MiB (nginx client_max_body_size in the image).
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 32m
   tlsSecretName: ""
   tlsHosts: []
 
