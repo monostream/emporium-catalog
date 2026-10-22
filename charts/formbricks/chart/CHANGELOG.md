@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 22 October 2026
+
+- formbricks from 6.1.0 to 6.1.1
+
 # 0.1.0
 
 - Category Analytics. The first administrator is created at install (inputs name, email, generated password) so the open first-account signup cannot be claimed through the public survey paths; the web pod is ready only after it exists. Cube verifies the database certificate against the CloudNativePG CA.

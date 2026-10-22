@@ -5,7 +5,7 @@ fullnameOverride: ""
 
 image:
   repository: ghcr.io/formbricks/formbricks
-  tag: "6.1.0"
+  tag: "6.1.1"
   pullPolicy: IfNotPresent
 
 # Formbricks Hub (feedback record API and background worker), required by Formbricks 6.

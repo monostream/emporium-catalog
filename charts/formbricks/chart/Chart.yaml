@@ -2,8 +2,8 @@ apiVersion: v2
 name: formbricks
 description: Open source survey and experience management platform (link surveys, website and in-app surveys)
 type: application
-version: 0.1.0
-appVersion: "6.1.0"
+version: 0.1.1
+appVersion: "6.1.1"
 home: https://formbricks.com/
 icon: https://raw.githubusercontent.com/formbricks/formbricks/main/apps/web/public/favicon/favicon-32x32.png
 sources:
