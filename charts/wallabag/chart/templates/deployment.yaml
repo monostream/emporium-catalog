@@ -99,11 +99,15 @@ spec:
                 -U "$SYMFONY__ENV__DATABASE_USER" -d "$SYMFONY__ENV__DATABASE_NAME"; }
               console() { php -d memory_limit=512M bin/console --env=prod "$@"; }
               echo "database connection encrypted: $(q 'select ssl from pg_stat_ssl where pid = pg_backend_pid()')"
+              # "wallabag" is the stock account name: it is never a valid administrator (guard() below disables it).
+              case "$(printf '%s' "$ADMIN_USERNAME" | tr 'A-Z' 'a-z')" in
+                wallabag) echo "the administrator username must not be wallabag" >&2; exit 1 ;;
+              esac
               # Never leave the public account wallabag / wallabag usable: before every successful exit.
               guard() {
-                if [ "$ADMIN_USERNAME" != wallabag ] && [ "$(q "select count(*) from wallabag_user where username = 'wallabag' and enabled")" != 0 ]; then
-                  q "update wallabag_user set enabled = false where username = 'wallabag'" >/dev/null
-                  echo "the default account wallabag existed and was disabled; the pod restarts once" >&2; exit 1
+                if [ "$(q "select count(*) from wallabag_user where username_canonical = 'wallabag' and enabled")" != 0 ]; then
+                  q "update wallabag_user set enabled = false where username_canonical = 'wallabag'" >/dev/null
+                  echo "the default account wallabag existed and was disabled" >&2
                 fi
               }
               users=-1

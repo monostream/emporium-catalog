@@ -2,7 +2,7 @@ apiVersion: emporium.build/v1
 
 sections:
   - { id: general, label: General }
-  - { id: admin, label: Local administrator, description: "Wallabag has no single sign-on. Emporium creates this account before Wallabag serves its first request; the built-in wallabag/wallabag account is never created. It is the Wallabag super administrator and creates the other users." }
+  - { id: admin, label: Local administrator, description: "Wallabag has no single sign-on. Emporium creates this account before Wallabag serves its first request; the built-in wallabag/wallabag account is never created, and the name wallabag cannot be chosen as the username. It is the Wallabag super administrator and creates the other users." }
 
 inputs:
   Locale:
@@ -18,7 +18,8 @@ inputs:
     default: admin
     required: true
     installOnly: true
-    pattern: '^[A-Za-z0-9_.-]{3,64}$'
+    # Any 3-64 characters of [A-Za-z0-9_.-] except "wallabag" in any letter case (the stock account name; RE2 has no lookahead).
+    pattern: '^([A-Za-z0-9_.-]{3,7}|[A-Za-z0-9_.-]{9,64}|[^wW][A-Za-z0-9_.-]{7}|[A-Za-z0-9_.-][^aA][A-Za-z0-9_.-]{6}|[A-Za-z0-9_.-][A-Za-z0-9_.-][^lL][A-Za-z0-9_.-]{5}|[A-Za-z0-9_.-][A-Za-z0-9_.-][A-Za-z0-9_.-][^lL][A-Za-z0-9_.-]{4}|[A-Za-z0-9_.-][A-Za-z0-9_.-][A-Za-z0-9_.-][A-Za-z0-9_.-][^aA][A-Za-z0-9_.-]{3}|[A-Za-z0-9_.-]{5}[^bB][A-Za-z0-9_.-]{2}|[A-Za-z0-9_.-]{6}[^aA][A-Za-z0-9_.-]|[A-Za-z0-9_.-]{7}[^gG])$'
     section: admin
     path: admin.username
   AdminEmail:
