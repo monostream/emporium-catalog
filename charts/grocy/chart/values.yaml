@@ -1,0 +1,78 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+# Grocy publishes no container image. linuxserver.io builds the de facto standard one
+# (nginx + PHP, s6).
+image:
+  repository: lscr.io/linuxserver/grocy
+  # Tested build (linuxserver rebuilds the same Grocy version as -lsN) pinned by digest. Update by hand.
+  tag: "v4.7.1-ls346@sha256:d63bffe9afb2ef1a23fa7ce0749cdaeba9c169fb644b16eed270884a1b2f4ac9"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+
+# Local administrator. Grocy creates the account "admin" with the password "admin"
+# when it migrates an empty database; an init container migrates the database and
+# replaces that password before Grocy serves a request (only while it is still the
+# default). It always runs and fails (pod does not start) when the Secret reference is missing.
+admin:
+  username: admin
+  # Secret and key holding the administrator password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+storage:
+  # PersistentVolumeClaim for /config (SQLite database, uploads, config.php). Empty: emptyDir.
+  config:
+    existingClaim: ""
+
+# IANA time zone of the container (stock dates, due dates and the calendar use it).
+timezone: UTC
+
+# Additional environment variables for the container (for example PUID, PGID). Names starting
+# with GROCY_ or FILE__ are rejected: Grocy settings go through chart inputs or the Grocy UI.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  # Product pictures and equipment manuals are uploaded through the web UI.
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+# The linuxserver.io image starts as root (s6-overlay, nginx binds port 80) and drops
+# nginx and PHP-FPM to the abc user, so it cannot run as non-root.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, SETUID, SETGID, NET_BIND_SERVICE, DAC_OVERRIDE, FOWNER]
+
+# Init container: only runs PHP on the /config volume (which the web container later chowns to
+# its own user), so it needs no ownership, identity or socket capabilities.
+initSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [DAC_OVERRIDE]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

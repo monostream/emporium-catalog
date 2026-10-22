@@ -1,0 +1,20 @@
+# The image's default /config/php files (linuxserver init-php, v4.7.1-ls346), owned by the chart and
+# mounted read-only over /config/php, so nothing persisted on the volume there is ever loaded
+# (PHP-FPM includes /config/php/*.conf and PHP scans /config/php/*.ini).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-php
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  www2.conf: |
+    ; Edit this file to override www.conf and php-fpm.conf directives and restart the container
+
+    ; Pool name
+    [www]
+
+  php-local.ini: |
+    ; Edit this file to override php.ini directives
+
+    date.timezone = {{ .Values.timezone }}
