@@ -1,3 +1,9 @@
+# 0.1.2
+
+Published on 22 October 2026
+
+- core from 2.11.2 to 2.11.3
+
 # 0.1.1
 
 Published on 21 October 2026

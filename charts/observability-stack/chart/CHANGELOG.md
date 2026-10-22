@@ -1,3 +1,11 @@
+# 0.2.1
+
+Published on 22 October 2026
+
+- kube-prometheus-stack from 92.10.1 to 92.11.0
+- loki from 7.3.0 to 7.5.0
+- alloy from 1.14.0 to 1.14.1
+
 # 0.2.0
 
 Published on 21 October 2026
