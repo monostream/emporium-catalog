@@ -4,11 +4,11 @@ nameOverride: ""
 fullnameOverride: ""
 
 # Community image martialblog/docker-limesurvey (LimeSurvey publishes no image of its own):
-# LimeSurvey 6.x release from the upstream GitHub tag (checksum verified at build), PHP 8.3,
+# LimeSurvey 7.x release from the upstream GitHub tag (checksum verified at build), PHP 8.4,
 # Apache with mod_php, runs as www-data on port 8080.
 image:
   repository: martialblog/limesurvey
-  tag: "6.17.18-261021-apache"
+  tag: "7.5.1-261021-apache"
   pullPolicy: IfNotPresent
 
 service:

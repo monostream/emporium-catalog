@@ -2,7 +2,7 @@
 
 LimeSurvey is the open-source survey platform: build questionnaires with logic and quotas, send them to participants and analyse the answers on your own server.
 
-LimeSurvey Community Edition (GPL-2.0-or-later) is the free self-hosted edition. LimeSurvey GmbH publishes no container image, so the chart uses the well-maintained community image `martialblog/limesurvey` (built from the official release tarball with a checksum), version 6.17.18 (the 6.x line is in extended support: security fixes only; a 7.x line exists upstream).
+LimeSurvey Community Edition (GPL-2.0-or-later) is the free self-hosted edition. LimeSurvey GmbH publishes no container image, so the chart uses the well-maintained community image `martialblog/limesurvey` (built from the official release tarball with a checksum), version 7.5.1 (the 6.x line is out of support upstream).
 
 ## Features
 

@@ -3,7 +3,7 @@ name: limesurvey
 description: Online survey tool with 30+ question types, conditional logic, quotas and statistics
 type: application
 version: 0.1.0
-appVersion: "6.17.18"
+appVersion: "7.5.1"
 home: https://www.limesurvey.org/
 icon: https://raw.githubusercontent.com/LimeSurvey/LimeSurvey/master/themes/admin/Sea_Green/images/logo.svg
 sources:
