@@ -8,20 +8,20 @@ sections:
 inputs:
   AutoLogin:
     label: Sign in automatically
-    description: Send visitors straight to the Emporium sign-in instead of showing the PhotoPrism login page with its "Continue with Emporium" button. The local administrator can still sign in at /library/login?nosso (see the install notes).
+    description: Send visitors straight to the Emporium sign-in instead of showing the PhotoPrism login page with its "Continue with Emporium" button. After signing out, or when the single sign-on round trip fails, PhotoPrism shows the login form once, where the local administrator can sign in.
     type: boolean
     default: false
     path: oidc.autoLogin
   NewUserRole:
     label: Role of new single sign-on users
-    description: "PhotoPrism Community Edition has only two roles for signed-in users. \"guest\" sees and reacts to albums that were shared with the account, not the library; \"admin\" can do everything. Members of the Emporium role emporium-admin always become administrators. Pick \"admin\" only when every Emporium user may manage the whole library."
+    description: "PhotoPrism Community Edition has only two roles for signed-in users. \"guest\" sees and reacts to albums that were shared with the account, not the library; \"admin\" can do everything. Members of the Emporium role emporium-admin become administrators. Pick \"admin\" only when every Emporium user may manage the whole library. This is the role of NEW accounts; it does not change existing accounts."
     type: enum
     options: [guest, admin]
     default: guest
     path: oidc.newUserRole
-  WebDAVForSso:
-    label: WebDAV for single sign-on users
-    description: Let single sign-on users use WebDAV (to sync from other apps) when their role allows it. Administrators can create an app password under Settings > Account > Apps and Devices.
+  NewUserWebDAV:
+    label: WebDAV for new single sign-on accounts
+    description: "Default for accounts created at the first single sign-on: may they use WebDAV (to sync from other apps)? It is only a default for new accounts. Changing it later does not touch existing accounts: grant or revoke WebDAV per account in PhotoPrism (Settings > Users, or `photoprism users mod <name> --webdav=true|false`). Guests cannot use WebDAV whatever the setting."
     type: boolean
     default: false
     path: oidc.webdav
@@ -57,12 +57,13 @@ inputs:
 integrations:
   web:
     type: ingress
-    access: { default: authenticated }
     # PhotoPrism has its own login (local accounts, app passwords, OIDC) and its share links are meant
-    # for anonymous viewers: the share page (/s/<token>) creates a link session and then loads the web app
-    # (/library/albums) and its API, so those paths cannot sit behind the Emporium login. WebDAV (/originals/,
-    # /import/) and the mobile and API clients use app passwords. Only "/" itself stays behind the Emporium login.
-    skipPaths: [/s/*, /library/*, /static/*, /api/v1/*, /originals/*, /import/*]
+    # for anonymous viewers: the share page redeems its token through the same session endpoint as the
+    # password login and then loads the web app and its API, so no path-based Emporium login can sit in
+    # front of it. WebDAV and the mobile apps use app passwords. The ingress is therefore public and
+    # PhotoPrism's login (with its login-failure limiter) is the gate; Emporium single sign-on is the
+    # recommended login.
+    access: { default: public }
     redirectPaths: [/api/v1/oidc/redirect]
     bind:
       Hostname: ingress.host

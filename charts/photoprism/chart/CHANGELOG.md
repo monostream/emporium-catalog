@@ -3,7 +3,7 @@
 - New chart: PhotoPrism 261007 (official image `photoprism/photoprism`, Community Edition, AGPL-3.0), requires Emporium v0.5.0.
 - SQLite on a `storage` volume (database, thumbnails, sidecars, import folder) plus a separate `originals` volume (two `storage` integrations); PhotoPrism has no supported PostgreSQL mode. One replica.
 - Runs as a non-root user: the image's s6 `/init` needs root, so the server (`photoprism start`) is started directly.
-- Single sign-on through Emporium (`sso` OIDC integration, ES384 ID tokens): accounts are created at the first sign-in (`PHOTOPRISM_OIDC_REGISTER`), members of the Emporium role `emporium-admin` become administrators (`roles` claim via `PHOTOPRISM_OIDC_GROUP_ROLE`), others get the Community Edition role `guest` (or `admin` by an install input). Client secret by reference.
+- Single sign-on through Emporium (`sso` OIDC integration, ES384 ID tokens), the recommended login: accounts are created at the first sign-in (`PHOTOPRISM_OIDC_REGISTER`); the `roles` claim is mapped with `PHOTOPRISM_OIDC_GROUP_ROLE=emporium-admin=admin,emporium-user=guest`, so admins stay admins and users who lose `emporium-admin` become guests at the next sign-in (tested). New accounts without a mapped role get `guest` (or `admin` by an install input). Client secret by reference.
 - Local administrator with a generated install-only password (Secret, by reference); public mode off.
-- Share links, the web app, the API and WebDAV skip the Emporium login and are protected by PhotoPrism.
+- `access: public`: PhotoPrism's own login (with its login-failure limiter) is the gate, share links work for anonymous viewers; no skip paths. The WebDAV input is only the default for new SSO accounts.
 - Indexing workers input (default 2); requests 500m / 1Gi, memory limit 3Gi.

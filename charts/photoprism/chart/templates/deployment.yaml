@@ -96,7 +96,7 @@ spec:
             - name: PHOTOPRISM_OIDC_GROUP_CLAIM
               value: "roles"
             - name: PHOTOPRISM_OIDC_GROUP_ROLE
-              value: {{ printf "%s=admin" .Values.oidc.emporiumAdminRole | quote }}
+              value: {{ printf "%s=admin,%s=guest" .Values.oidc.emporiumAdminRole .Values.oidc.emporiumUserRole | quote }}
             - name: PHOTOPRISM_OIDC_USERNAME
               value: "preferred_username"
             - name: PHOTOPRISM_OIDC_REDIRECT
