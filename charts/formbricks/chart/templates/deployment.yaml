@@ -257,6 +257,10 @@ spec:
             - |
               const fs = require("fs");
               const base = "http://127.0.0.1:3000";
+              // Formbricks needs upper and lower case letters and a digit; a generated value that lacks one
+              // gets the prefix "Aa0" (a value that already meets the policy is used unchanged).
+              let password = process.env.ADMIN_PASSWORD || "";
+              if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) password = "Aa0" + password;
               const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
               (async () => {
                 for (let i = 0; ; i++) {
@@ -267,7 +271,7 @@ spec:
                     const r = await fetch(base + "/api/auth/sign-up/email", {
                       method: "POST",
                       headers: { "content-type": "application/json", origin: process.env.WEBAPP_URL },
-                      body: JSON.stringify({ name: process.env.ADMIN_NAME, email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }),
+                      body: JSON.stringify({ name: process.env.ADMIN_NAME, email: process.env.ADMIN_EMAIL, password }),
                     });
                     console.log("bootstrap sign-up status", r.status);
                     // 200: created (or the address exists); 403: the instance already has users.

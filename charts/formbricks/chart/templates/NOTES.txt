@@ -3,6 +3,7 @@ Formbricks is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }
 Sign in with your Emporium account first (the instance is protected by the Emporium login).
 The first Formbricks administrator was created at install: sign in at {{ with .Values.ingress.host }}https://{{ . }}{{ end }}/auth/login with the email you entered at install.
 Password: kubectl -n {{ .Release.Namespace }} get secret {{ .Values.secrets.existingSecret }} -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d
+(In the rare case that this value lacks an upper case letter, a lower case letter or a digit, the password is "Aa0" followed by it.)
 Then create the organisation; further people join by invitation.
 
 Survey links (/s/...) and the SDK and client API paths are public so respondents can answer without an account.

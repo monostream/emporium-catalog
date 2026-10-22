@@ -62,6 +62,8 @@ spec:
             # TLS with certificate verification against the CloudNativePG CA (added to Node's trust store).
             - name: CUBEJS_DB_SSL
               value: "true"
+            - name: CUBEJS_DB_SSL_REJECT_UNAUTHORIZED
+              value: "true"
             {{- include "chart.dbCaEnv" . | nindent 12 }}
             - name: CUBEJS_API_SECRET
               valueFrom:
