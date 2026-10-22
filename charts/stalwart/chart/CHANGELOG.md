@@ -7,3 +7,6 @@
 - Web administration behind the Emporium login; JMAP, DAV, discovery and OAuth endpoints skip it.
 - Optional Service for the mail ports (`mail.service.*`, ClusterIP by default).
 - No `oidc` integration: Stalwart's OIDC support is a token-validating directory without a web login flow.
+- JMAP (`/jmap/*`), DAV (`/dav/*`) and `/api/discover` are not skipped: `POST /jmap/` also serves the management methods. Only discovery/client-configuration paths skip the Emporium login.
+- Ban period (1 h) set in the first-start setup, so failed logins cannot ban the ingress address for good.
+- Administrator username lowercase only; `AdminPassword` is install-only (rotation: Secret update plus pod restart).

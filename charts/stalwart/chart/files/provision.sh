@@ -24,7 +24,19 @@ while true; do
         *) echo "bootstrap failed: $(echo "$res" | sed -E 's/"secret":"[^"]*"/"secret":"-"/g' | head -c 400)" ;;
       esac
       ;;
-    *'"notFound":["singleton"]'*) echo "configured; nothing to do"; break ;;
+    *'"notFound":["singleton"]'*)
+      # Failed logins are counted per client address, and Stalwart sees the ingress as the client
+      # of web requests: without a ban period, 100 failures in a day would ban the proxy for good.
+      # Set a period (1 h) only while none is configured, so later changes in the web admin stay.
+      sec=$(jmap "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Security/get\",{\"accountId\":\"$acc\",\"ids\":[\"singleton\"]},\"c1\"]]}")
+      case "$sec" in
+        *'"authBanPeriod":'[0-9]*) echo "ban period already configured" ;;
+        *'"list":['*)
+          r=$(jmap "{\"using\":[\"urn:ietf:params:jmap:core\",\"urn:stalwart:jmap\"],\"methodCalls\":[[\"x:Security/set\",{\"accountId\":\"$acc\",\"update\":{\"singleton\":{\"authBanPeriod\":${BAN_PERIOD_MS},\"abuseBanPeriod\":${BAN_PERIOD_MS},\"loiterBanPeriod\":${BAN_PERIOD_MS},\"scanBanPeriod\":${BAN_PERIOD_MS}}}},\"c1\"]]}")
+          case "$r" in *'"updated"'*) echo "ban period set to ${BAN_PERIOD_MS} ms" ;; *) echo "ban period failed: $(echo "$r" | head -c 300)"; sleep 10; continue ;; esac ;;
+        *) echo "unexpected security answer: $(echo "$sec" | head -c 200)"; sleep 10; continue ;;
+      esac
+      echo "configured; nothing to do"; break ;;
     *) echo "unexpected answer: $(echo "$cur" | head -c 200)" ;;
   esac
   sleep 10

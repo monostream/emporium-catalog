@@ -16,6 +16,9 @@ config:
   serverHostname: ""
   # First mail domain, created at the first start.
   defaultDomain: example.org
+  # How long an address stays banned after too many failed logins, abuse or scans (minutes).
+  # Stalwart's own default is "forever".
+  banPeriodMinutes: 60
 
 # Administrator (STALWART_RECOVERY_ADMIN=<username>:<password>). The account works
 # at any time, also when the directory is empty; it is how you sign in to the web admin.

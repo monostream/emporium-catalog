@@ -20,13 +20,15 @@ inputs:
     default: admin
     required: true
     installOnly: true
-    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$'
+    # Stalwart lowercases the user name of every login, so a name with capitals could never sign in.
+    pattern: '^[a-z0-9][a-z0-9._-]{1,31}$'
     section: admin
     path: admin.username
   AdminPassword:
     label: Administrator password
-    description: Leave empty to generate one (stored in the app's Secret).
+    description: Leave empty to generate one (stored in the app's Secret). The running server keeps the password it started with; to rotate it, update the Secret and restart the pod.
     type: secret
+    installOnly: true
     generate: { length: 24, charset: alnum }
     pattern: '^[0-9A-Za-z]{12,128}$'
     section: admin
@@ -36,8 +38,11 @@ integrations:
   web:
     type: ingress
     access: { default: authenticated }
-    # Mail clients and DAV/JMAP clients authenticate with their own credentials.
-    skipPaths: [/.well-known/*, /jmap/*, /dav/*, /autodiscover/*, /mail/config-v1.1.xml, /auth/*, /api/discover]
+    # Discovery and client configuration only. /jmap/* and /dav/* are NOT skipped: POST /jmap/
+    # also dispatches the management methods (x:Account/set, x:SystemSettings/set) and the
+    # administrator can use Basic auth there, so skipping it would let any admin credential
+    # manage the server without an Emporium session. /api/discover/<account> is not skipped either.
+    skipPaths: [/.well-known/*, /autodiscover/*, /mail/config-v1.1.xml, /auth/*]
     bind:
       Hostname: ingress.host
       Annotations: ingress.annotations
