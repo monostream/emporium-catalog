@@ -1,3 +1,9 @@
+# 1.1.4
+
+Published on 22 October 2026
+
+- ghost from 6.71.0 to 6.72.0
+
 # 1.1.3
 
 Published on 21 October 2026
