@@ -4,6 +4,10 @@ gitea:
 
   image:
     # Gitea 28 (the chart 12.7.0 default is 1.27.0); the chart appends -rootless.
+    # Registry and repository are set explicitly (same values as the subchart default,
+    # docker.gitea.com/gitea) so `emporium chart updates` can resolve the image.
+    registry: ""
+    repository: docker.gitea.com/gitea
     tag: "28.2.0"
 
   resources:

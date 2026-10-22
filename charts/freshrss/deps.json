@@ -4,18 +4,10 @@
     "name": "freshrss",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "value:image.tag",
-    "changelogPath": "./chart"
-  },
-  {
-    "provider": "dockerhub",
-    "name": "freshrss",
-    "repo": "freshrss/freshrss",
-    "currentTag": "1.30.4",
-    "range": "<100.0.0",
-    "allowPrerelease": false,
     "imageTagPaths": [
       "image.tag"
-    ]
+    ],
+    "appVersionMapping": "value:image.tag",
+    "changelogPath": "./chart"
   }
 ]

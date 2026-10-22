@@ -5,14 +5,7 @@
     "repo": "./chart",
     "allowPrerelease": false,
     "appVersionMapping": "value:porter.image.tag",
-    "changelogPath": "./chart"
-  },
-  {
-    "provider": "dockerhub",
-    "name": "porter",
-    "repo": "porter1/porter",
-    "currentTag": "v0.52.56",
-    "allowPrerelease": false,
+    "changelogPath": "./chart",
     "imageTagPaths": [
       "porter.image.tag"
     ]

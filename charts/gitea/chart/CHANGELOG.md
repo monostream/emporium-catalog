@@ -1,3 +1,9 @@
+# 0.2.1
+
+Published on 22 October 2026
+
+- The app image repository is set explicitly in the values (same image as before) so `emporium chart updates` can resolve and bump it.
+
 # 0.2.0
 
 Published on 20 October 2026

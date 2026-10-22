@@ -4,17 +4,10 @@
     "name": "gitea",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "value:gitea.image.tag",
-    "changelogPath": "./chart"
-  },
-  {
-    "provider": "docker",
-    "name": "gitea",
-    "repo": "docker.gitea.com/gitea",
-    "currentTag": "28.2.0",
-    "allowPrerelease": false,
     "imageTagPaths": [
       "gitea.image.tag"
-    ]
+    ],
+    "appVersionMapping": "value:gitea.image.tag",
+    "changelogPath": "./chart"
   }
 ]
