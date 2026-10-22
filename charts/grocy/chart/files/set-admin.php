@@ -34,31 +34,6 @@ foreach (CHART_OWNED as $name) {
     }
 }
 
-// The web runtime also gets environment from PHP-FPM pool files on the volume (the image includes
-// /config/php/*.conf, with clear_env = no). Strip GROCY_* and FILE__* env lines so they cannot inject
-// settings that this check does not see.
-foreach (glob('/config/php/*.conf') ?: [] as $conf) {
-    $lines = file($conf);
-    if ($lines === false) {
-        fwrite(STDERR, "cannot read $conf\n");
-        exit(1);
-    }
-    $kept = [];
-    foreach ($lines as $line) {
-        // Normalise like PHP-FPM's ini parser would see it: drop quotes and whitespace, ignore case.
-        $norm = strtolower(preg_replace('/[\s"\']+/', '', $line));
-        if (strncmp($norm, 'env[', 4) === 0 && (strpos($norm, 'grocy_') !== false || strpos($norm, 'file__') !== false)) {
-            echo "removed env line for " . trim(strstr($line, '=', true) ?: $line) . " from $conf (chart-owned)\n";
-            continue;
-        }
-        $kept[] = $line;
-    }
-    if (count($kept) !== count($lines) && file_put_contents($conf, implode('', $kept)) === false) {
-        fwrite(STDERR, "cannot rewrite $conf\n");
-        exit(1);
-    }
-}
-
 // Same first-start layout the image creates (config.php from config-dist.php).
 if (!is_dir(GROCY_DATAPATH) && !mkdir(GROCY_DATAPATH, 0775, true)) {
     fwrite(STDERR, "cannot create " . GROCY_DATAPATH . "\n");

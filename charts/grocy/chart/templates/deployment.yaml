@@ -25,6 +25,7 @@ spec:
         {{- include "chart.labels" . | nindent 8 }}
       annotations:
         checksum/init: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/php: {{ include (print $.Template.BasePath "/php-configmap.yaml") . | sha256sum }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -57,6 +58,7 @@ spec:
           volumeMounts:
             - { name: init, mountPath: /emporium-init, readOnly: true }
             - { name: config, mountPath: /config }
+            - { name: php, mountPath: /config/php, readOnly: true }
           resources:
             requests: { cpu: 50m, memory: 128Mi }
             limits: { memory: 384Mi }
@@ -71,6 +73,7 @@ spec:
               value: {{ .Values.timezone | quote }}
             # Grocy's header (reverse proxy) login is not enabled: see the README. The init container
             # removes persisted overrides of this setting and refuses to start if the effective value differs.
+            # PHP-FPM and php.ini settings come from the read-only ConfigMap mounted at /config/php.
             - name: GROCY_AUTH_CLASS
               value: Grocy\Middleware\Auth\DefaultAuthMiddleware
             {{- with .Values.extraEnv }}
@@ -90,9 +93,14 @@ spec:
             httpGet: { path: /login, port: http }
           volumeMounts:
             - { name: config, mountPath: /config }
+            # Chart-owned PHP configuration shadows /config/php on the volume (see the README).
+            - { name: php, mountPath: /config/php, readOnly: true }
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
+        - name: php
+          configMap:
+            name: {{ include "chart.fullname" . }}-php
         - name: init
           configMap:
             name: {{ include "chart.fullname" . }}-init
