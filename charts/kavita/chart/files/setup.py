@@ -10,8 +10,9 @@ Idempotent. Talks to Kavita on localhost, never through the ingress.
   4. writes READY_FILE (a per-pod emptyDir); the pod's readiness probe tests it,
      so the Service gets no endpoint before the administrator exists
 If the administrator exists but the Secret's password no longer works (it was
-changed in Kavita), the account is taken over by its owner: setup only reports
-ready and leaves the settings alone.
+changed in Kavita), the account is taken over by its owner: setup reports ready
+and leaves the settings alone, but only when a marker on the config volume shows
+that the settings were applied once; otherwise it stays unready and retries.
 Credentials come from the environment; nothing is printed except status lines.
 """
 import json
@@ -29,11 +30,19 @@ AUTO_LOGIN = os.environ.get("OIDC_AUTO_LOGIN") == "1"
 LIBRARY_DIR = os.environ.get("LIBRARY_DIR", "/data/library")
 MARKER = os.environ.get("MARKER", "/config/.emporium-setup-done")
 READY_FILE = os.environ.get("READY_FILE", "/status/ready")
+# Persistent proof that the settings were applied once (on the config volume).
+APPLIED = os.environ.get("APPLIED_MARKER", "/config/.emporium-settings-applied")
 DEFAULT_ROLES = ["Login", "Pleb", "Download"]
 
 
 def log(msg):
     print("setup: " + msg, flush=True)
+
+
+class HttpError(RuntimeError):
+    def __init__(self, msg, code):
+        super().__init__(msg)
+        self.code = code
 
 
 def call(method, path, body=None, token=None, ok=(200,)):
@@ -53,7 +62,7 @@ def call(method, path, body=None, token=None, ok=(200,)):
         detail = ""
         if not path.startswith("/api/account/"):
             detail = ": " + raw.decode(errors="replace")[:300]
-        raise RuntimeError("%s %s -> HTTP %s%s" % (method, path, code, detail))
+        raise HttpError("%s %s -> HTTP %s%s" % (method, path, code, detail), code)
     try:
         return json.loads(raw) if raw else None
     except ValueError:
@@ -74,8 +83,9 @@ def sign_in():
     """Returns a token, or None when an administrator exists but our password no longer works."""
     try:
         return call("POST", "/api/account/login", {"username": USER, "password": PASSWORD})["token"]
-    except RuntimeError:
-        pass
+    except HttpError as e:
+        if e.code >= 500:
+            raise  # server trouble is not a wrong password: retry
     if call("GET", "/api/admin/exists") is True:
         return None
     # Unknown user: this is the first start, register the first administrator.
@@ -114,8 +124,11 @@ def apply():
     wait_ready()
     token = sign_in()
     if token is None:
-        log("the administrator exists and its password was changed: leaving the settings to its owner")
-        return
+        if os.path.exists(APPLIED):
+            log("the administrator exists and its password was changed: leaving the settings to its owner")
+            return
+        # An administrator exists but the settings were never applied (partial first start).
+        raise RuntimeError("the administrator exists, the login fails and the settings were never applied; retrying")
     settings = call("GET", "/api/settings", token=token)
     before = json.dumps(settings, sort_keys=True)
 
@@ -144,6 +157,10 @@ def apply():
         log("settings applied")
     else:
         log("settings already up to date")
+    try:
+        open(APPLIED, "w").close()
+    except OSError as e:
+        log("cannot write the marker: %s" % e)
     if first:
         try:
             open(MARKER, "w").close()

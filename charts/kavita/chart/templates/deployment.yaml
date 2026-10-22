@@ -142,6 +142,8 @@ spec:
               value: /data
             - name: MARKER
               value: /kavita/config/.emporium-setup-done
+            - name: APPLIED_MARKER
+              value: /kavita/config/.emporium-settings-applied
             - name: READY_FILE
               value: /status/ready
           # The pod, and so the Service endpoint, is ready only after the administrator exists:
