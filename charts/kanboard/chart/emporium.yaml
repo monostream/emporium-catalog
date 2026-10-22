@@ -1,0 +1,64 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: admin, label: Local administrator, description: "Kanboard has its own accounts and login page behind the Emporium login. This account is created at the first start; it replaces Kanboard's well-known default admin/admin before the first request is served." }
+
+inputs:
+  AdminPassword:
+    label: Administrator password
+    description: At least 8 printable ASCII characters without spaces. Leave empty to generate one (stored in the app's Secret). Used only while the account still has Kanboard's default password; change it later in Kanboard.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[\x21-\x7E]{8,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The JSON-RPC API (mobile apps, scripts, integrations) authenticates with a
+    # Kanboard user password or the application API token.
+    skipPaths: [/jsonrpc.php]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  files:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: storage.files.existingClaim
+  db:
+    type: postgres
+    database: kanboard
+    owner: kanboard
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+    secretKeys:
+      # Kanboard's own URL parser only knows the scheme "postgres", the integration's
+      # URIs use "postgresql", so the pieces go in separate variables.
+      DB_USERNAME: username
+      DB_PASSWORD: password
+      DB_HOSTNAME: host
+      DB_PORT: port
+      DB_NAME: dbname
+
+components:
+  app:
+    label: Kanboard
+    resources: resources
+    replicas: { fixed: 1, reason: "Attachments live on a single volume and the daily cron job runs inside the pod" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team of up to a few dozen people
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
