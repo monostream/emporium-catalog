@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-bootstrap
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  bootstrap.php: |
+    <?php
+    // Replaces BookStack's seeded administrator (admin@admin.com / password) with the
+    // configured account and exits non-zero (the pod never starts) when the new password is missing,
+    // too short or the public default. Does nothing when the seeded account is gone or its password changed.
+    require '/var/www/bookstack/vendor/autoload.php';
+    $app = require '/var/www/bookstack/bootstrap/app.php';
+    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+    $user = BookStack\Users\Models\User::query()->where('email', 'admin@admin.com')->first();
+    if (!$user) {
+        echo "bootstrap: default administrator not present, nothing to do\n";
+        exit(0);
+    }
+    if (!Illuminate\Support\Facades\Hash::check('password', $user->password)) {
+        echo "bootstrap: default administrator password already changed, leaving it\n";
+        exit(0);
+    }
+    $password = getenv('ADMIN_PASSWORD');
+    if ($password === false || strlen($password) < 8) {
+        fwrite(STDERR, "bootstrap: ADMIN_PASSWORD missing or shorter than 8 characters, refusing to start\n");
+        exit(1);
+    }
+    if ($password === 'password') {
+        fwrite(STDERR, "bootstrap: ADMIN_PASSWORD must not be the public default password, refusing to start\n");
+        exit(1);
+    }
+    if (!filter_var(getenv('ADMIN_EMAIL'), FILTER_VALIDATE_EMAIL)) {
+        fwrite(STDERR, "bootstrap: ADMIN_EMAIL is not a valid email address, refusing to start\n");
+        exit(1);
+    }
+    $user->name = getenv('ADMIN_NAME');
+    $user->email = getenv('ADMIN_EMAIL');
+    $user->password = Illuminate\Support\Facades\Hash::make($password);
+    $user->save();
+    echo "bootstrap: default administrator replaced\n";

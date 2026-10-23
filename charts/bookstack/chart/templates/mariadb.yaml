@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.mariadb.fullname" . }}
+  labels:
+    {{- include "chart.mariadb.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 3306
+      targetPort: mysql
+      protocol: TCP
+      name: mysql
+  selector:
+    {{- include "chart.mariadb.selectorLabels" . | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.mariadb.fullname" . }}
+  labels:
+    {{- include "chart.mariadb.labels" . | nindent 4 }}
+spec:
+  # Single MySQL server; the data claim is ReadWriteOnce.
+  replicas: 1
+  serviceName: {{ include "chart.mariadb.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "chart.mariadb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.mariadb.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.mariadb.podSecurityContext | nindent 8 }}
+      containers:
+        - name: mysql
+          securityContext:
+            {{- toYaml .Values.mariadb.securityContext | nindent 12 }}
+          image: "{{ .Values.mariadb.image.repository }}:{{ .Values.mariadb.image.tag }}"
+          imagePullPolicy: {{ .Values.mariadb.image.pullPolicy }}
+          env:
+            # Applied by the image entrypoint only when the data directory is empty (first start).
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.auth.existingSecret | quote }}
+                  key: {{ .Values.mariadb.auth.rootPasswordKey | quote }}
+            - name: MARIADB_DATABASE
+              value: {{ .Values.mariadb.database | quote }}
+            - name: MARIADB_USER
+              value: {{ .Values.mariadb.user | quote }}
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.auth.existingSecret | quote }}
+                  key: {{ .Values.mariadb.auth.passwordKey | quote }}
+          args:
+            {{- toYaml .Values.mariadb.args | nindent 12 }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          startupProbe:
+            # The entrypoint's init server listens on the socket only, so TCP ping
+            # succeeds once the real server is up.
+            exec:
+              command: ["mariadb-admin", "ping", "-h", "127.0.0.1", "--silent"]
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            exec:
+              command: ["mariadb-admin", "ping", "-h", "127.0.0.1", "--silent"]
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["mariadb-admin", "ping", "-h", "127.0.0.1", "--silent"]
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.mariadb.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.mariadb.storage.existingClaim | default (printf "%s-mariadb" (include "chart.fullname" .)) }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
