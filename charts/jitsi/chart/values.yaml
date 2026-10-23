@@ -6,7 +6,7 @@ fullnameOverride: ""
 # Official docker-jitsi-meet images; all four use the same release tag.
 image:
   registry: ghcr.io/jitsi
-  tag: "stable-11248"
+  tag: "stable-11248-1"
   pullPolicy: IfNotPresent
 
 config:

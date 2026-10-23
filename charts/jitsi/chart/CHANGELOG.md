@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 23 October 2026
+
+- jitsi from stable-11248 to stable-11248-1 (docker-jitsi-meet rebuild: custom CA support, prosody mod_filter_direct_messages, s6 shutdown fixes)
+
 # 0.1.0
 
 - New chart: Jitsi Meet (docker-jitsi-meet release stable-11248, official images `ghcr.io/jitsi/{web,prosody,jicofo,jvb}`), requires Emporium v0.5.0.
