@@ -2,8 +2,8 @@ apiVersion: v2
 name: documenso
 description: Open-source document signing, a self-hosted DocuSign alternative
 type: application
-version: 0.3.1
-appVersion: "v2.21.0"
+version: 0.3.2
+appVersion: "v2.21.1"
 home: https://documenso.com/
 icon: https://github.com/documenso/documenso/blob/main/apps/marketing/public/android-chrome-192x192.png?raw=true
 sources:
