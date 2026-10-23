@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 23 October 2026
+
+- synapse from v1.163.0 to v1.163.1
+
 # 0.1.0
 
 - New chart: Matrix with Synapse v1.163.0 (`ghcr.io/element-hq/synapse`) and Element Web v1.12.32 (`ghcr.io/element-hq/element-web`) on one host; Element's nginx forwards `/_matrix`, `/_synapse` and `/.well-known/matrix` to Synapse. Requires Emporium v0.5.0.

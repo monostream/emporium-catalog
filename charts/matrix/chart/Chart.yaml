@@ -2,8 +2,8 @@ apiVersion: v2
 name: matrix
 description: Matrix chat server (Synapse) with the Element web client
 type: application
-version: 0.1.0
-appVersion: "v1.163.0"
+version: 0.1.1
+appVersion: "v1.163.1"
 home: https://matrix.org/
 icon: https://raw.githubusercontent.com/element-hq/element-web/v1.12.32/apps/web/res/img/element-desktop-logo.svg
 sources:
