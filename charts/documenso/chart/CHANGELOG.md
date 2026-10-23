@@ -1,3 +1,9 @@
+# 0.3.2
+
+Published on 23 October 2026
+
+- documenso from v2.21.0 to v2.21.1
+
 # 0.3.1
 - Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.5, 2026-10-20).
 

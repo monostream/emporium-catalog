@@ -101,7 +101,7 @@ integrations:
     type: ingress
     access: { default: authenticated }
     # The Langfuse SDKs, OpenTelemetry exporters and the public REST/MCP API authenticate with the
-    # project's API keys (basic auth), not a browser session. Listed one by one (4.67.0 routes) so
+    # project's API keys (basic auth), not a browser session. Listed one by one (4.68.0 routes) so
     # /api/public/health and /api/public/ready, which need no key and report status, stay behind the login.
     skipPaths:
       - "/api/public/annotation-queues*"

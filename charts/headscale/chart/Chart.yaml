@@ -2,7 +2,7 @@ apiVersion: v2
 name: headscale
 description: Self-hosted Tailscale control server with the Headplane web UI.
 type: application
-version: 0.2.3
+version: 0.2.4
 appVersion: "v0.29.5"
 home: https://headscale.net/
 icon: https://github.com/juanfont/headscale/blob/main/docs/logo/headscale3-dots.png?raw=true

@@ -1,3 +1,9 @@
+# 1.2.1
+
+Published on 23 October 2026
+
+- penpot (backend, frontend, exporter) from 2.18.3 to 2.18.4
+
 # 1.2.0
 
 Published on 20 October 2026

@@ -30,7 +30,7 @@ web:
     repository: ghcr.io/tale/headplane
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "0.8.1"
+    tag: "0.8.2"
   resources:
     requests:
       cpu: 20m

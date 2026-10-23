@@ -2,8 +2,8 @@ apiVersion: v2
 name: jitsi
 description: Secure, self-hosted video conferencing (Jitsi Meet) with a Jitsi Videobridge
 type: application
-version: 0.1.0
-appVersion: "stable-11248"
+version: 0.1.1
+appVersion: "stable-11248-1"
 home: https://jitsi.org/jitsi-meet/
 icon: https://raw.githubusercontent.com/jitsi/jitsi-meet/master/images/favicon.svg
 sources:

@@ -1,3 +1,9 @@
+# 0.2.4
+
+Published on 23 October 2026
+
+- headplane from 0.8.1 to 0.8.2
+
 # 0.2.3
 
 Published on 22 October 2026

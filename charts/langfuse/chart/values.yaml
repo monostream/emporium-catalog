@@ -6,7 +6,7 @@ fullnameOverride: ""
 web:
   image:
     repository: langfuse/langfuse
-    tag: "4.67.0"
+    tag: "4.68.0"
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -18,7 +18,7 @@ web:
 worker:
   image:
     repository: langfuse/langfuse-worker
-    tag: "4.67.0"
+    tag: "4.68.0"
     pullPolicy: IfNotPresent
   resources:
     requests:

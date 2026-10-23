@@ -6,7 +6,7 @@ fullnameOverride: ""
 synapse:
   image:
     repository: ghcr.io/element-hq/synapse
-    tag: "v1.163.0"
+    tag: "v1.163.1"
     pullPolicy: IfNotPresent
   # Matrix server name = public host name (server_name). It is part of every user id
   # (@alice:host) and cannot change after the first start. Filled from the ingress.
