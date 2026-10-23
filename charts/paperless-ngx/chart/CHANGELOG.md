@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 23 October 2026
+
+- paperless-ngx from 3.3.3 to 3.3.4
+
 # 0.1.0
 
 - New chart: Paperless-ngx 3.3.3 (official image `ghcr.io/paperless-ngx/paperless-ngx`), requires Emporium v0.5.0.
