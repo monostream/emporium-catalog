@@ -1,3 +1,9 @@
+# 0.2.2
+
+Published on 23 October 2026
+
+- alloy from 1.14.1 to 1.14.2
+
 # 0.2.1
 
 Published on 22 October 2026
