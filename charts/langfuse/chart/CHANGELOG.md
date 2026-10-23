@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 23 October 2026
+
+- langfuse (web and worker) from 4.67.0 to 4.68.0
+
 # 0.1.0
 
 - New chart: Langfuse 4.67.0 (official images `langfuse/langfuse` and `langfuse/langfuse-worker`, MIT core), requires Emporium v0.5.0.
