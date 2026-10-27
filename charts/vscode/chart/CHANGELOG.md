@@ -1,3 +1,10 @@
+# 0.2.2
+
+Published on 27 October 2026
+
+- Node.js from 20 (EOL) to 24.22.1 (October 2026 security release)
+- Restart the pod on chart upgrade so the rebuilt image is pulled
+
 # 0.2.1
 
 Published on 22 October 2026
