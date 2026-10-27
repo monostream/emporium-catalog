@@ -1,3 +1,10 @@
+# 0.1.2
+
+Published on 27 October 2026
+
+- langfuse from 4.68.0 to 4.70.1
+- langfuse-worker from 4.68.0 to 4.70.1
+
 # 0.1.1
 
 Published on 23 October 2026

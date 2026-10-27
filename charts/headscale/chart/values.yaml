@@ -17,14 +17,11 @@ oidc:
   # `groups` claim that Logto does not issue (Emporium roles are in the `roles` claim).
   allowedDomains: []
   allowedUsers: []
-
 # Secret holding COOKIE_SECRET (32 characters) for the Headplane UI (Emporium: the per-app Secret).
 cookie:
   existingSecret: ""
-
 job:
   image: alpine/k8s:1.31.4
-
 web:
   image:
     repository: ghcr.io/tale/headplane
@@ -49,7 +46,7 @@ app:
     repository: headscale/headscale
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.29.5"
+    tag: "v0.29.6"
   domain: ""
   zone:
   config: |

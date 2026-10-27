@@ -1,17 +1,14 @@
 wiki:
   image:
     repository: requarks/wiki
-    tag: "2.5.316"
-
+    tag: "2.5.317"
   ingress:
     enabled: false
     className: ""
-
   # Emporium provides PostgreSQL (postgres integration); the bundled
   # PostgreSQL StatefulSet of the Wiki.js chart stays off.
   postgresql:
     enabled: false
-
   externalPostgresql:
     host: ""
     port: 5432
@@ -20,13 +17,11 @@ wiki:
     existingSecret: ""
     existingSecretKey: password
     ssl: true
-
   nodeExtraCaCerts: /etc/ssl/postgres/ca.crt
   volumeMounts:
     - name: postgres-ca
       mountPath: /etc/ssl/postgres
       readOnly: true
-
   resources:
     requests:
       cpu: 50m

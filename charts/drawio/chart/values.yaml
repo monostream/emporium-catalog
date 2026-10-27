@@ -6,7 +6,7 @@ replicaCount: 1
 image:
   repository: jgraph/drawio
   pullPolicy: IfNotPresent
-  tag: "32.5.5"
+  tag: "32.6.1"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -47,9 +47,7 @@ serviceAccount:
   create: false
   annotations: {}
   name: ""
-
 podAnnotations: {}
-
 # The image runs Tomcat as tomcat (UID 1001, GID 999). Its entrypoint writes the DRAWIO_*
 # configuration into the webapp at start, so the root filesystem stays writable.
 podSecurityContext:
@@ -58,17 +56,14 @@ podSecurityContext:
   runAsGroup: 999
   seccompProfile:
     type: RuntimeDefault
-
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop:
       - ALL
-
 service:
   type: ClusterIP
   port: 8080
-
 ingress:
   enabled: false
   className: ""
@@ -79,16 +74,12 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
-
 resources:
   requests:
     cpu: 50m
     memory: 256Mi
   limits:
     memory: 768Mi
-
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}

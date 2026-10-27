@@ -1,3 +1,9 @@
+# 0.1.2
+
+Published on 27 October 2026
+
+- stirling-pdf from 3.2.1 to 3.2.2
+
 # 0.1.1
 
 Published on 22 October 2026
