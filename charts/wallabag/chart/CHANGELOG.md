@@ -1,3 +1,9 @@
+# 0.1.2
+
+Published on 27 October 2026
+
+- wallabag from 2.6.14 to 2.6.14.1
+
 # 0.1.1
 
 Published on 22 October 2026

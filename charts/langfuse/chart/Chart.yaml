@@ -2,8 +2,8 @@ apiVersion: v2
 name: langfuse
 description: Open-source LLM engineering platform - tracing, evaluation and prompt management
 type: application
-version: 0.1.1
-appVersion: "4.68.0"
+version: 0.1.2
+appVersion: "4.70.1"
 home: https://langfuse.com/
 icon: https://raw.githubusercontent.com/langfuse/langfuse/main/web/public/icon.svg
 sources:

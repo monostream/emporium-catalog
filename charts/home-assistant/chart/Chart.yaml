@@ -2,8 +2,8 @@ apiVersion: v2
 name: home-assistant
 description: Open-source home automation that puts local control and privacy first, with thousands of integrations
 type: application
-version: 0.1.0
-appVersion: "2026.10.2"
+version: 0.1.1
+appVersion: "2026.10.4"
 home: https://www.home-assistant.io/
 icon: https://raw.githubusercontent.com/home-assistant/assets/master/logo/home-assistant-logo.svg
 sources:

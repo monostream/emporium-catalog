@@ -1,3 +1,9 @@
+# 0.2.3
+
+Published on 27 October 2026
+
+- Code Server from v4.141.0 to v4.143.1
+
 # 0.2.2
 
 Published on 27 October 2026

@@ -2,8 +2,8 @@ apiVersion: v2
 name: stirling-pdf
 description: Self-hosted PDF toolbox - merge, split, convert, compress, sign, redact and more (MIT, ultra-lite build)
 type: application
-version: 0.1.1
-appVersion: "3.2.1"
+version: 0.1.2
+appVersion: "3.2.2"
 home: https://www.stirlingpdf.com/
 icon: https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/app/core/src/main/resources/static/favicon.svg
 sources:

@@ -2,31 +2,25 @@
 # through emporium.yaml (bind, inputs) and values.emporium.yaml.
 nameOverride: ""
 fullnameOverride: ""
-
 image:
   repository: ghcr.io/open-webui/open-webui
-  tag: "v0.12.3"
+  tag: "0.12.4"
   pullPolicy: IfNotPresent
-
 service:
   port: 8080
-
 config:
   # Public URL of the instance (WEBUI_URL, OIDC redirect base), e.g. https://chat.example.com
   baseUrl: ""
   # Base URL of an Ollama server, e.g. http://ollama.ollama.svc:11434. Empty disables
   # the Ollama connection (OpenAI-compatible backends can still be added in the UI).
   ollamaBaseUrl: ""
-
 # Existing PersistentVolumeClaim for /app/backend/data (uploads, vector store, caches).
 persistence:
   existingClaim: ""
-
 # Secret holding WEBUI_SECRET_KEY (session signing) under secretKey.
 secret:
   existingSecret: ""
   secretKey: WEBUI_SECRET_KEY
-
 # Local administrator, created at the first start when the database has no users.
 admin:
   email: admin@emporium.local
@@ -34,7 +28,6 @@ admin:
   # Secret and key holding the password.
   existingSecret: ""
   passwordKey: ADMIN_PASSWORD
-
 # OpenID Connect login ("Continue with <providerName>").
 oidc:
   enabled: false
@@ -49,15 +42,12 @@ oidc:
   adminRole: emporium-admin
   # Create an account at the first single sign-on.
   signup: true
-
 # PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
 database:
   existingSecret: ""
   urlKey: DATABASE_URL
-
 # Additional environment variables (see https://docs.openwebui.com/reference/env-configuration).
 extraEnv: []
-
 # Filled by Emporium through the `web` ingress integration.
 ingress:
   enabled: true
@@ -69,14 +59,12 @@ ingress:
   # Chat uploads and long streamed answers.
   proxyBodySize: 100m
   proxyReadTimeout: "600"
-
 resources:
   requests:
     cpu: 200m
     memory: 1Gi
   limits:
     memory: 3Gi
-
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
@@ -88,7 +76,6 @@ securityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop: [ALL]
-
 nodeSelector: {}
 tolerations: []
 affinity: {}

@@ -1,3 +1,9 @@
+# 0.2.2
+
+Published on 27 October 2026
+
+- forgejo chart from 17.3.1 to 17.3.2 (Forgejo 15.0.11)
+
 # 0.2.1
 
 Published on 22 October 2026

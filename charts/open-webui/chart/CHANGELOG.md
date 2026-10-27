@@ -1,3 +1,9 @@
+# 0.1.2
+
+Published on 27 October 2026
+
+- open-webui from v0.12.3 to 0.12.4
+
 # 0.1.1
 
 - Users whose token carries no roles claim are created as `pending` (fail closed) instead of regular users; README explains revocation.

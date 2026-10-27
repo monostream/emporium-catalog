@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 27 October 2026
+
+- home-assistant from 2026.10.2 to 2026.10.4
+
 # 0.1.0
 
 - New chart: Home Assistant Core 2026.10.2 (Apache-2.0) from the official image `ghcr.io/home-assistant/home-assistant`, requires Emporium v0.5.0.

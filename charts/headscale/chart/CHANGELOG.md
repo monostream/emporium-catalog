@@ -1,3 +1,9 @@
+# 0.2.5
+
+Published on 27 October 2026
+
+- headscale from v0.29.5 to v0.29.6
+
 # 0.2.4
 
 Published on 23 October 2026

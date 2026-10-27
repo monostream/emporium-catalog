@@ -1,3 +1,9 @@
+# 0.1.2
+
+Published on 27 October 2026
+
+- synapse from v1.163.1 to v1.163.2
+
 # 0.1.1
 
 Published on 23 October 2026
