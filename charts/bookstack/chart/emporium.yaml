@@ -1,0 +1,86 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Local administrator, description: "BookStack ships an administrator with the public default login admin@admin.com / password. Emporium replaces it at the first start with the values below. BookStack has no single sign-on that works with Emporium, so everyone signs in with a BookStack account." }
+  - { id: database, label: Database, description: "Generated at install. MariaDB applies them only on its first start; changing them later breaks the connection." }
+
+inputs:
+  AdminEmail:
+    label: Administrator email
+    description: Sign-in name of the local administrator. Used only when the account is created.
+    type: string
+    default: admin@example.org
+    required: true
+    installOnly: true
+    pattern: '^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$'
+    section: admin
+    path: admin.email
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret), at least 8 characters if you set one; "password" is refused. Used only when the account is created; change it later in BookStack.
+    type: secret
+    pattern: '^.{8,}$'
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  AppKey:
+    label: Application key
+    description: Encrypts sessions and cookies. Generated at install and kept stable.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    section: database
+    ref: { namePath: app.existingSecret, keyPath: app.keyKey }
+  DatabasePassword:
+    label: MariaDB password (BookStack user)
+    type: secret
+    section: database
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: mariadb.auth.existingSecret, keyPath: mariadb.auth.passwordKey }
+  DatabaseRootPassword:
+    label: MariaDB root password
+    type: secret
+    section: database
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: mariadb.auth.existingSecret, keyPath: mariadb.auth.rootPasswordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The REST API (/api/docs lists it) authenticates with API tokens (Authorization: Token id:secret).
+    skipPaths: [/api/*]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  uploads:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+  dbdata:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: mariadb.storage.existingClaim
+
+components:
+  app:
+    label: BookStack
+    resources: resources
+    replicas: { fixed: 1, reason: "Uploads live on a ReadWriteOnce volume and database migrations run at every start" }
+    match: { kind: Deployment }
+  mariadb:
+    label: MariaDB
+    resources: mariadb.resources
+    replicas: { fixed: 1, reason: "Single MariaDB server on a ReadWriteOnce volume" }
+    match: { kind: StatefulSet }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team wiki with up to a few thousand pages
+    values: profiles/small.yaml

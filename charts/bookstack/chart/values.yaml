@@ -1,0 +1,117 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+# BookStack publishes no container image. solidnerd/bookstack is the community image
+# linked from the BookStack documentation: MIT, PHP + Apache, runs as www-data (33) on port 8080.
+image:
+  repository: solidnerd/bookstack
+  tag: "26.9.2"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080
+
+config:
+  # Public URL of the instance (APP_URL), e.g. https://wiki.example.com
+  appUrl: ""
+
+# Local administrator. BookStack seeds admin@admin.com / password; when existingSecret is set
+# an init container replaces that account (only while it still has the default password).
+admin:
+  name: Admin
+  email: admin@example.org
+  existingSecret: ""
+  passwordKey: AdminPassword
+
+# Application key (APP_KEY, 32 characters).
+app:
+  existingSecret: ""
+  keyKey: AppKey
+
+mariadb:
+  image:
+    repository: mariadb
+    pullPolicy: IfNotPresent
+    # 11.4 LTS
+    tag: "11.4.13"
+  database: bookstack
+  user: bookstack
+  auth:
+    existingSecret: ""
+    passwordKey: DatabasePassword
+    rootPasswordKey: DatabaseRootPassword
+  args:
+    - --innodb-buffer-pool-size=128M
+    - --character-set-server=utf8mb4
+    - --collation-server=utf8mb4_unicode_ci
+  # The official image runs mariadbd as user mysql (999).
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    fsGroup: 999
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  resources:
+    requests:
+      cpu: 50m
+      memory: 192Mi
+    limits:
+      memory: 512Mi
+  storage:
+    storageClass: ""
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 5Gi
+
+# Uploads (images, attachments) at public/uploads and storage/uploads.
+persistence:
+  storageClass: ""
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 5Gi
+
+# Additional environment variables (see BookStack's .env.example.complete).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+# www-data. The image keeps the application, caches and logs below /var/www/bookstack, owned by 33.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 33
+  runAsGroup: 33
+  fsGroup: 33
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
