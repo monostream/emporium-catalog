@@ -2,8 +2,8 @@ apiVersion: v2
 name: etherpad
 description: Real-time collaborative editor for documents and notes
 type: application
-version: 0.1.0
-appVersion: "3.3.9"
+version: 0.1.1
+appVersion: "3.3.11"
 home: https://etherpad.org/
 icon: https://raw.githubusercontent.com/ether/etherpad/develop/src/etherpad_icon.svg
 sources:
@@ -21,4 +21,4 @@ annotations:
     assets/screenshot-1.webp
     assets/screenshot-2.webp
   emporiumVersion: "0.5.0"
-  emporium.build/tested: "0.5.0-rc.12 2026-10-21"
+  emporium.build/tested: "0.5.0-rc.13 2026-10-27"
