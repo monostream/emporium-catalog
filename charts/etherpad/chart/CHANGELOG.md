@@ -1,3 +1,9 @@
+# 0.1.1
+
+Published on 27 October 2026
+
+- etherpad from 3.3.9 to 3.3.11: Node.js 24.22.1 (CVE-2026-111497, brotli decoder out-of-bounds write) and a fix for clients without an author token sharing one author (GHSA-746x-9w89-7xv6).
+
 # 0.1.0
 
 - New chart: Etherpad 3.3.9 (official image `etherpad/etherpad`), requires Emporium v0.5.0.
