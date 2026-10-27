@@ -1,0 +1,93 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+server:
+  image:
+    repository: woodpeckerci/woodpecker-server
+    tag: "v3.19.0"
+    pullPolicy: IfNotPresent
+  # Public URL of the instance (WOODPECKER_HOST).
+  host: ""
+  # Forge usernames that are Woodpecker administrators (WOODPECKER_ADMIN).
+  admins: ""
+  # Every user of the forge may log in (WOODPECKER_OPEN).
+  open: false
+  logLevel: info
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      memory: 384Mi
+
+agent:
+  image:
+    repository: woodpeckerci/woodpecker-agent
+    tag: "v3.19.0"
+    pullPolicy: IfNotPresent
+  # Workflows the agent runs at the same time (WOODPECKER_MAX_WORKFLOWS).
+  maxWorkflows: 2
+  # Size and class of the per-workflow volume pipelines share between steps.
+  workspaceVolumeSize: 10Gi
+  workspaceStorageClass: ""
+  # Request ReadWriteMany for the workflow volume (needs an RWX storage class).
+  workspaceRWX: false
+  # Claim keeping the agent id (/etc/woodpecker/agent.conf) across restarts.
+  persistence:
+    claimName: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+# Forge (Forgejo, Gitea, GitLab, GitHub). Users log in with it; there is no generic OIDC.
+forge:
+  type: forgejo
+  url: ""
+  # Client id of the OAuth2 application created in the forge.
+  clientId: ""
+
+# Secrets, both in one Secret (set by Emporium).
+secrets:
+  name: ""
+  agentSecretKey: AgentSecret
+  forgeSecretKey: ForgeSecret
+
+# PostgreSQL through the postgres integration (CloudNativePG).
+database:
+  # Secret holding a postgres:// connection URL.
+  existingSecret: ""
+  urlKey: DATABASE_URL
+
+# Additional environment variables for the server (https://woodpecker-ci.org/docs/administration/configuration/server).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,8 +1,8 @@
 apiVersion: v2
 name: forgejo-runner
-description: Forgejo Actions Runner orchestrates and scales self-hosted runners for Gittea Actions
-version: 0.0.70
-appVersion: 3.3.0
+description: Forgejo Actions Runner orchestrates and scales self-hosted runners for Forgejo Actions
+version: 0.1.1
+appVersion: "13.2.0"
 icon: https://raw.githubusercontent.com/monostream/test-charts/main/assets/forgejo/forgejo_icon_3.svg
 sources:
   - https://codeberg.org/wrenix/helm-charts/src/branch/main/forgejo-runner
@@ -14,3 +14,4 @@ annotations:
   displayName: Forgejo Actions Runner
   category: Developer Tools
   licenses: Apache-2.0
+  emporiumVersion: "0.5.0"

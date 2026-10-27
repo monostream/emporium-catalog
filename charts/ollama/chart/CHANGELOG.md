@@ -1,3 +1,25 @@
+# 0.2.2
+
+Published on 23 October 2026
+
+- ollama from 1.90.0 to 1.91.0
+
+# 0.2.1
+
+Published on 22 October 2026
+
+- ollama from 1.85.0 to 1.90.0
+
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Model storage is the `data` storage integration (30Gi default, grow-only), so the uninstall keep/delete choice applies; the "StorageSize" input is gone (the integration owns the size).
+- Profiles: "GPU" (default, one NVIDIA GPU, as before) and "CPU only" for clusters without GPUs.
+- Removed the dead `defaultModel` value (the upstream chart never read it; models are pulled from the Ollama API).
+- Default resources (GPU: 500m CPU / 4Gi requested, 16Gi limit; CPU: 2 CPU / 4Gi, 12Gi limit) instead of none.
+
 # 0.1.105
 
 Published on 7 October 2026

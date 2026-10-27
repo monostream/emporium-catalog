@@ -1,0 +1,20 @@
+synapse:
+  serverName: {{ .Emporium.Integrations.web.Hostname | quote }}
+  publicBaseUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+  persistence:
+    existingClaim: {{ .Emporium.Integrations.media.ClaimName | quote }}
+database:
+  host: {{ .Emporium.Integrations.db.Host | quote }}
+  port: {{ .Emporium.Integrations.db.Port }}
+  name: {{ .Emporium.Integrations.db.Database | quote }}
+  user: {{ .Emporium.Integrations.db.Username | quote }}
+  existingSecret: {{ .Emporium.Integrations.db.SecretName | quote }}
+  passwordKey: {{ .Emporium.Integrations.db.PasswordKey | quote }}
+oidc:
+  enabled: true
+  issuer: {{ .Emporium.Integrations.sso.Issuer | quote }}
+  clientId: {{ .Emporium.Integrations.sso.ClientID | quote }}
+  existingSecret: {{ .Emporium.Integrations.sso.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

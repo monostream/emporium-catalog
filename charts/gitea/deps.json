@@ -4,7 +4,10 @@
     "name": "gitea",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:gitea",
+    "imageTagPaths": [
+      "gitea.image.tag"
+    ],
+    "appVersionMapping": "value:gitea.image.tag",
     "changelogPath": "./chart"
   }
 ]

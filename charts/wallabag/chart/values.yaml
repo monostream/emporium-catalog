@@ -1,0 +1,83 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: wallabag/wallabag
+  tag: "2.6.14"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+
+config:
+  # Public URL of the instance (SYMFONY__ENV__DOMAIN_NAME), e.g. https://wallabag.example.com
+  baseUrl: ""
+  # Name shown as issuer in two-factor apps.
+  serverName: Wallabag
+  locale: en
+  # PHP memory limit of the web workers (PHP_MEMORY_LIMIT).
+  phpMemoryLimit: 256M
+  # libpq sslmode for the database connection (PGSSLMODE); require encrypts without a CA file.
+  databaseSslMode: require
+
+# Local administrator (ROLE_SUPER_ADMIN), created once by the init container before
+# Wallabag serves its first request. The built-in "wallabag" / "wallabag" account is never usable.
+admin:
+  username: admin
+  email: admin@example.org
+  # Secret and key holding the administrator password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# Application secret (SYMFONY__ENV__SECRET: CSRF, remember-me and reset tokens).
+secrets:
+  existingSecret: ""
+  appSecretKey: SYMFONY__ENV__SECRET
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  # Secret holding the keys SYMFONY__ENV__DATABASE_HOST, _PORT, _NAME, _USER and _PASSWORD.
+  existingSecret: ""
+
+storage:
+  data:
+    # Existing PersistentVolumeClaim for the encryption key and downloaded images
+    # (filled by the `data` storage integration). Empty: emptyDir.
+    existingClaim: ""
+
+# Additional environment variables (see https://doc.wallabag.org/admin/parameters).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+# The image runs nginx and php-fpm under s6 as root and drops to "nobody" for PHP.
+# The container keeps only the capabilities that needs.
+podSecurityContext:
+  fsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID, NET_BIND_SERVICE]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

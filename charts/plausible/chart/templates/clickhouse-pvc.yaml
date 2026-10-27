@@ -1,0 +1,17 @@
+{{- if not .Values.clickhouse.persistence.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "plausible.clickhouse" . }}
+  labels:
+    {{- include "plausible.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.clickhouse.persistence.size | quote }}
+  {{- with .Values.clickhouse.persistence.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+{{- end }}

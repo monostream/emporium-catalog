@@ -1,120 +1,85 @@
-## @userSupplied Username
-## @label Admin username
-## @type string
-## @description Admin Username
-
-## @userSupplied Password
-## @label Admin password
-## @type string
-## @description Admin password
-
-## @userSupplied EnableHA
-## @label Enable High Availability
-## @type boolean
-## @description Installs a highly available version of the chart
-## @optional
-
-{{- /* Emporium sets auth-skip-paths to '/*' for Public access; custom
-       global annotations may set it too. Only '/*' means public. Any
-       existing value (even empty) wins over the chart's own skip paths, so
-       the key is not written twice. The annotations are a
-       map[string]string, which hasKey does not take, so they go through
-       JSON first. */}}
-{{- $skipPathsSet := hasKey (.Emporium.Annotations | toJson | fromJson) "emporium.build/auth-skip-paths" }}
-{{- $public := eq (index .Emporium.Annotations "emporium.build/auth-skip-paths") "/*" }}
 forgejo:
-  redis-cluster:
-    enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
-  postgresql:
-    enabled: {{ not (.Emporium.UserSupplied.EnableHA | default false) }}
-  postgresql-ha:
-    enabled: {{ (.Emporium.UserSupplied.EnableHA | default false) }}
-
   persistence:
     enabled: true
-    size: 30Gi
-
-  strategy:
-    type: 'Recreate'
+    create: false
 
   ingress:
     enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-      {{- if not $skipPathsSet }}
-      ## Paths that bypass the Emporium login because their clients cannot
-      ## do a browser sign-in; Forgejo authenticates them itself:
-      ## - /api/*: the REST API with access tokens, Actions runners, packages
-      ## - Git smart HTTP (info/refs, git-upload-pack, git-receive-pack) and
-      ##   Git LFS (info/lfs/...) of /<owner>/<repo>[.git]; nothing else, so
-      ##   the repository web UI stays behind the login
-      emporium.build/auth-skip-paths: '/api/*,regex(^/[^/]+/[^/]+/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*)$)'
-      {{- end }}
-      nginx.ingress.kubernetes.io/proxy-body-size: '0'
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
-      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
-      nginx.ingress.kubernetes.io/service-upstream: 'true'
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+
+  # configure-gitea expands ${OIDC_CLIENT_SECRET} when it adds or updates the oauth source.
+  deployment:
+    env:
+      - name: OIDC_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.sso.SecretName | quote }}
+            key: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
 
   gitea:
     admin:
-      existingSecret:
-      username: {{ .Emporium.UserSupplied.Username }}
-      password: {{ .Emporium.UserSupplied.Password }}
-      email: 'forgejo@{{ .Emporium.Integrations.DNS.Hostname }}'
+      email: {{ printf "forgejo@%s" .Emporium.Integrations.web.Hostname | quote }}
     oauth:
-      - name: 'emporium'
-        provider: 'openidConnect'
-        key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-        secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-        autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
-        scopes: "email profile"
-        # No group-based admin sync: the identity provider sends no admin
-        # group, and syncing would demote (or fail on) the local admin.
-        # Empty values also clear the setting on upgraded installs.
+      - name: emporium
+        provider: openidConnect
+        key: {{ .Emporium.Integrations.sso.ClientID | quote }}
+        secret: "${OIDC_CLIENT_SECRET}"
+        autoDiscoverUrl: {{ .Emporium.Integrations.sso.ConfigurationEndpoint | quote }}
+        # Role-based admin sync is intentionally off: Forgejo's adminGroup also demotes users
+        # without the role and fails with a 500 on the last admin. Admins are granted in
+        # Forgejo (Site administration > User accounts). The roles scope stays requested so
+        # the claim is there for a later grant-only mapping.
+        scopes: "email profile roles"
+        # Empty, not omitted: update-oauth then clears a group mapping an earlier version set
+        # ("authentik Admins" in 0.0.x/0.1.0).
         groupClaimName: ""
         adminGroup: ""
 
+    additionalConfigFromEnvs:
+      - name: FORGEJO__DATABASE__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.postgres.SecretName | quote }}
+            key: {{ .Emporium.Integrations.postgres.PasswordKey | quote }}
+
     config:
+      server:
+        ROOT_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
       database:
         DB_TYPE: postgres
+        HOST: {{ printf "%s:%v" .Emporium.Integrations.postgres.Host .Emporium.Integrations.postgres.Port | quote }}
+        NAME: {{ .Emporium.Integrations.postgres.Database | quote }}
+        USER: {{ .Emporium.Integrations.postgres.Username | quote }}
+        SSL_MODE: {{ .Emporium.Integrations.postgres.SSLMode | quote }}
       session:
         PROVIDER: db
       cache:
-        ADAPTER: {{ ternary "redis-cluster" "memory" (.Emporium.UserSupplied.EnableHA | default false)  }}
+        ADAPTER: memory
       queue:
-        TYPE: {{ ternary "redis" "level" (.Emporium.UserSupplied.EnableHA | default false) }}
+        TYPE: level
       indexer:
         ISSUE_INDEXER_TYPE: bleve
         REPO_INDEXER_ENABLED: true
       actions:
-        ENABELD: 'true'
+        ENABLED: "true"
       api:
-        ENABLE_SWAGGER: 'false'
+        ENABLE_SWAGGER: "false"
       service:
-        DISABLE_REGISTRATION: 'true'
-        SHOW_REGISTRATION_BUTTON: 'false'
-        ## Unless the app is public, Forgejo itself requires sign-in, so the
-        ## API and Git paths above serve no public repository anonymously.
-        ## Exception: LFS objects of public repositories, which Forgejo serves
-        ## without sign-in; fetching one needs its oid from the repository.
-        REQUIRE_SIGNIN_VIEW: '{{ not $public }}'
+        DISABLE_REGISTRATION: "true"
+        SHOW_REGISTRATION_BUTTON: "false"
       openid:
-        ENABLE_OPENID_SIGNIN: 'true'
-        ENABLE_OPENID_SIGNUP: 'false'
+        ENABLE_OPENID_SIGNIN: "true"
+        ENABLE_OPENID_SIGNUP: "false"
       oauth2_client:
-        ENABLE_AUTO_REGISTRATION: 'true'
-        OPENID_CONNECT_SCOPES: 'openid email profile'
-        ACCOUNT_LINKING: 'login'
-        USERNAME: 'email'
+        ENABLE_AUTO_REGISTRATION: "true"
+        OPENID_CONNECT_SCOPES: "openid email profile roles"
+        ACCOUNT_LINKING: login
+        USERNAME: email

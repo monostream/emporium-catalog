@@ -16,17 +16,26 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+{{- define "chart.labels" -}}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+app.kubernetes.io/name: {{ .Chart.Name }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
 {{/*
-Reuse existing secret value or use a provided default.
+Uptrace objects keep the names and selector labels the upstream uptrace chart
+(2.0.2, formerly a dependency) gave them, so an upgrade updates them in place.
 */}}
-{{- define "chart.secretValue" -}}
-{{- $secretName := .secretName -}}
-{{- $key := .key -}}
-{{- $defaultValue := .defaultValue -}}
-{{- $currentValue := (lookup "v1" "Secret" .Release.Namespace $secretName).data -}}
-{{- if and $currentValue (get $currentValue $key) -}}
-  {{- get $currentValue $key -}}
-{{- else -}}
-  {{- $defaultValue | b64enc -}}
-{{- end -}}
-{{- end -}}
+{{- define "uptrace.selectorLabels" -}}
+app: uptrace
+app.kubernetes.io/name: {{ .Chart.Name }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "uptrace.labels" -}}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{ include "uptrace.selectorLabels" . }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}

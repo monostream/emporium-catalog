@@ -1,0 +1,62 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Admin console, description: "Collabora has no user accounts. This login only opens the admin console (/browser/dist/admin/admin.html)." }
+
+inputs:
+  AllowZoneApps:
+    label: Allow apps in this zone as WOPI hosts
+    description: Any app installed below the same domain (for example Nextcloud) may open documents here. Off - only the hosts listed below.
+    type: boolean
+    default: true
+  WopiHosts:
+    label: Additional WOPI hosts
+    description: Comma separated host names that may open documents, for example cloud.example.com. Collabora refuses every other host.
+    type: string
+    default: ""
+    pattern: '^([A-Za-z0-9.-]+(,\s*)?)*$'
+    path: wopi.hosts
+  AdminUsername:
+    label: Admin console username
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    pattern: '^[A-Za-z0-9_.-]{3,64}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Admin console password
+    description: Leave empty to generate one (stored in the app's Secret).
+    type: secret
+    generate: { length: 24, charset: alnum }
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+
+integrations:
+  web:
+    type: ingress
+    # Public on purpose: the WOPI host's server fetches /hosting/discovery without a
+    # browser, and the browsers of the WOPI host's users load the editor in an
+    # iframe from this host. The WOPI host allowlist (wopi.*) decides who may use
+    # it; the admin console has its own login.
+    access: { default: public }
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+
+components:
+  app:
+    label: Collabora Online
+    resources: resources
+    replicas: { fixed: 1, reason: "Open documents live in the memory of one pod; scaling out needs sticky routing per document" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A handful of simultaneous editors
+    values: profiles/small.yaml

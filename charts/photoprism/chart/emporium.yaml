@@ -1,0 +1,97 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Administrator, description: "The local administrator is created at the first start from the password below, so nobody can claim it from the browser. Emporium users sign in with single sign-on." }
+  - { id: indexing, label: Indexing }
+
+inputs:
+  AutoLogin:
+    label: Sign in automatically
+    description: Send visitors straight to the Emporium sign-in instead of showing the PhotoPrism login page with its "Continue with Emporium" button. After signing out, or when the single sign-on round trip fails, PhotoPrism shows the login form once, where the local administrator can sign in.
+    type: boolean
+    default: false
+    path: oidc.autoLogin
+  NewUserRole:
+    label: Role of new single sign-on users
+    description: "PhotoPrism Community Edition has only two roles for signed-in users. \"guest\" sees and reacts to albums that were shared with the account, not the library; \"admin\" can do everything. Members of the Emporium role emporium-admin become administrators. Pick \"admin\" only when every Emporium user may manage the whole library. This is the role of NEW accounts; it does not change existing accounts."
+    type: enum
+    options: [guest, admin]
+    default: guest
+    path: oidc.newUserRole
+  NewUserWebDAV:
+    label: WebDAV for new single sign-on accounts
+    description: "Default for accounts created at the first single sign-on: may they use WebDAV (to sync from other apps)? It is only a default for new accounts. Changing it later does not touch existing accounts: grant or revoke WebDAV per account with `photoprism users mod --webdav=true <name>` (or `--webdav=false <name>`) inside the pod. Guests cannot use WebDAV whatever the setting."
+    type: boolean
+    default: false
+    path: oidc.webdav
+  AdminUsername:
+    label: Local administrator username
+    description: Break-glass account created at the first start. It is not linked to single sign-on; pick a name no Emporium user has.
+    type: string
+    default: photoprism-admin
+    required: true
+    installOnly: true
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,31}$'
+    section: admin
+    path: admin.username
+  AdminPassword:
+    label: Local administrator password
+    description: Used to create the local administrator at the first start (8 to 72 characters). Leave empty to generate one (stored in the app's Secret). Changing it later in PhotoPrism does not update the Secret.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    installOnly: true
+    pattern: '^[0-9A-Za-z]{8,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  Workers:
+    label: Indexing workers
+    description: How many files PhotoPrism indexes in parallel. Each worker needs CPU and memory (the image classifier runs on the CPU); raise it only together with the size profile.
+    type: integer
+    default: 2
+    min: 1
+    max: 8
+    section: indexing
+    path: indexing.workers
+
+integrations:
+  web:
+    type: ingress
+    # PhotoPrism has its own login (local accounts, app passwords, OIDC) and its share links are meant
+    # for anonymous viewers: the share page redeems its token through the same session endpoint as the
+    # password login and then loads the web app and its API, so no path-based Emporium login can sit in
+    # front of it. WebDAV and the mobile apps use app passwords. The ingress is therefore public and
+    # PhotoPrism's login (with its login-failure limiter) is the gate; Emporium single sign-on is the
+    # recommended login.
+    access: { default: public }
+    redirectPaths: [/api/v1/oidc/redirect]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  storage:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.storage.existingClaim
+  originals:
+    type: storage
+    size: { default: 50Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.originals.existingClaim
+
+components:
+  app:
+    label: PhotoPrism
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database and library indexing on ReadWriteOnce volumes" }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A household library, a few tens of thousands of photos
+    values: profiles/small.yaml

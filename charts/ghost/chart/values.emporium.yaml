@@ -1,58 +1,24 @@
-## @userSupplied StorageSize
-## @label Storage Size
-## @type byteSize
-## @description Size of the storage volume. Default is 8Gi.
-## @optional
+url: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
 
-## @userSupplied Username
-## @label Admin Username
-## @type string
-## @description Username of the admin user
+ingress:
+  enabled: true
+  # proxy-body-size (50m) comes from values.yaml; Helm merges the maps.
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
+  hosts:
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
 
-## @userSupplied Password
-## @label Admin Password
-## @type string
-## @description Must be at least 10 characters long
-
-## @userSupplied Email
-## @label Admin Email
-## @type string
-## @description Email of the admin user, this is used to sign in.
-
-## @userSupplied Title
-## @label Blog Title
-## @type string
-## @description The title of your Blog. (You can change this later)
-ghost:
-  ghostUsername: "{{ .Emporium.UserSupplied.Username }}"
-  ghostPassword: "{{ .Emporium.UserSupplied.Password }}"
-  ghostEmail: "{{ .Emporium.UserSupplied.Email }}"
-  ghostBlogTitle: "{{ .Emporium.UserSupplied.Title }}"
-  ghostEnableHttps: true
-
-  ghostHost: {{ .Emporium.Integrations.DNS.Hostname }}
-
-  service:
-    type: ClusterIP
-
-  ingress:
-    enabled: true
-
-    pathType: Prefix
-
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      nginx.ingress.kubernetes.io/proxy-body-size: 10m
-      kubernetes.io/tls-acme: "true"
-
-    hostname: {{ .Emporium.Integrations.DNS.Hostname }}
-    tls: true
-
-  persistence:
-    size: {{ default "8Gi" .Emporium.UserSupplied.StorageSize }}
-
-  mysql:
-    auth:
-      existingSecret: {{ printf "%s-mysql" .Emporium.Name }}
+{{- with .Emporium.Integrations.mail }}
+mail:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  user: {{ .Username | quote }}
+  from: {{ .From | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}

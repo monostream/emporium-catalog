@@ -1,0 +1,102 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  # The Debian image: the Alpine image has no usable OpenID Connect module.
+  repository: freshrss/freshrss
+  tag: "1.30.4"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080
+
+config:
+  # Public URL of the instance, e.g. https://freshrss.example.com
+  baseUrl: ""
+  timezone: UTC
+  # Minutes between two refreshes of all feeds (15, 30 or 60).
+  refreshMinutes: "30"
+
+# Administrator: the FreshRSS default user, created at the first start. With
+# single sign-on its name must be the sign-in name (Emporium username).
+admin:
+  username: ""
+  # Secret and key holding the administrator password (used by the "password" login mode).
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# How users sign in: "sso" (OpenID Connect through Apache mod_auth_openidc,
+# accounts are created at the first sign-in) or "password" (FreshRSS login form,
+# only the administrator has a password; use it when single sign-on is unavailable).
+login:
+  mode: sso
+
+# OpenID Connect (mod_auth_openidc in the official Debian image).
+oidc:
+  enabled: false
+  # Full URL of the provider's openid-configuration document.
+  metadataUrl: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  # Secret and key holding the key that encrypts the Apache OIDC session.
+  cryptoSecret: ""
+  cryptoSecretKey: OIDC_CRYPTO_KEY
+  # ID token claim that becomes the FreshRSS username.
+  userClaim: preferred_username
+  scopes: "openid profile"
+  # Seconds without a request before the session must be renewed at the provider.
+  sessionInactivityTimeout: 3600
+  sessionMaxDuration: 86400
+
+# PostgreSQL, provided by Emporium (CloudNativePG).
+database:
+  host: ""
+  port: 5432
+  name: freshrss
+  user: freshrss
+  # Secret and key holding the database password.
+  existingSecret: ""
+  passwordKey: password
+
+persistence:
+  # Claim for /var/www/FreshRSS/data (configuration, users, cache). Emporium creates it.
+  existingClaim: ""
+  size: 1Gi
+
+# Additional environment variables.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    memory: 512Mi
+
+# The entrypoint fixes ownership of the data directory, Apache and cron switch
+# to www-data: the container starts as root with a minimal capability set.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID, KILL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,76 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: etherpad/etherpad
+  tag: "3.3.11"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 9001
+
+config:
+  # Public URL of the instance (PUBLIC_URL, SSO_ISSUER and the admin redirect).
+  baseUrl: ""
+  title: Etherpad
+  defaultPadText: ""
+  loglevel: INFO
+
+# Local administrator for /admin (user "admin", ADMIN_PASSWORD).
+admin:
+  existingSecret: ""
+  passwordKey: AdminPassword
+
+# Secrets of the built-in OpenID provider that signs people in to /admin
+# (client secrets for the admin and user clients).
+sso:
+  existingSecret: ""
+  adminSecretKey: AdminClientSecret
+  userSecretKey: UserClientSecret
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  host: ""
+  port: 5432
+  name: ""
+  existingSecret: ""
+  # Secret with the CA of the database server under ca.crt (TLS is verified with it).
+  caSecret: ""
+  usernameKey: username
+  passwordKey: password
+
+# Additional environment variables (see settings.json.docker in the Etherpad repository).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 5001
+  runAsGroup: 0
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

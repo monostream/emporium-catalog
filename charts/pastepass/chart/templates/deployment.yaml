@@ -39,7 +39,7 @@ spec:
           args: ["-db-path", "$(DB_PATH)", "-app-name", "$(APP_NAME)"]
           env:
             - name: APP_NAME
-              value: "{{ .Values.app.name }}"
+              value: {{ .Values.app.name | quote }}
             - name: DB_PATH
               value: "/data/pastepass.boltdb"
           ports:

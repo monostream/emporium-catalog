@@ -1,0 +1,26 @@
+apiVersion: v2
+name: mealie
+description: Recipe manager and meal planner with a shopping list, recipe import and household sharing
+type: application
+version: 0.1.0
+appVersion: "3.29.0"
+home: https://mealie.io/
+icon: https://raw.githubusercontent.com/mealie-recipes/mealie/mealie-next/frontend/public/icon.png
+sources:
+  - https://github.com/mealie-recipes/mealie
+keywords:
+  - Recipes
+  - Meal planner
+  - Shopping list
+  - Cooking
+annotations:
+  icon: assets/icon.png
+  displayName: Mealie
+  category: Home
+  licenses: AGPL-3.0-only
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

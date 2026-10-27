@@ -1,0 +1,111 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/mealie-recipes/mealie
+  tag: "v3.29.0"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 9000
+
+config:
+  # Public URL of the instance (BASE_URL), e.g. https://mealie.example.com. It is also the
+  # OIDC redirect base ("<baseUrl>/login").
+  baseUrl: ""
+  logLevel: info
+  # Allow anyone who reaches the login page to register (ALLOW_SIGNUP).
+  allowSignup: false
+  # Name of the first group (DEFAULT_GROUP) and household (DEFAULT_HOUSEHOLD).
+  defaultGroup: Home
+  defaultHousehold: Family
+
+# Local administrator. Mealie creates "changeme@example.com" with the public password
+# "MyPassword" on the first start and offers no setting for it. When existingSecret is set, an
+# init container replaces the default password directly in the database before Mealie starts.
+# An account whose password was already changed is left alone.
+admin:
+  # Not "admin": a Logto user with that username would be matched to this account at the first SSO.
+  username: mealie-local-admin
+  email: admin@example.org
+  # Secret and key holding the administrator password (at least 8 characters).
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# OpenID Connect login ("Sign in with <providerName>").
+oidc:
+  enabled: false
+  # Discovery document URL (.../.well-known/openid-configuration).
+  configurationUrl: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  providerName: Emporium
+  # Create a Mealie account at the first OIDC login (OIDC_SIGNUP_ENABLED).
+  signupEnabled: true
+  # Claim that carries the Logto roles, and the role that makes a Mealie administrator.
+  groupsClaim: roles
+  adminGroup: emporium-admin
+  # Only members of this role may sign in (empty: every Emporium user).
+  userGroup: ""
+  # Claim that identifies the account (looked up as Mealie username, then email) and claim used as
+  # the full name. "preferred_username" is always present in Logto tokens and stable when the email changes.
+  userClaim: preferred_username
+  nameClaim: preferred_username
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  # Secret holding a postgresql:// connection URL.
+  existingSecret: ""
+  urlKey: POSTGRES_URL_OVERRIDE
+
+persistence:
+  # Existing claim for /app/data (recipe images, backups); set by the storage integration.
+  existingClaim: ""
+  size: 5Gi
+
+# Additional environment variables (see https://docs.mealie.io/documentation/getting-started/installation/backend-config/).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+
+bootstrapResources:
+  requests:
+    cpu: 5m
+    memory: 24Mi
+  limits:
+    memory: 64Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 911
+  runAsGroup: 911
+  fsGroup: 911
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

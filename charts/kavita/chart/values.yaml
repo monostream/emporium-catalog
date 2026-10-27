@@ -1,0 +1,95 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: jvmilazz0/kavita
+  tag: "0.9.1"
+  pullPolicy: IfNotPresent
+
+# Sidecar that creates the first administrator and applies the settings Emporium manages.
+setup:
+  image:
+    repository: python
+    tag: 3.13.9-alpine3.22
+  resources:
+    requests:
+      cpu: 5m
+      memory: 24Mi
+    limits:
+      memory: 64Mi
+
+service:
+  port: 5000
+
+config:
+  timezone: UTC
+
+# Local administrator, registered by the setup sidecar at the first start (nobody can
+# claim the first account from the browser). Break-glass login next to single sign-on.
+admin:
+  username: kavita-admin
+  # Secret and key holding the administrator password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+# Secret and key holding the key that signs Kavita's own session tokens.
+token:
+  existingSecret: ""
+  secretKey: TOKEN_KEY
+
+# OpenID Connect. Kavita reads the provider from appsettings.json; the init container renders it.
+oidc:
+  enabled: false
+  # Issuer URL of the provider.
+  authority: ""
+  clientId: ""
+  # Secret and key holding the client secret.
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  # Go straight to the identity provider on the login page.
+  autoLogin: false
+
+persistence:
+  # Claim for /kavita/config (database, covers, cache, logs, backups). Emporium creates it.
+  config:
+    existingClaim: ""
+    size: 5Gi
+  # Claim for the library files, mounted at /data. Emporium creates it.
+  library:
+    existingClaim: ""
+    size: 20Gi
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    memory: 1536Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

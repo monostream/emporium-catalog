@@ -1,3 +1,29 @@
+# 0.1.2
+
+Published on 22 October 2026
+
+- core from 2.11.2 to 2.11.3
+
+# 0.1.1
+
+Published on 21 October 2026
+
+- Category: Security (was Monitoring).
+
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the OIDC redirect path moved to it.
+- Controller volume is the `data` storage integration (10Gi default, grow-only); the inputs "Storage Size" and "Volume StorageClass" are removed.
+- Removed the "Enable federation" input: it published hard-coded `neuvector-*.tribbles.cloud` hosts.
+- The admin password is no longer re-randomised in the values on every update; NeuVector generates it once into `neuvector-bootstrap-secret`.
+- Dropped the stale `authentik Admins` OIDC group mapping; OIDC users get the `reader` role.
+- Dedicated ServiceAccounts per component (`leastPrivilege`) instead of binding the cluster roles to the namespace's `default` ServiceAccount.
+- The web console serves plain HTTP behind the ingress (no `backend-protocol: HTTPS` annotation).
+- Default resources for every NeuVector workload.
+
 # 0.0.23
 
 Published on 19 October 2026

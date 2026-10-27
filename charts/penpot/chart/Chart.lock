@@ -1,9 +1,0 @@
-dependencies:
-- name: postgresql
-  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 16.7.27
-- name: redis
-  repository: oci://bitnamicharts.docker.pkg.emporium.rocks
-  version: 22.0.7
-digest: sha256:b15b1698187774f1ecca6a80e4cf3a42847b35d3cc695a82f6ff668371950f80
-generated: "2025-09-04T08:14:48.743872076Z"

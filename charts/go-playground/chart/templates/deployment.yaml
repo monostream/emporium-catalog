@@ -5,9 +5,7 @@ metadata:
   labels:
     {{- include "go-playground.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.deployment.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "go-playground.selectorLabels" . | nindent 6 }}

@@ -1,0 +1,24 @@
+apiVersion: v2
+name: collabora
+description: Collabora Online Development Edition - the office suite (documents, spreadsheets, presentations) that Nextcloud and other WOPI hosts embed in the browser
+type: application
+version: 0.1.1
+appVersion: "26.04.5.1.1"
+home: https://www.collaboraonline.com/code/
+icon: https://www.collaboraonline.com/wp-content/uploads/2023/06/cropped-collabora-symbols-300.png
+sources:
+  - https://github.com/CollaboraOnline/online
+keywords:
+  - Office
+  - Documents
+  - WOPI
+  - Nextcloud
+annotations:
+  icon: assets/icon.png
+  displayName: Collabora Online
+  category: Productivity
+  licenses: MPL-2.0
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+  emporiumVersion: "0.5.0"

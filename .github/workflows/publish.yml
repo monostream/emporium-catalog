@@ -123,6 +123,7 @@ jobs:
         run: |
           changed_charts=()
 
+          # Only charts/* is published. Archived charts live under archive/charts/ and are never picked up.
           for dir in charts/*; do
               if [ "$(basename "$dir")" = "_template" ]; then
                   continue

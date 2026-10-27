@@ -1,71 +1,116 @@
-## @userSupplied Username
-## @label Admin username
-## @type string
-## @description Admin Username
-
-## @userSupplied Password
-## @label Admin password
-## @type string
-## @description Admin password
-
 gitea:
-  admin:
-    existingSecret:
-    username: {{ .Emporium.UserSupplied.Username }}
-    password: {{ .Emporium.UserSupplied.Password }}
-    email: 'gitea@{{ .Emporium.Integrations.DNS.Hostname }}'
-  oauth:
-    - name: 'emporium'
-      provider: 'openidConnect'
-      key: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-      secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-      autoDiscoverUrl: "{{ .Emporium.Integrations.OIDC.ConfigurationEndpoint }}"
-      scopes: "email profile"
-      groupClaimName: "groups"
-      adminGroup: "authentik Admins"
-
-  strategy:
-    type: 'Recreate'
-
-  config:
-    actions:
-      ENABELD: 'true'
-    api:
-      ENABLE_SWAGGER: 'false'
-    service:
-      DISABLE_REGISTRATION: 'true'
-      SHOW_REGISTRATION_BUTTON: 'false'
-    openid:
-      ENABLE_OPENID_SIGNIN: 'true'
-      ENABLE_OPENID_SIGNUP: 'false'
-    oauth2_client:
-      ENABLE_AUTO_REGISTRATION: 'true'
-      OPENID_CONNECT_SCOPES: 'openid email profile'
-      ACCOUNT_LINKING: 'login'
-      USERNAME: 'email'
+  persistence:
+    enabled: true
+    create: false
 
   ingress:
     enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
-      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
-      nginx.ingress.kubernetes.io/proxy-body-size: '0'
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
-      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
-      nginx.ingress.kubernetes.io/service-upstream: 'true'
+    # Merged with the proxy annotations in values.yaml.
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-      - host: {{ .Emporium.Integrations.DNS.Hostname }}
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
         paths:
           - path: /
             pathType: Prefix
     tls:
-      - secretName: {{ .Emporium.Name }}-tls
-        hosts:
-          - {{ .Emporium.Integrations.DNS.Hostname }}
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
 
-  persistence:
-    enabled: true
-    size: 30Gi
+  # configure-gitea expands ${OIDC_CLIENT_SECRET} when it adds or updates the oauth source.
+  deployment:
+    env:
+      - name: OIDC_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.sso.SecretName | quote }}
+            key: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+
+  gitea:
+    admin:
+      email: {{ printf "gitea@%s" .Emporium.Integrations.web.Hostname | quote }}
+    oauth:
+      - name: emporium
+        provider: openidConnect
+        key: {{ .Emporium.Integrations.sso.ClientID | quote }}
+        secret: "${OIDC_CLIENT_SECRET}"
+        autoDiscoverUrl: {{ .Emporium.Integrations.sso.ConfigurationEndpoint | quote }}
+        # Role-based admin sync is intentionally off: Gitea's adminGroup also demotes users
+        # without the group and the last admin cannot be demoted. Admins are granted in Gitea
+        # (Site administration > User accounts).
+        scopes: "email profile roles"
+        # Empty, not omitted: update-oauth then clears the "authentik Admins" mapping of 0.0.x/0.1.0.
+        groupClaimName: ""
+        adminGroup: ""
+
+    additionalConfigFromEnvs:
+      - name: GITEA__database__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.postgres.SecretName | quote }}
+            key: {{ .Emporium.Integrations.postgres.PasswordKey | quote }}
+      # redis://:<password>@<host>:6379/0, copied into the per-app Secret by secretKeys.
+      - name: GITEA__cache__HOST
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.redis.SecretName | quote }}
+            key: gitea-redis-url
+      - name: GITEA__session__PROVIDER_CONFIG
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.redis.SecretName | quote }}
+            key: gitea-redis-url
+      - name: GITEA__queue__CONN_STR
+        valueFrom:
+          secretKeyRef:
+            name: {{ .Emporium.Integrations.redis.SecretName | quote }}
+            key: gitea-redis-url
+      {{- with .Emporium.Integrations.mail }}
+      - name: GITEA__mailer__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: {{ .SecretName | quote }}
+            key: {{ .PasswordKey | quote }}
+      {{- end }}
+
+    config:
+      server:
+        ROOT_URL: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+      database:
+        DB_TYPE: postgres
+        HOST: {{ printf "%s:%v" .Emporium.Integrations.postgres.Host .Emporium.Integrations.postgres.Port | quote }}
+        NAME: {{ .Emporium.Integrations.postgres.Database | quote }}
+        USER: {{ .Emporium.Integrations.postgres.Username | quote }}
+        SSL_MODE: {{ .Emporium.Integrations.postgres.SSLMode | quote }}
+      # Connection strings come from the environment above (GITEA__*), never from values.
+      cache:
+        ADAPTER: redis
+      session:
+        PROVIDER: redis
+      queue:
+        TYPE: redis
+      {{- with .Emporium.Integrations.mail }}
+      mailer:
+        ENABLED: "true"
+        SMTP_ADDR: {{ .Host | quote }}
+        SMTP_PORT: {{ .Port | quote }}
+        USER: {{ .Username | quote }}
+        FROM: {{ .From | quote }}
+      {{- end }}
+      indexer:
+        ISSUE_INDEXER_TYPE: bleve
+        REPO_INDEXER_ENABLED: true
+      actions:
+        ENABLED: "true"
+      api:
+        ENABLE_SWAGGER: "false"
+      service:
+        DISABLE_REGISTRATION: "true"
+        SHOW_REGISTRATION_BUTTON: "false"
+      openid:
+        ENABLE_OPENID_SIGNIN: "true"
+        ENABLE_OPENID_SIGNUP: "false"
+      oauth2_client:
+        ENABLE_AUTO_REGISTRATION: "true"
+        OPENID_CONNECT_SCOPES: "openid email profile roles"
+        ACCOUNT_LINKING: login
+        USERNAME: email

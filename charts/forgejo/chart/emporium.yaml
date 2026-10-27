@@ -1,0 +1,71 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  Username:
+    label: Admin username
+    description: Local Forgejo administrator. Stored in the app's Secret, so the field stays blank after install.
+    type: secret
+    required: true
+    ref: { namePath: forgejo.gitea.admin.existingSecret, key: username }
+  Password:
+    label: Admin password
+    description: Password of the local administrator. Leave empty to generate one (stored in the app's Secret).
+    type: secret
+    generate: { length: 24, charset: alnum }
+    ref: { namePath: forgejo.gitea.admin.existingSecret, key: password }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    redirectPaths: [/user/oauth2/emporium/callback]
+    # API (token auth), Git smart HTTP and LFS of /<owner>/<repo>[.git] authenticate in Forgejo;
+    # the repository web UI stays behind the login (same rule as the catalog main hotfix).
+    skipPaths:
+      - /api/*
+      - regex(^/[^/]+/[^/]+/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*)$)
+    bind:
+      IngressClassName: forgejo.ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 30Gi, growOnly: true }
+    bind:
+      ClaimName: forgejo.persistence.claimName
+  # Named postgres so the CloudNativePG cluster keeps the name <release>-postgres that the
+  # 0.1.0 annotation (W1 provider) created.
+  postgres:
+    type: postgres
+    database: forgejo
+    owner: forgejo
+    version: "17"
+    storage: { default: 10Gi, growOnly: true }
+
+components:
+  app:
+    label: Forgejo
+    resources: forgejo.resources
+    replicas: { fixed: 1, reason: "Repositories, LevelDB queue and Bleve index on a ReadWriteOnce volume" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to about 20 users
+    values: profiles/small.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+  medium:
+    label: Medium
+    description: Up to about 200 users with Actions
+    values: profiles/medium.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { memory: 1Gi } }

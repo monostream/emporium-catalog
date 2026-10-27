@@ -1,0 +1,119 @@
+# Web (nginx + Jitsi Meet UI), Prosody (XMPP) and Jicofo (conference focus) share a pod
+# and talk over localhost. The videobridge is a separate Deployment (jvb.yaml).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: core
+spec:
+  replicas: 1
+  # Conferences live in Prosody's memory; never run two copies side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: core
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        app.kubernetes.io/component: core
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: web
+          image: {{ include "chart.image" (dict "root" . "name" "web") | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - { name: PUBLIC_URL, value: {{ .Values.config.publicUrl | quote }} }
+            - { name: TZ, value: {{ .Values.config.timezone | quote }} }
+            - { name: DISABLE_HTTPS, value: "1" }
+            - { name: ENABLE_HTTP_REDIRECT, value: "0" }
+            - { name: XMPP_BOSH_URL_BASE, value: "http://127.0.0.1:5280" }
+            - { name: ENABLE_PREJOIN_PAGE, value: {{ ternary "1" "0" .Values.config.enablePrejoin | quote }} }
+            - { name: ENABLE_WELCOME_PAGE, value: {{ ternary "1" "0" .Values.config.enableWelcomePage | quote }} }
+          ports:
+            - { name: http, containerPort: 8000 }
+          startupProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /, port: http }
+          readinessProbe:
+            httpGet: { path: /, port: http }
+          volumeMounts:
+            - { name: web-config, mountPath: /config }
+            - { name: web-storage, mountPath: /storage }
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+        - name: prosody
+          image: {{ include "chart.image" (dict "root" . "name" "prosody") | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - { name: PUBLIC_URL, value: {{ .Values.config.publicUrl | quote }} }
+            - { name: TZ, value: {{ .Values.config.timezone | quote }} }
+            - { name: ENABLE_LOBBY, value: {{ ternary "1" "0" .Values.config.enableLobby | quote }} }
+            - { name: ENABLE_AUTH, value: "0" }
+            - { name: ENABLE_GUESTS, value: "0" }
+            {{- include "chart.secretEnv" (dict "root" . "env" "JICOFO_AUTH_PASSWORD" "key" .Values.secrets.jicofoAuthPasswordKey) | nindent 12 }}
+            {{- include "chart.secretEnv" (dict "root" . "env" "JICOFO_COMPONENT_SECRET" "key" .Values.secrets.jicofoComponentSecretKey) | nindent 12 }}
+            {{- include "chart.secretEnv" (dict "root" . "env" "JVB_AUTH_PASSWORD" "key" .Values.secrets.jvbAuthPasswordKey) | nindent 12 }}
+          ports:
+            - { name: xmpp, containerPort: 5222 }
+          startupProbe:
+            tcpSocket: { port: xmpp }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            tcpSocket: { port: xmpp }
+          readinessProbe:
+            tcpSocket: { port: xmpp }
+          volumeMounts:
+            - { name: prosody-config, mountPath: /config }
+            - { name: prosody-data, mountPath: /var/lib/prosody }
+            - { name: prosody-plugins, mountPath: /prosody-plugins-custom }
+          resources:
+            {{- toYaml .Values.prosody.resources | nindent 12 }}
+        - name: jicofo
+          image: {{ include "chart.image" (dict "root" . "name" "jicofo") | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - { name: TZ, value: {{ .Values.config.timezone | quote }} }
+            - { name: XMPP_SERVER, value: "127.0.0.1" }
+            - { name: JICOFO_MAX_MEMORY, value: {{ .Values.jicofo.maxMemory | quote }} }
+            {{- include "chart.secretEnv" (dict "root" . "env" "JICOFO_AUTH_PASSWORD" "key" .Values.secrets.jicofoAuthPasswordKey) | nindent 12 }}
+          volumeMounts:
+            - { name: jicofo-config, mountPath: /config }
+          resources:
+            {{- toYaml .Values.jicofo.resources | nindent 12 }}
+      volumes:
+        - { name: web-config, emptyDir: {} }
+        - { name: web-storage, emptyDir: {} }
+        - { name: prosody-config, emptyDir: {} }
+        - { name: prosody-data, emptyDir: {} }
+        - { name: prosody-plugins, emptyDir: {} }
+        - { name: jicofo-config, emptyDir: {} }
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,84 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: sso, label: Single sign-on }
+  - { id: security, label: Security }
+
+inputs:
+  AllowSignup:
+    label: Allow new accounts
+    description: "Let Emporium users create a Karakeep account at their first single sign-on. Turn it off after everyone who should have an account has signed in once (this also stops new single sign-on accounts). The first account ever created is the administrator, so sign in yourself first."
+    type: boolean
+    default: true
+    path: config.allowSignup
+  PasswordAuth:
+    label: Email and password sign-in
+    description: "Off (default): single sign-on only, no password sign-up or sign-in. On: adds Karakeep's email and password form (sign-up and sign-in, still behind the Emporium login) as a local fallback. Anyone with an Emporium session can then register an account with any email address, so leave it off unless you need a local account. Do not combine it with email linking."
+    type: boolean
+    default: false
+    section: sso
+    path: config.passwordAuth
+  SsoLinkByEmail:
+    label: Link single sign-on to existing accounts by email
+    description: "A single sign-on user whose email matches an existing Karakeep account signs in to that account instead of failing. Off by default. Unsafe together with email and password sign-up, because Karakeep does not verify the email of a local sign-up and a pre-registered account would be taken over by the real user's first sign-in."
+    type: boolean
+    default: false
+    section: sso
+    path: oidc.linkByEmail
+  SessionSecret:
+    label: Session secret
+    description: "Signs sessions and API keys. Generated at install; changing it signs everyone out."
+    type: secret
+    generate: { length: 64, charset: alnum }
+    installOnly: true
+    section: security
+    ref: { namePath: app.existingSecret, key: NEXTAUTH_SECRET }
+  SearchKey:
+    label: Search master key
+    description: "Protects the Meilisearch index inside the pod. Generated at install."
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: security
+    ref: { namePath: app.existingSecret, key: MEILI_MASTER_KEY }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Only what API clients and public links need: the REST API (API keys), tRPC (browser
+    # extension and mobile apps), assets, health/version and shared lists. /api/auth/* (sign-up,
+    # password sign-in, OIDC) is NOT skipped: nobody reaches the sign-up endpoint without an
+    # Emporium session. Karakeep's DISABLE_SIGNUPS also blocks the OIDC sign-up, so it cannot
+    # be used to close password sign-up on its own.
+    skipPaths: [/api/v1/*, /api/trpc/*, /api/assets/*, /api/public/*, /api/health, /api/version, /public/*]
+    # Karakeep's own OpenID Connect login (provider id "custom").
+    redirectPaths: [/api/auth/callback/custom]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  data:
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+
+components:
+  app:
+    label: Karakeep
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database, search index and archives live on a ReadWriteOnce volume" }
+    # The headless Chrome (chromeResources) and Meilisearch (searchResources) sidecars are sized
+    # through the profile: lint matches one component per workload.
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: "A household or a small team, up to tens of thousands of bookmarks"
+    values: profiles/small.yaml

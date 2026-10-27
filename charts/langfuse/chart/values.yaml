@@ -1,0 +1,155 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+web:
+  image:
+    repository: langfuse/langfuse
+    tag: "4.68.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
+
+worker:
+  image:
+    repository: langfuse/langfuse-worker
+    tag: "4.68.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      memory: 1Gi
+
+clickhouse:
+  image:
+    repository: clickhouse/clickhouse-server
+    tag: "25.12.9.61-alpine"
+    pullPolicy: IfNotPresent
+  user: langfuse
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 101
+    fsGroup: 101
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  resources:
+    requests:
+      cpu: 100m
+      memory: 768Mi
+    limits:
+      memory: 2Gi
+  persistence:
+    # Existing claim for /var/lib/clickhouse. Empty: the chart creates one.
+    existingClaim: ""
+    size: 10Gi
+    storageClass: ""
+
+config:
+  # Public URL of the instance (NEXTAUTH_URL), e.g. https://langfuse.example.com
+  baseUrl: ""
+  # LANGFUSE_MIGRATION_V4_WRITE_MODE: dual | events_only | legacy
+  writeMode: dual
+
+# Generated secrets live in one Secret (keys NEXTAUTH_SECRET, SALT, ENCRYPTION_KEY,
+# CLICKHOUSE_PASSWORD, LANGFUSE_INIT_USER_PASSWORD, LANGFUSE_INIT_PROJECT_PUBLIC_KEY,
+# LANGFUSE_INIT_PROJECT_SECRET_KEY).
+secrets:
+  existingSecret: ""
+
+# Bootstrap organisation, project and administrator, created at the first start
+# (LANGFUSE_INIT_*). Ignored once the database has users.
+init:
+  orgId: emporium
+  orgName: Emporium
+  projectId: default
+  projectName: Default
+  userName: Administrator
+  userEmail: admin@example.com
+
+auth:
+  # AUTH_DISABLE_SIGNUP: "true" blocks every new account, also the first single sign-on.
+  disableSignup: "false"
+  # Organisation role of accounts created at sign-up (LANGFUSE_DEFAULT_ORG_ROLE).
+  defaultOrgRole: VIEWER
+
+# Generic OpenID Connect login (AUTH_CUSTOM_*).
+oidc:
+  enabled: false
+  providerName: Emporium
+  issuer: ""
+  clientId: ""
+  existingSecret: ""
+  clientSecretKey: clientSecret
+  idTokenAlg: ES384
+  allowAccountLinking: "true"
+
+# PostgreSQL through the Emporium postgres integration (CloudNativePG).
+database:
+  host: ""
+  port: 5432
+  name: langfuse
+  username: langfuse
+  passwordSecret: ""
+  passwordKey: password
+  # Secret holding the CloudNativePG CA; the server certificate is verified against it.
+  caSecret: ""
+  caKey: ca.crt
+
+# Redis (Valkey) through the Emporium redis integration; BullMQ queues need noeviction.
+redis:
+  host: ""
+  port: 6379
+  existingSecret: ""
+  passwordKey: password
+
+# S3 storage (RustFS) through the Emporium objectStorage integration: events and media.
+s3:
+  endpoint: ""
+  region: auto
+  bucket: langfuse
+  forcePathStyle: "true"
+  existingSecret: ""
+  accessKeyKey: accessKey
+  secretKeyKey: secretKey
+
+# Additional environment variables for web and worker
+# (see https://langfuse.com/self-hosting/configuration).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,74 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  Username:
+    label: Admin username
+    description: Login of the administrator created on first start.
+    type: string
+    default: admin
+    required: true
+    installOnly: true
+    path: onedev.onedev.initSettings.user
+  Password:
+    label: Admin password
+    description: Password of the administrator created on first start. Leave empty to generate one (stored in the app's Secret).
+    type: secret
+    installOnly: true
+    generate: { length: 24, charset: alnum }
+  StorageSize:
+    label: Storage size
+    description: Size of the OneDev data volume (repositories, builds, attachments).
+    type: byteSize
+    default: 20Gi
+    installOnly: true
+    path: onedev.persistence.size
+  StorageClass:
+    label: Storage class
+    description: StorageClass of the data volume; empty uses the cluster default.
+    type: storageClass
+    installOnly: true
+    path: onedev.persistence.storageClassName
+    renamedFrom: [PersistenceStorageClass]
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # API (token auth) and Git over HTTP authenticate in OneDev.
+    skipPaths:
+      - /api/*
+      - regex(^(/[A-Za-z0-9_][A-Za-z0-9_.-]*)+(\.git)?/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*|lfs/objects/.*)$)
+    bind:
+      IngressClassName: onedev.ingress.className
+  db:
+    type: postgres
+    required: false
+    database: onedev
+    owner: onedev
+    version: "17"
+    storage: { default: 10Gi, growOnly: true }
+
+components:
+  app:
+    label: OneDev
+    resources: onedev.resources
+    replicas: { fixed: 1, reason: "Repositories on a ReadWriteOnce volumeClaimTemplate" }
+    storage: { input: StorageSize }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to about 20 users
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
+  medium:
+    label: Medium
+    description: Up to about 200 users with CI builds
+    values: profiles/medium.yaml
+    integrations:
+      db: { instances: 1 }

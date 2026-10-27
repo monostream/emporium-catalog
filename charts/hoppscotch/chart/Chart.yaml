@@ -1,0 +1,26 @@
+apiVersion: v2
+name: hoppscotch
+description: Open source API development ecosystem (REST, GraphQL, WebSocket, SSE, MQTT)
+type: application
+version: 0.1.0
+appVersion: "2026.9.0"
+home: https://hoppscotch.io/
+icon: https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/packages/hoppscotch-common/public/logo.svg
+sources:
+  - https://github.com/hoppscotch/hoppscotch
+keywords:
+  - API
+  - REST
+  - GraphQL
+  - Postman alternative
+annotations:
+  icon: assets/icon.svg
+  displayName: Hoppscotch
+  category: Developer Tools
+  licenses: MIT
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-22"

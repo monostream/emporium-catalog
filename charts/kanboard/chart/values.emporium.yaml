@@ -1,0 +1,7 @@
+admin:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+database:
+  caSecret: {{ .Emporium.Integrations.db.CASecretName | quote }}
+  existingSecret: {{ .Emporium.Integrations.db.EnvSecretName | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

@@ -1,0 +1,109 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+# Official docker-jitsi-meet images; all four use the same release tag.
+image:
+  registry: ghcr.io/jitsi
+  tag: "stable-11248-1"
+  pullPolicy: IfNotPresent
+
+config:
+  # Public URL of the instance (PUBLIC_URL), e.g. https://meet.example.com
+  publicUrl: ""
+  # Moderators can put participants in a lobby until they let them in.
+  enableLobby: true
+  enablePrejoin: true
+  enableWelcomePage: true
+  # Time zone of the logs and of the room schedule
+  timezone: UTC
+
+# Credentials the components use to talk to each other (Prosody accounts).
+# Delivered by reference from a Secret (keys below); never rendered into a ConfigMap.
+secrets:
+  existingSecret: ""
+  jicofoAuthPasswordKey: JICOFO_AUTH_PASSWORD
+  jicofoComponentSecretKey: JICOFO_COMPONENT_SECRET
+  jvbAuthPasswordKey: JVB_AUTH_PASSWORD
+
+# Videobridge: carries the audio and video. Media flows over UDP (default 10000)
+# straight between the participants' browsers and this pod; it does NOT pass
+# through the HTTPS ingress.
+jvb:
+  # ClusterIP   : no outside access (the web UI works, media only inside the cluster)
+  # NodePort    : UDP <port> on every node (port must be 30000-32767)
+  # LoadBalancer: a UDP load balancer on <port>
+  # HostPort    : UDP <port> on the node the pod runs on
+  exposure: ClusterIP
+  port: 10000
+  # Public IP address(es) browsers use to reach the videobridge (JVB_ADVERTISE_IPS),
+  # comma separated. Empty: only the pod address is advertised (media works inside the cluster only).
+  advertiseIPs: ""
+  # Annotations of the LoadBalancer Service (cloud specific)
+  serviceAnnotations: {}
+  loadBalancerClass: ""
+  # JVM heap, must stay below the memory limit
+  maxMemory: 768m
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits: { memory: 1280Mi }
+
+# Network isolation (needs a CNI that enforces NetworkPolicy, e.g. Cilium).
+# Prosody (XMPP, port 5222) and the videobridge HTTP port are NOT meant to be reached by other
+# workloads: anybody who reaches Prosody could join conferences without the Emporium login.
+networkPolicy:
+  enabled: true
+  # Who may reach the web port besides the Emporium login proxy (glass) of this release:
+  # the pods of the ingress controller / gateway. Default: the Envoy gateway of Emporium
+  # clusters (namespace network-system). Add the namespace of your own ingress controller here.
+  ingressFrom:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: network-system
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+# web (nginx + Jitsi Meet UI), prosody (XMPP) and jicofo (conference focus) share one pod.
+web:
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { memory: 256Mi }
+prosody:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 384Mi }
+jicofo:
+  # JVM heap, must stay below the memory limit
+  maxMemory: 384m
+  resources:
+    requests: { cpu: 50m, memory: 256Mi }
+    limits: { memory: 640Mi }
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+# The s6-overlay init of the Jitsi images starts as uid 1000 and uses a setuid helper
+# (s6-overlay-suexec) to own /run; that needs privilege escalation and these few capabilities.
+# The services themselves run as uid 1000.
+securityContext:
+  allowPrivilegeEscalation: true
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

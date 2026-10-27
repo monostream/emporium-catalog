@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: stirling-pdf
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}{{ with .Values.image.variant }}-{{ . }}{{ end }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            # The ultra-lite image ships only the MIT-licensed core; these make
+            # that explicit and keep the proprietary login/SSO code switched off.
+            - name: DISABLE_ADDITIONAL_FEATURES
+              value: "true"
+            - name: SECURITY_ENABLELOGIN
+              value: "false"
+            - name: SERVER_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: SYSTEM_DEFAULTLOCALE
+              value: {{ .Values.config.defaultLocale | quote }}
+            - name: SYSTEM_MAXFILESIZE
+              value: {{ .Values.config.maxFileSize | quote }}
+            - name: UI_APPNAME
+              value: {{ .Values.config.appName | quote }}
+            - name: SYSTEM_GOOGLEVISIBILITY
+              value: "false"
+            - name: SHOW_SURVEY
+              value: "false"
+            - name: METRICS_ENABLED
+              value: "false"
+            - name: SYSTEM_ENABLEANALYTICS
+              value: {{ .Values.config.analytics | quote }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The JVM needs a while to start.
+          startupProbe:
+            httpGet: { path: /api/v1/info/status, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /api/v1/info/status, port: http }
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet: { path: /api/v1/info/status, port: http }
+            timeoutSeconds: 10
+          volumeMounts:
+            - { name: scratch, mountPath: /tmp }
+            - { name: scratch, mountPath: /configs, subPath: configs }
+            - { name: scratch, mountPath: /logs, subPath: logs }
+            - { name: scratch, mountPath: /customFiles, subPath: customFiles }
+            - { name: scratch, mountPath: /pipeline, subPath: pipeline }
+            - { name: scratch, mountPath: /storage, subPath: storage }
+            - { name: scratch, mountPath: /home/stirlingpdfuser, subPath: home }
+            # The start script symlinks its diagnostics helpers here.
+            - { name: scratch, mountPath: /usr/local/bin, subPath: bin }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: scratch
+          emptyDir:
+            sizeLimit: {{ .Values.scratch.sizeLimit }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

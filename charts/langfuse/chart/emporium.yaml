@@ -1,0 +1,202 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Bootstrap administrator, description: "Langfuse creates this account, an organization and a project at the first start. Use it when single sign-on is unavailable and to manage members." }
+
+inputs:
+  AdminEmail:
+    label: Administrator email
+    description: Sign-in name of the bootstrap administrator. Single sign-on accounts with the same email are linked to it.
+    type: string
+    default: admin@example.com
+    required: true
+    installOnly: true
+    pattern: '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    section: admin
+    path: init.userEmail
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret). Used only when the account is created; change it later in Langfuse.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: LANGFUSE_INIT_USER_PASSWORD }
+  ProjectPublicKey:
+    label: Initial project public key
+    description: Public API key of the bootstrap project (used with the secret key by the Langfuse SDKs). Create more keys in the project settings.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: LANGFUSE_INIT_PROJECT_PUBLIC_KEY }
+  ProjectSecretKey:
+    label: Initial project secret key
+    type: secret
+    generate: { length: 40, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: LANGFUSE_INIT_PROJECT_SECRET_KEY }
+  NextAuthSecret:
+    label: Session secret
+    type: secret
+    generate: { length: 48, charset: alnum }
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: NEXTAUTH_SECRET }
+  Salt:
+    label: API key salt
+    description: Hashes the project API keys; changing it invalidates every API key.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: SALT }
+  EncryptionKey:
+    label: Encryption key
+    description: Encrypts stored LLM connection keys; changing it makes them unreadable.
+    type: secret
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: ENCRYPTION_KEY }
+  ClickhousePassword:
+    label: ClickHouse password
+    type: secret
+    generate: { length: 32, charset: alnum }
+    installOnly: true
+    section: admin
+    ref: { namePath: secrets.existingSecret, key: CLICKHOUSE_PASSWORD }
+  IngestionMode:
+    label: Trace storage
+    description: 'Langfuse 4 keeps traces in a new table layout. "Both" also writes the legacy layout that the v2/v3 SDKs and the old /api/public/ingestion endpoint need (about twice the storage). "New only" accepts only Langfuse SDK v4 and OpenTelemetry (OTLP); older SDKs are rejected.'
+    type: enum
+    options:
+      - { value: dual, label: Both (all SDK versions) }
+      - { value: events_only, label: New layout only (SDK v4 and OpenTelemetry) }
+    default: dual
+    path: config.writeMode
+  DisableSignup:
+    label: Block new accounts
+    description: 'Off: every Emporium user who signs in with "Emporium" gets a Langfuse account at the first sign-in. On: only existing accounts (the administrator and invited users who already signed up) can sign in; also blocks new single sign-on accounts.'
+    type: enum
+    options:
+      - { value: "false", label: Allow new accounts }
+      - { value: "true", label: Block new accounts }
+    default: "false"
+    path: auth.disableSignup
+  DefaultOrgRole:
+    label: Role of new accounts
+    description: Role in the "Emporium" organization for accounts created at sign-up. The administrator can change roles under Organization settings > Members.
+    type: enum
+    options:
+      - { value: VIEWER, label: Viewer }
+      - { value: MEMBER, label: Member }
+      - { value: ADMIN, label: Admin }
+    default: VIEWER
+    path: auth.defaultOrgRole
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The Langfuse SDKs, OpenTelemetry exporters and the public REST/MCP API authenticate with the
+    # project's API keys (basic auth), not a browser session. Listed one by one (4.68.0 routes) so
+    # /api/public/health and /api/public/ready, which need no key and report status, stay behind the login.
+    skipPaths:
+      - "/api/public/annotation-queues*"
+      - "/api/public/comments*"
+      - "/api/public/dataset-items*"
+      - "/api/public/dataset-run-items*"
+      - "/api/public/datasets*"
+      - "/api/public/events*"
+      - "/api/public/experiment-items*"
+      - "/api/public/experiments*"
+      - "/api/public/feedback*"
+      - "/api/public/generations*"
+      - "/api/public/ingestion*"
+      - "/api/public/integrations*"
+      - "/api/public/llm-connections*"
+      - "/api/public/mcp*"
+      - "/api/public/media*"
+      - "/api/public/metrics*"
+      - "/api/public/models*"
+      - "/api/public/observations*"
+      - "/api/public/organizations*"
+      - "/api/public/otel*"
+      - "/api/public/projects*"
+      - "/api/public/prompts*"
+      - "/api/public/scim*"
+      - "/api/public/score-configs*"
+      - "/api/public/scores*"
+      - "/api/public/sessions*"
+      - "/api/public/skills*"
+      - "/api/public/spans*"
+      - "/api/public/traces*"
+      - "/api/public/unstable*"
+      - "/api/public/v2*"
+      - "/api/public/v3*"
+    # Langfuse's own OpenID Connect login (NextAuth provider "custom").
+    redirectPaths: [/api/auth/callback/custom]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  db:
+    required: true
+    type: postgres
+    database: langfuse
+    owner: langfuse
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+  # BullMQ queues carry accepted-but-not-yet-written events; they must survive a restart.
+  cache:
+    required: true
+    type: redis
+    mode: persistent
+    size: 1Gi
+    maxMemory: 256Mi
+  # Raw event payloads (the ingestion queue's source of truth) and media attachments.
+  files:
+    required: true
+    type: objectStorage
+    buckets: [langfuse]
+    size: 5Gi
+  traces:
+    required: true
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+    bind:
+      ClaimName: clickhouse.persistence.existingClaim
+
+components:
+  web:
+    label: Langfuse web
+    resources: web.resources
+    replicas: { fixed: 1, reason: "Applies the PostgreSQL and ClickHouse migrations at start" }
+    match: { kind: Deployment, name: "*-web" }
+  worker:
+    label: Langfuse worker
+    resources: worker.resources
+    replicas: { fixed: 1, reason: "Single ingestion worker; scale the queue consumers only with a shared ClickHouse cluster" }
+    match: { kind: Deployment, name: "*-worker" }
+  clickhouse:
+    label: ClickHouse (traces)
+    resources: clickhouse.resources
+    replicas: { fixed: 1, reason: "Single-node ClickHouse on a ReadWriteOnce volume" }
+    match: { kind: StatefulSet, name: "*clickhouse*" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team tracing a few thousand LLM calls a day
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

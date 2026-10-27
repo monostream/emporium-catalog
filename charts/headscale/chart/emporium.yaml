@@ -1,0 +1,45 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  CookieSecret:
+    label: Headplane cookie secret
+    description: Encrypts Headplane sessions. Generated at install; changing it signs everyone out.
+    type: secret
+    generate: { length: 32, charset: alnum }
+    ref: { namePath: cookie.existingSecret, key: COOKIE_SECRET }
+
+integrations:
+  web:
+    type: ingress
+    # Tailscale clients talk to headscale directly; Headplane and headscale log in through OIDC themselves.
+    disableGlass: true
+    redirectPaths: [/oidc/callback, /admin/oidc/callback]
+    bind:
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+    bind:
+      Issuer: oidc.issuerUrl
+      ClientID: oidc.clientId
+      SecretName: oidc.existingSecret
+      ClientSecretKey: oidc.clientSecretKey
+  data:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: storage.data.existingClaim
+
+components:
+  app:
+    label: headscale
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite database and noise key on a ReadWriteOnce volume" }
+    # The Headplane sidecar (web.resources) is sized through the profile: lint matches one
+    # component per workload, so a same-pod sidecar cannot be its own component.
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Up to a few hundred nodes
+    values: profiles/small.yaml

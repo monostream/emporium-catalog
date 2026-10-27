@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-cube
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" . "component" "cube") | nindent 4 }}
+data:
+  cube.js: |-
+{{ .Files.Get "files/cube/cube.js" | indent 4 }}
+  FeedbackRecords.js: |-
+{{ .Files.Get "files/cube/schema/FeedbackRecords.js" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-cube
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" . "component" "cube") | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "chart.componentSelectorLabels" (dict "ctx" . "component" "cube") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.componentLabels" (dict "ctx" . "component" "cube") | nindent 8 }}
+      annotations:
+        checksum/config: {{ printf "%s%s" (.Files.Get "files/cube/cube.js") (.Files.Get "files/cube/schema/FeedbackRecords.js") | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: cube
+          image: "{{ .Values.cube.image.repository }}:{{ .Values.cube.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: PORT
+              value: "4000"
+            - name: CUBEJS_DB_TYPE
+              value: postgres
+            - name: CUBEJS_DB_HOST
+              value: {{ .Values.database.host | quote }}
+            - name: CUBEJS_DB_PORT
+              value: {{ .Values.database.port | quote }}
+            - name: CUBEJS_DB_NAME
+              value: {{ .Values.database.name | quote }}
+            - name: CUBEJS_DB_USER
+              value: {{ .Values.database.username | quote }}
+            - name: CUBEJS_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.passwordSecret | quote }}
+                  key: {{ .Values.database.passwordKey }}
+            # TLS with certificate verification against the CloudNativePG CA (added to Node's trust store).
+            - name: CUBEJS_DB_SSL
+              value: "true"
+            - name: CUBEJS_DB_SSL_REJECT_UNAUTHORIZED
+              value: "true"
+            {{- include "chart.dbCaEnv" . | nindent 12 }}
+            - name: CUBEJS_API_SECRET
+              valueFrom:
+                {{- include "chart.secretRef" (dict "ctx" . "key" "CUBEJS_API_SECRET") | nindent 16 }}
+            - name: CUBEJS_JWT_ISSUER
+              value: formbricks-web
+            - name: CUBEJS_JWT_AUDIENCE
+              value: formbricks-cube
+            - name: CUBEJS_DEFAULT_API_SCOPES
+              value: meta,data
+            - name: CUBEJS_EXTERNAL_DEFAULT
+              value: "false"
+            - name: CUBEJS_CACHE_AND_QUEUE_DRIVER
+              value: memory
+          ports:
+            - name: http
+              containerPort: 4000
+          startupProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            {{- include "chart.dbCaMount" . | nindent 12 }}
+            - { name: cube-config, mountPath: /cube/conf/cube.js, subPath: cube.js, readOnly: true }
+            - { name: cube-config, mountPath: /cube/conf/model/FeedbackRecords.js, subPath: FeedbackRecords.js, readOnly: true }
+          resources:
+            {{- toYaml .Values.cubeResources | nindent 12 }}
+      volumes:
+        {{- include "chart.dbCaVolume" . | nindent 8 }}
+        - name: cube-config
+          configMap:
+            name: {{ include "chart.fullname" . }}-cube
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

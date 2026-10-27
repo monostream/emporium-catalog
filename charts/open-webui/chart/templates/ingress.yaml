@@ -1,0 +1,30 @@
+{{- if and .Values.ingress.enabled .Values.ingress.host }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    {{- $extra := dict "nginx.ingress.kubernetes.io/proxy-body-size" .Values.ingress.proxyBodySize "nginx.ingress.kubernetes.io/proxy-read-timeout" (.Values.ingress.proxyReadTimeout | toString) }}
+    {{- toYaml (merge (deepCopy (default (dict) .Values.ingress.annotations)) $extra) | nindent 4 }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  tls:
+    - secretName: {{ required "ingress.tlsSecretName is set by the ingress integration" .Values.ingress.tlsSecretName }}
+      hosts:
+        {{- toYaml (default (list .Values.ingress.host) .Values.ingress.tlsHosts) | nindent 8 }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "chart.fullname" . }}
+                port:
+                  name: http
+{{- end }}

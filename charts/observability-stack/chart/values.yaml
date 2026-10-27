@@ -1,6 +1,234 @@
-prometheus: {}
-loki: {}
-tempo: {}
-alloy: {}
-pyroscope: {}
-dashboard: {}
+# Wrapper defaults. Emporium-specific wiring is in values.emporium.yaml; sizing in profiles/.
+prometheus:
+  prometheusOperator:
+    enabled: false
+    admissionWebhooks:
+      timeoutSeconds: 30
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+  prometheus:
+    enabled: false
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
+      retention: 10d
+      retentionSize: ""
+      # PVC is deleted with the StatefulSet; Emporium's retained data keeps what the user wants to keep.
+      persistentVolumeClaimRetentionPolicy:
+        whenDeleted: Delete
+      resources:
+        requests:
+          cpu: 200m
+          memory: 1Gi
+        limits:
+          memory: 2Gi
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 20Gi
+
+  nodeExporter:
+    enabled: false
+  prometheus-node-exporter:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+
+  kube-state-metrics:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+
+  grafana:
+    # Logto role whose members become Grafana admins when they sign in with Emporium (the "roles"
+    # claim). Must match Emporium's identity.logto.adminRole (default emporium-admin). Everybody
+    # else is a Viewer. Not .AdminScope: that is the API scope "admin", not the role.
+    emporiumAdminRole: emporium-admin
+    adminPassword: ""
+    admin:
+      existingSecret: ""
+    ingress:
+      enabled: false
+      ingressClassName: ""
+      hosts: []
+      tls: []
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+    sidecar:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+    grafana.ini:
+      alerting:
+        enabled: false
+      analytics:
+        check_for_updates: false
+      users:
+        allow_sign_up: false
+        allow_org_create: false
+        auto_assign_org: true
+        auto_assign_org_role: true
+        viewers_can_edit: true
+        editors_can_admin: false
+      auth:
+        disable_login_form: false
+      auth.generic_oauth:
+        # Rendered by the Grafana chart (tpl). `roles || [] ` keeps a missing or null roles claim
+        # a plain Viewer instead of a JMESPath error.
+        role_attribute_path: "contains(roles || `[]`, '{{ .Values.emporiumAdminRole }}') && 'GrafanaAdmin' || 'Viewer'"
+      auth.basic:
+        enabled: false
+      # Everybody signs in with Emporium (auth.generic_oauth, see values.emporium.yaml) and gets a
+      # role from it. The local admin account stays as a break-glass login.
+      auth.anonymous:
+        enabled: false
+
+  defaultRules:
+    create: false
+  kubeApiServer:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubelet:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+  alertmanager:
+    enabled: false
+  coreDns:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeProxy:
+    enabled: false
+
+loki:
+  deploymentMode: SingleBinary
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    storage:
+      type: filesystem
+    schemaConfig:
+      configs:
+        - from: "2024-04-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 50Gi
+      # PVC is deleted with the StatefulSet (chart default, pinned here).
+      enableStatefulSetAutoDeletePVC: true
+      whenDeleted: Delete
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+  # The canary DaemonSet (one pod per node) and the Helm test only verify Loki itself.
+  lokiCanary:
+    enabled: false
+  test:
+    enabled: false
+  minio:
+    enabled: false
+  chunksCache:
+    enabled: false
+  gateway:
+    enabled: false
+  resultsCache:
+    enabled: false
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+  ingester:
+    replicas: 0
+  querier:
+    replicas: 0
+  queryFrontend:
+    replicas: 0
+  queryScheduler:
+    replicas: 0
+  distributor:
+    replicas: 0
+  compactor:
+    replicas: 0
+  indexGateway:
+    replicas: 0
+  bloomCompactor:
+    replicas: 0
+  bloomGateway:
+    replicas: 0
+
+tempo:
+  persistence:
+    enabled: true
+    # PVC is deleted with the StatefulSet; Emporium's retained data keeps what the user wants to keep.
+    enableStatefulSetAutoDeletePVC: true
+    size: 5Gi
+  tempo:
+    # Go duration (block_retention).
+    retention: 168h
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+
+alloy:
+  controller:
+    type: daemonset
+  alloy:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    mounts:
+      # Input NodeLogCollection. Off: logs come through the Kubernetes API, no hostPath (PodSecurity baseline).
+      varlog: false
+  configReloader:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 50Mi
+      limits:
+        memory: 64Mi

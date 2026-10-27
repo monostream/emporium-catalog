@@ -1,0 +1,20 @@
+Matrix (Synapse + Element) is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+Matrix server name: {{ .Values.synapse.serverName }} (user ids look like @name:{{ .Values.synapse.serverName }}).
+
+{{- if .Values.oidc.enabled }}
+
+Open the address and choose "Continue with {{ .Values.oidc.providerName }}". Your Matrix account
+is created at the first sign-in; your Matrix user name is your Emporium username.
+Single sign-on accounts are regular users. Synapse cannot map Emporium administrators.
+{{- end }}
+
+First administrator (break-glass, registration stays closed):
+  kubectl -n {{ .Release.Namespace }} exec -it deploy/{{ include "chart.synapseName" . }} -- \
+    register_new_matrix_user -u admin -a -c /config/homeserver.yaml http://localhost:8008
+(the shared secret is read from the mounted Secret; you are asked for the password, which needs -it. Without a terminal use -p instead and drop -it).
+{{- if not .Values.synapse.passwordLogin }}
+Password login is off: turn it on in the install settings to sign in with this account.
+{{- end }}
+
+Federation is {{ if .Values.synapse.federation }}on{{ else }}off{{ end }}.
+Matrix apps (Element X, phones) use https://{{ .Values.ingress.host }} as the homeserver; /_matrix skips the Emporium login.

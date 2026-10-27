@@ -1,125 +1,126 @@
-postgresql:
-  fullnameOverride: "uptrace-postgresql"
-  auth:
-    database: "uptrace"
-    existingSecret: "uptrace-postgresql"
-    username: "uptrace"
-  primary:
-    podSecurityContext:
-      enabled: true
-      fsGroup: 1001
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 1001
-      runAsNonRoot: true
-      allowPrivilegeEscalation: false
-
 uptrace:
-  otelcol:
-    enabled: false
-
-  postgresql:
-    enabled: false
-
-
-  ## @userSupplied ClickHouseDiskSize
-  ## @label ClickHouse Disk Size
-  ## @type byteSize
-  ## @description Size for ClickHouse database disk. Default is 100Gi.
-  ## @optional
-  clickhouse:
-    persistence:
-      size: {{ default "100Gi" .Emporium.UserSupplied.ClickHouseDiskSize }}
-
   ingress:
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"
+    className: {{ .Emporium.Integrations.web.IngressClassName | quote }}
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
     hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
-      paths:
-        - path: /
-          pathType: Prefix
+      - host: {{ .Emporium.Integrations.web.Hostname | quote }}
+        paths:
+          - path: /
+            pathType: Prefix
     tls:
-    - secretName: uptrace-tls
-      hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
-  uptrace:
-    env:
-    - name: POSTGRES_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: uptrace-postgresql
-          key: password
-    - name: UPTRACE_SECRET_KEY
-      valueFrom:
-        secretKeyRef:
-          name: uptrace
-          key: secretKey
-    - name: UPTRACE_TOKEN_PROJECT1
-      valueFrom:
-        secretKeyRef:
-          name: uptrace
-          key: project1
-    - name: UPTRACE_TOKEN_PROJECT2
-      valueFrom:
-        secretKeyRef:
-          name: uptrace
-          key: project2
-    config:
-      site:
-        addr: https://{{ .Emporium.Integrations.DNS.Hostname }}
-      pg:
-        # predictable because of postgresql.fullnameOverride
-        addr: uptrace-postgresql:5432
-        user: uptrace
-        password: "${POSTGRES_PASSWORD}"
-        database: uptrace
-      auth:
-        oidc:
-          - id: emporium
-            display_name: Emporium
-            issuer_url: "{{ .Emporium.Integrations.OIDC.Issuer }}"
-            client_id: "{{ .Emporium.Integrations.OIDC.ClientID }}"
-            client_secret: "{{ .Emporium.Integrations.OIDC.ClientSecret }}"
-            scopes:
-              - profile
-            claim: preferred_username
-        users:
-        - email: emporium@localhost
-          name: Anonymous
-          notify_by_email: true
-          password: "${UPTRACE_ADMIN_PASSWORD}"
-      projects:
-        # Conventionally, the first project is used to monitor Uptrace itself.
-        - id: 1
-          name: Uptrace
-          # Token grants write access to the project. Keep a secret.
-          token: "${UPTRACE_TOKEN_PROJECT1}"
-          pinned_attrs:
-            - service_name
-            - host_name
-            - deployment_environment
-          # Group spans by deployment.environment attribute.
-          group_by_env: false
-          # Group funcs spans by service.name attribute.
-          group_funcs_by_service: false
-          # Enable prom_compat if you want to use the project as a Prometheus datasource in Grafana.
-          prom_compat: true
+      - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+        hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
 
-        # Other projects can be used to monitor your applications.
-        # To monitor micro-services or multiple related services, use a single project.
-        - id: 2
-          name: Emporium
-          token: "${UPTRACE_TOKEN_PROJECT2}"
-          pinned_attrs:
-            - service_name
-            - host_name
-            - deployment_environment
-          prom_compat: true
-      secret_key: "${UPTRACE_SECRET_KEY}"
-      uptrace_go:
-        dsn: http://${UPTRACE_TOKEN_PROJECT1}@uptrace:14318?grpc=14317
+  uptrace:
+    # Uptrace expands ${VAR} in its config file; every secret reaches it by
+    # reference through these variables, never through the ConfigMap.
+    env:
+      - name: UPTRACE_SECRET
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Secrets.Name | quote }}, key: UPTRACE_SECRET } }
+      - name: UPTRACE_ADMIN_PASSWORD
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Secrets.Name | quote }}, key: UPTRACE_ADMIN_PASSWORD } }
+      - name: UPTRACE_TOKEN_PROJECT1
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Secrets.Name | quote }}, key: UPTRACE_TOKEN_PROJECT1 } }
+      - name: UPTRACE_TOKEN_PROJECT2
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Secrets.Name | quote }}, key: UPTRACE_TOKEN_PROJECT2 } }
+      - name: CH_PASSWORD
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Secrets.Name | quote }}, key: CLICKHOUSE_PASSWORD } }
+      - name: PG_PASSWORD
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Integrations.postgres.SecretName | quote }}, key: {{ .Emporium.Integrations.postgres.PasswordKey | quote }} } }
+      - name: REDIS_PASSWORD
+        valueFrom: { secretKeyRef: { name: {{ .Emporium.Integrations.redis.SecretName | quote }}, key: {{ .Emporium.Integrations.redis.PasswordKey | quote }} } }
+      {{- with .Emporium.Integrations.mail }}
+      - name: SMTP_PASSWORD
+        valueFrom: { secretKeyRef: { name: {{ .SecretName | quote }}, key: {{ .PasswordKey | quote }} } }
+      {{- end }}
+    config:
+      service:
+        secret: ${UPTRACE_SECRET}
+      site:
+        url: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+      seed_data:
+        update: true
+        delete: true
+        users:
+          - key: admin
+            name: Admin
+            email: {{ input "AdminEmail" }}
+            password: ${UPTRACE_ADMIN_PASSWORD}
+            email_confirmed: true
+        user_tokens: []
+        orgs:
+          - key: org1
+            name: Emporium
+        org_users:
+          - key: org_user1
+            org_key: org1
+            user_key: admin
+            role: owner
+        projects:
+          # Conventionally the first project monitors Uptrace itself.
+          - key: project1
+            name: Uptrace
+            org_key: org1
+          - key: project2
+            name: Emporium
+            org_key: org1
+        project_tokens:
+          - key: project_token1
+            project_key: project1
+            token: ${UPTRACE_TOKEN_PROJECT1}
+          - key: project_token2
+            project_key: project2
+            token: ${UPTRACE_TOKEN_PROJECT2}
+        project_users:
+          - key: project_user1
+            project_key: project1
+            org_user_key: org_user1
+            perm_level: admin
+          - key: project_user2
+            project_key: project2
+            org_user_key: org_user1
+            perm_level: admin
+      ch_cluster:
+        cluster: uptrace1
+        replicated: false
+        distributed: false
+        shards:
+          - replicas:
+              # Service of this chart's ClickHouseInstallation "uptrace1".
+              - addr: clickhouse-uptrace1:9000
+                database: uptrace
+                user: uptrace
+                password: ${CH_PASSWORD}
+                dial_timeout: 3s
+                write_timeout: 5s
+                max_retries: 3
+                max_execution_time: 15s
+      pg:
+        addr: {{ printf "%s:%v" .Emporium.Integrations.postgres.Host .Emporium.Integrations.postgres.Port | quote }}
+        user: {{ .Emporium.Integrations.postgres.Username | quote }}
+        password: ${PG_PASSWORD}
+        database: {{ .Emporium.Integrations.postgres.Database | quote }}
+        # Uptrace connects in plain text without a tls block. The upstream
+        # chart cannot mount extra volumes, so ca_file cannot point at the
+        # CloudNativePG CA: encrypted, server certificate not verified.
         tls:
+          insecure_skip_verify: true
+      redis_cache:
+        addrs:
+          1: {{ printf "%s:%v" .Emporium.Integrations.redis.Host .Emporium.Integrations.redis.Port | quote }}
+        username: ""
+        password: ${REDIS_PASSWORD}
+        db: 0
+      {{- with .Emporium.Integrations.mail }}
+      mailer:
+        smtp:
+          enabled: true
+          host: {{ .Host | quote }}
+          port: {{ .Port }}
+          username: {{ .Username | quote }}
+          # Single-quoted YAML scalar built at container start (templates/uptrace-statefulset.yaml).
+          password: ${SMTP_PASSWORD_YAML}
+          from: {{ .From | quote }}
+      {{- end }}
+      self_monitoring:
+        dsn: http://${UPTRACE_TOKEN_PROJECT1}@localhost:80?grpc=4317

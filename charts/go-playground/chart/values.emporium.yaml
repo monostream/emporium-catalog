@@ -1,23 +1,11 @@
-app:
-  name: {{ .Emporium.Name }}
-
-# Ingress configuration with Emporium DNS integration
 ingress:
   enabled: true
-  annotations:
-    {{- if .Emporium.Annotations }}
-    {{- toYaml .Emporium.Annotations | nindent 4 }}
-    {{- end }}
-    kubernetes.io/tls-acme: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "16m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
   hosts:
-    - host: {{ .Emporium.Integrations.DNS.Hostname }}
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: {{ .Emporium.Name }}-tls
-      hosts:
-        - {{ .Emporium.Integrations.DNS.Hostname }}
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

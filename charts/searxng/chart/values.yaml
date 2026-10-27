@@ -1,0 +1,73 @@
+# Base configuration. Renders on its own; Emporium fills the host, the secret
+# key and the optional Valkey connection through emporium.yaml and
+# values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: searxng/searxng
+  tag: "2026.10.19-81371861f"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8080
+
+config:
+  instanceName: SearXNG
+  # Default safe search level: 0 off, 1 moderate, 2 strict.
+  safeSearch: 0
+  # Proxy result images through SearXNG so the browser never contacts the
+  # source sites (privacy).
+  imageProxy: true
+  # Also answer /search?format=json (for scripts and other apps).
+  jsonApi: false
+  # Public URL, set from the ingress hostname.
+  baseUrl: ""
+
+# SearXNG signs its session and link tokens with this key (SEARXNG_SECRET).
+secret:
+  existingSecret: ""
+  key: SecretKey
+
+# Optional Valkey (Emporium redis integration): switches the rate limiter and
+# bot detection on. Filled by values.emporium.yaml.
+valkey:
+  enabled: false
+  existingSecret: ""
+  urlKey: ""
+
+# Additional environment variables (see https://docs.searxng.org/admin/settings/).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 977
+  runAsGroup: 977
+  fsGroup: 977
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

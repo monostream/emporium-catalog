@@ -1,0 +1,22 @@
+Open WebUI is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}. The first start takes a minute (database migrations).
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with "Continue with {{ .Values.oidc.providerName }}" on the login page. Users need the
+Emporium role "{{ .Values.oidc.userRole }}" or "{{ .Values.oidc.adminRole }}"; "{{ .Values.oidc.adminRole }}" makes them Open WebUI administrators.
+{{- end }}
+{{- if .Values.admin.existingSecret }}
+
+Local administrator: {{ .Values.admin.email }}. The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+{{- if .Values.config.ollamaBaseUrl }}
+
+Ollama: {{ .Values.config.ollamaBaseUrl }}. Pull models in Admin Settings > Models.
+{{- else }}
+
+No Ollama URL is set. Add Ollama or OpenAI-compatible connections in Admin Settings > Connections.
+{{- end }}
+
+API clients (/api, /openai, /ollama) use an Open WebUI API key (Settings > Account) and bypass the Emporium login.

@@ -1,0 +1,45 @@
+prometheus:
+  prometheusOperator:
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits: { memory: 256Mi }
+  prometheus:
+    prometheusSpec:
+      resources:
+        requests: { cpu: 200m, memory: 1Gi }
+        limits: { memory: 2Gi }
+  prometheus-node-exporter:
+    resources:
+      requests: { cpu: 20m, memory: 32Mi }
+      limits: { memory: 64Mi }
+  kube-state-metrics:
+    resources:
+      requests: { cpu: 20m, memory: 64Mi }
+      limits: { memory: 256Mi }
+  grafana:
+    resources:
+      requests: { cpu: 100m, memory: 256Mi }
+      limits: { memory: 512Mi }
+    sidecar:
+      resources:
+        requests: { cpu: 10m, memory: 64Mi }
+        limits: { memory: 256Mi }
+loki:
+  singleBinary:
+    resources:
+      requests: { cpu: 100m, memory: 256Mi }
+      limits: { memory: 1Gi }
+tempo:
+  tempo:
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits: { memory: 512Mi }
+alloy:
+  alloy:
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits: { memory: 512Mi }
+  configReloader:
+    resources:
+      requests: { cpu: 10m, memory: 50Mi }
+      limits: { memory: 64Mi }

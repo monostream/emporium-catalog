@@ -1,0 +1,4 @@
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+wopi:
+  zone: {{ if .Emporium.Inputs.AllowZoneApps }}{{ .Emporium.Integrations.web.Zone | quote }}{{ else }}""{{ end }}

@@ -1,0 +1,72 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: hoppscotch/hoppscotch
+  tag: "2026.9.0"
+  pullPolicy: IfNotPresent
+
+service:
+  # Port of the built-in web server (HOPP_ALTERNATE_PORT, single-port subpath mode).
+  port: 8000
+
+app:
+  # Public URL of the instance, e.g. https://hoppscotch.example.com
+  baseUrl: ""
+  # E-mail address of the administrator, created at the first start.
+  adminEmail: ""
+  # Secret and key holding the 32 character data encryption key.
+  existingSecret: ""
+  dataEncryptionKeyKey: DataEncryptionKey
+
+# SMTP settings used for the sign-in links. The first start applies them once
+# (onboarding); afterwards they are managed in the admin dashboard.
+mail:
+  host: ""
+  port: 587
+  username: ""
+  from: ""
+  existingSecret: ""
+  passwordKey: ""
+
+# PostgreSQL. Emporium provides it through the postgres integration (CloudNativePG).
+database:
+  # Secret holding a postgresql:// connection URL.
+  existingSecret: ""
+  urlKey: DATABASE_URL
+
+# Additional environment variables for the Hoppscotch container.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 1Gi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 0
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

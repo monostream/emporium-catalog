@@ -1,51 +1,41 @@
-## @userSupplied Username
-## @label Admin username
-## @type string
-## @description Admin Username
-
-## @userSupplied Password
-## @label Admin password
-## @type string
-## @description Admin password
-
-## @userSupplied StorageSize
-## @label Storage Size
-## @type byteSize
-## @description Size of the storage volume for OneDev. Default is 20Gi.
-## @optional
-
-## @userSupplied PersistenceStorageClass
-## @label Volume StorageClass
-## @type storageClass
-## @description The StorageClass to use for the OneDev volume. If not provided, default storage class is used.
-## @optional
-
 onedev:
   onedev:
     initSettings:
-      user: {{ .Emporium.UserSupplied.Username }}
-      password: {{ .Emporium.UserSupplied.Password }}
-      email: 'onedev@{{ .Emporium.Integrations.DNS.Hostname }}'
-
-  persistence:
-    {{- if .Emporium.UserSupplied.PersistenceStorageClass }}
-    storageClassName: {{ .Emporium.UserSupplied.PersistenceStorageClass }}
-    {{- end }}
-    size: {{ default "20Gi" .Emporium.UserSupplied.StorageSize }}
+      email: {{ printf "onedev@%s" .Emporium.Integrations.web.Hostname | quote }}
+      serverUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
 
   ingress:
     enabled: true
-    annotations:
-      {{- if .Emporium.Annotations }}
-      {{- toYaml .Emporium.Annotations | nindent 6 }}
-      {{- end }}
-      kubernetes.io/tls-acme: "true"  
-      emporium.build/auth-skip-paths: '/api/*,regex(^(\/([^\/\n])+){2,}\.git.*$)'
-      nginx.ingress.kubernetes.io/proxy-body-size: '0'
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: '15'
-      nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
-      nginx.ingress.kubernetes.io/service-upstream: 'true'
-    host: {{ .Emporium.Integrations.DNS.Hostname }}
+    annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
+    host: {{ .Emporium.Integrations.web.Hostname | quote }}
     tls:
       enabled: true
-      secretName: {{ .Emporium.Name }}-tls
+      secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+
+  # OneDev reads the initial admin password and the hibernate_* database settings from the
+  # environment. The upstream chart's own database wiring (database.external) would copy the
+  # password into its Secret from plain values, so the settings are given here by reference.
+  env:
+    - name: initial_password
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Emporium.Secrets.Name | quote }}
+          key: Password
+    {{- with .Emporium.Integrations.db }}
+    - name: hibernate_dialect
+      value: io.onedev.server.persistence.PostgreSQLDialect
+    - name: hibernate_connection_driver_class
+      value: org.postgresql.Driver
+    - name: hibernate_connection_url
+      # sslmode=require: encrypted; the JDBC driver has no CloudNativePG CA to verify against.
+      value: {{ printf "jdbc:postgresql://%s:%v/%s?sslmode=require" .Host .Port .Database | quote }}
+    - name: hibernate_connection_username
+      value: {{ .Username | quote }}
+    - name: hibernate_connection_password
+      valueFrom:
+        secretKeyRef:
+          name: {{ .SecretName | quote }}
+          key: {{ .PasswordKey | quote }}
+    - name: hibernate_hikari_maximumPoolSize
+      value: "25"
+    {{- end }}

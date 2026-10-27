@@ -1,0 +1,317 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" . "component" "app") | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.componentSelectorLabels" (dict "ctx" . "component" "app") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.componentLabels" (dict "ctx" . "component" "app") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      # The three datastores are prepared in order, before the web process starts:
+      # Formbricks (Prisma) first, then Hub (goose, river), then SpiceDB and its schema.
+      initContainers:
+        - name: migrate-formbricks
+          image: {{ include "chart.appImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [node, packages/database/dist/scripts/apply-migrations.js]
+          securityContext:
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          env:
+            {{- include "chart.databaseUrlEnv" (dict "ctx" .) | nindent 12 }}
+            {{- include "chart.dbCaEnv" . | nindent 12 }}
+          volumeMounts:
+            {{- include "chart.dbCaMount" . | nindent 12 }}
+          resources:
+            requests: { cpu: 50m, memory: 256Mi }
+            limits: { memory: 768Mi }
+        - name: migrate-hub
+          image: {{ include "chart.hubImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -ec
+            - |
+              /usr/local/bin/goose -dir /app/migrations postgres "$DATABASE_URL" up
+              /usr/local/bin/river migrate-up --database-url "$DATABASE_URL"
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            {{- include "chart.databaseUrlEnv" (dict "ctx" .) | nindent 12 }}
+          resources:
+            requests: { cpu: 25m, memory: 64Mi }
+            limits: { memory: 256Mi }
+        - name: migrate-spicedb
+          image: {{ include "chart.spicedbImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: [datastore, migrate, head]
+          securityContext:
+            runAsUser: 65532
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: SPICEDB_DATASTORE_ENGINE
+              value: postgres
+            {{- include "chart.databaseUrlEnv" (dict "ctx" . "name" "SPICEDB_DATASTORE_CONN_URI") | nindent 12 }}
+          resources:
+            requests: { cpu: 25m, memory: 64Mi }
+            limits: { memory: 256Mi }
+        # Writes the authorization schema into SpiceDB once it serves, then checks it.
+        - name: prepare-authorization
+          image: {{ include "chart.appImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -ec
+            - |
+              attempts=0
+              until formbricks-authzed upgrade prepare; do
+                attempts=$((attempts + 1))
+                if [ "$attempts" -ge 120 ]; then
+                  echo "SpiceDB did not become available"
+                  exit 1
+                fi
+                sleep 5
+              done
+              formbricks-authzed upgrade check
+          securityContext:
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            {{- include "chart.databaseUrlEnv" (dict "ctx" .) | nindent 12 }}
+            - { name: LOG_LEVEL, value: fatal }
+            - { name: CUBEJS_API_URL, value: "http://localhost" }
+            - { name: CUBEJS_API_SECRET, value: unused }
+            - { name: HUB_API_URL, value: "http://localhost" }
+            - { name: HUB_API_KEY, value: unused }
+            - { name: REDIS_URL, value: "redis://localhost" }
+            - { name: ENCRYPTION_KEY, value: unused }
+            {{- include "chart.authzedEnv" . | nindent 12 }}
+            {{- include "chart.dbCaEnv" . | nindent 12 }}
+          volumeMounts:
+            {{- include "chart.dbCaMount" . | nindent 12 }}
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+      containers:
+        - name: formbricks
+          image: {{ include "chart.appImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: SKIP_STARTUP_MIGRATION
+              value: "true"
+            {{- include "chart.dbCaEnv" . | nindent 12 }}
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            {{- with .Values.config.baseUrl }}
+            - name: WEBAPP_URL
+              value: {{ . | quote }}
+            - name: BETTER_AUTH_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- include "chart.databaseUrlEnv" (dict "ctx" .) | nindent 12 }}
+            {{- range $k := list "BETTER_AUTH_SECRET" "ENCRYPTION_KEY" "CRON_SECRET" "HUB_API_KEY" "CUBEJS_API_SECRET" }}
+            - name: {{ $k }}
+              valueFrom:
+                {{- include "chart.secretRef" (dict "ctx" $ "key" $k) | nindent 16 }}
+            {{- end }}
+            {{- with .Values.redis.existingSecret }}
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.redis.urlKey }}
+            {{- end }}
+            - name: HUB_API_URL
+              value: {{ printf "http://%s-hub:8080" (include "chart.fullname" .) | quote }}
+            - name: CUBEJS_API_URL
+              value: {{ printf "http://%s-cube:4000" (include "chart.fullname" .) | quote }}
+            - name: CUBEJS_JWT_ISSUER
+              value: formbricks-web
+            - name: CUBEJS_JWT_AUDIENCE
+              value: formbricks-cube
+            {{- include "chart.authzedEnv" . | nindent 12 }}
+            - name: EMAIL_VERIFICATION_DISABLED
+              value: {{ ternary "0" "1" (and .Values.config.emailVerification .Values.smtp.enabled) | quote }}
+            - name: PASSWORD_RESET_DISABLED
+              value: {{ ternary "0" "1" (and .Values.config.passwordReset .Values.smtp.enabled) | quote }}
+            {{- if .Values.config.telemetryDisabled }}
+            - name: TELEMETRY_DISABLED
+              value: "1"
+            {{- end }}
+            {{- if .Values.smtp.enabled }}
+            - name: SMTP_HOST
+              value: {{ .Values.smtp.host | quote }}
+            - name: SMTP_PORT
+              value: {{ .Values.smtp.port | quote }}
+            - name: MAIL_FROM
+              value: {{ .Values.smtp.from | quote }}
+            {{- with .Values.smtp.username }}
+            - name: SMTP_AUTHENTICATED
+              value: "1"
+            - name: SMTP_USER
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.smtp.existingSecret }}
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.smtp.passwordKey }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.objectStorage.enabled }}
+            - name: S3_BUCKET_NAME
+              value: {{ .Values.objectStorage.bucket | quote }}
+            - name: S3_REGION
+              value: {{ .Values.objectStorage.region | quote }}
+            - name: S3_ENDPOINT_URL
+              value: {{ .Values.objectStorage.endpoint | quote }}
+            - name: S3_FORCE_PATH_STYLE
+              value: {{ ternary "1" "0" .Values.objectStorage.forcePathStyle | quote }}
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.objectStorage.existingSecret }}
+                  key: {{ .Values.objectStorage.accessKeyKey }}
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.objectStorage.existingSecret }}
+                  key: {{ .Values.objectStorage.secretKeyKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 3000
+          startupProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 5
+            failureThreshold: 120
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          # Ready only after the first administrator exists.
+          readinessProbe:
+            exec:
+              command: [sh, -c, "test -f /bootstrap/done && wget -q -O /dev/null http://127.0.0.1:3000/health"]
+            periodSeconds: 5
+            timeoutSeconds: 5
+          volumeMounts:
+            - { name: bootstrap, mountPath: /bootstrap, readOnly: true }
+            {{- include "chart.dbCaMount" . | nindent 12 }}
+            - { name: tmp, mountPath: /tmp }
+            - { name: next-cache, mountPath: /home/nextjs/apps/web/.next/cache }
+            - { name: uploads, mountPath: /home/nextjs/apps/web/uploads }
+            - { name: saml, mountPath: /home/nextjs/apps/web/saml-connection }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        # Creates the first administrator at install, so the instance is never "fresh": Formbricks lets anyone
+        # register on an empty instance, and public survey paths would expose that to anonymous visitors.
+        - name: bootstrap-admin
+          image: {{ include "chart.appImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          command:
+            - node
+            - -e
+            - |
+              const fs = require("fs");
+              const base = "http://127.0.0.1:3000";
+              // Formbricks needs upper and lower case letters and a digit; a generated value that lacks one
+              // gets the prefix "Aa0" (a value that already meets the policy is used unchanged).
+              let password = process.env.ADMIN_PASSWORD || "";
+              if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) password = "Aa0" + password;
+              const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+              (async () => {
+                for (let i = 0; ; i++) {
+                  try {
+                    if (fs.existsSync("/bootstrap/done")) break;
+                    const h = await fetch(base + "/health");
+                    if (!h.ok) throw new Error("not ready");
+                    const r = await fetch(base + "/api/auth/sign-up/email", {
+                      method: "POST",
+                      headers: { "content-type": "application/json", origin: process.env.WEBAPP_URL },
+                      body: JSON.stringify({ name: process.env.ADMIN_NAME, email: process.env.ADMIN_EMAIL, password }),
+                    });
+                    console.log("bootstrap sign-up status", r.status);
+                    // 200: created (or the address exists); 403: the instance already has users.
+                    if (r.status === 200 || r.status === 403) { fs.writeFileSync("/bootstrap/done", "1"); break; }
+                  } catch (e) { /* the web process is still starting */ }
+                  await sleep(2000);
+                }
+                setInterval(() => {}, 1 << 30);
+              })();
+          env:
+            - name: WEBAPP_URL
+              value: {{ .Values.config.baseUrl | quote }}
+            - name: ADMIN_NAME
+              value: {{ .Values.admin.name | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                {{- include "chart.secretRef" (dict "ctx" . "key" "ADMIN_PASSWORD") | nindent 16 }}
+          volumeMounts:
+            - { name: bootstrap, mountPath: /bootstrap }
+          resources:
+            requests: { cpu: 5m, memory: 48Mi }
+            limits: { memory: 128Mi }
+      volumes:
+        {{- include "chart.dbCaVolume" . | nindent 8 }}
+        - { name: bootstrap, emptyDir: {} }
+        - { name: tmp, emptyDir: {} }
+        - { name: next-cache, emptyDir: {} }
+        - { name: uploads, emptyDir: {} }
+        - { name: saml, emptyDir: {} }
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

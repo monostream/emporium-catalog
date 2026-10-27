@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-hub
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" . "component" "hub") | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "chart.componentSelectorLabels" (dict "ctx" . "component" "hub") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.componentLabels" (dict "ctx" . "component" "hub") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: hub
+          image: {{ include "chart.hubImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            {{- include "chart.databaseUrlEnv" (dict "ctx" .) | nindent 12 }}
+            - name: API_KEY
+              valueFrom:
+                {{- include "chart.secretRef" (dict "ctx" . "key" "HUB_API_KEY") | nindent 16 }}
+          ports:
+            - name: http
+              containerPort: 8080
+          # The Formbricks pod creates the Hub tables (init container); Hub restarts until they exist.
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 5
+            failureThreshold: 120
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+          resources:
+            {{- toYaml .Values.hubResources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-hub-worker
+  labels:
+    {{- include "chart.componentLabels" (dict "ctx" . "component" "hub-worker") | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "chart.componentSelectorLabels" (dict "ctx" . "component" "hub-worker") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.componentLabels" (dict "ctx" . "component" "hub-worker") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: hub-worker
+          image: {{ include "chart.hubImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [/app/hub-worker]
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            {{- include "chart.databaseUrlEnv" (dict "ctx" .) | nindent 12 }}
+          resources:
+            {{- toYaml .Values.hubWorkerResources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

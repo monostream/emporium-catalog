@@ -1,0 +1,10 @@
+config:
+  baseUrl: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
+{{- if .Emporium.Integrations.cache }}
+valkey:
+  enabled: true
+  existingSecret: {{ .Emporium.Integrations.cache.SecretName | quote }}
+  urlKey: {{ .Emporium.Integrations.cache.URLKey | quote }}
+{{- end }}

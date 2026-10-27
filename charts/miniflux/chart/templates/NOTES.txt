@@ -1,0 +1,18 @@
+Miniflux is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+{{- if .Values.oidc.enabled }}
+
+Sign in with "Sign in with {{ .Values.oidc.providerName }}" on the login page.
+{{- if .Values.oidc.userCreation }} Your Miniflux account is created at your first sign-in.{{ end }}
+Single sign-on accounts are regular users; the local administrator can promote them under Settings > Users.
+Your Miniflux username is your Emporium username.
+{{- end }}
+{{- if .Values.admin.existingSecret }}
+
+Local administrator: "{{ .Values.admin.username }}". The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+Feed reader apps: use an API key (Settings > API Keys) or the Fever / Google Reader
+integration (Settings > Integrations); these APIs bypass the Emporium login.

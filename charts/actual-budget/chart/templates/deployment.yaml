@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # One SQLite database on a ReadWriteOnce volume; never run two pods side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        # Session lifetime in days (ACTUAL_TOKEN_EXPIRATION below is in seconds).
+        actual-budget/session-days: {{ .Values.config.tokenDays | quote }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: actual
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: ACTUAL_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: ACTUAL_DATA_DIR
+              value: /data
+            # Seconds for OpenID sessions (Actual counts minutes for password sessions,
+            # which is why password login is not in the allowed methods above).
+            - name: ACTUAL_TOKEN_EXPIRATION
+              value: {{ mul (int .Values.config.tokenDays) 86400 | quote }}
+            - name: ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB
+              value: {{ .Values.config.uploadLimitMB | quote }}
+            - name: ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB
+              value: {{ .Values.config.uploadLimitMB | quote }}
+            - name: ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB
+              value: {{ .Values.config.uploadLimitMB | quote }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .discoveryUrl $.Values.config.baseUrl }}
+            - name: ACTUAL_LOGIN_METHOD
+              value: openid
+            - name: ACTUAL_ALLOWED_LOGIN_METHODS
+              value: openid
+            - name: ACTUAL_OPENID_DISCOVERY_URL
+              value: {{ .discoveryUrl | quote }}
+            - name: ACTUAL_OPENID_PROVIDER_NAME
+              value: {{ .providerName | quote }}
+            - name: ACTUAL_OPENID_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: ACTUAL_OPENID_SERVER_HOSTNAME
+              value: {{ $.Values.config.baseUrl | quote }}
+            - name: ACTUAL_OPENID_AUTH_METHOD
+              value: {{ .authMethod | quote }}
+            - name: ACTUAL_USER_CREATION_MODE
+              value: {{ ternary "login" "manual" .autoCreate | quote }}
+            {{- with .existingSecret }}
+            - name: ACTUAL_OPENID_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+          {{- if and .Values.oidc.enabled .Values.oidc.discoveryUrl .Values.config.baseUrl }}
+          # Fail closed: if the OpenID setup failed at start the instance is not
+          # bootstrapped and would offer the password bootstrap to the first caller.
+          readinessProbe:
+            exec:
+              command:
+                - node
+                - -e
+                - "fetch('http://127.0.0.1:{{ .Values.service.port }}/account/needs-bootstrap').then(r=>r.json()).then(j=>process.exit(j.data&&j.data.bootstrapped&&j.data.loginMethod==='openid'?0:1)).catch(()=>process.exit(1))"
+            periodSeconds: 10
+            timeoutSeconds: 5
+          {{- else }}
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.data.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

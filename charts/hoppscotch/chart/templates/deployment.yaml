@@ -1,0 +1,171 @@
+{{- $port := .Values.service.port }}
+{{- $img := printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Database migrations run at start; never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      {{- if and .Values.mail.host .Values.app.adminEmail }}
+      annotations:
+        checksum/onboard: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: hoppscotch
+          image: {{ $img | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          # The all-in-one image does not migrate the database by itself.
+          command: ["/bin/sh", "-c", "./node_modules/.bin/prisma migrate deploy && exec node /usr/src/app/aio_run.mjs"]
+          env:
+            - name: HOME
+              value: /tmp
+            - name: ENABLE_SUBPATH_BASED_ACCESS
+              value: "true"
+            - name: HOPP_ALTERNATE_PORT
+              value: {{ $port | quote }}
+            - name: TRUST_PROXY
+              value: "true"
+            {{- with .Values.app.baseUrl }}
+            - name: VITE_BASE_URL
+              value: {{ . | quote }}
+            - name: VITE_SHORTCODE_BASE_URL
+              value: {{ . | quote }}
+            - name: VITE_ADMIN_URL
+              value: {{ printf "%s/admin" . | quote }}
+            - name: VITE_BACKEND_GQL_URL
+              value: {{ printf "%s/backend/graphql" . | quote }}
+            - name: VITE_BACKEND_WS_URL
+              value: {{ printf "%s/backend/graphql" (. | replace "https://" "wss://" | replace "http://" "ws://") | quote }}
+            - name: VITE_BACKEND_API_URL
+              value: {{ printf "%s/backend/v1" . | quote }}
+            - name: WHITELISTED_ORIGINS
+              value: {{ printf "%s,app://localhost_3200,app://hoppscotch" . | quote }}
+            {{- end }}
+            {{- with .Values.app.existingSecret }}
+            - name: DATA_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.app.dataEncryptionKeyKey }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ $port }}
+          # Migrations run before the backend listens, and the backend restarts once after onboarding.
+          startupProbe:
+            httpGet: { path: /backend/ping, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            httpGet: { path: /backend/ping, port: http }
+            periodSeconds: 20
+            failureThreshold: 5
+          readinessProbe:
+            httpGet: { path: /backend/ping, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+        {{- if and .Values.mail.host .Values.app.adminEmail }}
+        - name: onboard
+          image: {{ $img | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command: ["node", "/onboard/onboard.mjs"]
+          workingDir: /dist/backend
+          env:
+            - name: HOME
+              value: /tmp
+            - name: ADMIN_EMAIL
+              value: {{ .Values.app.adminEmail | quote }}
+            {{- with .Values.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            - name: PORT
+              value: {{ $port | quote }}
+            - name: SMTP_HOST
+              value: {{ .Values.mail.host | quote }}
+            - name: SMTP_PORT
+              value: {{ .Values.mail.port | quote }}
+            - name: SMTP_USER
+              value: {{ .Values.mail.username | quote }}
+            - name: SMTP_FROM
+              value: {{ .Values.mail.from | quote }}
+            {{- if and .Values.mail.existingSecret .Values.mail.passwordKey }}
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mail.existingSecret }}
+                  key: {{ .Values.mail.passwordKey }}
+            {{- end }}
+          # No traffic until the onboarding and the administrator account are done.
+          readinessProbe:
+            exec:
+              command: ["test", "-f", "/status/ready"]
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 5m
+              memory: 32Mi
+            limits:
+              memory: 96Mi
+          volumeMounts:
+            - { name: onboard, mountPath: /onboard, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+            - { name: status, mountPath: /status }
+        {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: status
+          emptyDir: {}
+        {{- if and .Values.mail.host .Values.app.adminEmail }}
+        - name: onboard
+          configMap:
+            name: {{ include "chart.fullname" . }}-onboard
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

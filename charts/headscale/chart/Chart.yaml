@@ -1,9 +1,9 @@
 apiVersion: v2
 name: headscale
-description:
+description: Self-hosted Tailscale control server with the Headplane web UI.
 type: application
-version: 0.1.21
-appVersion: "v0.29.4"
+version: 0.2.4
+appVersion: "v0.29.5"
 home: https://headscale.net/
 icon: https://github.com/juanfont/headscale/blob/main/docs/logo/headscale3-dots.png?raw=true
 sources:
@@ -13,6 +13,7 @@ keywords:
 annotations:
   displayName: headscale
   licenses: BSD-3-Clause license
-  category: Utilities
+  category: Security
   gallery: ""
-  oidcRedirectPaths: /oidc/callback, admin/oidc/callback,
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-22"

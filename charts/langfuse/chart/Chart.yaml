@@ -1,0 +1,26 @@
+apiVersion: v2
+name: langfuse
+description: Open-source LLM engineering platform - tracing, evaluation and prompt management
+type: application
+version: 0.1.1
+appVersion: "4.68.0"
+home: https://langfuse.com/
+icon: https://raw.githubusercontent.com/langfuse/langfuse/main/web/public/icon.svg
+sources:
+  - https://github.com/langfuse/langfuse
+keywords:
+  - LLM
+  - Observability
+  - Tracing
+  - Evaluation
+annotations:
+  icon: assets/icon.svg
+  displayName: Langfuse
+  category: AI
+  licenses: MIT
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-23"

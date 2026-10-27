@@ -1,0 +1,171 @@
+{{- $secret := required "app.existingSecret is required (SECRET_KEY_BASE, TOTP_VAULT_KEY, CLICKHOUSE_PASSWORD)" .Values.app.existingSecret -}}
+{{- $clickhouse := include "plausible.clickhouse" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "plausible.fullname" . }}
+  labels:
+    {{- include "plausible.labels" . | nindent 4 }}
+spec:
+  # Community Edition keeps ingest buffers and background jobs in one node.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "plausible.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "plausible.labels" . | nindent 8 }}
+        {{- include "plausible.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "plausible.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: wait-for-clickhouse
+          image: "{{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}"
+          imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -c
+            - until wget -q -O /dev/null http://{{ $clickhouse }}:8123/ping; do echo "waiting for ClickHouse"; sleep 2; done
+          resources:
+            {{- toYaml .Values.initResources | nindent 12 }}
+      containers:
+        - name: plausible
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            # TOTP_VAULT_KEY must be 32 bytes, base64 encoded.
+            - |
+              export TOTP_VAULT_KEY="$(printf '%s' "$TOTP_VAULT_KEY_RAW" | base64 | tr -d '\n')"
+              /entrypoint.sh db createdb && /entrypoint.sh db migrate && exec /entrypoint.sh run
+          env:
+            - name: BASE_URL
+              value: {{ required "app.baseURL is required" .Values.app.baseURL | quote }}
+            - name: HTTP_PORT
+              value: "8000"
+            - name: TMPDIR
+              value: /var/lib/plausible/tmp
+            - name: DISABLE_REGISTRATION
+              value: {{ .Values.app.disableRegistration | toString | quote }}
+            - name: LOG_FAILED_LOGIN_ATTEMPTS
+              value: {{ .Values.app.logFailedLoginAttempts | toString | quote }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: SECRET_KEY_BASE
+            - name: TOTP_VAULT_KEY_RAW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: TOTP_VAULT_KEY
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "database.existingSecret is required" .Values.database.existingSecret }}
+                  key: {{ .Values.database.urlKey }}
+            {{- if .Values.database.caSecret }}
+            - name: DATABASE_CACERTFILE
+              value: /etc/ssl/postgres/ca.crt
+            {{- end }}
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: CLICKHOUSE_PASSWORD
+            - name: CLICKHOUSE_DATABASE_URL
+              value: "http://{{ .Values.clickhouse.user }}:$(CLICKHOUSE_PASSWORD)@{{ $clickhouse }}:8123/{{ .Values.clickhouse.database }}"
+            {{- with .Values.mailer }}
+            {{- if .host }}
+            - name: MAILER_ADAPTER
+              value: Bamboo.Mua
+            - name: MAILER_EMAIL
+              value: {{ .from | quote }}
+            - name: SMTP_HOST_ADDR
+              value: {{ .host | quote }}
+            - name: SMTP_HOST_PORT
+              value: {{ .port | quote }}
+            {{- if .username }}
+            - name: SMTP_USER_NAME
+              value: {{ .username | quote }}
+            - name: SMTP_USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "mailer.existingSecret is required with mailer.username" .existingSecret }}
+                  key: {{ required "mailer.passwordKey is required with mailer.username" .passwordKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /api/system/health/ready
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /api/system/health/live
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/system/health/ready
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/plausible
+            {{- if .Values.database.caSecret }}
+            - name: postgres-ca
+              mountPath: /etc/ssl/postgres
+              readOnly: true
+            {{- end }}
+      volumes:
+        # Temporary files and the downloaded geolocation database.
+        - name: data
+          emptyDir: {}
+        {{- with .Values.database.caSecret }}
+        - name: postgres-ca
+          secret:
+            secretName: {{ . }}
+            items:
+              - key: ca.crt
+                path: ca.crt
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

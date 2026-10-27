@@ -1,3 +1,25 @@
+# 0.2.2
+
+Published on 22 October 2026
+
+- rotki from v1.44.1 to v1.44.2
+
+# 0.2.1
+
+Published on 21 October 2026
+
+- Category: Finance (was Bitcoin).
+
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
+- Data volume is the `data` storage integration (10Gi default, grow-only), so the uninstall keep/delete choice applies.
+- Fixed: the data volume was never mounted at `/data` (the mount only rendered when extra `volumeMounts` were set), so user data lived in the container filesystem.
+- Default resources (100m CPU / 512Mi requested, 1Gi limit) instead of none.
+
 # 0.1.25
 
 Published on 7 October 2026

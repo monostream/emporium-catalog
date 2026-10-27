@@ -1,6 +1,0 @@
-global:
-  postgresql:
-    enabled: false
-
-artifacts: {}
-postgresql: {}

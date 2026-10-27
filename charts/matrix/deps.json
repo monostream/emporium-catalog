@@ -1,0 +1,14 @@
+[
+  {
+    "provider": "chart",
+    "name": "matrix",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "imageTagPaths": [
+      "synapse.image.tag",
+      "element.image.tag"
+    ],
+    "appVersionMapping": "value:synapse.image.tag",
+    "changelogPath": "./chart"
+  }
+]

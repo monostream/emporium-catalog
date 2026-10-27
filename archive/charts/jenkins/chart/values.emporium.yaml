@@ -1,0 +1,22 @@
+# Keeps the 0.4 resource names (Deployment, PVCs) and the APPLICATION_NAME the launcher reads.
+nameOverride: {{ .Emporium.Name | quote }}
+
+baseUrl: {{ printf "https://%s/" .Emporium.Integrations.web.Hostname | quote }}
+
+oidc:
+  clientId: {{ .Emporium.Integrations.oidc.ClientID | quote }}
+  issuerUrl: {{ .Emporium.Integrations.oidc.Issuer | quote }}
+  existingSecret: {{ .Emporium.Integrations.oidc.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.oidc.ClientSecretKey | quote }}
+
+ingress:
+  enabled: true
+  annotations: {{ .Emporium.Integrations.web.Annotations | toJson }}
+  hosts:
+    - host: {{ .Emporium.Integrations.web.Hostname | quote }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{ .Emporium.Integrations.web.TLSSecretName | quote }}
+      hosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}

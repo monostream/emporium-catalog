@@ -4,7 +4,10 @@
     "name": "wiki",
     "repo": "./chart",
     "allowPrerelease": false,
-    "appVersionMapping": "dependency:wiki",
+    "imageTagPaths": [
+      "wiki.image.tag"
+    ],
+    "appVersionMapping": "value:wiki.image.tag",
     "changelogPath": "./chart"
   }
 ]

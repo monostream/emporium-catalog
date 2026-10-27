@@ -1,9 +1,41 @@
-# 0.1.77
+# 0.2.2
 
-Published on 22 October 2026
+Published on 27 October 2026
 
 - Node.js from 20 (EOL) to 24.22.1 (October 2026 security release)
 - Restart the pod on chart upgrade so the rebuilt image is pulled
+
+# 0.2.1
+
+Published on 22 October 2026
+
+- docker from 29.9.1 to 29.9.2
+- Code Server from v4.140.0 to v4.141.0
+- Docker CLI from v29.8.2 to v29.9.2
+- Docker Buildx from v0.37.2 to v0.38.1
+- Helm CLI from v4.3.0 to v4.3.1
+
+# 0.2.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Access defaults to Emporium admins (code-server has no login of its own and the workspace is cluster-admin by default).
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
+- Home volume is the `data` storage integration (20Gi default, grow-only); the input "Storage Size" is removed.
+- New input "Cluster admin access" (default on, the previous behaviour); off binds the built-in `admin` role in the app namespace only.
+- "NVIDIA GPU" input keeps its key (`NvidiaEnabled`) and is now a plain boolean with a visible default.
+- Docker engine sidecar from 29.8.2 to 29.9.1.
+- Default resources for code-server (250m / 1Gi requested, 4Gi limit), the Docker sidecar (100m / 256Mi, 4Gi limit) and the init container.
+- Removed the unused `password` value (code-server runs with `--auth none` behind the Emporium login).
+
+# 0.1.77
+
+Published on 19 October 2026
+
+- Top-level resources apply to the code-server container (they were not wired)
+- docker.resources is declared in values.yaml so the Docker sidecar can be sized
+- Storage size description states the real default (20Gi)
 
 # 0.1.76
 

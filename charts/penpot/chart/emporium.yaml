@@ -1,0 +1,93 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  Registration:
+    label: Allow registration
+    description: Let new users create an account (with a password or on their first single sign-on login).
+    type: boolean
+    default: true
+    matrix: true
+  PasswordLogin:
+    label: Allow password login
+    description: Turn off to allow single sign-on only.
+    type: boolean
+    default: true
+    matrix: true
+  APISecretKey:
+    label: Secret key
+    description: Signs sessions and tokens. Generated at install; changing it signs everyone out.
+    type: secret
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: config.existingSecret, key: PENPOT_SECRET_KEY }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    redirectPaths: [/api/auth/oauth/oidc/callback]
+    bind:
+      IngressClassName: frontend.ingress.className
+  oidc:
+    type: oidc
+  mail:
+    type: smtp
+    required: false
+  postgres:
+    type: postgres
+    database: penpot
+    owner: penpot
+    version: "17"
+    extensions: [uuid-ossp]
+    storage: { default: 8Gi, growOnly: true }
+  redis:
+    type: redis
+    # Message bus and worker dispatch only; tasks are stored in Postgres and
+    # rescheduled when a queue entry is lost, so nothing durable lives here.
+    mode: cache
+    maxMemory: 256Mi
+    secretKeys:
+      PENPOT_REDIS_URI: url
+  assets:
+    type: objectStorage
+    buckets: [penpot]
+    size: 20Gi
+
+components:
+  backend:
+    label: Backend
+    resources: backend.resources
+    replicas: { path: backend.replicaCount, min: 1, max: 5 }
+  frontend:
+    label: Frontend
+    resources: frontend.resources
+    replicas: { path: frontend.replicaCount, min: 1, max: 5 }
+  exporter:
+    label: Exporter
+    resources: exporter.resources
+    replicas: { path: exporter.replicaCount, min: 1, max: 5 }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+  redis:
+    label: Redis (Valkey)
+    integration: redis
+  assets:
+    label: Object storage
+    integration: assets
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A design team of up to about 20 people
+    values: profiles/small.yaml
+    integrations:
+      postgres: { instances: 1 }
+  medium:
+    label: Medium
+    description: Several teams editing at the same time; two backend and frontend replicas
+    values: profiles/medium.yaml
+    integrations:
+      postgres:
+        instances: 1
+        resources: { requests: { cpu: 500m, memory: 1Gi }, limits: { memory: 2Gi } }

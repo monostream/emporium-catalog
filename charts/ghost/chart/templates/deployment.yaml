@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ghost.fullname" . }}
+  labels:
+    {{- include "ghost.labels" . | nindent 4 }}
+spec:
+  # Ghost is a single process with its content on a ReadWriteOnce volume.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "ghost.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ghost.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ghost.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: ghost
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: url
+              value: {{ required "url is required (public URL of the blog, e.g. https://blog.example.com)" .Values.url | quote }}
+            - name: database__client
+              value: mysql
+            - name: database__connection__host
+              value: {{ include "ghost.mysql.fullname" . | quote }}
+            - name: database__connection__port
+              value: "3306"
+            - name: database__connection__user
+              value: {{ .Values.mysql.user | quote }}
+            - name: database__connection__password
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ghost.mysql.secretName" . | quote }}
+                  key: {{ .Values.mysql.auth.passwordKey | quote }}
+            - name: database__connection__database
+              value: {{ .Values.mysql.database | quote }}
+            {{- with .Values.mail }}
+            {{- if .host }}
+            - name: mail__transport
+              value: SMTP
+            - name: mail__options__host
+              value: {{ .host | quote }}
+            - name: mail__options__port
+              value: {{ .port | quote }}
+            # Implicit TLS on 465, STARTTLS otherwise.
+            - name: mail__options__secure
+              value: {{ eq (int .port) 465 | quote }}
+            {{- if .user }}
+            - name: mail__options__auth__user
+              value: {{ .user | quote }}
+            - name: mail__options__auth__pass
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "mail.existingSecret is required with mail.user" .existingSecret | quote }}
+                  key: {{ .passwordKey | quote }}
+            {{- end }}
+            {{- with .from }}
+            - name: mail__from
+              value: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 2368
+              protocol: TCP
+          startupProbe:
+            # First start runs the database migrations.
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            failureThreshold: 60
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /ghost/api/admin/site/
+              port: http
+              httpHeaders:
+                - name: X-Forwarded-Proto
+                  value: https
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: content
+              mountPath: /var/lib/ghost/content
+      volumes:
+        - name: content
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.content.existingClaim | default (printf "%s-content" (include "ghost.fullname" .)) }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

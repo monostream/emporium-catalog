@@ -1,0 +1,96 @@
+{{- if and .Release.IsInstall .Values.secrets.existingSecret .Values.database.existingSecret }}
+# Creates the local (break-glass) administrator once, after the first install.
+# Vikunja has no environment variables for it and its image has no shell, so a static
+# busybox (init container) is copied next to the vikunja binary to wrap the CLI: an
+# account that already exists (reinstall with retained data) counts as success and its
+# credentials are left alone; every other error fails the Job and is retried.
+# The password is read from the container environment, never from the manifest.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "chart.fullname" . }}-admin
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 12
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: admin-bootstrap
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: shell
+          image: "{{ .Values.adminJob.shellImage }}"
+          imagePullPolicy: IfNotPresent
+          command: ["cp", "/bin/busybox", "/shell/busybox"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: shell
+              mountPath: /shell
+      containers:
+        - name: create-admin
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command: ["/shell/busybox", "sh", "-c"]
+          args:
+            - |
+              out=$(/app/vikunja/vikunja user create --username="$ADMIN_USERNAME" --email="$ADMIN_EMAIL" --password="$ADMIN_PASSWORD" 2>&1); rc=$?
+              echo "$out"
+              [ "$rc" -eq 0 ] && exit 0
+              if echo "$out" | /shell/busybox grep -q "already exists \[user id"; then
+                # Success only when the colliding account is exactly the configured administrator
+                # (same username and email); a collision with another user fails the Job.
+                # Rows are split on the table's "│" borders only; cells are the ID, Username and Email columns,
+                # trimmed of the padding spaces. Residual case accepted: a username with edge whitespace (registration is
+                # closed and Logto usernames cannot contain whitespace or pipes).
+                if /app/vikunja/vikunja user list 2>/dev/null | /shell/busybox awk -F '│' -v u="$ADMIN_USERNAME" -v e="$ADMIN_EMAIL" '
+                    { for (i = 1; i <= NF; i++) { sub(/^ +/, "", $i); sub(/ +$/, "", $i) }
+                      if (NF >= 4 && $3 == u && $4 == e) found = 1 }
+                    END { exit !found }'; then
+                  echo "administrator account already exists, nothing to do"; exit 0
+                fi
+                echo "username or email is already used by a different account; not the configured administrator" >&2
+              fi
+              exit "$rc"
+          env:
+            {{- include "vikunja.env" . | nindent 12 }}
+            - name: ADMIN_USERNAME
+              value: {{ .Values.admin.username | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.admin.email | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.admin.passwordKey }}
+          volumeMounts:
+            - name: files
+              mountPath: /app/vikunja/files
+            - name: tmp
+              mountPath: /tmp
+            - name: shell
+              mountPath: /shell
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+      volumes:
+        # Only the migrations and the user record are written; no attachments.
+        - name: files
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: shell
+          emptyDir: {}
+{{- end }}

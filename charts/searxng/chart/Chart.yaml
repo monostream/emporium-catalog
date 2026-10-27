@@ -1,0 +1,24 @@
+apiVersion: v2
+name: searxng
+description: Privacy-respecting metasearch engine - results from many search engines, no tracking, no profiling
+type: application
+version: 0.1.1
+appVersion: "2026.10.19-81371861f"
+home: https://docs.searxng.org/
+icon: https://raw.githubusercontent.com/searxng/searxng/master/searx/static/themes/simple/img/favicon.svg
+sources:
+  - https://github.com/searxng/searxng
+keywords:
+  - Search
+  - Metasearch
+  - Privacy
+annotations:
+  icon: assets/icon.svg
+  displayName: SearXNG
+  category: Utilities
+  licenses: AGPL-3.0-or-later
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

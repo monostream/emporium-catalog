@@ -1,1 +1,18 @@
-ollama: {}
+ollama:
+  nameOverride: ollama
+  fullnameOverride: ollama
+  ollama:
+    gpu:
+      enabled: true
+      number: 1
+  runtimeClassName: ""
+  resources:
+    requests:
+      cpu: 500m
+      memory: 4Gi
+    limits:
+      memory: 16Gi
+  persistentVolume:
+    enabled: true
+    existingClaim: ""
+    size: 30Gi

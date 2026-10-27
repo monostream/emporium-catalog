@@ -1,0 +1,70 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: security, label: Security, description: Generated at install; change only to sign everyone out. }
+
+inputs:
+  JwtAuthTokenSecret:
+    label: Auth token secret
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: JWT_AUTH_TOKEN_SECRET }
+  JwtRefreshTokenSecret:
+    label: Refresh token secret
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: JWT_REFRESH_TOKEN_SECRET }
+  ExpressSessionSecret:
+    label: Session secret
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: EXPRESS_SESSION_SECRET }
+  TokenHashSecret:
+    label: Token hash secret
+    type: secret
+    section: security
+    generate: { length: 64, charset: alnum }
+    ref: { namePath: app.existingSecret, key: TOKEN_HASH_SECRET }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # Prediction and chatbot embeds authenticate with Flowise API keys.
+    skipPaths: [/api/*]
+    bind:
+      IngressClassName: ingress.className
+  data:
+    type: storage
+    size: { default: 1Gi, growOnly: true }
+    bind:
+      ClaimName: storage.data.existingClaim
+  db:
+    type: postgres
+    required: false
+    database: flowise
+    owner: flowise
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+
+components:
+  app:
+    label: Flowise
+    resources: resources
+    replicas: { fixed: 1, reason: "SQLite and uploads on a ReadWriteOnce volume" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A few builders and low-traffic chatbots
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }

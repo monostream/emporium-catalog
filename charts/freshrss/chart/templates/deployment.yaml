@@ -1,0 +1,165 @@
+{{- $sso := and .Values.oidc.enabled (eq .Values.login.mode "sso") }}
+{{- $cron := dict "15" "2,17,32,47" "30" "2,32" "60" "2" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # The data volume is ReadWriteOnce and two versions must not migrate the database together.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/start: {{ include (print $.Template.BasePath "/start-configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: freshrss
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # The stock entrypoint installs FreshRSS and creates the administrator, then runs start.sh.
+          command: ["./Docker/entrypoint.sh"]
+          args: ["/bin/sh", "/scripts/start.sh"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.config.timezone | quote }}
+            - name: LISTEN
+              value: {{ .Values.service.port | quote }}
+            - name: CRON_MIN
+              value: {{ get $cron (toString .Values.config.refreshMinutes) | default "2,32" | quote }}
+            - name: BASE_URL
+              value: {{ .Values.config.baseUrl | quote }}
+            - name: FRESHRSS_AUTH_TYPE
+              value: {{ ternary "http_auth" "form" $sso | quote }}
+            - name: DB_HOST
+              value: {{ printf "%s:%v" .Values.database.host .Values.database.port | quote }}
+            - name: DB_USER
+              value: {{ .Values.database.user | quote }}
+            - name: DB_BASE
+              value: {{ .Values.database.name | quote }}
+            {{- with .Values.database.existingSecret }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.passwordKey }}
+            {{- end }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- if and .Values.admin.username .Values.database.existingSecret .Values.config.baseUrl }}
+            # First start only (the entrypoint skips both when FreshRSS and the user exist).
+            # $DB_PASSWORD and $ADMIN_PASSWORD are expanded by the entrypoint's shell, not by Kubernetes.
+            - name: FRESHRSS_INSTALL
+              value: |-
+                --api-enabled
+                --base-url {{ .Values.config.baseUrl }}
+                --db-type pgsql
+                --db-host $DB_HOST
+                --db-user $DB_USER
+                --db-base $DB_BASE
+                --db-password $DB_PASSWORD
+                --default-user {{ .Values.admin.username }}
+                --auth-type {{ ternary "http_auth" "form" $sso }}
+                --language en
+            - name: FRESHRSS_USER
+              value: |-
+                --user {{ .Values.admin.username }}
+                --password $ADMIN_PASSWORD
+                --language en
+            {{- end }}
+            {{- if $sso }}
+            - name: OIDC_ENABLED
+              value: "1"
+            - name: OIDC_PROVIDER_METADATA_URL
+              value: {{ .Values.oidc.metadataUrl | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .Values.oidc.clientId | quote }}
+            - name: OIDC_REMOTE_USER_CLAIM
+              value: {{ .Values.oidc.userClaim | quote }}
+            - name: OIDC_SCOPES
+              value: {{ .Values.oidc.scopes | quote }}
+            - name: OIDC_X_FORWARDED_HEADERS
+              value: "X-Forwarded-Proto X-Forwarded-Host"
+            - name: OIDC_SESSION_INACTIVITY_TIMEOUT
+              value: {{ .Values.oidc.sessionInactivityTimeout | quote }}
+            - name: OIDC_SESSION_MAX_DURATION
+              value: {{ .Values.oidc.sessionMaxDuration | quote }}
+            {{- with .Values.oidc.existingSecret }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- with .Values.oidc.cryptoSecret }}
+            - name: OIDC_CLIENT_CRYPTO_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.cryptoSecretKey }}
+            {{- end }}
+            {{- else }}
+            - name: OIDC_ENABLED
+              value: ""
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The first start fetches the default feeds before Apache listens.
+          startupProbe:
+            httpGet: { path: /robots.txt, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            httpGet: { path: /robots.txt, port: http }
+            periodSeconds: 20
+          readinessProbe:
+            httpGet: { path: /robots.txt, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/www/FreshRSS/data
+            - name: start
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
+        - name: start
+          configMap:
+            name: {{ include "chart.fullname" . }}-start
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,36 @@
+{{- if and .Values.ingress.enabled .Values.ingress.host }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    # Editing sessions are websockets that stay open for hours. No proxy-body-size:
+    # the gateway converter turns it into a request buffer that rejects every
+    # websocket upgrade with an empty 403 (seen on emporium-dev, 0.5.0-rc.12).
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ .Values.ingress.timeoutSeconds | quote }}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: {{ .Values.ingress.timeoutSeconds | quote }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  tls:
+    - secretName: {{ required "ingress.tlsSecretName is set by the ingress integration" .Values.ingress.tlsSecretName }}
+      hosts:
+        {{- toYaml (default (list .Values.ingress.host) .Values.ingress.tlsHosts) | nindent 8 }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "chart.fullname" . }}
+                port:
+                  name: http
+{{- end }}

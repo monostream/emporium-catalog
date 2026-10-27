@@ -1,0 +1,145 @@
+{{- /*
+One Deployment per Plane component. Backend components (api, worker, beat) share the
+backend image and environment; the frontends (web, space, admin) need no environment.
+*/ -}}
+{{- $components := list
+  (dict "name" "api" "values" .Values.api "image" .Values.api.image "command" (list "./bin/docker-entrypoint-api.sh") "backend" true "port" .Values.api.service.port "replicas" .Values.api.replicaCount "probe" "http")
+  (dict "name" "worker" "values" .Values.worker "image" .Values.api.image "command" (list "./bin/docker-entrypoint-worker.sh") "backend" true "replicas" .Values.worker.replicaCount)
+  (dict "name" "beat" "values" .Values.beat "image" .Values.api.image "command" (list "./bin/docker-entrypoint-beat.sh") "backend" true "replicas" 1)
+  (dict "name" "web" "values" .Values.web "image" .Values.web.image "port" .Values.web.service.port "replicas" .Values.web.replicaCount "probe" "tcp")
+  (dict "name" "space" "values" .Values.space "image" .Values.space.image "port" .Values.space.service.port "replicas" .Values.space.replicaCount "probe" "tcp")
+  (dict "name" "admin" "values" .Values.admin "image" .Values.admin.image "port" .Values.admin.service.port "replicas" .Values.admin.replicaCount "probe" "tcp")
+  (dict "name" "live" "values" .Values.live "image" .Values.live.image "port" .Values.live.service.port "replicas" 1 "probe" "tcp" "live" true)
+}}
+{{- range $c := $components }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "plane.fullname" $ }}-{{ $c.name }}
+  labels:
+    {{- include "plane.componentLabels" (list $ $c.name) | nindent 4 }}
+spec:
+  replicas: {{ $c.replicas }}
+  {{- if or (eq $c.name "beat") (eq $c.name "live") }}
+  strategy:
+    type: Recreate
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "plane.selectorLabels" (list $ $c.name) | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "plane.componentLabels" (list $ $c.name) | nindent 8 }}
+        {{- with $.Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "plane.podSpecCommon" $ | nindent 6 }}
+      containers:
+        - name: {{ $c.name }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: {{ include "plane.image" (list $ $c.image) | quote }}
+          imagePullPolicy: {{ $c.image.pullPolicy }}
+          {{- with $c.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if $c.backend }}
+          env:
+            {{- include "plane.api.envVars" $ | nindent 12 }}
+            {{- if eq $c.name "api" }}
+            - name: GUNICORN_WORKERS
+              value: {{ $.Values.api.gunicornWorkers | toString | quote }}
+            {{- end }}
+          {{- else if $c.live }}
+          env:
+            - name: PORT
+              value: {{ $c.port | toString | quote }}
+            - name: API_BASE_URL
+              value: {{ printf "http://%s-api:%v/" (include "plane.fullname" $) $.Values.api.service.port | quote }}
+            - name: LIVE_BASE_PATH
+              value: /live
+            - name: LIVE_SERVER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "secrets.existingSecret is required" $.Values.secrets.existingSecret }}
+                  key: LIVE_SERVER_SECRET_KEY
+            {{- include "plane.redisEnv" $ | nindent 12 }}
+          {{- end }}
+          {{- if $c.port }}
+          ports:
+            - name: http
+              containerPort: {{ $c.port }}
+              protocol: TCP
+          {{- end }}
+          {{- if eq ($c.probe | default "") "http" }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          {{- else if eq ($c.probe | default "") "tcp" }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          {{- end }}
+          resources:
+            {{- toYaml $c.values.resources | nindent 12 }}
+{{- if $c.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "plane.fullname" $ }}-{{ $c.name }}
+  labels:
+    {{- include "plane.componentLabels" (list $ $c.name) | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ $c.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "plane.selectorLabels" (list $ $c.name) | nindent 4 }}
+{{- end }}
+{{- end }}
+---
+# Database migrations; the API, worker and beat wait for them (wait_for_migrations).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "plane.fullname" . }}-migrator-{{ .Release.Revision }}
+  labels:
+    {{- include "plane.componentLabels" (list . "migrator") | nindent 4 }}
+spec:
+  backoffLimit: 6
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        {{- include "plane.componentLabels" (list . "migrator") | nindent 8 }}
+    spec:
+      {{- include "plane.podSpecCommon" . | nindent 6 }}
+      restartPolicy: OnFailure
+      containers:
+        - name: migrator
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "plane.image" (list . .Values.api.image) | quote }}
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command:
+            - ./bin/docker-entrypoint-migrator.sh
+          env:
+            {{- include "plane.api.envVars" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.migrator.resources | nindent 12 }}

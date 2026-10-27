@@ -1,3 +1,25 @@
+# 0.1.2
+
+Published on 23 October 2026
+
+- uptime-kuma from 2.5.6 to 2.5.7
+
+# 0.1.1
+
+Published on 22 October 2026
+
+- uptime-kuma from 2.5.5 to 2.5.6
+
+# 0.1.0
+
+Published on 20 October 2026
+
+- Requires Emporium v0.5.0 (`emporium.yaml`).
+- Ingress host, TLS secret and ingress class come from the `web` ingress integration; the TLS secret follows the zone's TLS mode.
+- Data volume is the `data` storage integration (10Gi default, grow-only) instead of a StatefulSet volumeClaimTemplate, so the uninstall keep/delete choice applies.
+- Push monitor URLs (`/api/push/*`) skip the Emporium login.
+- Default resources (50m CPU / 192Mi requested, 512Mi limit) instead of none.
+
 # 0.0.25
 
 Published on 19 October 2026

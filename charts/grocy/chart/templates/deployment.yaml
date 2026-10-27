@@ -1,0 +1,125 @@
+{{- /* Grocy settings (also via linuxserver FILE__ expansion) go through chart inputs or the Grocy UI, never extraEnv:
+       the init container can only check what it can see. */ -}}
+{{- range .Values.extraEnv }}
+{{- if or (hasPrefix "GROCY_" (toString .name)) (hasPrefix "FILE__" (toString .name)) }}
+{{- fail (printf "extraEnv %q is not allowed: names starting with GROCY_ or FILE__ would bypass the chart's authentication checks" .name) }}
+{{- end }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # SQLite on a single volume and schema migrations at start: never two pods at once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+      annotations:
+        checksum/init: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/php: {{ include (print $.Template.BasePath "/php-configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        # Migrates an empty database and replaces the default admin/admin password
+        # before the web server starts.
+        - name: set-admin
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [php, /emporium-init/set-admin.php]
+          securityContext:
+            {{- toYaml .Values.initSecurityContext | nindent 12 }}
+          env:
+            - name: GROCY_DATAPATH
+              value: /config/data
+            # Same settings as the web container: the script checks the effective configuration.
+            - name: GROCY_AUTH_CLASS
+              value: Grocy\Middleware\Auth\DefaultAuthMiddleware
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.admin.existingSecret | default "grocy-admin-secret-not-configured" }}
+                  key: {{ .Values.admin.passwordKey }}
+          volumeMounts:
+            - { name: init, mountPath: /emporium-init, readOnly: true }
+            - { name: config, mountPath: /config }
+            - { name: php, mountPath: /config/php, readOnly: true }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 384Mi }
+      containers:
+        - name: grocy
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            # Grocy's header (reverse proxy) login is not enabled: see the README. The init container
+            # removes persisted overrides of this setting and refuses to start if the effective value differs.
+            # PHP-FPM and php.ini settings come from the read-only ConfigMap mounted at /config/php.
+            - name: GROCY_AUTH_CLASS
+              value: Grocy\Middleware\Auth\DefaultAuthMiddleware
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # /login is public (/api/system/info answers 401 once authentication is on).
+          startupProbe:
+            httpGet: { path: /login, port: http }
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            tcpSocket: { port: http }
+          readinessProbe:
+            httpGet: { path: /login, port: http }
+          volumeMounts:
+            - { name: config, mountPath: /config }
+            # Chart-owned PHP configuration shadows /config/php on the volume (see the README).
+            - { name: php, mountPath: /config/php, readOnly: true }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: php
+          configMap:
+            name: {{ include "chart.fullname" . }}-php
+        - name: init
+          configMap:
+            name: {{ include "chart.fullname" . }}-init
+        - name: config
+          {{- if .Values.storage.config.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.config.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,14 @@
+[
+  {
+    "provider": "chart",
+    "name": "woodpecker",
+    "repo": "./chart",
+    "allowPrerelease": false,
+    "imageTagPaths": [
+      "server.image.tag",
+      "agent.image.tag"
+    ],
+    "appVersionMapping": "value:server.image.tag",
+    "changelogPath": "./chart"
+  }
+]

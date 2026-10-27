@@ -1,0 +1,15 @@
+server:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 192Mi
+    limits:
+      memory: 768Mi
+agent:
+  maxWorkflows: 6
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi

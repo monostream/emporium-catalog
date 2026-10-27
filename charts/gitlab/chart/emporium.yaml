@@ -1,0 +1,189 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  RepositoryStorageSize:
+    label: Repository storage size
+    description: Size of the volume holding the Git repositories (Gitaly). It cannot change after the install.
+    type: byteSize
+    default: 50Gi
+    min: 10Gi
+    installOnly: true
+    path: gitlab.gitlab.gitaly.persistence.size
+  PrivilegedRunner:
+    label: Privileged CI jobs
+    description: Run CI jobs of the bundled instance runner in privileged containers, e.g. for Docker-in-Docker builds. Every project can use this runner, so this gives all of them root access to the cluster's nodes.
+    type: boolean
+    default: false
+    path: gitlab.gitlab-runner.runners.privileged
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    redirectPaths: [/users/auth/openid_connect/callback]
+    # GitLab authenticates these itself: the start page and sign-in (redirect to Logto),
+    # the OIDC callback, Git over HTTPS, the API (also used by runners), OAuth, the
+    # registry token endpoint, the agent server path, health checks and static assets.
+    skipPaths:
+      - /
+      - /favicon.ico
+      - /users/sign_in
+      - /users/auth/*
+      - /-/manifest.json
+      - /-/health
+      - /-/readiness
+      - /-/liveness
+      - /-/kubernetes-agent/*
+      - /api/*
+      - /assets/*
+      - /oauth/*
+      - /.well-known/*
+      - /jwt/auth
+      - /static/*
+      - regex(^/[A-Za-z0-9_.][A-Za-z0-9_.-]*(/[A-Za-z0-9_.][A-Za-z0-9_.-]*)+(\.git)?/(info/refs|git-upload-pack|git-receive-pack|info/lfs/.*|gitlab-lfs/objects/.*)$)
+  # The container registry authenticates with GitLab tokens (docker login), so no glass.
+  # Its own hostname: choose a subdomain different from the web one.
+  registry:
+    type: ingress
+    disableGlass: true
+  # The agent server for Kubernetes authenticates agents with tokens, so no glass. Its
+  # Ingress exists only with the kas component (medium profile); the hostname is reserved
+  # in every profile because ingress integrations cannot be switched off.
+  kas:
+    type: ingress
+    disableGlass: true
+  sso:
+    type: oidc
+  mail:
+    type: smtp
+    required: false
+  # Named postgres: CloudNativePG cluster <release>-postgres, as the 0.3.0 annotation created it.
+  postgres:
+    type: postgres
+    database: gitlabhq_production
+    owner: gitlab
+    version: "18"
+    extensions: [amcheck, btree_gist, pg_trgm, plpgsql]
+    storage: { default: 20Gi, growOnly: true }
+    instances: 1
+    parameters:
+      max_connections: "400"
+      shared_buffers: 1GB
+      work_mem: 8MB
+      maintenance_work_mem: 64MB
+      statement_timeout: "60000"
+    resources: { requests: { cpu: 500m, memory: 2Gi }, limits: { memory: 2Gi } }
+  # Sidekiq queues and sessions: persistent (AOF, noeviction).
+  redis:
+    type: redis
+    mode: persistent
+    size: 2Gi
+    maxMemory: 1Gi
+  # Artifacts, uploads, LFS, packages, container images, backups and the runner cache.
+  objects:
+    type: objectStorage
+    size: 20Gi
+    buckets:
+      - git-lfs
+      - gitlab-artifacts
+      - gitlab-uploads
+      - gitlab-packages
+      - gitlab-mr-diffs
+      - gitlab-terraform-state
+      - gitlab-ci-secure-files
+      - gitlab-dependency-proxy
+      - gitlab-agent-plan-content
+      - gitlab-ci-catalog-bundles
+      - gitlab-pages
+      - gitlab-backups
+      - tmp
+      - registry
+      - runner-cache
+
+components:
+  webservice:
+    label: Web (Puma)
+    resources: gitlab.gitlab.webservice.resources
+    replicas: { minPath: gitlab.gitlab.webservice.minReplicas, maxPath: gitlab.gitlab.webservice.maxReplicas, min: 1, max: 10 }
+  workhorse:
+    label: Workhorse
+    parent: webservice
+    resources: gitlab.gitlab.webservice.workhorse.resources
+  sidekiq:
+    label: Background jobs (Sidekiq)
+    resources: gitlab.gitlab.sidekiq.resources
+    replicas: { minPath: gitlab.gitlab.sidekiq.minReplicas, maxPath: gitlab.gitlab.sidekiq.maxReplicas, min: 1, max: 10 }
+  gitaly:
+    label: Git storage (Gitaly)
+    resources: gitlab.gitlab.gitaly.resources
+    replicas: { fixed: 1, reason: "Repositories on a ReadWriteOnce volume (no Praefect)" }
+    storage: { input: RepositoryStorageSize }
+  registry:
+    label: Container registry
+    resources: gitlab.registry.resources
+    replicas: { minPath: gitlab.registry.hpa.minReplicas, maxPath: gitlab.registry.hpa.maxReplicas, min: 1, max: 10 }
+  kas:
+    label: Agent server (kas)
+    resources: gitlab.gitlab.kas.resources
+    replicas: { minPath: gitlab.gitlab.kas.minReplicas, maxPath: gitlab.gitlab.kas.maxReplicas, min: 1, max: 10 }
+    enabled: global.kas.enabled
+  toolbox:
+    label: Toolbox (backups, Rails console)
+    resources: gitlab.gitlab.toolbox.resources
+    replicas: { fixed: 1, reason: "Maintenance pod" }
+  exporter:
+    label: Metrics exporter
+    resources: gitlab.gitlab.gitlab-exporter.resources
+    enabled: gitlab.gitlab.gitlab-exporter.enabled
+    match: { kind: Deployment, name: "*gitlab-exporter*" }
+  runner:
+    label: CI runner
+    resources: gitlab.gitlab-runner.resources
+    replicas: { fixed: 1, reason: "One runner manager for the instance runner's token" }
+    match: { kind: Deployment, name: "*gitlab-runner" }
+  postgres:
+    label: PostgreSQL
+    integration: postgres
+  redis:
+    label: Redis (Valkey)
+    integration: redis
+  objects:
+    label: Object storage (RustFS)
+    integration: objects
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: Evaluation and small teams, up to about 25 users; no agent server for Kubernetes
+    values: profiles/small.yaml
+    integrations:
+      postgres:
+        instances: 1
+        parameters:
+          max_connections: "200"
+          shared_buffers: 256MB
+          work_mem: 4MB
+          maintenance_work_mem: 64MB
+          statement_timeout: "60000"
+        resources: { requests: { cpu: 250m, memory: 1Gi }, limits: { memory: 1Gi } }
+  medium:
+    label: Medium
+    description: Teams of about 100 to 500 users
+    values: profiles/medium.yaml
+    integrations:
+      postgres:
+        instances: 1
+        parameters:
+          max_connections: "400"
+          shared_buffers: 1GB
+          work_mem: 8MB
+          maintenance_work_mem: 128MB
+          statement_timeout: "60000"
+        resources: { requests: { cpu: "1", memory: 4Gi }, limits: { memory: 4Gi } }
+      redis:
+        maxMemory: 2Gi
+
+options:
+  installTimeout: 20m
+  requiredCRDs: [clusters.postgresql.cnpg.io]

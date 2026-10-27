@@ -1,0 +1,47 @@
+{{- if and .Values.ingress.enabled .Values.ingress.host }}
+{{- $ctx := dict "Values" .Values.supabase "Chart" (dict "Name" "supabase") "Release" .Release }}
+{{- $kong := include "supabase.kong.fullname" $ctx }}
+{{- $studio := include "supabase.studio.fullname" $ctx }}
+# One host: Studio at /, the Supabase APIs through Kong (Supabase's own key auth).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ printf "%s-supabase" .Release.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "wrapper.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.bodySize | quote }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tlsSecretName }}
+  tls:
+    - secretName: {{ . }}
+      hosts:
+        {{- toYaml (default (list $.Values.ingress.host) $.Values.ingress.tlsHosts) | nindent 8 }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          {{- range .Values.ingress.apiPaths }}
+          - path: {{ . }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $kong }}
+                port:
+                  number: {{ $.Values.supabase.service.kong.port }}
+          {{- end }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $studio }}
+                port:
+                  number: {{ .Values.supabase.service.studio.port }}
+{{- end }}

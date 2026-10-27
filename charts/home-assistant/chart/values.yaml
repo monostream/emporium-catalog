@@ -1,0 +1,89 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/home-assistant/home-assistant
+  tag: "2026.10.2"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8123
+
+# Owner account. Home Assistant's onboarding page lets whoever opens it first create the owner;
+# a sidecar creates it through the onboarding API as soon as Home Assistant answers and the pod
+# is Ready only after the sidecar has logged in with the generated password (readiness gate).
+admin:
+  username: admin
+  # Name shown in Home Assistant.
+  name: Administrator
+  # Secret and key holding the owner password.
+  existingSecret: ""
+  passwordKey: ADMIN_PASSWORD
+
+http:
+  # Comma-separated reverse proxies whose X-Forwarded-For Home Assistant trusts.
+  trustedProxies: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fd00::/8"
+
+# Recorder database. Not enabled: SQLite in the config volume. The URL is built at runtime from
+# the Secret (user, password by reference) with sslmode=verify-full and the CA of the database.
+recorder:
+  enabled: false
+  host: ""
+  port: 5432
+  database: ""
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
+  caSecret: ""
+
+# Owner bootstrap sidecar.
+onboard:
+  resources:
+    requests:
+      cpu: 5m
+      memory: 24Mi
+    limits:
+      memory: 96Mi
+
+storage:
+  # PersistentVolumeClaim for /config (configuration, .storage, SQLite history). Empty: emptyDir.
+  config:
+    existingClaim: ""
+
+timezone: UTC
+
+# Additional environment variables.
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration. No proxy-body-size
+# annotation: it breaks the websocket upgrade on the Emporium gateway.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    memory: 1536Mi
+
+# The official image starts as root (s6-overlay init) and keeps running as root.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER, KILL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
