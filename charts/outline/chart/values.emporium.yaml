@@ -1,0 +1,35 @@
+config:
+  url: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+secrets:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+oidc:
+  enabled: true
+  issuerUrl: {{ .Emporium.Integrations.sso.Issuer | quote }}
+  clientId: {{ .Emporium.Integrations.sso.ClientID | quote }}
+  existingSecret: {{ .Emporium.Integrations.sso.SecretName | quote }}
+  clientSecretKey: {{ .Emporium.Integrations.sso.ClientSecretKey | quote }}
+{{- with .Emporium.Integrations.db }}
+database:
+  existingSecret: {{ .SecretName | quote }}
+  urlKey: {{ .URIKey | quote }}
+{{- end }}
+{{- with .Emporium.Integrations.cache }}
+redis:
+  existingSecret: {{ .SecretName | quote }}
+  urlKey: {{ .URLKey | quote }}
+{{- end }}
+{{- with .Emporium.Integrations.data }}
+persistence:
+  claimName: {{ .ClaimName | quote }}
+{{- end }}
+{{- with .Emporium.Integrations.mail }}
+smtp:
+  host: {{ .Host | quote }}
+  port: {{ .Port }}
+  username: {{ .Username | quote }}
+  from: {{ .From | quote }}
+  existingSecret: {{ .SecretName | quote }}
+  passwordKey: {{ .PasswordKey | quote }}
+{{- end }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
