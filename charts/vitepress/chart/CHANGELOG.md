@@ -1,3 +1,9 @@
+# 0.2.3
+
+Published on 11 November 2026
+
+- Image 1.1.2: Node.js 24.22.3 (November 2026 security release)
+
 # 0.2.2
 
 Published on 27 October 2026
