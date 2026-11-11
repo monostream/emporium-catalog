@@ -1,3 +1,9 @@
+# 0.2.4
+
+Published on 11 November 2026
+
+- Node.js from 24.22.1 to 24.22.3 (November 2026 security release)
+
 # 0.2.3
 
 Published on 27 October 2026

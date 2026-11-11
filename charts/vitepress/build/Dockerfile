@@ -3,7 +3,7 @@
 #
 # Node comes from the official image on the same Alpine release (musl), so the
 # runtime is a supported Node line instead of whatever nodejs Alpine ships.
-FROM node:24.22.1-alpine3.24 AS node
+FROM node:24.22.3-alpine3.24 AS node
 
 FROM nginx:1.30.6-alpine3.24
 # apk upgrade pulls the base's security fixes (e.g. brotli-libs 1.2.1).
