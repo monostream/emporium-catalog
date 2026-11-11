@@ -1,0 +1,14 @@
+BookStack is starting{{ with .Values.ingress.host }} at https://{{ . }}{{ end }}.
+
+Sign in is protected twice: first by your Emporium login, then by a BookStack account.
+BookStack has no single sign-on that works with Emporium (it only accepts RS256-signed ID tokens),
+so people need a BookStack account. Create them under Settings > Users.
+{{- if .Values.admin.existingSecret }}
+
+Local administrator: {{ .Values.admin.email }}. The password is in the Secret
+{{ .Values.admin.existingSecret }}, key {{ .Values.admin.passwordKey }}:
+  kubectl -n {{ .Release.Namespace }} get secret {{ .Values.admin.existingSecret }} -o jsonpath='{.data.{{ .Values.admin.passwordKey }}}' | base64 -d
+{{- end }}
+
+API clients: create an API token (profile > API Tokens) and call /api/ with
+"Authorization: Token <id>:<secret>"; the API bypasses the Emporium login.
