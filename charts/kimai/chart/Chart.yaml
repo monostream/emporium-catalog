@@ -1,0 +1,25 @@
+apiVersion: v2
+name: kimai
+description: Time-tracking for teams and freelancers, with projects, customers, invoices and reports
+type: application
+version: 0.1.0
+appVersion: "2.70.1"
+home: https://www.kimai.org/
+icon: https://raw.githubusercontent.com/kimai/kimai/main/public/touch-icon-512x512.png
+sources:
+  - https://github.com/kimai/kimai
+keywords:
+  - Time tracking
+  - Timesheet
+  - Invoicing
+annotations:
+  icon: assets/icon.png
+  displayName: Kimai
+  category: Productivity
+  licenses: AGPL-3.0
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

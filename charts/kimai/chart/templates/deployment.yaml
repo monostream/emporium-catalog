@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  replicas: 1
+  # Database migrations run at start and the data volume is ReadWriteOnce.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        app.kubernetes.io/component: app
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: kimai
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TIMEZONE
+              value: {{ .Values.config.timezone | quote }}
+            - name: TRUSTED_PROXIES
+              value: {{ .Values.config.trustedProxies | quote }}
+            - name: MAILER_FROM
+              value: {{ .Values.config.mailerFrom | quote }}
+            {{- with .Values.config.baseUrl }}
+            - name: DEFAULT_URI
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.appSecret.existingSecret }}
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.appSecret.key }}
+            {{- end }}
+            {{- with .Values.db.existingSecret }}
+            # Kubernetes expands $(DB_PASSWORD) from the Secret above; the password is never in the manifest.
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.db.passwordKey }}
+            - name: DATABASE_URL
+              value: {{ printf "mysql://%s:$(DB_PASSWORD)@%s-db:3306/%s?charset=utf8mb4&serverVersion=%s.0-MariaDB" $.Values.db.user (include "chart.fullname" $) $.Values.db.name $.Values.db.image.tag | quote }}
+            {{- end }}
+            {{- with .Values.admin.existingSecret }}
+            - name: ADMINMAIL
+              value: {{ $.Values.admin.email | quote }}
+            - name: ADMINPASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.admin.passwordKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # The entrypoint waits for the database, installs and migrates before Apache listens.
+          startupProbe:
+            httpGet: { path: /en/login, port: http }
+            periodSeconds: 5
+            failureThreshold: 120
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 20
+            failureThreshold: 6
+          readinessProbe:
+            httpGet: { path: /en/login, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /opt/kimai/var/data
+              subPath: data
+            - name: data
+              mountPath: /opt/kimai/var/plugins
+              subPath: plugins
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "chart.fullname" .)) }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
