@@ -1,0 +1,74 @@
+apiVersion: emporium.build/v1
+
+inputs:
+  SecretKey:
+    label: Application secret key
+    description: Encrypts data in the database (64 hexadecimal characters). Generated once; do not change it, stored data becomes unreadable.
+    type: secret
+    generate: { length: 64, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, keyPath: secrets.secretKey }
+  UtilsSecret:
+    label: Utilities secret
+    description: Authenticates the internal cron and utility calls. Generated once.
+    type: secret
+    generate: { length: 48, charset: hex }
+    installOnly: true
+    ref: { namePath: secrets.existingSecret, keyPath: secrets.utilsKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The API is called with Outline API keys, integrations and webhooks; shared
+    # documents (/s/<id>) are public links and load their app from /static, /fonts, /images and /locales.
+    skipPaths: [/api/*, /s/*, /static/*, /fonts/*, /images/*, /locales/*]
+    # Outline's own OpenID Connect login.
+    redirectPaths: [/auth/oidc.callback]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  sso:
+    type: oidc
+  db:
+    required: true
+    type: postgres
+    database: outline
+    owner: outline
+    version: "17"
+    storage: { default: 5Gi, growOnly: true }
+  # Job queues, cache and real-time editing sessions; queued jobs must survive a restart.
+  cache:
+    required: true
+    type: redis
+    mode: persistent
+    size: 1Gi
+    maxMemory: 256Mi
+  # Attachments and images (FILE_STORAGE=local).
+  data:
+    required: true
+    type: storage
+    size: { default: 10Gi, growOnly: true }
+  mail:
+    type: smtp
+    required: false
+
+components:
+  app:
+    label: Outline
+    resources: resources
+    replicas: { fixed: 1, reason: "The collaborative editor runs inside the web process and keeps document sessions in memory; attachments live on a ReadWriteOnce volume" }
+  db:
+    label: PostgreSQL
+    integration: db
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team of up to a few dozen people
+    values: profiles/small.yaml
+    integrations:
+      db: { instances: 1 }
