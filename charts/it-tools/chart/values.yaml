@@ -3,9 +3,9 @@
 replicaCount: 1
 
 image:
-  repository: corentinth/it-tools
+  repository: emporium-apps.docker.pkg.emporium.rocks/it-tools
   pullPolicy: IfNotPresent
-  tag: "2024.10.22-7ca5933"
+  tag: "2024.10.22-7ca5933-nginx1.30.7"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -24,7 +24,7 @@ podSecurityContext:
   seccompProfile:
     type: RuntimeDefault
 
-# The image is stock nginx: the master process starts as root on port 80 and drops to the nginx
+# The image (build/Dockerfile) is stock nginx: the master process starts as root on port 80 and drops to the nginx
 # user for its workers. Keep only the capabilities that needs.
 securityContext:
   allowPrivilegeEscalation: false
