@@ -1,0 +1,107 @@
+# Base configuration. Renders on its own; Emporium fills the connection values
+# through emporium.yaml (bind, inputs) and values.emporium.yaml.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  # Official image, Apache variant (the default tag is the Apache build).
+  repository: kimai/kimai2
+  tag: "2.70.1"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8001
+
+config:
+  # Public URL of the instance (DEFAULT_URI), e.g. https://kimai.example.com
+  baseUrl: ""
+  # Proxies whose X-Forwarded-* headers Kimai trusts (TRUSTED_PROXIES).
+  trustedProxies: private_ranges
+  timezone: UTC
+  mailerFrom: kimai@example.com
+
+# Local administrator "admin", created at the first start (ADMINMAIL / ADMINPASS).
+# Kimai never changes the password of an existing account.
+admin:
+  email: admin@example.org
+  existingSecret: ""
+  passwordKey: ADMINPASS
+
+# Secret and key holding APP_SECRET (session and token signing).
+appSecret:
+  existingSecret: ""
+  key: APP_SECRET
+
+# Kimai supports MySQL/MariaDB only. Emporium has no provider for it, so the chart
+# runs a single MariaDB (official image) next to the app.
+db:
+  image:
+    repository: mariadb
+    tag: "11.4"
+  name: kimai
+  user: kimai
+  # Secret holding the database passwords (keys below).
+  existingSecret: ""
+  passwordKey: DB_PASSWORD
+  rootPasswordKey: DB_ROOT_PASSWORD
+  persistence:
+    # Existing claim for /var/lib/mysql; set by the storage integration.
+    existingClaim: ""
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 192Mi
+    limits:
+      memory: 512Mi
+
+persistence:
+  # Existing claim for /opt/kimai/var/data and /opt/kimai/var/plugins; set by the storage integration.
+  existingClaim: ""
+  size: 2Gi
+
+# Additional environment variables (see https://www.kimai.org/documentation/docker.html).
+extraEnv: []
+
+# Filled by Emporium through the `web` ingress integration.
+ingress:
+  enabled: true
+  className: ""
+  host: ""
+  annotations: {}
+  tlsSecretName: ""
+  tlsHosts: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+
+# The entrypoint starts as root (it adjusts users, PHP settings and ownership of var/) and
+# Apache then serves as www-data; only the capabilities that needs are kept.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
+
+dbPodSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  runAsGroup: 999
+  fsGroup: 999
+  seccompProfile:
+    type: RuntimeDefault
+dbSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,94 @@
+apiVersion: emporium.build/v1
+
+sections:
+  - { id: general, label: General }
+  - { id: admin, label: Local administrator, description: "Kimai creates the super administrator \"admin\" at the first start. Kimai has no OpenID Connect login in the free edition, so everyone signs in with a Kimai account; create the other users from this administrator." }
+
+inputs:
+  Timezone:
+    label: Time zone
+    description: Default time zone of the server (IANA name, for example Europe/Berlin). Users can pick their own in their profile.
+    type: string
+    default: UTC
+    pattern: '^[A-Za-z_]+(/[A-Za-z0-9_+-]+){0,2}$'
+    path: config.timezone
+  AdminEmail:
+    label: Administrator email
+    description: Email of the local super administrator "admin". Used only when the account is created.
+    type: string
+    default: admin@example.org
+    required: true
+    installOnly: true
+    pattern: '^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$'
+    section: admin
+    path: admin.email
+  AdminPassword:
+    label: Administrator password
+    description: Leave empty to generate one (stored in the app's Secret), at least 8 characters if you set one. Used only when the account is created; change it later in Kimai.
+    type: secret
+    generate: { length: 24, charset: alnum }
+    pattern: '^[A-Za-z0-9!#$%&*+._=?@^~-]{8,72}$'
+    section: admin
+    ref: { namePath: admin.existingSecret, keyPath: admin.passwordKey }
+  AppSecret:
+    label: Application secret
+    description: Signs sessions and tokens. Generated once and kept stable.
+    type: secret
+    generate: { length: 64, charset: hex }
+    ref: { namePath: appSecret.existingSecret, keyPath: appSecret.key }
+  DatabasePassword:
+    label: MariaDB password
+    description: "Letters and digits only, 16-64 characters (Kimai's entrypoint splits the connection URL on / : @). MariaDB applies it only when its volume is first initialised, so it cannot be changed after install."
+    type: secret
+    generate: { length: 32, charset: alnum }
+    pattern: '^[A-Za-z0-9]{16,64}$'
+    installOnly: true
+    ref: { namePath: db.existingSecret, keyPath: db.passwordKey }
+  DatabaseRootPassword:
+    label: MariaDB root password
+    description: "Letters and digits only, 16-64 characters (Kimai's entrypoint splits the connection URL on / : @). MariaDB applies it only when its volume is first initialised, so it cannot be changed after install."
+    type: secret
+    generate: { length: 32, charset: alnum }
+    pattern: '^[A-Za-z0-9]{16,64}$'
+    installOnly: true
+    ref: { namePath: db.existingSecret, keyPath: db.rootPasswordKey }
+
+integrations:
+  web:
+    type: ingress
+    access: { default: authenticated }
+    # The REST API (mobile apps, the desktop timer, scripts) authenticates with Kimai API tokens.
+    skipPaths: [/api/*]
+    bind:
+      Hostname: ingress.host
+      Annotations: ingress.annotations
+      TLSSecretName: ingress.tlsSecretName
+      IngressClassName: ingress.className
+  data:
+    type: storage
+    size: { default: 2Gi, growOnly: true }
+    bind:
+      ClaimName: persistence.existingClaim
+  dbdata:
+    type: storage
+    size: { default: 5Gi, growOnly: true }
+    bind:
+      ClaimName: db.persistence.existingClaim
+
+components:
+  app:
+    label: Kimai
+    resources: resources
+    replicas: { fixed: 1, reason: "Data, plugins and sessions live on a ReadWriteOnce volume and the migrations run in every pod" }
+  db:
+    label: MariaDB
+    resources: db.resources
+    replicas: { fixed: 1, reason: "Single-instance database" }
+    match: { kind: StatefulSet }
+
+profiles:
+  default: small
+  small:
+    label: Small
+    description: A team of up to a few dozen people
+    values: profiles/small.yaml
