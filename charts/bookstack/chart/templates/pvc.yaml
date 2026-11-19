@@ -1,0 +1,22 @@
+{{- /* Claims the chart creates only outside Emporium; under Emporium the storage
+       integrations create them and bind existingClaim. */ -}}
+{{- range $key, $claim := dict "uploads" .Values.persistence "mariadb" .Values.mariadb.storage }}
+{{- if not $claim.existingClaim }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "chart.fullname" $ }}-{{ $key }}
+  labels:
+    {{- include "chart.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    - {{ $claim.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ $claim.size | quote }}
+  {{- with $claim.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}

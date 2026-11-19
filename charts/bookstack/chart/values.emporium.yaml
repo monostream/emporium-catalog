@@ -1,0 +1,11 @@
+config:
+  appUrl: {{ printf "https://%s" .Emporium.Integrations.web.Hostname | quote }}
+admin:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+app:
+  existingSecret: {{ .Emporium.Secrets.Name | quote }}
+mariadb:
+  auth:
+    existingSecret: {{ .Emporium.Secrets.Name | quote }}
+ingress:
+  tlsHosts: {{ .Emporium.Integrations.web.AllHosts | toJson }}
