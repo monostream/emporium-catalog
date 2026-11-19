@@ -1,3 +1,9 @@
+# 0.2.1
+
+Published on 19 November 2026
+
+- Image `emporium-apps.docker.pkg.emporium.rocks/it-tools:2024.10.22-7ca5933-nginx1.30.7`: the upstream 2024.10.22-7ca5933 site and server config rebuilt on nginx 1.30.7 (was nginx 1.26.2 in `corentinth/it-tools`; nginx2root: CVE-2026-123007, CVE-2026-123634, CVE-2026-123633, CVE-2026-121810, CVE-2026-113425). Upstream has no newer release. Same user, port 80 and config.
+
 # 0.2.0
 
 Published on 20 October 2026

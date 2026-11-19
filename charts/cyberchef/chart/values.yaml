@@ -3,9 +3,9 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/gchq/cyberchef
+  repository: emporium-apps.docker.pkg.emporium.rocks/cyberchef
   pullPolicy: IfNotPresent
-  tag: "11.5.0"
+  tag: "11.5.0-nginx1.30.7"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -20,7 +20,7 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-# The image runs nginx-unprivileged as UID 101 on port 8080.
+# The image (build/Dockerfile) runs nginx-unprivileged as UID 101 on port 8080.
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 101
