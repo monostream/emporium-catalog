@@ -5,7 +5,7 @@
 # runtime is a supported Node line instead of whatever nodejs Alpine ships.
 FROM node:24.22.3-alpine3.24 AS node
 
-FROM nginx:1.30.6-alpine3.24
+FROM nginx:1.30.7-alpine3.24
 # apk upgrade pulls the base's security fixes (e.g. brotli-libs 1.2.1).
 RUN apk upgrade --no-cache \
     && apk add --no-cache git libstdc++

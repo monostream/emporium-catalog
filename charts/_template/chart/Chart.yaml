@@ -3,7 +3,7 @@ name: template
 description: Skeleton for a new Emporium chart. Copy this directory, rename it, replace every TODO.
 type: application
 version: 0.1.0
-appVersion: "1.27.0" # TODO: version of the application image
+appVersion: "1.30.7" # TODO: version of the application image
 home: https://example.com # TODO
 icon: https://example.com/icon.svg # TODO
 sources:
