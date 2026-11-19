@@ -1,0 +1,26 @@
+apiVersion: v2
+name: outline
+description: Fast, collaborative team wiki and knowledge base
+type: application
+version: 0.1.0
+appVersion: "1.11.0"
+home: https://www.getoutline.com/
+icon: https://www.getoutline.com/images/logo.svg
+sources:
+  - https://github.com/outline/outline
+keywords:
+  - Wiki
+  - Knowledge base
+  - Documentation
+  - Collaboration
+annotations:
+  icon: assets/icon.svg
+  displayName: Outline
+  category: Content
+  licenses: BUSL-1.1
+  gallery: |
+    assets/screenshot-1.webp
+    assets/screenshot-2.webp
+    assets/screenshot-3.webp
+  emporiumVersion: "0.5.0"
+  emporium.build/tested: "0.5.0-rc.12 2026-10-21"

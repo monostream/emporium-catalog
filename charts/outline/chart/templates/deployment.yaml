@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  # Migrations run at start and attachments sit on a ReadWriteOnce volume;
+  # never run two versions side by side.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: outline
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            # TLS ends at the ingress.
+            - name: FORCE_HTTPS
+              value: "false"
+            # One web process keeps memory predictable (the collaboration service is single-process anyway).
+            - name: WEB_CONCURRENCY
+              value: "1"
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: DEFAULT_LANGUAGE
+              value: {{ .Values.config.defaultLanguage | quote }}
+            - name: FILE_STORAGE
+              value: local
+            - name: FILE_STORAGE_LOCAL_ROOT_DIR
+              value: /var/lib/outline/data
+            - name: FILE_STORAGE_UPLOAD_MAX_SIZE
+              value: {{ mul (int .Values.config.uploadMaxSizeMb) 1048576 | quote }}
+            {{- with .Values.config.url }}
+            - name: URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.secrets.existingSecret }}
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.secretKey }}
+            - name: UTILS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.secrets.utilsKey }}
+            {{- end }}
+            {{- with .Values.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.database.urlKey }}
+            {{- end }}
+            {{- with .Values.redis.existingSecret }}
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.redis.urlKey }}
+            {{- end }}
+            {{- with .Values.oidc }}
+            {{- if and .enabled .issuerUrl }}
+            - name: OIDC_ISSUER_URL
+              value: {{ .issuerUrl | quote }}
+            - name: OIDC_DISPLAY_NAME
+              value: {{ .displayName | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .clientId | quote }}
+            - name: OIDC_USERNAME_CLAIM
+              value: {{ .usernameClaim | quote }}
+            {{- with .existingSecret }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.clientSecretKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.smtp }}
+            {{- if .host }}
+            - name: SMTP_HOST
+              value: {{ .host | quote }}
+            - name: SMTP_PORT
+              value: {{ .port | quote }}
+            - name: SMTP_SECURE
+              value: {{ eq (int .port) 465 | quote }}
+            {{- with .from }}
+            - name: SMTP_FROM_EMAIL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .username }}
+            - name: SMTP_USERNAME
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .existingSecret }}
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.smtp.passwordKey }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          # Migrations run before Outline listens.
+          startupProbe:
+            httpGet: { path: /_health, port: http }
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            httpGet: { path: /_health, port: http }
+            periodSeconds: 20
+            failureThreshold: 6
+          readinessProbe:
+            httpGet: { path: /_health, port: http }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/outline/data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          {{- if .Values.persistence.claimName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.claimName }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
