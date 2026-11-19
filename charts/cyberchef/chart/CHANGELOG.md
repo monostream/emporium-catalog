@@ -1,3 +1,9 @@
+# 0.2.2
+
+Published on 19 November 2026
+
+- Image `emporium-apps.docker.pkg.emporium.rocks/cyberchef:11.5.0-nginx1.30.7`: the upstream 11.5.0 site rebuilt on nginx-unprivileged 1.30.7 (was nginx 1.30.4 in `ghcr.io/gchq/cyberchef`; nginx2root: CVE-2026-123007, CVE-2026-123634, CVE-2026-123633, CVE-2026-121810, CVE-2026-113425). Upstream has no newer release. Same UID 101, port 8080 and config.
+
 # 0.2.1
 - Add emporium.build/tested annotation (passed real install on Emporium 0.5.0-rc.4, 2026-10-20).
 
