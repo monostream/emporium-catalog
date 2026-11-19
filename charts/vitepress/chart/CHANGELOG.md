@@ -1,3 +1,9 @@
+# 0.2.4
+
+Published on 19 November 2026
+
+- Image 1.1.3: nginx 1.30.6 to 1.30.7 (nginx2root: CVE-2026-123007, CVE-2026-123634, CVE-2026-123633, CVE-2026-121810, CVE-2026-113425)
+
 # 0.2.3
 
 Published on 11 November 2026
